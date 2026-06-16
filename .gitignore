@@ -104,3 +104,6 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+/Capstone Project/Library
+/Capstone Project/Temp
+/Capstone Project/UserSettings
