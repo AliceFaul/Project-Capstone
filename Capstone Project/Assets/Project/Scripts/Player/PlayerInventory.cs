@@ -19,6 +19,8 @@ public class PlayerInventory : MonoBehaviour
     public List<InventorySlot> slots = new List<InventorySlot>();
     [SerializeField] private int maxSlots = 15; // Giới hạn 15 ô đồ
 
+    public GameObject itemPickupPrefab; // Vật thể mẫu để sinh ra khi thả đồ
+
     public bool AddItem(ItemData item, int amount)
     {
         // Xử lý cộng dồn nếu vật phẩm cho phép xếp chồng
@@ -48,5 +50,107 @@ public class PlayerInventory : MonoBehaviour
         }
 
         return amount <= 0; // Trả về true nếu nhặt hết, false nếu túi đầy
+    }
+
+    // Hàm xóa bớt hoặc trừ số lượng vật phẩm trong kho đồ
+    public bool RemoveItem(ItemData item, int amount)
+    {
+        // Kiểm tra xem trong kho đồ có đủ số lượng để trừ không trước khi làm
+        int totalAmount = 0;
+        foreach (var slot in slots)
+        {
+            if (slot.itemData == item) totalAmount += slot.stackSize;
+        }
+
+        if (totalAmount < amount) return false; // Không đủ đồ để xóa, hủy lệnh
+
+        // Tiến hành trừ số lượng (quét từ cuối danh sách lên để ưu tiên trừ ô lẻ trước)
+        for (int i = slots.Count - 1; i >= 0; i--)
+        {
+            if (slots[i].itemData == item)
+            {
+                if (slots[i].stackSize > amount)
+                {
+                    slots[i].stackSize -= amount;
+                    amount = 0;
+                }
+                else
+                {
+                    amount -= slots[i].stackSize;
+                    slots.RemoveAt(i); // Ô đồ trống hoàn toàn thì xóa ô đó khỏi List
+                }
+
+                if (amount <= 0) break; // Đã trừ đủ số lượng cần xóa
+            }
+        }
+
+        return true;
+    }
+
+    // Hàm thả vật phẩm ra môi trường thế giới 3D
+    public void DropItem(ItemData item, int amount)
+    {
+        // Gọi hàm RemoveItem để trừ số lượng trong kho đồ trước
+        if (RemoveItem(item, amount))
+        {
+            // Tính toán vị trí thả đồ trước mặt Player
+            Vector3 dropPosition = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+
+            // Sinh ra khối đồ ngoài môi trường
+            GameObject droppedObj = Instantiate(itemPickupPrefab, dropPosition, Quaternion.identity);
+
+            // Nạp dữ liệu vật phẩm và số lượng cho vật thể mới
+            ItemPickup pickupScript = droppedObj.GetComponent<ItemPickup>();
+            if (pickupScript != null)
+            {
+                pickupScript.itemData = item;
+                pickupScript.amount = amount;
+            }
+
+            Debug.Log("Đã vứt " + amount + " cái " + item.itemName + " ra đất!");
+        }
+    }
+
+    void Update()
+    {
+        // Bấm nút K trên bàn phím để vứt bớt 3 món đồ test
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            if (slots.Count > 0)
+            {
+                ItemData itemCanVut = slots[0].itemData;
+
+                bool daVut = RemoveItem(itemCanVut, 3);
+
+                if (daVut)
+                {
+                    Debug.Log("Đã vứt 3 cái " + itemCanVut.itemName);
+
+                    // Cập nhật giao diện sau khi xóa vật phẩm
+                    InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
+                    if (uiManager != null) uiManager.UpdateInventoryUI();
+                }
+                else
+                {
+                    Debug.Log("Không đủ đồ để vứt!");
+                }
+            }
+        }
+
+        // Bấm nút J trên bàn phím để thả đồ ra đất
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            if (slots.Count > 0)
+            {
+                ItemData itemMuonDrop = slots[0].itemData;
+
+                // Thả 2 vật phẩm đầu tiên trong túi ra đất
+                DropItem(itemMuonDrop, 2);
+
+                // Cập nhật giao diện sau khi thả vật phẩm ra đất
+                InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
+                if (uiManager != null) uiManager.UpdateInventoryUI();
+            }
+        }
     }
 }
