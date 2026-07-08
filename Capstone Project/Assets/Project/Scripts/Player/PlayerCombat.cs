@@ -1,11 +1,17 @@
 using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour {
-    [Header("Setting")]
+    [Header("Melee Setting")]
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackCooldown = 1f;
     [SerializeField] private int attackDamage = 10;
+    
+    [Header("Ranged Setting")]
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float fireRange = 20f;
+    [SerializeField] private GameObject projectilePrefab;
+    
     [SerializeField] private LayerMask enemyLayer;
     
     private Transform _currentTarget;
@@ -36,6 +42,19 @@ public class PlayerCombat : MonoBehaviour {
         }
         _currentTarget = null;
         _lastAttackTime = Time.time;
+    }
+    
+    // Call this method in the PlayerController when the player right clicks
+    // TODO: Add animation trigger here and ammo
+    public void Shoot(Vector3 mousePosition)
+    {
+        Vector3 direction = mousePosition - firePoint.position;
+        direction.y = 0f;
+        transform.forward = direction.normalized;
+        
+        var projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
+        
+        projectile.GetComponent<Projectile>().Initialize(direction);
     }
 
     private void RotateToTarget()

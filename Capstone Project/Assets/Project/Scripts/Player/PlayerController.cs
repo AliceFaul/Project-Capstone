@@ -69,6 +69,13 @@ public class PlayerController : MonoBehaviour {
     private void HandleRightClick() {
         // Handle right-click actions if needed
         // Ranged attack, special ability, etc.
+        Ray ray = mainCamera.ScreenPointToRay(inputHandler.MousePosition);
+        if (!Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
+        {
+            return;
+        }
+        
+        combat.Shoot(hit.point);
     }
 
     private void ExecuteMovement(Vector3 destination) {
