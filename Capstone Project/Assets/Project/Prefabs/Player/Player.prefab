@@ -191,6 +191,7 @@ GameObject:
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
   - component: {fileID: 743074079644308432}
+  - component: {fileID: 1594350380156625181}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -323,6 +324,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f9349dbfce55fd4a9bb839334b60a74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputHandler
+--- !u!114 &1594350380156625181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a04cfa56a0511804ab8ae11da33d27a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  slots: []
+  maxSlots: 15
+  itemPickupPrefab: {fileID: 0}
 --- !u!1001 &7117115669241743004
 PrefabInstance:
   m_ObjectHideFlags: 0
