@@ -159,6 +159,7 @@ GameObject:
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
+  - component: {fileID: 743074079644308432}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -217,20 +218,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efcbb37ecd6d63e4082558f57eb6ce58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  inputHandler: {fileID: 0}
-  movement: {fileID: 0}
-  combat: {fileID: 0}
+  inputHandler: {fileID: 743074079644308432}
+  movement: {fileID: 2730355901274244533}
+  combat: {fileID: 2759596504568213360}
   mainCamera: {fileID: 0}
-  invoker: {fileID: 0}
+  invoker: {fileID: 6772811288144300525}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   interactLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
 --- !u!114 &2759596504568213360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28ba21d4febbe9a40a8f58568229396c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
-  attackRange: 2
+  attackRange: 1.2
   attackPoint: {fileID: 1992679372487895210}
   attackCooldown: 1
   attackDamage: 1
@@ -274,3 +275,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8db2114c3df5f814b9f09defd16a1800, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+--- !u!114 &743074079644308432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f9349dbfce55fd4a9bb839334b60a74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputHandler

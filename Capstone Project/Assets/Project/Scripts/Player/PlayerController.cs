@@ -22,11 +22,13 @@ public class PlayerController : MonoBehaviour {
     private void OnEnable() {
         inputHandler.OnLeftClick += HandleLeftClick;
         inputHandler.OnRightClick += HandleRightClick;
+        movement.OnDestinationReached += OnDestinationReached;
     }
 
     private void OnDisable() {
         inputHandler.OnLeftClick -= HandleLeftClick;
         inputHandler.OnRightClick -= HandleRightClick;
+        movement.OnDestinationReached -= OnDestinationReached;
     }
 
     private void HandleLeftClick() { 
@@ -45,18 +47,21 @@ public class PlayerController : MonoBehaviour {
         if(((1 << hitLayer) & groundLayer) != 0) {
             // Move to the clicked position on the ground
             ExecuteMovement(hit.point);
+            Debug.Log(hit.collider.gameObject.name);
             return;
         }
 
         if(((1 << hitLayer) & enemyLayer) != 0) {
             // Attack the clicked enemy
-            // ExecuteAttack();
+            ExecuteAttack(hit.collider.transform);
+            Debug.Log(hit.collider.gameObject.name);
             return;
         }
 
         if(((1 << hitLayer) & interactLayer) != 0) {
             // Interact with the clicked object
             // ExecuteInteraction();
+            Debug.Log(hit.collider.gameObject.name);
             return;
         }
     }
@@ -74,10 +79,19 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteAttack(Transform target) { 
-        
+        ICommand attackCommand = new AttackCommand(combat, movement, target);
+        if (invoker != null)
+        {
+            invoker.ExecuteCommand(attackCommand);
+        }
     }
 
     private void ExecuteInteraction() { 
     
+    }
+
+    private void OnDestinationReached()
+    {
+        combat.Attack();
     }
 }
