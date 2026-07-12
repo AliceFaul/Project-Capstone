@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -21,8 +22,13 @@ public class PlayerInventory : MonoBehaviour
 
     public GameObject itemPickupPrefab; // Vật thể mẫu để sinh ra khi thả đồ
 
+    //EVENT ĐỂ CÁC SCRIPT KHÁC NHẬN BIẾT INVENTORY THAY ĐỔI
+    public static event Action OnInventoryChanged;
+
     public bool AddItem(ItemData item, int amount)
     {
+        bool hasAdded = false;
+
         // Xử lý cộng dồn nếu vật phẩm cho phép xếp chồng
         if (item.isStackable)
         {
@@ -35,8 +41,14 @@ public class PlayerInventory : MonoBehaviour
 
                     slot.stackSize += amountToAdd;
                     amount -= amountToAdd;
+                    hasAdded = true;
 
-                    if (amount <= 0) return true; // Nhặt hết đồ, kết thúc hàm
+                    if (amount <= 0)
+                    {
+                        // active Event khi cộng dồn thành công và nhặt hết đồ
+                        OnInventoryChanged?.Invoke();
+                        return true;
+                    }
                 }
             }
         }
@@ -47,7 +59,11 @@ public class PlayerInventory : MonoBehaviour
             int amountToNewSlot = Mathf.Min(amount, item.maxStackSize);
             slots.Add(new InventorySlot(item, amountToNewSlot));
             amount -= amountToNewSlot;
+            hasAdded = true;
         }
+
+        // Kích hoạt Event nếu có bất kỳ ô mới nào được thêm vào thành công
+        if (hasAdded) OnInventoryChanged?.Invoke();
 
         return amount <= 0; // Trả về true nếu nhặt hết, false nếu túi đầy
     }
@@ -84,13 +100,16 @@ public class PlayerInventory : MonoBehaviour
             }
         }
 
+        // Kích hoạt Event sau khi đã xóa/giảm số lượng vật phẩm thành công
+        OnInventoryChanged?.Invoke();
         return true;
     }
 
     // Hàm thả vật phẩm ra môi trường thế giới 3D
     public void DropItem(ItemData item, int amount)
     {
-        // Gọi hàm RemoveItem để trừ số lượng trong kho đồ trước
+        // Gọi hàm RemoveItem để trừ số lượng trong kho đồ trước 
+        // (Hàm RemoveItem chạy thành công đã tự kích hoạt OnInventoryChanged ở trên rồi)
         if (RemoveItem(item, amount))
         {
             // Tính toán vị trí thả đồ trước mặt Player
@@ -125,10 +144,7 @@ public class PlayerInventory : MonoBehaviour
                 if (daVut)
                 {
                     Debug.Log("Đã vứt 3 cái " + itemCanVut.itemName);
-
-                    // Cập nhật giao diện sau khi xóa vật phẩm
-                    InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
-                    if (uiManager != null) uiManager.UpdateInventoryUI();
+                    // ĐÃ LOẠI BỎ ĐOẠN CODE CODE FIND_OBJECT_OF_TYPE CŨ VÌ EVENT TỰ ĐỘNG XỬ LÝ
                 }
                 else
                 {
@@ -146,10 +162,7 @@ public class PlayerInventory : MonoBehaviour
 
                 // Thả 2 vật phẩm đầu tiên trong túi ra đất
                 DropItem(itemMuonDrop, 2);
-
-                // Cập nhật giao diện sau khi thả vật phẩm ra đất
-                InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
-                if (uiManager != null) uiManager.UpdateInventoryUI();
+                // ĐÃ LOẠI BỎ ĐOẠN CODE CODE FIND_OBJECT_OF_TYPE CŨ VÌ EVENT TỰ ĐỘNG XỬ LÝ
             }
         }
     }
