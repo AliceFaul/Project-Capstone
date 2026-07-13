@@ -23,7 +23,7 @@ public class Projectile : MonoBehaviour
         if (other.TryGetComponent(out IAttackable attackable))
         {
             attackable.TakeDamage(damage);
-            Debug.Log($"Attacked {other.gameObject.name} with {damage} damage");
+            Debug.Log($"[Ranged Attack]: Attacked {other.gameObject.name} with {damage} damage");
         }
         Destroy(gameObject);
     }

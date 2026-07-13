@@ -127,7 +127,7 @@ public class PlayerInventory : MonoBehaviour
                     Debug.Log("Đã vứt 3 cái " + itemCanVut.itemName);
 
                     // Cập nhật giao diện sau khi xóa vật phẩm
-                    InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
+                    InventoryUIManager uiManager = FindAnyObjectByType<InventoryUIManager>();
                     if (uiManager != null) uiManager.UpdateInventoryUI();
                 }
                 else
@@ -148,7 +148,7 @@ public class PlayerInventory : MonoBehaviour
                 DropItem(itemMuonDrop, 2);
 
                 // Cập nhật giao diện sau khi thả vật phẩm ra đất
-                InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
+                InventoryUIManager uiManager = FindAnyObjectByType<InventoryUIManager>();
                 if (uiManager != null) uiManager.UpdateInventoryUI();
             }
         }

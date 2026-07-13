@@ -1,3 +1,5 @@
+using System;
+using TMPro;
 using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour {
@@ -11,12 +13,29 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private Transform firePoint;
     [SerializeField] private float fireRange = 20f;
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float shootCooldown = 1f;
+    
+    [Header("Ammo Setting")]
+    [SerializeField] private int maxAmmo = 15;
+    [SerializeField] private TMP_Text ammoText;
     
     [SerializeField] private LayerMask enemyLayer;
     
     private Transform _currentTarget;
+    private int _currentAmmo; 
+        
     public float AttackRange => attackRange;
     private float _lastAttackTime;
+    private float _lastShootTime;
+
+    private void Start()
+    {
+        _currentAmmo = maxAmmo;
+        if (ammoText != null)
+        {
+            ammoText.text = _currentAmmo.ToString();
+        }
+    }
 
     public void SetTarget(Transform target) => _currentTarget = target;
 
@@ -35,7 +54,7 @@ public class PlayerCombat : MonoBehaviour {
             IAttackable attackable = enemy.GetComponent<IAttackable>();
             if(attackable != null) {
                 attackable.TakeDamage(attackDamage);
-                Debug.Log($"Attacked {enemy.name} for {attackDamage} damage.");
+                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {attackDamage} damage.");
             } else {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
@@ -48,6 +67,11 @@ public class PlayerCombat : MonoBehaviour {
     // TODO: Add animation trigger here and ammo
     public void Shoot(Vector3 mousePosition)
     {
+        if(_currentAmmo <= 0) 
+            return;
+        if(Time.time - _lastShootTime < shootCooldown) 
+            return;
+        
         Vector3 direction = mousePosition - firePoint.position;
         direction.y = 0f;
         transform.forward = direction.normalized;
@@ -55,6 +79,9 @@ public class PlayerCombat : MonoBehaviour {
         var projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
         
         projectile.GetComponent<Projectile>().Initialize(direction);
+        
+        AdjustAmmo(-1);
+        _lastShootTime = Time.time;
     }
 
     private void RotateToTarget()
@@ -69,6 +96,12 @@ public class PlayerCombat : MonoBehaviour {
         
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = lookRotation;
+    }
+
+    private void AdjustAmmo(int amount = 1)
+    {
+        _currentAmmo += amount;
+        ammoText.text = _currentAmmo.ToString();
     }
 
     public void OnDrawGizmosSelected() {
