@@ -63,6 +63,7 @@ public class InventoryUIManager : MonoBehaviour
         {
             GameObject newSlot = Instantiate(slotPrefab, gridSlots);
             newSlot.name = "UI_Slot_" + i;
+            newSlot.GetComponent<Slot>().slotIndex = i;
 
             Transform slotTransform = newSlot.transform;
             // Tìm đúng tên 2 object con nằm trong ô UI_Slot (Giữ nguyên logic cũ nhưng nạp vào List)

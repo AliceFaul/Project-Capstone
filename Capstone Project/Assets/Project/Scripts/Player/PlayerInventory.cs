@@ -17,6 +17,8 @@ public class InventorySlot
 
 public class PlayerInventory : MonoBehaviour
 {
+    public static PlayerInventory Instance  { get; private set; }
+    
     public List<InventorySlot> slots = new List<InventorySlot>();
     [SerializeField] private int maxSlots = 15; // Giới hạn 15 ô đồ
 
@@ -24,6 +26,17 @@ public class PlayerInventory : MonoBehaviour
 
     //EVENT ĐỂ CÁC SCRIPT KHÁC NHẬN BIẾT INVENTORY THAY ĐỔI
     public static event Action OnInventoryChanged;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
 
     public bool AddItem(ItemData item, int amount)
     {
@@ -130,6 +143,19 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
+    public void UseItem(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slots.Count)
+            return;
+
+        InventorySlot slot = slots[slotIndex];
+        
+        if(slot.itemData == null)
+            return;
+        
+        slot.itemData.Use();
+    }
+
     void Update()
     {
         // Bấm nút K trên bàn phím để vứt bớt 3 món đồ test
@@ -161,7 +187,7 @@ public class PlayerInventory : MonoBehaviour
                 ItemData itemMuonDrop = slots[0].itemData;
 
                 // Thả 2 vật phẩm đầu tiên trong túi ra đất
-                DropItem(itemMuonDrop, 2);
+                DropItem(itemMuonDrop, 1);
                 // ĐÃ LOẠI BỎ ĐOẠN CODE CODE FIND_OBJECT_OF_TYPE CŨ VÌ EVENT TỰ ĐỘNG XỬ LÝ
             }
         }

@@ -19,12 +19,14 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private int maxAmmo = 15;
     [SerializeField] private TMP_Text ammoText;
     
+    [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
     private Transform _currentTarget;
     private int _currentAmmo; 
         
     public float AttackRange => attackRange;
+    
     private float _lastAttackTime;
     private float _lastShootTime;
 
@@ -47,7 +49,9 @@ public class PlayerCombat : MonoBehaviour {
             return;
         if(Time.time - _lastAttackTime < attackCooldown) 
             return;
+        
         RotateToTarget();
+        
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayer);
         foreach(Collider enemy in hitEnemies) {
             // Check if the enemy has an IAttackable component and call TakeDamage
@@ -101,7 +105,7 @@ public class PlayerCombat : MonoBehaviour {
     private void AdjustAmmo(int amount = 1)
     {
         _currentAmmo += amount;
-        ammoText.text = _currentAmmo.ToString();
+        ammoText.text = _currentAmmo.ToString(); // Update ammo text
     }
 
     public void OnDrawGizmosSelected() {

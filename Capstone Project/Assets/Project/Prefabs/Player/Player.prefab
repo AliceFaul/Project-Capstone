@@ -392,7 +392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   slots: []
-  maxSlots: 15
+  maxSlots: 24
   itemPickupPrefab: {fileID: 0}
 --- !u!1001 &7117115669241743004
 PrefabInstance:
@@ -442,6 +442,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1174426744391096095, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1540532855929265077, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -481,6 +485,10 @@ PrefabInstance:
     - target: {fileID: 1540532855929265077, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6821405183143806323, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_Name

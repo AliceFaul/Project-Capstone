@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
-  m_Name: Wooden Axe
+  m_Name: Wooden Pickaxe
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
-  id: Test Axe
-  itemName: Wooden Axe
+  id: Test Pickaxe
+  itemName: Wooden Pickaxe
   itemType: 1
   rarity: 0
-  icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  icon: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
   isStackable: 0
   maxStackSize: 64
   equipmentType: 1
   level: 1
-  damageModifier: 5
-  armorModifier: 1
-  speedModifier: 0
+  damageModifier: 3
+  armorModifier: 0
+  speedModifier: 1
   critChanceModifier: 5
-  critDamageModifier: 15
+  critDamageModifier: 10
