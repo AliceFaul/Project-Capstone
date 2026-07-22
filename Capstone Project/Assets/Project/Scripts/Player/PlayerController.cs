@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
     [Header("References")]
-    [SerializeField] private InputHandler inputHandler;
     [SerializeField] private PlayerMovement movement;
     [SerializeField] private PlayerCombat combat;
+    [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private PlayerInvokerCommand invoker;
 
@@ -12,6 +12,20 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
+    
+    private InputHandler _inputHandler;
+    public InputHandler InputHandler
+    {
+        get
+        {
+            if (_inputHandler == null)
+            {
+                _inputHandler = GetComponent<InputHandler>();
+            }
+            return _inputHandler;
+        }
+        set => _inputHandler = value;
+    }
     
     private PlayerModifier _playerModifier;
     public PlayerModifier PlayerModifier
@@ -34,30 +48,24 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void OnEnable() {
-        inputHandler.OnLeftClick += HandleLeftClick;
-        inputHandler.OnRightClick += HandleRightClick;
+        InputHandler.OnLeftClick += HandleLeftClick;
+        InputHandler.OnRightClick += HandleRightClick;
         movement.OnDestinationReached += OnDestinationReached;
     }
 
     private void OnDisable() {
-        inputHandler.OnLeftClick -= HandleLeftClick;
-        inputHandler.OnRightClick -= HandleRightClick;
+        InputHandler.OnLeftClick -= HandleLeftClick;
+        InputHandler.OnRightClick -= HandleRightClick;
         movement.OnDestinationReached -= OnDestinationReached;
     }
 
     private void HandleLeftClick() { 
-        if(inputHandler == null) {
+        if(InputHandler == null) {
             Debug.LogWarning("InputHandler is not assigned.");
             return;
         }
 
-        if(!PlayerModifier.CanMove)
-        {
-            Debug.LogWarning("Player cannot move.");
-            return;
-        }
-
-        Ray ray = mainCamera.ScreenPointToRay(inputHandler.MousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 
         if(!Physics.Raycast(ray, out RaycastHit hit)) {
             return;
@@ -89,7 +97,7 @@ public class PlayerController : MonoBehaviour {
     private void HandleRightClick() {
         // Handle right-click actions if needed
         // Ranged attack, special ability, etc.
-        Ray ray = mainCamera.ScreenPointToRay(inputHandler.MousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
             return;
@@ -99,13 +107,19 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteMovement(Vector3 destination) {
+        if(!PlayerModifier.CanMove)
+            return;
+        
         ICommand moveCommand = new MoveCommand(movement, destination);
         if(invoker != null) { 
             invoker.ExecuteCommand(moveCommand);
         }
     }
 
-    private void ExecuteAttack(Transform target) { 
+    private void ExecuteAttack(Transform target) {
+        if(!PlayerModifier.CanAttack)
+            return;
+        
         ICommand attackCommand = new AttackCommand(combat, movement, target);
         if (invoker != null)
         {

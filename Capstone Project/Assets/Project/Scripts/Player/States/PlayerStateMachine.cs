@@ -1,0 +1,28 @@
+﻿using System;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class PlayerStateMachine : MonoBehaviour, IStateMachine
+{
+    [SerializeField] private CharacterStateType currentState = CharacterStateType.Idle;
+    public CharacterStateType CurrentState =>  currentState;
+    
+    public event Action<CharacterStateType, CharacterStateType> OnStateChange;
+    
+    public bool ChangeState(CharacterStateType oldState, CharacterStateType newState)
+    {
+        if(currentState == newState)
+            return false;
+        
+        oldState = currentState;
+        currentState = newState;
+        
+        OnStateChange?.Invoke(oldState, newState);
+        return true;
+    }
+
+    public bool IsCurrentState(CharacterStateType state)
+    {
+        return CurrentState == state;
+    }
+}
