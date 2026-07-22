@@ -12,6 +12,20 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
+    
+    private PlayerModifier _playerModifier;
+    public PlayerModifier PlayerModifier
+    {
+        get
+        {
+            if (_playerModifier == null)
+            {
+                _playerModifier = new PlayerModifier();
+            }
+            return _playerModifier;
+        }
+        set => _playerModifier = value;
+    }
 
     private void Awake() {
         if(mainCamera == null) {
@@ -34,6 +48,12 @@ public class PlayerController : MonoBehaviour {
     private void HandleLeftClick() { 
         if(inputHandler == null) {
             Debug.LogWarning("InputHandler is not assigned.");
+            return;
+        }
+
+        if(!PlayerModifier.CanMove)
+        {
+            Debug.LogWarning("Player cannot move.");
             return;
         }
 

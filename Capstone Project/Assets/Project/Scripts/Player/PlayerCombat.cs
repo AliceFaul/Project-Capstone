@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -20,6 +21,7 @@ public class PlayerCombat : MonoBehaviour {
     private int _currentAmmo; 
     
     private PlayerRuntime _runtime;
+    private PlayerController _controller;
     
     public float AttackRange => _runtime.AttackRange;
     
@@ -29,6 +31,7 @@ public class PlayerCombat : MonoBehaviour {
     private void Awake()
     {
         _runtime = GetComponent<PlayerRuntime>();
+        _controller = GetComponent<PlayerController>();
     }
 
     private void Start()
@@ -51,15 +54,28 @@ public class PlayerCombat : MonoBehaviour {
     // TODO: You can add an animation trigger here if you have an attack animation
     public void Attack() {
         Debug.Log("Attacking");
+        
         if(_currentTarget == null) 
             return;
-        float cooldown = 1f / _runtime.AttackSpeed;
         
-        if(Time.time - _lastAttackTime < cooldown) 
+        if(!_controller.PlayerModifier.CanAttack)
             return;
-        
+
+        StartCoroutine(AttackRoutine());
+    }
+    private IEnumerator AttackRoutine()
+    {
+        _controller.PlayerModifier.AttackModifier(false);
         RotateToTarget();
         
+        DealDamage();
+
+        yield return new WaitForSeconds(1f / _runtime.AttackSpeed);
+        _controller.PlayerModifier.AttackModifier(true);
+    }
+
+    private void DealDamage()
+    {
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         foreach(Collider enemy in hitEnemies) {
             // Check if the enemy has an IAttackable component and call TakeDamage
@@ -80,8 +96,8 @@ public class PlayerCombat : MonoBehaviour {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
         }
+        
         _currentTarget = null;
-        _lastAttackTime = Time.time;
     }
     
     // Call this method in the PlayerController when the player right clicks

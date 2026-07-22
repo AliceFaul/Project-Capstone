@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour {
     private PlayerRuntime _runtime;
     
     private bool _isMoving = false;
+    private bool _destinationReached = false;
     
     public event Action OnDestinationReached;
 
@@ -24,15 +25,19 @@ public class PlayerMovement : MonoBehaviour {
         if(_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance)
             return;
         
+        if(_destinationReached)
+            return;
+        
         _isMoving = false;
         _agent.ResetPath();
+        _destinationReached = true;
         OnDestinationReached?.Invoke();
     }
 
     // Moves the player to the specified destination using NavMeshAgent
     public void MoveTo(Vector3 destination) {
         _agent.speed = _runtime.MoveSpeed;
-        
+        _destinationReached = false;
         _isMoving = true;
         _agent.stoppingDistance = 0f;
         _agent.SetDestination(destination);
@@ -42,7 +47,7 @@ public class PlayerMovement : MonoBehaviour {
     public void MoveToTarget(Transform target, float stoppingDistance)
     {
         _agent.speed = _runtime.MoveSpeed;
-        
+        _destinationReached = false;
         _isMoving = true;
         _agent.stoppingDistance = stoppingDistance;
         _agent.SetDestination(target.position);
