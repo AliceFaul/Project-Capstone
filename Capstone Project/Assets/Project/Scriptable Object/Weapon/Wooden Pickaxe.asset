@@ -22,7 +22,9 @@ MonoBehaviour:
   equipmentType: 1
   level: 1
   damageModifier: 3
-  armorModifier: 0
-  speedModifier: 1
+  armorModifier: 1
+  speedModifier: 0
+  attackSpeedModifier: 0
+  attackRangeModifier: 0
   critChanceModifier: 5
   critDamageModifier: 10

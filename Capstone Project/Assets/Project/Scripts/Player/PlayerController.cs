@@ -100,5 +100,6 @@ public class PlayerController : MonoBehaviour {
     private void OnDestinationReached()
     {
         combat.Attack();
+        Debug.Log("Destination Reached");
     }
 }

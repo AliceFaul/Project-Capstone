@@ -12,9 +12,11 @@ public class EquipmentData : ItemData
 
     public int damageModifier;
     public int armorModifier;
-    public int speedModifier;
-    public int critChanceModifier;
-    public int critDamageModifier;
+    public float speedModifier;
+    public float attackSpeedModifier;
+    public float attackRangeModifier;
+    public float critChanceModifier;
+    public float critDamageModifier;
 
     public override void Use()
     {

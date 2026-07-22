@@ -5,12 +5,15 @@ using System;
 [RequireComponent(typeof(NavMeshAgent))]
 public class PlayerMovement : MonoBehaviour {
     private NavMeshAgent _agent;
+    private PlayerRuntime _runtime;
+    
     private bool _isMoving = false;
     
     public event Action OnDestinationReached;
 
     private void Awake() {
         _agent = GetComponent<NavMeshAgent>();
+        _runtime = GetComponent<PlayerRuntime>();
     }
 
     private void FixedUpdate()
@@ -28,6 +31,8 @@ public class PlayerMovement : MonoBehaviour {
 
     // Moves the player to the specified destination using NavMeshAgent
     public void MoveTo(Vector3 destination) {
+        _agent.speed = _runtime.MoveSpeed;
+        
         _isMoving = true;
         _agent.stoppingDistance = 0f;
         _agent.SetDestination(destination);
@@ -36,6 +41,8 @@ public class PlayerMovement : MonoBehaviour {
     // Move the player to enemy position into attack range
     public void MoveToTarget(Transform target, float stoppingDistance)
     {
+        _agent.speed = _runtime.MoveSpeed;
+        
         _isMoving = true;
         _agent.stoppingDistance = stoppingDistance;
         _agent.SetDestination(target.position);
