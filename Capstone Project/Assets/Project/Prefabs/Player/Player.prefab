@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 1396825416686326437}
+  - component: {fileID: 8231089656791656395}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
   - component: {fileID: 743074079644308432}
@@ -308,7 +309,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   movement: {fileID: 2730355901274244533}
   combat: {fileID: 2759596504568213360}
-  stateMachine: {fileID: 1396825416686326437}
   mainCamera: {fileID: 0}
   invoker: {fileID: 6772811288144300525}
   groundLayer:
@@ -359,7 +359,7 @@ MonoBehaviour:
   baseAttackSpeed: 1
   baseAttackRange: 1.2
   baseCritChance: 5
-  baseCritDamage: 100
+  baseCritDamage: 50
 --- !u!114 &1396825416686326437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,6 +373,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
   currentState: 1
+--- !u!114 &8231089656791656395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5edbe954d70948a7b4495ac6998a5e04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationHandler
 --- !u!114 &6772811288144300525
 MonoBehaviour:
   m_ObjectHideFlags: 0

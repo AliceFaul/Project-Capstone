@@ -4,7 +4,6 @@ public class PlayerController : MonoBehaviour {
     [Header("References")]
     [SerializeField] private PlayerMovement movement;
     [SerializeField] private PlayerCombat combat;
-    [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private PlayerInvokerCommand invoker;
 
@@ -12,6 +11,21 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
+    
+    private PlayerStateMachine _stateMachine;
+
+    public PlayerStateMachine StateMachine
+    {
+        get
+        {
+            if (_stateMachine == null)
+            {
+                _stateMachine = GetComponent<PlayerStateMachine>();
+            }
+            return _stateMachine;
+        }
+        set => _stateMachine = value;
+    }
     
     private InputHandler _inputHandler;
     public InputHandler InputHandler
@@ -39,6 +53,20 @@ public class PlayerController : MonoBehaviour {
             return _playerModifier;
         }
         set => _playerModifier = value;
+    }
+    
+    private PlayerAnimationHandler _animationHandler;
+    public PlayerAnimationHandler AnimationHandler
+    {
+        get
+        {
+            if (_animationHandler == null)
+            {
+                _animationHandler = GetComponent<PlayerAnimationHandler>();
+            }
+            return _animationHandler;
+        }
+        set => _animationHandler = value;
     }
 
     private void Awake() {
@@ -112,6 +140,7 @@ public class PlayerController : MonoBehaviour {
         
         ICommand moveCommand = new MoveCommand(movement, destination);
         if(invoker != null) { 
+            StateMachine.ChangeState(StateMachine.CurrentState, CharacterStateType.Running);
             invoker.ExecuteCommand(moveCommand);
         }
     }
@@ -123,6 +152,7 @@ public class PlayerController : MonoBehaviour {
         ICommand attackCommand = new AttackCommand(combat, movement, target);
         if (invoker != null)
         {
+            StateMachine.ChangeState(StateMachine.CurrentState, CharacterStateType.Attack);
             invoker.ExecuteCommand(attackCommand);
         }
     }
@@ -135,5 +165,6 @@ public class PlayerController : MonoBehaviour {
     {
         combat.Attack();
         Debug.Log("Destination Reached");
+        StateMachine.ChangeState(StateMachine.CurrentState, CharacterStateType.Idle);
     }
 }

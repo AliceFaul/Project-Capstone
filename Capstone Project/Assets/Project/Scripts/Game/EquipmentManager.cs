@@ -14,7 +14,7 @@ public class EquipmentManager : MonoBehaviour
     [Space]
     
     public PlayerInventory inventory;
-    public Action<EquipmentManager> OnEquipmentChanged;
+    public event Action<EquipmentManager> OnEquipmentChanged;
 
     private void Awake()
     {
