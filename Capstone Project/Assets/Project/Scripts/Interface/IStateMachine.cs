@@ -17,7 +17,7 @@ public enum CharacterStateType
 public interface IStateMachine
 {
     CharacterStateType CurrentState { get; }
-    bool ChangeState(CharacterStateType oldState, CharacterStateType newState);
+    bool ChangeState(CharacterStateType newState);
     bool IsCurrentState(CharacterStateType state);
     CharacterStateType GetCurrentState() => CurrentState;
     event Action<CharacterStateType, CharacterStateType> OnStateChange;

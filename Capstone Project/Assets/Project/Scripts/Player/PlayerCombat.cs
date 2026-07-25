@@ -18,7 +18,10 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private LayerMask enemyLayer;
     
     private Transform _currentTarget;
+    public Transform CurrentTarget => _currentTarget;
+    
     private int _currentAmmo; 
+    public int CurrentAmmo => _currentAmmo;
     
     private PlayerRuntime _runtime;
     private PlayerController _controller;
@@ -68,6 +71,7 @@ public class PlayerCombat : MonoBehaviour {
         _controller.PlayerModifier.AttackModifier(false);
         RotateToTarget();
         
+        // TODO: Add this function in Animation Event for exactly time
         DealDamage();
 
         yield return new WaitForSeconds(1f / _runtime.AttackSpeed);

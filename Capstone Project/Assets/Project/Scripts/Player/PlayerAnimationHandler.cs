@@ -5,7 +5,17 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private Animator _animator;
     private PlayerStateMachine _stateMachine;
     
-    private string _currentHash;
+    private int _currentHash;
+    
+    // === ANIMATOR HASH ===
+    private readonly int IdleHash = Animator.StringToHash("Idle");
+    private readonly int WalkHash = Animator.StringToHash("Walk");
+    private readonly int RunningHash = Animator.StringToHash("Running");
+    private readonly int AttackHash = Animator.StringToHash("Attack");
+    private readonly int RollHash = Animator.StringToHash("Roll");
+    private readonly int HitHash = Animator.StringToHash("Hit");
+    private readonly int DeadHash = Animator.StringToHash("Dead");
+    private readonly int InteractHash = Animator.StringToHash("Interact");
 
     private void Awake()
     {
@@ -20,39 +30,36 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         if(_stateMachine == null)
             return;
         
-        if(_stateMachine.CurrentState == newState)
-            return;
-
         switch (newState)
         {
             case CharacterStateType.Idle:
-                PlayAnimation("idleHash", 0.2f);
+                PlayAnimation(IdleHash, 0.2f);
                 break;
             case CharacterStateType.Walk:
-                PlayAnimation("walkHash", 0.2f);
+                PlayAnimation(WalkHash, 0.2f);
                 break;
             case CharacterStateType.Running:
-                PlayAnimation("runningHash", 0.2f);
+                PlayAnimation(RunningHash, 0.2f);
                 break;
             case CharacterStateType.Attack:
-                PlayAnimation("attackHash", 0.2f);
+                PlayAnimation(AttackHash, 0.2f);
                 break;
             case CharacterStateType.Roll:
-                PlayAnimation("rollHash", 0.2f);
+                PlayAnimation(RollHash, 0.2f);
                 break;
             case CharacterStateType.Hit:
-                PlayAnimation("hitHash", 0.2f);
+                PlayAnimation(HitHash, 0.2f);
                 break;
             case CharacterStateType.Dead:
-                PlayAnimation("deadHash", 0.2f);
+                PlayAnimation(DeadHash, 0.2f);
                 break;
             case CharacterStateType.Interact:
-                PlayAnimation("interactHash", 0.2f);
+                PlayAnimation(InteractHash, 0.2f);
                 break;
         }
     }
 
-    private void PlayAnimation(string hash, float time)
+    private void PlayAnimation(int hash, float time)
     {
         if(_currentHash == hash)
             return;

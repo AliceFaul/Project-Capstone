@@ -15,7 +15,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     [SerializeField] private float baseCritChance = 5f;
     [SerializeField] private float baseCritDamage = 100f;
     
-    // === EQUIPMENT STAT === (Help debug)
+    // === EQUIPMENT STATS === (Help debug)
     private int _equipmentDamage;
     private int _equipmentDefense;
     
@@ -26,7 +26,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     private float _equipmentCritChance;
     private float _equipmentCritDamage;
     
-    // === BONUS STAT ===
+    // === BONUS STATS ===
     private int _bonusHealth; // Reserved for future potion/buff system
     private int _bonusDamage;
     private int _bonusDefense;

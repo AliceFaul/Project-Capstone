@@ -9,15 +9,15 @@ public class PlayerStateMachine : MonoBehaviour, IStateMachine
     
     public event Action<CharacterStateType, CharacterStateType> OnStateChange;
     
-    public bool ChangeState(CharacterStateType oldState, CharacterStateType newState)
+    public bool ChangeState(CharacterStateType newState)
     {
         if(currentState == newState)
             return false;
         
-        oldState = currentState;
+        CharacterStateType oldState = currentState;
         currentState = newState;
         
-        OnStateChange?.Invoke(oldState, newState);
+        OnStateChange?.Invoke(oldState, currentState);
         return true;
     }
 
