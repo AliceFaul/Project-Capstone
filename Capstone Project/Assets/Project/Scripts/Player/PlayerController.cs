@@ -1,13 +1,5 @@
 using UnityEngine;
 
-public enum PendingActionType
-{
-    None,
-    Move,
-    Attack,
-    Interact
-}
-
 public class PlayerController : MonoBehaviour {
     [Header("References")]
     [SerializeField] private PlayerMovement movement;
@@ -20,7 +12,7 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
     
-    private PendingActionType _pendingAction = PendingActionType.None;
+    private ICommand _currentCommand;
     
     private PlayerStateMachine _stateMachine;
     public PlayerStateMachine StateMachine
@@ -111,7 +103,6 @@ public class PlayerController : MonoBehaviour {
 
         if(((1 << hitLayer) & groundLayer) != 0) {
             // Move to the clicked position on the ground
-            _pendingAction = PendingActionType.Move;
             ExecuteMovement(hit.point);
             Debug.Log(hit.collider.gameObject.name);
             return;
@@ -119,7 +110,6 @@ public class PlayerController : MonoBehaviour {
 
         if(((1 << hitLayer) & enemyLayer) != 0) {
             // Attack the clicked enemy
-            _pendingAction = PendingActionType.Attack;
             ExecuteAttack(hit.collider.transform);
             Debug.Log(hit.collider.gameObject.name);
             return;
@@ -127,7 +117,6 @@ public class PlayerController : MonoBehaviour {
 
         if(((1 << hitLayer) & interactLayer) != 0) {
             // Interact with the clicked object
-            _pendingAction = PendingActionType.Interact;
             // ExecuteInteraction();
             Debug.Log(hit.collider.gameObject.name);
             return;
@@ -153,6 +142,7 @@ public class PlayerController : MonoBehaviour {
         ICommand moveCommand = new MoveCommand(movement, destination);
         if(invoker != null) { 
             invoker.ExecuteCommand(moveCommand);
+            _currentCommand = moveCommand;
         }
         StateMachine.ChangeState(CharacterStateType.Running);
     }
@@ -165,6 +155,7 @@ public class PlayerController : MonoBehaviour {
         if (invoker != null)
         {
             invoker.ExecuteCommand(attackCommand);
+            _currentCommand = attackCommand;
         }
         StateMachine.ChangeState(CharacterStateType.Attack);
     }
@@ -178,21 +169,16 @@ public class PlayerController : MonoBehaviour {
 
     private void OnDestinationReached()
     {
-        switch (_pendingAction)
+        switch (_currentCommand)
         {
-            case PendingActionType.Move: 
+            case MoveCommand: 
                 ResetState();
                 break;
-            case PendingActionType.Attack:
+            case AttackCommand:
                 combat.Attack();
-                break;
-            case PendingActionType.Interact:
-                // Interact Action needed
-                // etc...
                 break;
         }
         
-        _pendingAction = PendingActionType.None;
         Debug.Log("Destination Reached");
     }
 }
