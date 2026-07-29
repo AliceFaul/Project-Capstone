@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 public class PlayerStateMachine : MonoBehaviour, IStateMachine
 {
-    [SerializeField] private CharacterStateType currentState = CharacterStateType.Idle;
+    [SerializeField] private CharacterStateType currentState = CharacterStateType.Locomotion;
     public CharacterStateType CurrentState =>  currentState;
     
     public event Action<CharacterStateType, CharacterStateType> OnStateChange;

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
@@ -76,6 +77,11 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private void Update()
+    {
+        AnimationHandler.LocomotionProcess();
+    }
+
     private void OnEnable() {
         InputHandler.OnLeftClick += HandleLeftClick;
         InputHandler.OnRightClick += HandleRightClick;
@@ -144,7 +150,7 @@ public class PlayerController : MonoBehaviour {
             invoker.ExecuteCommand(moveCommand);
             _currentCommand = moveCommand;
         }
-        StateMachine.ChangeState(CharacterStateType.Running);
+        StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
 
     private void ExecuteAttack(Transform target) {
@@ -157,24 +163,22 @@ public class PlayerController : MonoBehaviour {
             invoker.ExecuteCommand(attackCommand);
             _currentCommand = attackCommand;
         }
-        StateMachine.ChangeState(CharacterStateType.Attack);
+        StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
 
     private void ExecuteInteraction() { 
     
     }
-    
-    public void ResetState() 
-        => StateMachine.ChangeState(CharacterStateType.Idle);
 
     private void OnDestinationReached()
     {
         switch (_currentCommand)
         {
             case MoveCommand: 
-                ResetState();
+                // Move...
                 break;
             case AttackCommand:
+                StateMachine.ChangeState(CharacterStateType.Attack);
                 combat.Attack();
                 break;
         }

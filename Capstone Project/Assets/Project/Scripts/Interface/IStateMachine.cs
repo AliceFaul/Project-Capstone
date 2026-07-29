@@ -2,10 +2,7 @@
 
 public enum CharacterStateType
 {
-    None,
-    Idle,
-    Walk,
-    Running,
+    Locomotion,
     Attack,
     Roll,
     Hit,

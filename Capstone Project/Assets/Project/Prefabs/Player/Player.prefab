@@ -530,7 +530,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6821405183143806323, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_Name
