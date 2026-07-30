@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ffec8874ab4984241981dcfb6d5a8a2c
+guid: a4bc3deca4486634d81da6135a5c2858
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -31,13 +31,13 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Stable Sword Outward Slash
+      name: Thrust Slash
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 48
+      lastFrame: 64
       wrapMode: 0
-      orientationOffsetY: 0
+      orientationOffsetY: -70
       level: 0
       cycleOffset: 0
       loop: 0
@@ -46,7 +46,7 @@ ModelImporter:
       loopBlend: 0
       loopBlendOrientation: 1
       loopBlendPositionY: 1
-      loopBlendPositionXZ: 1
+      loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
@@ -55,14 +55,21 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.41202086
+      - time: 0.2790343
         functionName: DealDamage
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.99821115
+      - time: 0.50336313
+        functionName: DealDamage
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.99857897
         functionName: EndAttackingProcess
         data: 
         objectReferenceParameter: {instanceID: 0}
@@ -279,30 +286,30 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: party_character@Stable Sword Outward Slash(Clone)
+    - name: party_character@Thrust Slash(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: -8.659561e-17, y: 0.7071068, z: -0.7071068, w: -8.7157646e-33}
       scale: {x: 0.01, y: 0.01, z: 0.01}
     - name: Hips
-      parentName: party_character@Stable Sword Outward Slash(Clone)
-      position: {x: -0.32200748, y: 2.5891483, z: -78.52202}
-      rotation: {x: 0.6146504, y: 0.055717498, z: -0.06414461, w: -0.78421044}
+      parentName: party_character@Thrust Slash(Clone)
+      position: {x: -0.96027887, y: -1.9178867, z: -77.95999}
+      rotation: {x: -0.5968062, y: -0.020930553, z: 0.04715958, w: 0.80072486}
       scale: {x: 1, y: 1, z: 1}
     - name: Spine
       parentName: Hips
       position: {x: 0, y: 15.439, z: -0.0492}
-      rotation: {x: -0.08396156, y: 0.056130826, z: -0.00018775933, w: 0.9948868}
+      rotation: {x: -0.053871732, y: 0.02070031, z: -0.020154277, w: 0.99812984}
       scale: {x: 1, y: 1, z: 1}
     - name: Spine1
       parentName: Spine
       position: {x: 0, y: 18.0123, z: 0}
-      rotation: {x: -0.07968945, y: 0.049211297, z: -0.018611483, w: 0.9954303}
+      rotation: {x: -0.10414032, y: 0.040188525, z: -0.025639523, w: 0.9934195}
       scale: {x: 1, y: 1, z: 1}
     - name: Spine2
       parentName: Spine1
       position: {x: 0, y: 20.5853, z: 0}
-      rotation: {x: -0.07920907, y: 0.050225142, z: -0.018528318, w: 0.99541956}
+      rotation: {x: -0.104240954, y: 0.040387556, z: -0.025618808, w: 0.9934014}
       scale: {x: 1, y: 1, z: 1}
     - name: Head
       parentName: Spine2
@@ -312,17 +319,17 @@ ModelImporter:
     - name: LeftShoulder
       parentName: Spine2
       position: {x: 15.7479, y: 22.378, z: -0.0233}
-      rotation: {x: 0.5781664, y: 0.44094583, z: 0.5051899, w: -0.46483725}
+      rotation: {x: 0.59264493, y: 0.470696, z: 0.47458497, w: -0.4494289}
       scale: {x: 1, y: 1, z: 1}
     - name: LeftArm
       parentName: LeftShoulder
       position: {x: 0, y: 28.1351, z: -0.0001}
-      rotation: {x: 0.0700538, y: -0.01920398, z: -0.12551843, w: 0.9894285}
+      rotation: {x: 0.095112965, y: 0.17906551, z: -0.0860536, w: 0.9754404}
       scale: {x: 1, y: 1, z: 1}
     - name: LeftForeArm
       parentName: LeftArm
       position: {x: 0, y: 45.5357, z: -0.0001}
-      rotation: {x: 0.032877453, y: 0.040516604, z: 0.017736828, w: 0.9984803}
+      rotation: {x: 0.027621714, y: 0.007464287, z: 0.017566958, w: 0.99943626}
       scale: {x: 1, y: 1, z: 1}
     - name: LeftHand
       parentName: LeftForeArm
@@ -332,17 +339,17 @@ ModelImporter:
     - name: RightShoulder
       parentName: Spine2
       position: {x: -15.7479, y: 22.3778, z: 0.0339}
-      rotation: {x: -0.4921738, y: 0.5059497, z: 0.5215875, w: 0.47929776}
+      rotation: {x: 0.635977, y: -0.3677233, z: -0.48595145, w: -0.47345963}
       scale: {x: 1, y: 1, z: 1}
     - name: RightArm
       parentName: RightShoulder
       position: {x: 0, y: 28.1349, z: 0}
-      rotation: {x: -0.0011322645, y: 0.24246648, z: -0.0852255, w: 0.96640843}
+      rotation: {x: 0.055818163, y: 0.26293644, z: 0.09893443, w: 0.9581027}
       scale: {x: 1, y: 1, z: 1}
     - name: RightForeArm
       parentName: RightArm
       position: {x: 0, y: 45.5357, z: 0}
-      rotation: {x: 0.018591385, y: -0.06438986, z: -0.018549241, w: 0.9975792}
+      rotation: {x: 0.023646785, y: -0.02051043, z: -0.012626048, w: 0.99943024}
       scale: {x: 1, y: 1, z: 1}
     - name: RightHand
       parentName: RightForeArm
@@ -352,32 +359,32 @@ ModelImporter:
     - name: LeftUpLeg
       parentName: Hips
       position: {x: 23.3014, y: -8.5677, z: -0.282}
-      rotation: {x: 0.18091628, y: -0.042549036, z: -0.975312, w: 0.11927085}
+      rotation: {x: -0.23398677, y: 0.05477125, z: 0.9650476, w: -0.10456288}
       scale: {x: 1, y: 1, z: 1}
     - name: LeftLeg
       parentName: LeftUpLeg
       position: {x: 0, y: 34.0859, z: 0}
-      rotation: {x: 0.26822388, y: -0.06110847, z: -0.040335312, w: 0.9605701}
+      rotation: {x: 0.29593053, y: 0.030164082, z: 0.0044426983, w: 0.95472276}
       scale: {x: 1, y: 1, z: 1}
     - name: LeftFoot
       parentName: LeftLeg
       position: {x: 0, y: 31.484, z: 0}
-      rotation: {x: -0.6006695, y: 0.11681414, z: 0.29038084, w: 0.73568314}
+      rotation: {x: -0.8233797, y: 0.032884784, z: 0.17987327, w: 0.5372244}
       scale: {x: 1, y: 1, z: 1}
     - name: RightUpLeg
       parentName: Hips
       position: {x: -23.3014, y: -8.5677, z: -0.282}
-      rotation: {x: 0.004090246, y: 0.027602522, z: 0.99893916, w: 0.03663265}
+      rotation: {x: 0.19098188, y: 0.06370496, z: 0.9687647, w: 0.14478466}
       scale: {x: 1, y: 1, z: 1}
     - name: RightLeg
       parentName: RightUpLeg
       position: {x: 0, y: 34.0859, z: 0}
-      rotation: {x: 0.2984873, y: 0.11001806, z: 0.050468978, w: 0.94670707}
+      rotation: {x: 0.2988485, y: 0.09140232, z: 0.06641446, w: 0.9475887}
       scale: {x: 1, y: 1, z: 1}
     - name: RightFoot
       parentName: RightLeg
       position: {x: 0, y: 31.4544, z: 0}
-      rotation: {x: -0.7003597, y: -0.00077893556, z: -0.13200118, w: 0.70147806}
+      rotation: {x: -0.6964452, y: 0.0050623175, z: -0.21624385, w: 0.6842346}
       scale: {x: 1, y: 1, z: 1}
     armTwist: 0.5
     foreArmTwist: 0.5

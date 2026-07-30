@@ -192,7 +192,6 @@ GameObject:
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 1396825416686326437}
-  - component: {fileID: 8231089656791656395}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
   - component: {fileID: 743074079644308432}
@@ -372,19 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea31cd4282564572b9980ebda52c3d83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
-  currentState: 1
---- !u!114 &8231089656791656395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9033850277288197346}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5edbe954d70948a7b4495ac6998a5e04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationHandler
+  currentState: 0
 --- !u!114 &6772811288144300525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -546,8 +533,32 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1540532855929265077, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9146888102044327126}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1925368644849440086}
   m_SourcePrefab: {fileID: 100100000, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+--- !u!1 &699886415659282422 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+  m_PrefabInstance: {fileID: 7117115669241743004}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1925368644849440086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699886415659282422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5edbe954d70948a7b4495ac6998a5e04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationHandler
+  controller: {fileID: 2854524255848535839}
+  agent: {fileID: 5104284016174206928}
+  runtime: {fileID: 6254586106571862876}
+  combat: {fileID: 2759596504568213360}
 --- !u!4 &7612427732099748046 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 820170041191700050, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}

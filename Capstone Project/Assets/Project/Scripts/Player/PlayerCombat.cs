@@ -63,22 +63,29 @@ public class PlayerCombat : MonoBehaviour {
         
         if(!_controller.PlayerModifier.CanAttack)
             return;
-
-        StartCoroutine(AttackRoutine());
-    }
-    private IEnumerator AttackRoutine()
-    {
+        
         _controller.PlayerModifier.AttackModifier(false);
         RotateToTarget();
-        
-        // TODO: Add this function in Animation Event for exactly time
-        DealDamage();
+        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
 
+        StartCoroutine(CooldownCoroutine());
+    }
+
+    private IEnumerator CooldownCoroutine()
+    {
         yield return new WaitForSeconds(1f / _runtime.AttackSpeed);
         _controller.PlayerModifier.AttackModifier(true);
     }
-
-    private void DealDamage()
+    
+    // TODO: Convert to Animation Event and add in the end of every each attack animation clip
+    public void EndAttackingProcess()
+    {
+        _currentTarget = null;
+        _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
+    }
+    
+    // TODO: Add to Animation Event for exactly time
+    public void DealDamage()
     {
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         foreach(Collider enemy in hitEnemies) {
@@ -100,8 +107,6 @@ public class PlayerCombat : MonoBehaviour {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
         }
-        
-        _currentTarget = null;
     }
     
     // Call this method in the PlayerController when the player right clicks

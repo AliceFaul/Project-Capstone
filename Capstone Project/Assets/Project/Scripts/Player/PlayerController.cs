@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviour {
         {
             if (_animationHandler == null)
             {
-                _animationHandler = GetComponent<PlayerAnimationHandler>();
+                _animationHandler = GetComponentInChildren<PlayerAnimationHandler>();
             }
             return _animationHandler;
         }
@@ -178,7 +178,6 @@ public class PlayerController : MonoBehaviour {
                 // Move...
                 break;
             case AttackCommand:
-                StateMachine.ChangeState(CharacterStateType.Attack);
                 combat.Attack();
                 break;
         }

@@ -5,8 +5,11 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 {
     private Animator _animator;
     private PlayerStateMachine _stateMachine;
-    private NavMeshAgent _agent;
-    private PlayerRuntime _runtime;
+
+    [SerializeField] private PlayerController controller;
+    [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private PlayerRuntime runtime;
+    [SerializeField] private PlayerCombat combat;
     
     private int _currentHash;
     
@@ -15,9 +18,8 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private readonly int LocomotionHash = Animator.StringToHash("Speed");
     
     // === ATTACKING ===
-    private readonly int Attack1Hash = Animator.StringToHash("Attack 1");
-    private readonly int Attack2Hash = Animator.StringToHash("Attack 2");
-    private readonly int Attack3Hash = Animator.StringToHash("Attack 3");
+    private readonly int AttackHash = Animator.StringToHash("Attack");
+    private readonly int AttackCountHash = Animator.StringToHash("AttackCount");
     
     private readonly int RollHash = Animator.StringToHash("Roll");
     private readonly int HitHash = Animator.StringToHash("Hit");
@@ -26,12 +28,17 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     private void Awake()
     {
-        _stateMachine = GetComponent<PlayerController>().StateMachine;
-        _runtime = GetComponent<PlayerRuntime>();
-        _animator = GetComponentInChildren<Animator>();
-        _agent = GetComponent<NavMeshAgent>();
-        
-        _stateMachine.OnStateChange += UpdateAnimation;
+        _animator = GetComponent<Animator>();
+
+        if (controller != null)
+        {
+            _stateMachine = controller.StateMachine;
+        }
+
+        if (_stateMachine != null)
+        {
+            _stateMachine.OnStateChange += UpdateAnimation;
+        }
     }
 
     public void UpdateAnimation(CharacterStateType oldState, CharacterStateType newState)
@@ -42,7 +49,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         switch (newState)
         {
             case CharacterStateType.Attack:
-                // AttackProcess();
+                AttackProcess();
                 break;
             case CharacterStateType.Roll:
                 PlayAnimation(RollHash, 0.2f);
@@ -71,26 +78,29 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         if(_stateMachine.CurrentState != CharacterStateType.Locomotion)
             return;
         
-        float speed = _runtime.MoveSpeed == 0 ? 0 : Mathf.Clamp01(
-            _agent.velocity.magnitude / _runtime.MoveSpeed);
+        float speed = runtime.MoveSpeed == 0 ? 0 : Mathf.Clamp01(
+            agent.velocity.magnitude / runtime.MoveSpeed);
         _animator.SetFloat(LocomotionHash, speed);
     }
 
-    public void AttackProcess(int combo)
+    private void AttackProcess()
     {
-        switch (combo)
-        {
-            case 1:
-                _animator.SetTrigger(Attack1Hash);
-                break;
-            case 2:
-                _animator.SetTrigger(Attack2Hash);
-                break;
-            case 3:
-                _animator.SetTrigger(Attack3Hash);
-                break;
-        }
+        if(_animator == null)
+            return;
+        
+        _animator.SetTrigger(AttackHash);
+        AttackCount = 0;
     }
+
+    private int AttackCount
+    {
+        get => _animator.GetInteger(AttackCountHash);
+        set => _animator.SetInteger(AttackCountHash, value);
+    }
+    
+    // === ATTACK ANIMATION EVENT
+    public void DealDamage() => combat.DealDamage();
+    public void EndAttackingProcess() => combat.EndAttackingProcess();
 
     private void PlayAnimation(int hash, float time)
     {
