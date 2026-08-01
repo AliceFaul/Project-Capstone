@@ -1,18 +1,35 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic; // Giữ thêm để dùng List
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class InventoryUIManager : MonoBehaviour
 {
     [Header("Cấu hình Giao diện")]
-    [SerializeField] private GameObject inventoryPanel; // Kéo Inventory_Panel vào đây
-    [SerializeField] private Transform gridSlots;       // Kéo Grid_Slots vào đây
+    [SerializeField] private GameObject inventoryPanel; // Kéo thả Inventory_Panel 
+    [SerializeField] private Transform gridSlots;       // Kéo thả Grid_Slots 
+
+    [Header("Cấu hình Tự động tạo Slot (Nâng cấp)")]
+    [SerializeField] private GameObject slotPrefab;     // Kéo file mẫu UI_Slot (Prefab) vào đây ngoài Inspector
 
     [Header("Kết nối Dữ liệu")]
-    [SerializeField] private PlayerInventory playerInventory; // Kéo Player vào đây
+    [SerializeField] private PlayerInventory playerInventory; // Kéo Player vào
 
-    private Image[] slotIcons;
-    private TextMeshProUGUI[] slotTexts;
+    // Đổi từ Array sang List để tự động thêm phần tử khi sinh slot bằng code
+    private List<Image> slotIcons = new List<Image>();
+    private List<TextMeshProUGUI> slotTexts = new List<TextMeshProUGUI>();
+
+    //ĐĂNG KÝ EVENT ĐỂ TỰ ĐỘNG CẬP NHẬT SLOT
+    private void OnEnable()
+    {
+        PlayerInventory.OnInventoryChanged += UpdateInventoryUI;
+    }
+
+    private void OnDisable()
+    {
+        PlayerInventory.OnInventoryChanged -= UpdateInventoryUI;
+    }
+    // --------------------------------------------------
 
     private void Start()
     {
@@ -29,18 +46,29 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
+    // nâng cấp logic cho hàm: Bấm play sẽ tự tạo 15 slot (initui)
     private void InitUI()
     {
-        int totalSlots = gridSlots.childCount;
-        slotIcons = new Image[totalSlots];
-        slotTexts = new TextMeshProUGUI[totalSlots];
-
-        for (int i = 0; i < totalSlots; i++)
+        // Xóa sạch các ô cũ lỡ tay để lại ngoài Hierarchy để tránh trùng lặp
+        foreach (Transform child in gridSlots)
         {
-            Transform slotTransform = gridSlots.GetChild(i);
-            // Tìm đúng tên 2 object con nằm trong ô UI_Slot
-            slotIcons[i] = slotTransform.Find("Item_Icon").GetComponent<Image>();
-            slotTexts[i] = slotTransform.Find("Stack_Text").GetComponent<TextMeshProUGUI>();
+            Destroy(child.gameObject);
+        }
+
+        slotIcons.Clear();
+        slotTexts.Clear();
+
+        // Vòng lặp tự động tạo đúng 15 ô đồ từ file mẫu Prefab
+        for (int i = 0; i < 15; i++)
+        {
+            GameObject newSlot = Instantiate(slotPrefab, gridSlots);
+            newSlot.name = "UI_Slot_" + i;
+            newSlot.GetComponent<Slot>().slotIndex = i;
+
+            Transform slotTransform = newSlot.transform;
+            // Tìm đúng tên 2 object con nằm trong ô UI_Slot (Giữ nguyên logic cũ nhưng nạp vào List)
+            slotIcons.Add(slotTransform.Find("Item_Icon").GetComponent<Image>());
+            slotTexts.Add(slotTransform.Find("Stack_Text").GetComponent<TextMeshProUGUI>());
         }
     }
 
@@ -61,7 +89,10 @@ public class InventoryUIManager : MonoBehaviour
     // Hàm đồng bộ dữ liệu ngầm lên giao diện 15 ô vuông
     public void UpdateInventoryUI()
     {
-        for (int i = 0; i < slotIcons.Length; i++)
+        // Nếu giao diện đang đóng thì không cần chạy vòng lặp cập nhật cho đỡ tốn hiệu năng
+        if (inventoryPanel != null && !inventoryPanel.activeSelf) return;
+
+        for (int i = 0; i < slotIcons.Count; i++)
         {
             if (i < playerInventory.slots.Count)
             {

@@ -904,7 +904,6 @@ GameObject:
   m_Component:
   - component: {fileID: 820170041191700050}
   - component: {fileID: 7549557142012886643}
-  - component: {fileID: 3212067613298414954}
   m_Layer: 0
   m_Name: Character_4c4e64
   m_TagString: Untagged
@@ -951,29 +950,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!136 &3212067613298414954
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7742650942893025642}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1.8211346
-  m_Direction: 1
-  m_Center: {x: 0, y: 1.4423048, z: 0}
 --- !u!1 &8134857379066702166
 GameObject:
   m_ObjectHideFlags: 0

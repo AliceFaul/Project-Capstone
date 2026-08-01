@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -16,13 +17,31 @@ public class InventorySlot
 
 public class PlayerInventory : MonoBehaviour
 {
+    public static PlayerInventory Instance  { get; private set; }
+    
     public List<InventorySlot> slots = new List<InventorySlot>();
     [SerializeField] private int maxSlots = 15; // Giới hạn 15 ô đồ
 
     public GameObject itemPickupPrefab; // Vật thể mẫu để sinh ra khi thả đồ
 
+    //EVENT ĐỂ CÁC SCRIPT KHÁC NHẬN BIẾT INVENTORY THAY ĐỔI
+    public static event Action OnInventoryChanged;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
+
     public bool AddItem(ItemData item, int amount)
     {
+        bool hasAdded = false;
+
         // Xử lý cộng dồn nếu vật phẩm cho phép xếp chồng
         if (item.isStackable)
         {
@@ -35,8 +54,14 @@ public class PlayerInventory : MonoBehaviour
 
                     slot.stackSize += amountToAdd;
                     amount -= amountToAdd;
+                    hasAdded = true;
 
-                    if (amount <= 0) return true; // Nhặt hết đồ, kết thúc hàm
+                    if (amount <= 0)
+                    {
+                        // active Event khi cộng dồn thành công và nhặt hết đồ
+                        OnInventoryChanged?.Invoke();
+                        return true;
+                    }
                 }
             }
         }
@@ -47,7 +72,11 @@ public class PlayerInventory : MonoBehaviour
             int amountToNewSlot = Mathf.Min(amount, item.maxStackSize);
             slots.Add(new InventorySlot(item, amountToNewSlot));
             amount -= amountToNewSlot;
+            hasAdded = true;
         }
+
+        // Kích hoạt Event nếu có bất kỳ ô mới nào được thêm vào thành công
+        if (hasAdded) OnInventoryChanged?.Invoke();
 
         return amount <= 0; // Trả về true nếu nhặt hết, false nếu túi đầy
     }
@@ -84,13 +113,16 @@ public class PlayerInventory : MonoBehaviour
             }
         }
 
+        // Kích hoạt Event sau khi đã xóa/giảm số lượng vật phẩm thành công
+        OnInventoryChanged?.Invoke();
         return true;
     }
 
     // Hàm thả vật phẩm ra môi trường thế giới 3D
     public void DropItem(ItemData item, int amount)
     {
-        // Gọi hàm RemoveItem để trừ số lượng trong kho đồ trước
+        // Gọi hàm RemoveItem để trừ số lượng trong kho đồ trước 
+        // (Hàm RemoveItem chạy thành công đã tự kích hoạt OnInventoryChanged ở trên rồi)
         if (RemoveItem(item, amount))
         {
             // Tính toán vị trí thả đồ trước mặt Player
@@ -111,6 +143,19 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
+    public void UseItem(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slots.Count)
+            return;
+
+        InventorySlot slot = slots[slotIndex];
+        
+        if(slot.itemData == null)
+            return;
+        
+        slot.itemData.Use();
+    }
+
     void Update()
     {
         // Bấm nút K trên bàn phím để vứt bớt 3 món đồ test
@@ -125,10 +170,7 @@ public class PlayerInventory : MonoBehaviour
                 if (daVut)
                 {
                     Debug.Log("Đã vứt 3 cái " + itemCanVut.itemName);
-
-                    // Cập nhật giao diện sau khi xóa vật phẩm
-                    InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
-                    if (uiManager != null) uiManager.UpdateInventoryUI();
+                    // ĐÃ LOẠI BỎ ĐOẠN CODE CODE FIND_OBJECT_OF_TYPE CŨ VÌ EVENT TỰ ĐỘNG XỬ LÝ
                 }
                 else
                 {
@@ -145,11 +187,8 @@ public class PlayerInventory : MonoBehaviour
                 ItemData itemMuonDrop = slots[0].itemData;
 
                 // Thả 2 vật phẩm đầu tiên trong túi ra đất
-                DropItem(itemMuonDrop, 2);
-
-                // Cập nhật giao diện sau khi thả vật phẩm ra đất
-                InventoryUIManager uiManager = FindObjectOfType<InventoryUIManager>();
-                if (uiManager != null) uiManager.UpdateInventoryUI();
+                DropItem(itemMuonDrop, 1);
+                // ĐÃ LOẠI BỎ ĐOẠN CODE CODE FIND_OBJECT_OF_TYPE CŨ VÌ EVENT TỰ ĐỘNG XỬ LÝ
             }
         }
     }

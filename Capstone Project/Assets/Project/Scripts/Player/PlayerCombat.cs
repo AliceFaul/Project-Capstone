@@ -1,53 +1,130 @@
+using System;
+using System.Collections;
+using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerCombat : MonoBehaviour {
-    [Header("Melee Setting")]
-    [SerializeField] private float attackRange = 2f;
+    [Header("Combat Setting")]
     [SerializeField] private Transform attackPoint;
-    [SerializeField] private float attackCooldown = 1f;
-    [SerializeField] private int attackDamage = 10;
-    
-    [Header("Ranged Setting")]
     [SerializeField] private Transform firePoint;
-    [SerializeField] private float fireRange = 20f;
     [SerializeField] private GameObject projectilePrefab;
     
+    [Header("Ammo Setting")]
+    [SerializeField] private int maxAmmo = 15;
+    [SerializeField] private TMP_Text ammoText;
+    
+    [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
     private Transform _currentTarget;
-    public float AttackRange => attackRange;
-    private float _lastAttackTime;
+    public Transform CurrentTarget => _currentTarget;
 
-    public void SetTarget(Transform target) => _currentTarget = target;
+    private bool _activeCombatWindow;
+    private int _currentAmmo; 
+    public int CurrentAmmo => _currentAmmo;
+    
+    private PlayerRuntime _runtime;
+    private PlayerController _controller;
+    
+    public float AttackRange => _runtime.AttackRange;
+    
+    private float _lastAttackTime;
+    private float _lastShootTime;
+
+    private void Awake()
+    {
+        _runtime = GetComponent<PlayerRuntime>();
+        _controller = GetComponent<PlayerController>();
+    }
+
+    private void Start()
+    {
+        _currentAmmo = maxAmmo;
+        if (ammoText != null)
+        {
+            ammoText.text = _currentAmmo.ToString();
+        }
+    }
+
+    public void SetTarget(Transform target)
+    {
+        _currentTarget = target;
+        Debug.Log($"Target: {target.name}");
+    }
 
     // Call this method in the PlayerController when the player clicks on an enemy
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
     public void Attack() {
+        Debug.Log("Attacking");
+        
         if(_currentTarget == null) 
             return;
-        if(Time.time - _lastAttackTime < attackCooldown) 
+
+        if (_activeCombatWindow)
+        {
+            RotateToTarget();
+            _controller.AnimationHandler.CmdRequestAttacking();
             return;
+        }
+        
+        if(!_controller.PlayerModifier.CanAttack)
+            return;
+        
+        _controller.CmdCombatLocked(true);
+        
         RotateToTarget();
-        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayer);
+        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
+        _controller.AnimationHandler.CmdRequestAttacking();
+    }
+
+    public void CmdActiveComboWindow(bool value) => _activeCombatWindow = value;
+    
+    // TODO: Convert to Animation Event and add in the end of every each attack animation clip
+    public void CmdEndAttackingProcess()
+    {
+        _controller.CmdCombatLocked(false);
+        _currentTarget = null;
+        _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
+    }
+    
+    // TODO: Add to Animation Event for exactly time
+    public void CmdDealDamage()
+    {
+        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         foreach(Collider enemy in hitEnemies) {
             // Check if the enemy has an IAttackable component and call TakeDamage
             IAttackable attackable = enemy.GetComponent<IAttackable>();
-            if(attackable != null) {
-                attackable.TakeDamage(attackDamage);
-                Debug.Log($"Attacked {enemy.name} for {attackDamage} damage.");
+            if(attackable != null)
+            {
+                int finalDamage = _runtime.Damage;
+                bool crit = Random.value < _runtime.CritChance / 100f;
+
+                if (crit)
+                {
+                    finalDamage = Mathf.RoundToInt(finalDamage * _runtime.CritDamage / 100f);
+                }
+                
+                attackable.TakeDamage(finalDamage);
+                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {finalDamage} damage.");
             } else {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
         }
-        _currentTarget = null;
-        _lastAttackTime = Time.time;
     }
     
     // Call this method in the PlayerController when the player right clicks
     // TODO: Add animation trigger here and ammo
     public void Shoot(Vector3 mousePosition)
     {
+        if(_currentAmmo <= 0) 
+            return;
+        float cooldown = 1f / _runtime.AttackSpeed;
+        
+        if(Time.time - _lastShootTime < cooldown) 
+            return;
+        
         Vector3 direction = mousePosition - firePoint.position;
         direction.y = 0f;
         transform.forward = direction.normalized;
@@ -55,6 +132,9 @@ public class PlayerCombat : MonoBehaviour {
         var projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
         
         projectile.GetComponent<Projectile>().Initialize(direction);
+        
+        AdjustAmmo(-1);
+        _lastShootTime = Time.time;
     }
 
     private void RotateToTarget()
@@ -71,9 +151,21 @@ public class PlayerCombat : MonoBehaviour {
         transform.rotation = lookRotation;
     }
 
+    private void AdjustAmmo(int amount = 1)
+    {
+        _currentAmmo += amount;
+        ammoText.text = _currentAmmo.ToString(); // Update ammo text
+    }
+
     public void OnDrawGizmosSelected() {
+        if (_runtime == null)
+            _runtime = GetComponent<PlayerRuntime>();
+
+        if (_runtime == null)
+            return;
+        
         if(attackPoint == null) return;
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        Gizmos.DrawWireSphere(attackPoint.position, _runtime.AttackRange);
     }
 }
