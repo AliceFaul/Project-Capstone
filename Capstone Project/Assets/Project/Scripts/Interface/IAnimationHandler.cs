@@ -1,4 +1,5 @@
 ﻿public interface IAnimationHandler
 {
-    void UpdateAnimation(CharacterStateType oldState, CharacterStateType newState);
+    void TriggerAnimation(CharacterStateType oldState, CharacterStateType newState);
+    void UpdateAnimation();
 }

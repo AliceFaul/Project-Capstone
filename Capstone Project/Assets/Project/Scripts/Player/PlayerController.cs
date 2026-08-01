@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
     [Header("References")]
-    [SerializeField] private PlayerMovement movement;
-    [SerializeField] private PlayerCombat combat;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private PlayerInvokerCommand invoker;
 
@@ -14,6 +12,34 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask interactLayer;
     
     private ICommand _currentCommand;
+    
+    private PlayerMovement _movement;
+    public PlayerMovement Movement
+    {
+        get
+        {
+            if (_movement == null)
+            {
+                _movement = GetComponent<PlayerMovement>();
+            }
+            return _movement;
+        }
+        set => _movement = value;
+    }
+    
+    private PlayerCombat _combat;
+    public PlayerCombat Combat
+    {
+        get
+        {
+            if (_combat == null)
+            {
+                _combat = GetComponent<PlayerCombat>();
+            }
+            return _combat;
+        }
+        set => _combat = value;
+    }
     
     private PlayerStateMachine _stateMachine;
     public PlayerStateMachine StateMachine
@@ -79,19 +105,19 @@ public class PlayerController : MonoBehaviour {
 
     private void Update()
     {
-        AnimationHandler.LocomotionProcess();
+        AnimationHandler.UpdateAnimation();
     }
 
     private void OnEnable() {
         InputHandler.OnLeftClick += HandleLeftClick;
         InputHandler.OnRightClick += HandleRightClick;
-        movement.OnDestinationReached += OnDestinationReached;
+        Movement.OnDestinationReached += OnDestinationReached;
     }
 
     private void OnDisable() {
         InputHandler.OnLeftClick -= HandleLeftClick;
         InputHandler.OnRightClick -= HandleRightClick;
-        movement.OnDestinationReached -= OnDestinationReached;
+        Movement.OnDestinationReached -= OnDestinationReached;
     }
 
     private void HandleLeftClick() { 
@@ -138,14 +164,11 @@ public class PlayerController : MonoBehaviour {
             return;
         }
         
-        combat.Shoot(hit.point);
+        Combat.Shoot(hit.point);
     }
 
     private void ExecuteMovement(Vector3 destination) {
-        if(!PlayerModifier.CanMove)
-            return;
-        
-        ICommand moveCommand = new MoveCommand(movement, destination);
+        ICommand moveCommand = new MoveCommand(this, destination);
         if(invoker != null) { 
             invoker.ExecuteCommand(moveCommand);
             _currentCommand = moveCommand;
@@ -154,20 +177,22 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteAttack(Transform target) {
-        if(!PlayerModifier.CanAttack)
-            return;
-        
-        ICommand attackCommand = new AttackCommand(combat, movement, target);
+        ICommand attackCommand = new AttackCommand(this, target);
         if (invoker != null)
         {
             invoker.ExecuteCommand(attackCommand);
             _currentCommand = attackCommand;
         }
-        StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
 
     private void ExecuteInteraction() { 
     
+    }
+
+    public void CmdCombatLocked(bool value)
+    {
+        PlayerModifier.AttackModifier(!value);
+        PlayerModifier.MoveModifier(!value);
     }
 
     private void OnDestinationReached()
@@ -178,7 +203,7 @@ public class PlayerController : MonoBehaviour {
                 // Move...
                 break;
             case AttackCommand:
-                combat.Attack();
+                Combat.Attack();
                 break;
         }
         

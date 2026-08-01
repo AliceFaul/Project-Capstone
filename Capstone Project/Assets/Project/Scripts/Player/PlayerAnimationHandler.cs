@@ -20,6 +20,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     // === ATTACKING ===
     private readonly int AttackHash = Animator.StringToHash("Attack");
     private readonly int AttackCountHash = Animator.StringToHash("AttackCount");
+    private bool _requestAttacking;
     
     private readonly int RollHash = Animator.StringToHash("Roll");
     private readonly int HitHash = Animator.StringToHash("Hit");
@@ -37,20 +38,17 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
         if (_stateMachine != null)
         {
-            _stateMachine.OnStateChange += UpdateAnimation;
+            _stateMachine.OnStateChange += TriggerAnimation;
         }
     }
 
-    public void UpdateAnimation(CharacterStateType oldState, CharacterStateType newState)
+    public void TriggerAnimation(CharacterStateType oldState, CharacterStateType newState)
     {
         if(_stateMachine == null)
             return;
         
         switch (newState)
         {
-            case CharacterStateType.Attack:
-                AttackProcess();
-                break;
             case CharacterStateType.Roll:
                 PlayAnimation(RollHash, 0.2f);
                 break;
@@ -65,42 +63,64 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
                 break;
         }
     }
-    
-    // Call in PlayerController
-    public void LocomotionProcess()
+
+    public void UpdateAnimation()
     {
-        if (_animator == null)
+        switch (_stateMachine.CurrentState)
         {
-            Debug.LogWarning("Animator is null");
-            return;
+            case CharacterStateType.Locomotion:
+                LocomotionProcess();
+                break;
+            case CharacterStateType.Attack:
+                AttackProcess();
+                break;
         }
-        
+    }
+
+    // Call in PlayerController
+    private void LocomotionProcess()
+    {
         if(_stateMachine.CurrentState != CharacterStateType.Locomotion)
             return;
         
-        float speed = runtime.MoveSpeed == 0 ? 0 : Mathf.Clamp01(
+        var speed = runtime.MoveSpeed == 0 ? 0 : Mathf.Clamp01(
             agent.velocity.magnitude / runtime.MoveSpeed);
         _animator.SetFloat(LocomotionHash, speed);
     }
 
     private void AttackProcess()
     {
-        if(_animator == null)
+        if (_requestAttacking)
+        {
+            _requestAttacking = false;
+            _animator.SetTrigger(AttackHash);
+            AttackCount = 0;
+        }
+        
+        AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
+        
+        if(!state.IsTag("Attack"))
             return;
         
-        _animator.SetTrigger(AttackHash);
-        AttackCount = 0;
+        var time = state.normalizedTime;
+        combat.CmdActiveComboWindow(time is >= 0.7f and <= 0.95f);
+        if (state.IsTag("Attack") && time >= 1f)
+        {
+            EndAttackingProcess();
+        }
     }
 
     private int AttackCount
     {
         get => _animator.GetInteger(AttackCountHash);
-        set => _animator.SetInteger(AttackCountHash, value);
+        set => _animator.SetInteger(AttackCountHash, value); 
     }
     
+    public void CmdRequestAttacking() => _requestAttacking = true;
+    
     // === ATTACK ANIMATION EVENT
-    public void DealDamage() => combat.DealDamage();
-    public void EndAttackingProcess() => combat.EndAttackingProcess();
+    public void DealDamage() => combat.CmdDealDamage();
+    public void EndAttackingProcess() => combat.CmdEndAttackingProcess();
 
     private void PlayAnimation(int hash, float time)
     {

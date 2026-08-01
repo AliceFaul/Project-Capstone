@@ -19,7 +19,8 @@ public class PlayerCombat : MonoBehaviour {
     
     private Transform _currentTarget;
     public Transform CurrentTarget => _currentTarget;
-    
+
+    private bool _activeCombatWindow;
     private int _currentAmmo; 
     public int CurrentAmmo => _currentAmmo;
     
@@ -60,32 +61,36 @@ public class PlayerCombat : MonoBehaviour {
         
         if(_currentTarget == null) 
             return;
+
+        if (_activeCombatWindow)
+        {
+            RotateToTarget();
+            _controller.AnimationHandler.CmdRequestAttacking();
+            return;
+        }
         
         if(!_controller.PlayerModifier.CanAttack)
             return;
         
-        _controller.PlayerModifier.AttackModifier(false);
+        _controller.CmdCombatLocked(true);
+        
         RotateToTarget();
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
-
-        StartCoroutine(CooldownCoroutine());
+        _controller.AnimationHandler.CmdRequestAttacking();
     }
 
-    private IEnumerator CooldownCoroutine()
-    {
-        yield return new WaitForSeconds(1f / _runtime.AttackSpeed);
-        _controller.PlayerModifier.AttackModifier(true);
-    }
+    public void CmdActiveComboWindow(bool value) => _activeCombatWindow = value;
     
     // TODO: Convert to Animation Event and add in the end of every each attack animation clip
-    public void EndAttackingProcess()
+    public void CmdEndAttackingProcess()
     {
+        _controller.CmdCombatLocked(false);
         _currentTarget = null;
         _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
     
     // TODO: Add to Animation Event for exactly time
-    public void DealDamage()
+    public void CmdDealDamage()
     {
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         foreach(Collider enemy in hitEnemies) {

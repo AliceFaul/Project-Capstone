@@ -5,9 +5,9 @@ public class AttackCommand : ICommand {
     private readonly PlayerMovement _movement; // Help to move the player towards the enemy if out of range
     private readonly Transform _target;
 
-    public AttackCommand(PlayerCombat combat, PlayerMovement movement, Transform target) {
-        _combat = combat;
-        _movement = movement;
+    public AttackCommand(PlayerController controller, Transform target) {
+        _combat = controller.Combat;
+        _movement = controller.Movement;
         _target = target;
     }
     
