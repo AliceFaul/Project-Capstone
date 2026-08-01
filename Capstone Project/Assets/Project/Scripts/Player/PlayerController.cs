@@ -1,6 +1,14 @@
 using System;
 using UnityEngine;
 
+public enum CommandType
+{
+    None,
+    Move,
+    Attack,
+    Interact
+}
+
 public class PlayerController : MonoBehaviour {
     [Header("References")]
     [SerializeField] private Camera mainCamera;
@@ -11,7 +19,9 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
     
-    private ICommand _currentCommand;
+    [SerializeField] private CommandType currentCommand;
+    private ICommand<Vector3> _moveCommand;
+    private ICommand<Transform> _attackCommand;
     
     private PlayerMovement _movement;
     public PlayerMovement Movement
@@ -101,6 +111,9 @@ public class PlayerController : MonoBehaviour {
         if(mainCamera == null) {
             mainCamera = Camera.main;
         }
+        
+        _moveCommand = new MoveCommand(this);
+        _attackCommand = new AttackCommand(this);
     }
 
     private void Update()
@@ -168,20 +181,18 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteMovement(Vector3 destination) {
-        ICommand moveCommand = new MoveCommand(this, destination);
         if(invoker != null) { 
-            invoker.ExecuteCommand(moveCommand);
-            _currentCommand = moveCommand;
+            invoker.ExecuteCommand(_moveCommand, destination);
+            currentCommand = CommandType.Move;
         }
         StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
 
     private void ExecuteAttack(Transform target) {
-        ICommand attackCommand = new AttackCommand(this, target);
         if (invoker != null)
         {
-            invoker.ExecuteCommand(attackCommand);
-            _currentCommand = attackCommand;
+            invoker.ExecuteCommand(_attackCommand, target);
+            currentCommand = CommandType.Attack;
         }
     }
 
@@ -197,16 +208,17 @@ public class PlayerController : MonoBehaviour {
 
     private void OnDestinationReached()
     {
-        switch (_currentCommand)
+        switch (currentCommand)
         {
-            case MoveCommand: 
+            case CommandType.Move: 
                 // Move...
                 break;
-            case AttackCommand:
+            case CommandType.Attack:
                 Combat.Attack();
                 break;
         }
         
+        currentCommand = CommandType.None;
         Debug.Log("Destination Reached");
     }
 }

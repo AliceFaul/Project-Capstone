@@ -81,7 +81,6 @@ public class PlayerCombat : MonoBehaviour {
 
     public void CmdActiveComboWindow(bool value) => _activeCombatWindow = value;
     
-    // TODO: Convert to Animation Event and add in the end of every each attack animation clip
     public void CmdEndAttackingProcess()
     {
         _controller.CmdCombatLocked(false);
