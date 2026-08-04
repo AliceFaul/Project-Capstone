@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
+  m_Name: Rune Ancient Bow
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  id: Mhieu_Bow_Id_1
+  itemName: Rune Ancient Bow
+  itemType: 1
+  rarity: 3
+  icon: {fileID: 21300000, guid: 9d2056dcf837a4c4ab662ffd4e65d641, type: 3}
+  isStackable: 0
+  maxStackSize: 64
+  equipmentType: 2
+  weaponType: 2
+  level: 100
+  damageModifier: 150
+  armorModifier: 0
+  speedModifier: 0
+  attackSpeedModifier: 0
+  attackRangeModifier: 0
+  critChanceModifier: 50
+  critDamageModifier: 100
+  equipmentMesh: {fileID: -6665426260531058033, guid: 7d58dd8d9be70844ea75845156e4179d, type: 3}
+  equipmentMaterial:
+  - {fileID: 2100000, guid: 1ee4688279d442648af0e658d7bb0cb8, type: 2}
