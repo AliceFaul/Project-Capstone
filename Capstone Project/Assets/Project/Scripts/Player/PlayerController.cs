@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour {
             return;
         }
         
-        Combat.Shoot(hit.point);
+        Combat.CmdShoot(hit.point);
     }
 
     private void ExecuteMovement(Vector3 destination) {
@@ -214,7 +214,7 @@ public class PlayerController : MonoBehaviour {
                 // Move...
                 break;
             case CommandType.Attack:
-                Combat.Attack();
+                Combat.CmdAttack();
                 break;
         }
         

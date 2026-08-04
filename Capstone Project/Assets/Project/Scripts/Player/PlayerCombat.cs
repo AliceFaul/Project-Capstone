@@ -21,7 +21,8 @@ public class PlayerCombat : MonoBehaviour {
     public Transform CurrentTarget => _currentTarget;
 
     private bool _activeCombatWindow;
-    private int _currentAmmo; 
+    private int _currentAmmo;
+    private Vector3 _shootPosition;
     public int CurrentAmmo => _currentAmmo;
     
     private PlayerRuntime _runtime;
@@ -56,7 +57,7 @@ public class PlayerCombat : MonoBehaviour {
     // Call this method in the PlayerController when the player clicks on an enemy
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
-    public void Attack() {
+    public void CmdAttack() {
         Debug.Log("Attacking");
         
         if(_currentTarget == null) 
@@ -115,23 +116,32 @@ public class PlayerCombat : MonoBehaviour {
     
     // Call this method in the PlayerController when the player right clicks
     // TODO: Add animation trigger here and ammo
-    public void Shoot(Vector3 mousePosition)
+    public void CmdShoot(Vector3 mousePosition)
     {
         if(_currentAmmo <= 0) 
             return;
+        
         float cooldown = 1f / _runtime.AttackSpeed;
         
         if(Time.time - _lastShootTime < cooldown) 
             return;
         
-        Vector3 direction = mousePosition - firePoint.position;
-        direction.y = 0f;
+        Vector3 direction = mousePosition - transform.position;
+        direction.y = 0;
         transform.forward = direction.normalized;
         
-        var projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
+        _shootPosition = mousePosition;
+        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
+        _controller.AnimationHandler.CmdAttackTrigger(1);
+    }
+
+    public void CmdSpawnProjectile()
+    {
+        Vector3 direction = _shootPosition - firePoint.position;
+        direction.y = 0f;
         
+        var  projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
         projectile.GetComponent<Projectile>().Initialize(direction);
-        
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
     }

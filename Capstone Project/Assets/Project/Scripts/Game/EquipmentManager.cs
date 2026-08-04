@@ -14,7 +14,7 @@ public class EquipmentManager : MonoBehaviour
     [Space]
     
     public PlayerInventory inventory;
-    public event Action<EquipmentManager> OnEquipmentChanged;
+    public event Action OnEquipmentChanged;
 
     private void Awake()
     {
@@ -102,7 +102,7 @@ public class EquipmentManager : MonoBehaviour
                 break;
         }
         
-        UpdateBonusStats();
+        OnEquipmentChanged?.Invoke();
     }
 
     public void Unequip(ItemData item)
@@ -139,11 +139,6 @@ public class EquipmentManager : MonoBehaviour
                 break;
         }
         
-        UpdateBonusStats();
-    }
-
-    private void UpdateBonusStats()
-    {
-        OnEquipmentChanged?.Invoke(this);
+        OnEquipmentChanged?.Invoke();
     }
 }

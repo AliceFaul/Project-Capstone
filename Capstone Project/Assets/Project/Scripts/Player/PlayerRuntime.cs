@@ -15,6 +15,8 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     [SerializeField] private float baseCritChance = 5f;
     [SerializeField] private float baseCritDamage = 100f;
     
+    private EquipmentManager _equipmentManager;
+    
     // === EQUIPMENT STATS === (Help debug)
     private int _equipmentDamage;
     private int _equipmentDefense;
@@ -59,8 +61,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     private void Awake()
     {
         Init();
-        RefreshStats(EquipmentManager.Instance);
-        
+        RefreshStats();
         EquipmentManager.Instance.OnEquipmentChanged += RefreshStats;
     }
     
@@ -71,8 +72,9 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
         Debug.Log($"Speed = {AttackSpeed}");
     }
 
-    public void Init()
+    private void Init()
     {
+        _equipmentManager = EquipmentManager.Instance;
         _currentHealth = baseHealth;
         OnHPChanged?.Invoke(_currentHealth);
     }
@@ -133,21 +135,21 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
         Debug.Log($"Move:{MoveSpeed} Damage:{Damage} AttackSpeed:{AttackSpeed} AttackRange: {AttackRange}");
     }
 
-    public void RefreshStats(EquipmentManager equipmentManger)
+    private void RefreshStats()
     {
         ResetEquipmentStats(); // Reset
-
-        if (equipmentManger == null)
+        
+        if (_equipmentManager == null)
         {
             Debug.LogWarning("No EquipmentManager found");
             return;
         }
         
-        ApplyEquipment(equipmentManger.Melee);
-        ApplyEquipment(equipmentManger.Ranged);
-        ApplyEquipment(equipmentManger.Armor);
+        ApplyEquipment(_equipmentManager.Melee);
+        ApplyEquipment(_equipmentManager.Ranged);
+        ApplyEquipment(_equipmentManager.Armor);
 
-        foreach (var artifact in equipmentManger.Artifacts)
+        foreach (var artifact in _equipmentManager.Artifacts)
         {
             ApplyEquipment(artifact);
         }
@@ -172,6 +174,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     {
         if(this == null)
             return;
+        
         DamageReduceCal damageCal = new DamageReduceCal();
         float finalDamage = damageCal.Calculate(damage, Defense);
         
