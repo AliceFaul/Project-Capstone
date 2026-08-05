@@ -28,16 +28,18 @@ public class PlayerCombat : MonoBehaviour {
     private Vector3 _shootPosition;
     public int CurrentAmmo => _currentAmmo;
     
+    private EquipmentManager _equipmentManager;
     private PlayerRuntime _runtime;
     private PlayerController _controller;
 
-    public float AttackRange => _currentMeleeWeapon.attributes.attackRange;
+    public float AttackRange;
     
     private float _lastAttackTime;
     private float _lastShootTime;
 
     private void Awake()
     {
+        _equipmentManager = EquipmentManager.Instance;
         _runtime = GetComponent<PlayerRuntime>();
         _controller = GetComponent<PlayerController>();
     }
@@ -50,23 +52,20 @@ public class PlayerCombat : MonoBehaviour {
             ammoText.text = _currentAmmo.ToString();
         }
         
-        UpdateWeapon();
+        if(_equipmentManager == null)
+            return;
+
+        _currentMeleeWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon);
+        _currentRangedWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon);
+        AttackRange = _currentMeleeWeapon.attributes.attackRange;
+
+        _equipmentManager.OnEquipmentChanged += UpdateWeapon;
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
-        if(EquipmentManager.Instance == null)
-            return;
-        
-        EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapon;
-    }
-
-    private void OnDisable()
-    {
-        if(EquipmentManager.Instance == null)
-            return;
-        
-        EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapon;
+        if (_equipmentManager != null)
+            _equipmentManager.OnEquipmentChanged -= UpdateWeapon;
     }
 
     public void SetTarget(Transform target)
@@ -177,13 +176,18 @@ public class PlayerCombat : MonoBehaviour {
         transform.rotation = lookRotation;
     }
 
-    private void UpdateWeapon()
+    private void UpdateWeapon(EquipmentChangedEventArgs args)
     {
-        if(EquipmentManager.Instance == null)
-            return;
-        
-        _currentMeleeWeapon = EquipmentManager.Instance.GetCurrentEquipment(EquipmentType.MeleeWeapon);
-        _currentRangedWeapon = EquipmentManager.Instance.GetCurrentEquipment(EquipmentType.RangedWeapon);
+        switch (args.EquipmentType)
+        {
+            case EquipmentType.MeleeWeapon:
+                _currentMeleeWeapon = args.NewEquipmentData;
+                AttackRange = _currentMeleeWeapon.attributes.attackRange;
+                break;
+            case EquipmentType.RangedWeapon:
+                _currentRangedWeapon = args.NewEquipmentData;
+                break;
+        }
     }
 
     private void AdjustAmmo(int amount = 1)

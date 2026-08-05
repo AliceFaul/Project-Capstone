@@ -13,23 +13,32 @@ public class ActiveWeapon : MonoBehaviour
     [SerializeField] private MeshFilter rangedMeshFilter;
     [SerializeField] private MeshRenderer rangedMeshRenderer;
     
-    private EquipmentManager _equipmentManager;
-
     private void Start()
     {
-        _equipmentManager = EquipmentManager.Instance;
-        UpdateWeapons();
-        
-        _equipmentManager.OnEquipmentChanged += UpdateWeapons;
+        UpdateMeleeWeapon(EquipmentManager.Instance.Melee);
+        UpdateRangedWeapon(EquipmentManager.Instance.Ranged);
+        EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapons;
     }
 
-    public void UpdateWeapons()
+    private void OnDestroy()
     {
-        if(_equipmentManager == null)
-            return;
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapons;
+    }
+
+    private void UpdateWeapons(EquipmentChangedEventArgs args)
+    {
+        Debug.Log($"Receive Event : {args.EquipmentType}");
         
-        UpdateMeleeWeapon(_equipmentManager.Melee);
-        UpdateRangedWeapon(_equipmentManager.Ranged);
+        switch (args.EquipmentType)
+        {
+            case EquipmentType.MeleeWeapon:
+                UpdateMeleeWeapon(args.NewEquipmentData);
+                break;
+            case EquipmentType.RangedWeapon:
+                UpdateRangedWeapon(args.NewEquipmentData);
+                break;
+        }
     }
 
     private void UpdateMeleeWeapon(EquipmentData equipment)

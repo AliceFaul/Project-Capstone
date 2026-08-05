@@ -55,7 +55,6 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     {
         Init();
         RefreshStats();
-        EquipmentManager.Instance.OnEquipmentChanged += RefreshStats;
     }
     
     private void Start()
@@ -70,6 +69,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
         _equipmentManager = EquipmentManager.Instance;
         _currentHealth = baseHealth;
         OnHPChanged?.Invoke(_currentHealth);
+        _equipmentManager.OnEquipmentChanged += HandleEquipmentChanged;
     }
 
     private void ApplyEquipment(EquipmentData equipment)
@@ -124,24 +124,32 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
 
     private void RefreshStats()
     {
-        ResetEquipmentStats(); // Reset
-        
+        ResetEquipmentStats();
+
         if (_equipmentManager == null)
         {
-            Debug.LogWarning("No EquipmentManager found");
-            return;
+            _equipmentManager = EquipmentManager.Instance;
         }
-        
-        ApplyEquipment(_equipmentManager.Melee);
-        ApplyEquipment(_equipmentManager.Ranged);
+
         ApplyEquipment(_equipmentManager.Armor);
 
         foreach (var artifact in _equipmentManager.Artifacts)
         {
             ApplyEquipment(artifact);
         }
-        
+
         CalculateTotalStats();
+    }
+    
+    private void HandleEquipmentChanged(EquipmentChangedEventArgs args)
+    {
+        switch (args.EquipmentType)
+        {
+            case EquipmentType.Armor:
+            case EquipmentType.Artifact:
+                RefreshStats();
+                break;
+        }
     }
 
     private void ResetEquipmentStats()
