@@ -120,6 +120,7 @@ public class PlayerCombat : MonoBehaviour {
             {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
                 attackable.TakeDamage(result.Damage);
+                CameraShake.Instance.ShakeCamera();
                 Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {result.Damage} damage.");
             } else {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
