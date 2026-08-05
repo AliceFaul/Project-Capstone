@@ -3,13 +3,14 @@
 public class Projectile : MonoBehaviour
 {
     [SerializeField] private float speed = 15f;
-    [SerializeField] private int damage = 10;
     
-    Vector3 _direction;
+    private Vector3 _direction;
+    private int _damage;
     
-    public void Initialize(Vector3 dir)
+    public void Initialize(Vector3 dir, int damage)
     {
         _direction = dir.normalized;
+        _damage = damage;
         Destroy(gameObject, 3f);
     }
 
@@ -22,8 +23,8 @@ public class Projectile : MonoBehaviour
     {
         if (other.TryGetComponent(out IAttackable attackable))
         {
-            attackable.TakeDamage(damage);
-            Debug.Log($"[Ranged Attack]: Attacked {other.gameObject.name} with {damage} damage");
+            attackable.TakeDamage(_damage);
+            Debug.Log($"[Ranged Attack]: Attacked {other.gameObject.name} with {_damage} damage");
         }
         Destroy(gameObject);
     }

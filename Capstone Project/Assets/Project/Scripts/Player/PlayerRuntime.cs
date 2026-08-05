@@ -18,15 +18,8 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     private EquipmentManager _equipmentManager;
     
     // === EQUIPMENT STATS === (Help debug)
-    private int _equipmentDamage;
     private int _equipmentDefense;
-    
     private float _equipmentMoveSpeed;
-    private float _equipmentAttackSpeed;
-    private float _equipmentAttackRange;
-    
-    private float _equipmentCritChance;
-    private float _equipmentCritDamage;
     
     // === BONUS STATS ===
     private int _bonusHealth; // Reserved for future potion/buff system
@@ -84,15 +77,8 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
         if(equipment == null)
             return;
 
-        _equipmentDamage += equipment.damageModifier;
         _equipmentDefense += equipment.armorModifier;
-
         _equipmentMoveSpeed += equipment.speedModifier;
-        _equipmentAttackSpeed += equipment.attackSpeedModifier;
-        _equipmentAttackRange += equipment.attackRangeModifier;
-        
-        _equipmentCritChance += equipment.critChanceModifier;
-        _equipmentCritDamage += equipment.critDamageModifier;
     }
 
     public void ApplyBonusStat(BonusStat bonusStat, float amount)
@@ -120,15 +106,16 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
 
     private void CalculateTotalStats()
     {
-        Damage = baseDamage + (_equipmentDamage + _bonusDamage);
+        Damage = baseDamage + _bonusDamage;
+        
         Defense = baseDefense + (_equipmentDefense + _bonusDefense);
-        
         MoveSpeed = baseMoveSpeed + (_equipmentMoveSpeed + _bonusMoveSpeed);
-        AttackSpeed = baseAttackSpeed + (_equipmentAttackSpeed + _bonusAttackSpeed);
-        AttackRange = baseAttackRange + (_equipmentAttackRange + _bonusAttackRange);
         
-        CritChance = baseCritChance + (_equipmentCritChance + _bonusCritChance);
-        CritDamage = baseCritDamage + (_equipmentCritDamage + _bonusCritDamage);
+        AttackSpeed = baseAttackSpeed + _bonusAttackSpeed;
+        AttackRange = baseAttackRange + _bonusAttackRange;
+        
+        CritChance = baseCritChance + _bonusCritChance;
+        CritDamage = baseCritDamage + _bonusCritDamage;
         
         OnStatsChanged?.Invoke();
         
@@ -159,15 +146,8 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
 
     private void ResetEquipmentStats()
     {
-        _equipmentDamage = 0;
         _equipmentDefense = 0;
-
         _equipmentMoveSpeed = 0;
-        _equipmentAttackSpeed = 0;
-        _equipmentAttackRange = 0;
-
-        _equipmentCritChance = 0;
-        _equipmentCritDamage = 0;
     }
     
     public void TakeDamage(float damage)

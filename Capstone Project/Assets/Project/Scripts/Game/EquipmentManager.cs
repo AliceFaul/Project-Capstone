@@ -28,6 +28,21 @@ public class EquipmentManager : MonoBehaviour
         inventory = PlayerInventory.Instance;
     }
 
+    public EquipmentData GetCurrentEquipment(EquipmentType equipmentType)
+    {
+        switch (equipmentType)
+        {
+            case EquipmentType.MeleeWeapon:
+                return Melee;
+            case EquipmentType.RangedWeapon:
+                return Ranged;
+            case EquipmentType.Armor:
+                return Armor;
+            default:
+                return null;
+        }
+    }
+
     public void Equip(ItemData item)
     {
         if(item.itemType != ItemType.Equipment)
@@ -74,31 +89,26 @@ public class EquipmentManager : MonoBehaviour
                 Armor = equipment;
                 break;
             case EquipmentType.Artifact:
-                if (inventory != null)
+                int emptySlot = -1;
+
+                for(int i = 0; i < Artifacts.Length; i++)
                 {
-                    for (int i = 0; i < Artifacts.Length; i++)
+                    if(Artifacts[i] == null)
                     {
-                        if (Artifacts[i] != null)
-                        {
-                            inventory.AddItem(Artifacts[i], 1);
-                            return;
-                        }
+                        emptySlot = i;
+                        break;
                     }
+                }
+
+                if(emptySlot >= 0)
+                {
+                    Artifacts[emptySlot] = equipment;
                 }
                 else
                 {
-                    Debug.LogWarning("Player Inventory is missing");
+                    inventory.AddItem(Artifacts[0],1);
+                    Artifacts[0] = equipment;
                 }
-                
-                for (int i = 0; i < Artifacts.Length; i++)
-                {
-                    if (Artifacts[i] == null)
-                    {
-                        Artifacts[i] = equipment;
-                        return;
-                    }
-                }
-                Artifacts[0] = equipment;
                 break;
         }
         
@@ -129,7 +139,7 @@ public class EquipmentManager : MonoBehaviour
             case EquipmentType.Artifact:
                 for (int i = Artifacts.Length - 1; i >= 0; i--)
                 {
-                    if (Artifacts[i] == null)
+                    if (Artifacts[i] != null)
                     {
                         Artifacts[i] = null;
                         return;

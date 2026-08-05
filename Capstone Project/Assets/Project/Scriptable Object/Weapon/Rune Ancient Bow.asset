@@ -22,13 +22,19 @@ MonoBehaviour:
   equipmentType: 2
   weaponType: 2
   level: 100
-  damageModifier: 150
+  attributes:
+    damage: 150
+    attackSpeed: 0
+    attackRange: 0
+    critChance: 35
+    critDamage: 125
+  damageModifier: 30
   armorModifier: 0
   speedModifier: 0
   attackSpeedModifier: 0
   attackRangeModifier: 0
-  critChanceModifier: 50
-  critDamageModifier: 100
+  critChanceModifier: 0
+  critDamageModifier: 0
   equipmentMesh: {fileID: -6665426260531058033, guid: 7d58dd8d9be70844ea75845156e4179d, type: 3}
   equipmentMaterial:
   - {fileID: 2100000, guid: 1ee4688279d442648af0e658d7bb0cb8, type: 2}

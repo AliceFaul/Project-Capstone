@@ -138,6 +138,8 @@ public class PlayerController : MonoBehaviour {
             Debug.LogWarning("InputHandler is not assigned.");
             return;
         }
+        
+        Debug.Log("Right Click");
 
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 

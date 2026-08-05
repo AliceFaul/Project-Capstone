@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PlayerCombat : MonoBehaviour {
     [Header("Combat Setting")]
@@ -17,6 +16,10 @@ public class PlayerCombat : MonoBehaviour {
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
+    // === CURRENT WEAPON ===
+    private EquipmentData _currentMeleeWeapon;
+    private EquipmentData _currentRangedWeapon;
+    
     private Transform _currentTarget;
     public Transform CurrentTarget => _currentTarget;
 
@@ -27,8 +30,8 @@ public class PlayerCombat : MonoBehaviour {
     
     private PlayerRuntime _runtime;
     private PlayerController _controller;
-    
-    public float AttackRange => _runtime.AttackRange;
+
+    public float AttackRange => _currentMeleeWeapon.attributes.attackRange;
     
     private float _lastAttackTime;
     private float _lastShootTime;
@@ -46,6 +49,24 @@ public class PlayerCombat : MonoBehaviour {
         {
             ammoText.text = _currentAmmo.ToString();
         }
+        
+        UpdateWeapon();
+    }
+
+    private void OnEnable()
+    {
+        if(EquipmentManager.Instance == null)
+            return;
+        
+        EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapon;
+    }
+
+    private void OnDisable()
+    {
+        if(EquipmentManager.Instance == null)
+            return;
+        
+        EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapon;
     }
 
     public void SetTarget(Transform target)
@@ -98,16 +119,9 @@ public class PlayerCombat : MonoBehaviour {
             IAttackable attackable = enemy.GetComponent<IAttackable>();
             if(attackable != null)
             {
-                int finalDamage = _runtime.Damage;
-                bool crit = Random.value < _runtime.CritChance / 100f;
-
-                if (crit)
-                {
-                    finalDamage = Mathf.RoundToInt(finalDamage * _runtime.CritDamage / 100f);
-                }
-                
-                attackable.TakeDamage(finalDamage);
-                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {finalDamage} damage.");
+                var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
+                attackable.TakeDamage(result.Damage);
+                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {result.Damage} damage.");
             } else {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
@@ -121,9 +135,9 @@ public class PlayerCombat : MonoBehaviour {
         if(_currentAmmo <= 0) 
             return;
         
-        float cooldown = 1f / _runtime.AttackSpeed;
+        Debug.Log("Shooting");
         
-        if(Time.time - _lastShootTime < cooldown) 
+        if(Time.time - _lastShootTime < .7f) 
             return;
         
         Vector3 direction = mousePosition - transform.position;
@@ -131,6 +145,7 @@ public class PlayerCombat : MonoBehaviour {
         transform.forward = direction.normalized;
         
         _shootPosition = mousePosition;
+        _controller.CmdCombatLocked(true);
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
         _controller.AnimationHandler.CmdAttackTrigger(1);
     }
@@ -140,8 +155,10 @@ public class PlayerCombat : MonoBehaviour {
         Vector3 direction = _shootPosition - firePoint.position;
         direction.y = 0f;
         
+        var result = DamageCalculator.Calculate(_runtime, _currentRangedWeapon);
+        
         var  projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
-        projectile.GetComponent<Projectile>().Initialize(direction);
+        projectile.GetComponent<Projectile>().Initialize(direction, result.Damage);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
     }
@@ -158,6 +175,15 @@ public class PlayerCombat : MonoBehaviour {
         
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = lookRotation;
+    }
+
+    private void UpdateWeapon()
+    {
+        if(EquipmentManager.Instance == null)
+            return;
+        
+        _currentMeleeWeapon = EquipmentManager.Instance.GetCurrentEquipment(EquipmentType.MeleeWeapon);
+        _currentRangedWeapon = EquipmentManager.Instance.GetCurrentEquipment(EquipmentType.RangedWeapon);
     }
 
     private void AdjustAmmo(int amount = 1)

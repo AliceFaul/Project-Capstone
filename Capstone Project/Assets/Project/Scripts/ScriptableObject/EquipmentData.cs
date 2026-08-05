@@ -3,6 +3,16 @@
 public enum EquipmentType { None, MeleeWeapon, RangedWeapon, Armor, Artifact, Special }
 public enum WeaponType { Sword, Axe, Bow, Crossbow }
 
+[System.Serializable]
+public class EquipmentAttribute
+{
+    public int damage;
+    public float attackSpeed;
+    public float attackRange;
+    public float critChance;
+    public float critDamage;
+}
+
 [CreateAssetMenu(menuName = "Inventory/Equipment Data",  fileName = "New Equipment Data")]
 public class EquipmentData : ItemData
 {
@@ -13,7 +23,10 @@ public class EquipmentData : ItemData
     [Header("Level")]
     public int level = 1;
     
-    [Header("Stat Modifiers")]
+    [Header("Attributes")]
+    public EquipmentAttribute attributes;
+    
+    [Header("Sub Stat Modifiers")]
     public int damageModifier;
     public int armorModifier;
     public float speedModifier;
@@ -21,7 +34,7 @@ public class EquipmentData : ItemData
     public float attackRangeModifier;
     public float critChanceModifier;
     public float critDamageModifier;
-
+    
     [Header("Visuals")] 
     public Mesh equipmentMesh;
     public Material[] equipmentMaterial;
