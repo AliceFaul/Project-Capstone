@@ -8,16 +8,16 @@ public class LocalizationText : MonoBehaviour, ITextProvider
 {
     [SerializeField] private LocalizedString _localizedString;
 
+    private TMP_Text _text;
+    
     private void Awake()
     {
-        InitText();
+        _text = GetComponent<TMP_Text>();
     }
 
     public void InitText()
     {
-        TMP_Text text = GetComponent<TMP_Text>();
-
-        if (text == null)
+        if (_text == null)
         {
             Debug.LogError($"[LocalizationText] {gameObject.name} has no TMP_Text component!");
             return;
@@ -25,7 +25,7 @@ public class LocalizationText : MonoBehaviour, ITextProvider
 
         _localizedString.StringChanged += (localizedString) =>
         {
-            text.text = localizedString;
+            _text.text = localizedString;
         };
     }
 
@@ -36,7 +36,19 @@ public class LocalizationText : MonoBehaviour, ITextProvider
 
     public void ChangeText(LocalizedString text)
     {
+        if(_localizedString != null)
+            _localizedString.StringChanged -= UpdateText;
+
         _localizedString = text;
-        InitText();
+
+        if(_localizedString != null)
+            _localizedString.StringChanged += UpdateText;
+
+        _localizedString?.RefreshString();
+    }
+
+    private void UpdateText(string value)
+    {
+        _text.text = value;
     }
 }

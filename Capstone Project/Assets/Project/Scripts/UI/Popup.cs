@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UI;
 
-public class Popup : MonoBehaviour
+public class Popup : UIElement
 {
-    [SerializeField] private string instanceID;
     [SerializeField] private LocalizationText contentText;
     [SerializeField] private Button button1;
     [SerializeField] private Button button2;
@@ -18,9 +17,9 @@ public class Popup : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
 
-    public void Setup(string InstanceID, LocalizedString content, Action button1, Action button2)
+    public void Setup(Guid InstanceID, LocalizedString content, Action button1, Action button2)
     {
-        instanceID = InstanceID;
+        this.InstanceID = InstanceID;
         contentText.ChangeText(content);
 
         if (this.button1 != null)
@@ -42,13 +41,13 @@ public class Popup : MonoBehaviour
         }
     }
     
-    public void Setup(string InstaceID, LocalizedString content)
+    public void Setup(Guid InstaceID, LocalizedString content)
         => Setup(InstaceID, content, null, null);
     
     private IEnumerator ClosePopup(float time)
     {
-        _animator.Play("Close");
+        _animator.Play($"Close");
         yield return new WaitForSeconds(time);
-        Destroy(gameObject);
+        Close();
     }
 }

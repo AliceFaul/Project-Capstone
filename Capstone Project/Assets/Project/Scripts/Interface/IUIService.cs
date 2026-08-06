@@ -1,9 +1,10 @@
-﻿using UnityEngine.Localization;
+﻿using System;
+using UnityEngine.Localization;
 
-public interface IUIService
+public interface IUIService<in TType>
 {
-    void Create(string prefabID, string instanceID, LocalizedString content);
-    void Show(string id);
-    void Hide(string id);
-    void Destroy(string id, float time);
+    void Create(TType type);
+    void Show(Guid id);
+    void Hide(Guid id);
+    void Destroy(Guid id, float time);
 }
