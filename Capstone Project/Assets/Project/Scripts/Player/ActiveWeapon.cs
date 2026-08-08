@@ -7,6 +7,7 @@ public class ActiveWeapon : MonoBehaviour
     [SerializeField] private GameObject meleeVisual;
     [SerializeField] private MeshFilter meleeMeshFilter;
     [SerializeField] private MeshRenderer meleeMeshRenderer;
+    [SerializeField] private Transform weaponTrail;
     
     [Header("Ranged Weapon")]
     [SerializeField] private GameObject rangedVisual;
@@ -51,6 +52,7 @@ public class ActiveWeapon : MonoBehaviour
 
         meleeMeshFilter.sharedMesh = equipment.equipmentMesh;
         meleeMeshRenderer.sharedMaterials = equipment.equipmentMaterial;
+        
         Debug.Log($"Change melee weapon: {equipment.itemName}");
     }
 
