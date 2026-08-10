@@ -5,4 +5,9 @@ public class PlayerInvokerCommand : MonoBehaviour {
     public void ExecuteCommand(ICommand command) { 
         command?.Execute();
     }
+
+    public void ExecuteCommand<T>(ICommand<T> command, T data)
+    {
+        command?.Execute(data);
+    }
 }

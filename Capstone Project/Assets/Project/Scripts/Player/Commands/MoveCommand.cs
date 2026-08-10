@@ -1,22 +1,20 @@
 using UnityEngine;
 
-public class MoveCommand : ICommand {
+public class MoveCommand : ICommand<Vector3>  {
     private readonly PlayerMovement _movement;
     private readonly PlayerModifier _modifier;
-    private readonly Vector3 _destination;
 
-    public MoveCommand(PlayerController controller, Vector3 destination) {
+    public MoveCommand(PlayerController controller) {
         _movement = controller.Movement;
         _modifier = controller.PlayerModifier;
-        _destination = destination;
     }
 
-    public void Execute() {
+    public void Execute(Vector3 destination) {
         if(_movement != null) {
             if (!_modifier.CanMove)
                 return;
             
-            _movement.MoveTo(_destination);
+            _movement.MoveTo(destination);
         } else { 
             Debug.LogWarning("PlayerMovement is not assigned.");
         }

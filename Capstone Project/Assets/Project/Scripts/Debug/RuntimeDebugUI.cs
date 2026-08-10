@@ -12,15 +12,17 @@ public class RuntimeDebugUI : MonoBehaviour
     
     private IStateMachine _stateMachine;
     private PlayerModifier _modifier;
+    private EquipmentManager _equipmentManager;
     
     private void Start()
     {
         if(controller != null)
         {
-            if (_stateMachine == null && _modifier == null)
+            if (_stateMachine == null && _modifier == null && _equipmentManager == null)
             {
                 _stateMachine = controller.StateMachine;
                 _modifier = controller.PlayerModifier;
+                _equipmentManager = EquipmentManager.Instance;
             }
             else
             {
@@ -54,16 +56,16 @@ public class RuntimeDebugUI : MonoBehaviour
             $"State: {_stateMachine.CurrentState} \n" +
             $"Health: {runtime.Health} \n\n" +
             $"===== COMBAT ===== \n" +
-            $"Damage: {runtime.Damage} \n" +
-            $"Attack Speed: {runtime.AttackSpeed} \n" +
-            $"Range: {runtime.AttackRange} \n\n" +
+            $"Damage: {_equipmentManager.Melee.attributes.damage} \n" +
+            $"Attack Speed: {_equipmentManager.Melee.attributes.attackSpeed} \n" +
+            $"Range: {_equipmentManager.Melee.attributes.attackRange} \n\n" +
             $"===== MOVEMENT ===== \n" +
             $"Move Speed: {runtime.MoveSpeed} \n\n" +
             $"===== DEFENSE ===== \n" +
             $"Defense: {runtime.Defense} \n\n" +
             $"===== CRITICAL ===== \n" +
-            $"Crit Chance: {runtime.CritChance} \n" +
-            $"Crit Damage: {runtime.CritDamage} \n\n" +
+            $"Crit Chance: {_equipmentManager.Melee.attributes.critChance} \n" +
+            $"Crit Damage: {_equipmentManager.Melee.attributes.critDamage} \n\n" +
             $"===== STATUS ===== \n" +
             $"Can Move: {_modifier.CanMove} \n" +
             $"Can Attack: {_modifier.CanAttack} \n\n" +

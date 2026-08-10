@@ -1,21 +1,19 @@
 using UnityEngine;
 
-public class AttackCommand : ICommand {
+public class AttackCommand : ICommand<Transform> {
     private readonly PlayerCombat _combat;
     private readonly PlayerMovement _movement; // Help to move the player towards the enemy if out of range
-    private readonly Transform _target;
 
-    public AttackCommand(PlayerController controller, Transform target) {
+    public AttackCommand(PlayerController controller) {
         _combat = controller.Combat;
         _movement = controller.Movement;
-        _target = target;
     }
     
-    public void Execute() {
+    public void Execute(Transform target) {
         if (_combat != null)
         {
-            _combat.SetTarget(_target);
-            _movement.MoveToTarget(_target, _combat.AttackRange);
+            _combat.SetTarget(target);
+            _movement.MoveToTarget(target, _combat.AttackRange);
         }
     }
 }

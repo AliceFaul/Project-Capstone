@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PlayerCombat : MonoBehaviour {
     [Header("Combat Setting")]
@@ -17,23 +16,30 @@ public class PlayerCombat : MonoBehaviour {
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
+    // === CURRENT WEAPON ===
+    private EquipmentData _currentMeleeWeapon;
+    private EquipmentData _currentRangedWeapon;
+    
     private Transform _currentTarget;
     public Transform CurrentTarget => _currentTarget;
 
     private bool _activeCombatWindow;
-    private int _currentAmmo; 
+    private int _currentAmmo;
+    private Vector3 _shootPosition;
     public int CurrentAmmo => _currentAmmo;
     
+    private EquipmentManager _equipmentManager;
     private PlayerRuntime _runtime;
     private PlayerController _controller;
-    
-    public float AttackRange => _runtime.AttackRange;
+
+    public float AttackRange;
     
     private float _lastAttackTime;
     private float _lastShootTime;
 
     private void Awake()
     {
+        _equipmentManager = EquipmentManager.Instance;
         _runtime = GetComponent<PlayerRuntime>();
         _controller = GetComponent<PlayerController>();
     }
@@ -45,6 +51,21 @@ public class PlayerCombat : MonoBehaviour {
         {
             ammoText.text = _currentAmmo.ToString();
         }
+        
+        if(_equipmentManager == null)
+            return;
+
+        _currentMeleeWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon);
+        _currentRangedWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon);
+        AttackRange = _currentMeleeWeapon.attributes.attackRange;
+
+        _equipmentManager.OnEquipmentChanged += UpdateWeapon;
+    }
+
+    private void OnDestroy()
+    {
+        if (_equipmentManager != null)
+            _equipmentManager.OnEquipmentChanged -= UpdateWeapon;
     }
 
     public void SetTarget(Transform target)
@@ -56,7 +77,7 @@ public class PlayerCombat : MonoBehaviour {
     // Call this method in the PlayerController when the player clicks on an enemy
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
-    public void Attack() {
+    public void CmdAttack() {
         Debug.Log("Attacking");
         
         if(_currentTarget == null) 
@@ -81,7 +102,6 @@ public class PlayerCombat : MonoBehaviour {
 
     public void CmdActiveComboWindow(bool value) => _activeCombatWindow = value;
     
-    // TODO: Convert to Animation Event and add in the end of every each attack animation clip
     public void CmdEndAttackingProcess()
     {
         _controller.CmdCombatLocked(false);
@@ -98,16 +118,10 @@ public class PlayerCombat : MonoBehaviour {
             IAttackable attackable = enemy.GetComponent<IAttackable>();
             if(attackable != null)
             {
-                int finalDamage = _runtime.Damage;
-                bool crit = Random.value < _runtime.CritChance / 100f;
-
-                if (crit)
-                {
-                    finalDamage = Mathf.RoundToInt(finalDamage * _runtime.CritDamage / 100f);
-                }
-                
-                attackable.TakeDamage(finalDamage);
-                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {finalDamage} damage.");
+                var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
+                attackable.TakeDamage(result.Damage);
+                CameraShake.Instance.ShakeCamera();
+                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {result.Damage} damage.");
             } else {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
@@ -116,23 +130,35 @@ public class PlayerCombat : MonoBehaviour {
     
     // Call this method in the PlayerController when the player right clicks
     // TODO: Add animation trigger here and ammo
-    public void Shoot(Vector3 mousePosition)
+    public void CmdShoot(Vector3 mousePosition)
     {
         if(_currentAmmo <= 0) 
             return;
-        float cooldown = 1f / _runtime.AttackSpeed;
         
-        if(Time.time - _lastShootTime < cooldown) 
+        Debug.Log("Shooting");
+        
+        if(Time.time - _lastShootTime < .7f) 
             return;
         
-        Vector3 direction = mousePosition - firePoint.position;
-        direction.y = 0f;
+        Vector3 direction = mousePosition - transform.position;
+        direction.y = 0;
         transform.forward = direction.normalized;
         
-        var projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
+        _shootPosition = mousePosition;
+        _controller.CmdCombatLocked(true);
+        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
+        _controller.AnimationHandler.CmdAttackTrigger(1);
+    }
+
+    public void CmdSpawnProjectile()
+    {
+        Vector3 direction = _shootPosition - firePoint.position;
+        direction.y = 0f;
         
-        projectile.GetComponent<Projectile>().Initialize(direction);
+        var result = DamageCalculator.Calculate(_runtime, _currentRangedWeapon);
         
+        var  projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
+        projectile.GetComponent<Projectile>().Initialize(direction, result.Damage);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
     }
@@ -149,6 +175,20 @@ public class PlayerCombat : MonoBehaviour {
         
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = lookRotation;
+    }
+
+    private void UpdateWeapon(EquipmentChangedEventArgs args)
+    {
+        switch (args.EquipmentType)
+        {
+            case EquipmentType.MeleeWeapon:
+                _currentMeleeWeapon = args.NewEquipmentData;
+                AttackRange = _currentMeleeWeapon.attributes.attackRange;
+                break;
+            case EquipmentType.RangedWeapon:
+                _currentRangedWeapon = args.NewEquipmentData;
+                break;
+        }
     }
 
     private void AdjustAmmo(int amount = 1)

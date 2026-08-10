@@ -93,8 +93,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         if (_requestAttacking)
         {
             _requestAttacking = false;
-            _animator.SetTrigger(AttackHash);
-            AttackCount = 0;
+           CmdAttackTrigger(0);
         }
         
         AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
@@ -110,6 +109,12 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         }
     }
 
+    public void CmdAttackTrigger(int attackCount)
+    {
+        _animator.SetTrigger(AttackHash);
+        AttackCount = attackCount;
+    }
+
     private int AttackCount
     {
         get => _animator.GetInteger(AttackCountHash);
@@ -120,6 +125,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     
     // === ATTACK ANIMATION EVENT
     public void DealDamage() => combat.CmdDealDamage();
+    public void SpawnProjectile() => combat.CmdSpawnProjectile();
     public void EndAttackingProcess() => combat.CmdEndAttackingProcess();
 
     private void PlayAnimation(int hash, float time)

@@ -22,6 +22,9 @@ public class CameraShake : MonoBehaviour
 
     public void ShakeCamera()
     {
+        if(_impulseSource == null)
+            return;
+        
         _impulseSource.GenerateImpulse();
     }
 }
