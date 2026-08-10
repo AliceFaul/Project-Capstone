@@ -44,12 +44,12 @@ public class ResourceManager : MonoBehaviour, IManager
         {
             if (assetReferences.Assets.Count > 0)
             {
-                var handles = assetReferences.Assets
-                    .Select(ar => ar.LoadAssetAsync<Object>())
-                    .ToList();
-                
                 var toLoad = assetReferences.Assets
                     .Where(ar => ar.Asset == null || !_loadedAssets.ContainsKey(ar.Asset.name))
+                    .ToList();
+
+                var handles = toLoad
+                    .Select(ar => ar.LoadAssetAsync<Object>())
                     .ToList();
 
                 await Task.WhenAll(handles.Select(h => h.Task));
@@ -87,7 +87,7 @@ public class ResourceManager : MonoBehaviour, IManager
                     for (int i = 0; i < handles.Count; i++)
                     {
                         var handle = handles[i];
-                        var location = locations[i];
+                        var location = locationsToLoad[i];
                         if (handle.Status == AsyncOperationStatus.Succeeded)
                         {
                             _loadedAssets[location.PrimaryKey] = handle;

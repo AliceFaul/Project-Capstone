@@ -36,6 +36,9 @@ public class EquipmentData : ItemData
     public float critDamageModifier;
     
     [Header("Visuals")] 
+    [SerializeField] private string key;
+    public string Key => key;
+    
     public Mesh equipmentMesh;
     public Material[] equipmentMaterial;
 
@@ -44,5 +47,27 @@ public class EquipmentData : ItemData
         base.Use();
         EquipmentManager.Instance.Equip(this);
         RemoveFromInventory();
+    }
+}
+
+public class WeaponFactory
+{
+    public GameObject Create(string weaponKey, Transform socket)
+    {
+        GameObject prefab = ResourceManager.Instance.GetAsset<GameObject>(weaponKey);
+        if (prefab == null)
+        {
+            Debug.LogError($"[WeaponFactory] Weapon prefab not found; {weaponKey}");
+            return null;
+        }
+        return Object.Instantiate(prefab, socket);
+    }
+    
+    public void DestroyInstance(GameObject instance)
+    {
+        if(instance == null)
+            return;
+        
+        Object.Destroy(instance);
     }
 }
