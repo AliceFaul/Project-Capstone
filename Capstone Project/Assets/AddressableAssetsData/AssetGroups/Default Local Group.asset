@@ -15,8 +15,8 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: ee9fc0d48fd1bc745a30915bf816a9ae
   m_SerializeEntries:
-  - m_GUID: 238d5f1b77b9e494180383a7f0480c61
-    m_Address: Assets/Blink/Art/Weapons/LowPoly/FreeRPGWeapons/_PREFABS/Bow_Medium.prefab
+  - m_GUID: 1267201ce33df30449b82e329efad56c
+    m_Address: Assets/Project/Scriptable Object/Config/WeaponAssetRef.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -25,8 +25,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6d2456ba08276d340a70ec1065d49e05
-    m_Address: Assets/Blink/Art/Weapons/LowPoly/FreeRPGWeapons/_PREFABS/Bow_Basic.prefab
+  - m_GUID: 7b54560f56fed7546b6ca0425b8b7536
+    m_Address: AssetReferencesList
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7fd8678969fd5cc40b7742bb47cfb9fb
+    m_Address: PopupContainer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -40,9 +45,19 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f9494530ecc1f3244b173a36bc61857d
+    m_Address: Assets/Project/Scriptable Object/Weapon/Crystal Sword.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: fd1e5720a7cd2cc4f8db3def7f017b5d, type: 2}
   m_SchemaSet:
     m_Schemas:
     - {fileID: 11400000, guid: af4c141f7ab03e34db0e89b81e25a2de, type: 2}
     - {fileID: 11400000, guid: aac85ba9914af644083fdbe044e8d6a9, type: 2}
+    m_SchemaDisplayOrder:
+    - Default Local Group_BundledAssetGroupSchema
+    - Default Local Group_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

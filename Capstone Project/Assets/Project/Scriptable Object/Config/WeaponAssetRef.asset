@@ -14,19 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AssetReferences
   key: Weapon
   assets:
-  - m_AssetGUID: 
+  - m_AssetGUID: d0c32318984847e428ac1bce4ea19377
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  - m_AssetGUID: 
+  - m_AssetGUID: 6590e99a522921647ac15769767472cd
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  - m_AssetGUID: 
+  - m_AssetGUID: 97d88fb9a3565d84daf5fff081fcbb91
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  labels: []
+  labels:
+  - m_LabelString: 
+  - m_LabelString: 
+  - m_LabelString: 

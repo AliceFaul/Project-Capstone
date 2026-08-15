@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4669778101875308864}
   - component: {fileID: 7433918205971402122}
   m_Layer: 0
-  m_Name: Sword15_Lava
+  m_Name: Inferno_Sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

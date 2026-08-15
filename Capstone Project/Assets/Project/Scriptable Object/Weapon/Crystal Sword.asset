@@ -19,6 +19,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 193bf5ce06d0c964da2635b288c3421f, type: 3}
   isStackable: 0
   maxStackSize: 64
+  equipmentPrefabKey: Crystal_Sword
   equipmentType: 1
   weaponType: 0
   level: 100
@@ -35,6 +36,9 @@ MonoBehaviour:
   attackRangeModifier: 0
   critChanceModifier: 0
   critDamageModifier: 0
-  equipmentMesh: {fileID: -3360482121813643214, guid: 4b2b81e7f27ec37418a99c591212245d, type: 3}
-  equipmentMaterial:
-  - {fileID: 2100000, guid: 8046cf35ef91b0e4688574b6e9084f32, type: 2}
+  equipmentPrefabRef:
+    m_AssetGUID: 6590e99a522921647ac15769767472cd
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
