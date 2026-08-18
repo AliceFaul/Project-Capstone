@@ -3,10 +3,10 @@ using UnityEngine;
 
 public abstract class UIElement : MonoBehaviour
 {
-    public Guid InstanceID { get; set; }
+    public string InstanceID { get; set; }
     public event Action<UIElement> OnClosed;
 
-    public virtual void Initialize(Guid id)
+    public virtual void Initialize(string id)
     {
         InstanceID = id;
     }
