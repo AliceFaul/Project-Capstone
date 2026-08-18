@@ -7,11 +7,12 @@ public class UIManager : MonoBehaviour, IManager
     public static UIManager Instance { get; private set; }
     
     private IPopupService _popupService;
+    private IFloatingTextService _floatingTextService;
     
     public async Task<bool> Initialize()
     {
         _popupService = new PopupService();
-        // TODO: Add floating text service
+        _floatingTextService = new FloatingTextService();
         await Task.CompletedTask;
         return true;
     }
@@ -29,4 +30,5 @@ public class UIManager : MonoBehaviour, IManager
     }
     
     public IPopupService GetPopupService() => _popupService;
+    public IFloatingTextService GetFloatingTextService() => _floatingTextService;
 }
