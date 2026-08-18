@@ -178,7 +178,8 @@ public class PlayerController : MonoBehaviour {
         {
             return;
         }
-        
+
+        Movement.Stop();
         Combat.CmdShoot(hit.point);
     }
 

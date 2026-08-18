@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
-  m_Name: Lava Sword
+  m_Name: Inferno Sword
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
   id: Mhieu_Sword_Id_1
-  itemName: Lava Sword
+  itemName: Inferno Sword
   itemType: 1
   rarity: 3
   icon: {fileID: 21300000, guid: fac5a081943222b4ab3b8bcc324d1044, type: 3}
   isStackable: 0
   maxStackSize: 64
+  equipmentPrefabKey: Inferno_Sword
   equipmentType: 1
   weaponType: 0
   level: 100
@@ -35,6 +36,9 @@ MonoBehaviour:
   attackRangeModifier: 0
   critChanceModifier: 0
   critDamageModifier: 0
-  equipmentMesh: {fileID: 6060968266713717718, guid: ca3efc9aae68e2c4b82574617a4bf176, type: 3}
-  equipmentMaterial:
-  - {fileID: 2100000, guid: 245c79e92cc471e429174ceadfdbeea1, type: 2}
+  equipmentPrefabRef:
+    m_AssetGUID: 97d88fb9a3565d84daf5fff081fcbb91
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

@@ -21,6 +21,8 @@ public class ActiveWeapon : MonoBehaviour
     {
         try
         {
+            await WaitGameReady();
+            
             await UpdateMeleeWeapon(EquipmentManager.Instance.Melee);
             await UpdateRangedWeapon(EquipmentManager.Instance.Ranged);
             EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapons;
@@ -35,6 +37,31 @@ public class ActiveWeapon : MonoBehaviour
     {
         if (EquipmentManager.Instance != null)
             EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapons;
+    }
+
+    private async Task WaitGameReady()
+    {
+        while (GameManager.Instance == null)
+        {
+            await Task.Yield();
+        }
+        
+        if(GameManager.Instance.IsReady)
+            return;
+        
+        var tcs = new TaskCompletionSource<bool>();
+        void OnReady() => tcs.TrySetResult(true);
+        
+        GameManager.Instance.OnGameReady += OnReady;
+
+        if (GameManager.Instance.IsReady)
+        {
+            GameManager.Instance.OnGameReady -= OnReady;
+            return;
+        }
+        
+        await tcs.Task;
+        GameManager.Instance.OnGameReady -= OnReady;
     }
 
     private async void UpdateWeapons(EquipmentChangedEventArgs args)
@@ -100,10 +127,10 @@ public class ActiveWeapon : MonoBehaviour
     }
     
     // === HELPER SHOW AND HIDE WEAPON
-    public void ShowMelee() => _currentMeleeVisual?.SetActive(true);
-    public void ShowRanged() => _currentRangedVisual?.SetActive(true);
-    public void HideMelee() => _currentMeleeVisual?.SetActive(false);
-    public void HideRanged() => _currentRangedVisual?.SetActive(false);
+    public void ShowMelee() => meleeSocket.gameObject.SetActive(true);
+    public void ShowRanged() => rangedSocket.gameObject.SetActive(true);
+    public void HideMelee() => meleeSocket.gameObject.SetActive(false);
+    public void HideRanged() => rangedSocket.gameObject.SetActive(false);
     
     // === HELPER SWORD VFX ===
     public void ActivateTrail() => _currentMeleeVisual?.GetComponent<TrailVFXHandler>().PlayTrail();

@@ -15,13 +15,8 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: ee9fc0d48fd1bc745a30915bf816a9ae
   m_SerializeEntries:
-  - m_GUID: 1267201ce33df30449b82e329efad56c
-    m_Address: Assets/Project/Scriptable Object/Config/WeaponAssetRef.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6590e99a522921647ac15769767472cd
-    m_Address: Assets/Blink/Art/Weapons/LowPoly/FreeSwords/Prefabs/Sword9_Purple.prefab
+    m_Address: Crystal_Sword
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -36,17 +31,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 97d88fb9a3565d84daf5fff081fcbb91
-    m_Address: Assets/Blink/Art/Weapons/LowPoly/FreeSwords/Prefabs/Sword15_Lava.prefab
+    m_Address: Infernno_Sword
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0c32318984847e428ac1bce4ea19377
-    m_Address: Assets/Blink/Art/Weapons/LowPoly/FreeRPGWeapons/_PREFABS/Bow_Epic.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f9494530ecc1f3244b173a36bc61857d
-    m_Address: Assets/Project/Scriptable Object/Weapon/Crystal Sword.asset
+    m_Address: Rune_Ancient_Bow
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

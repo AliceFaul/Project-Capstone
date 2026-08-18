@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3190721177057829056}
   - component: {fileID: 838601129327186954}
   m_Layer: 0
-  m_Name: Basic_Bow
+  m_Name: Rune_Ancient_Bow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c435c64a5002b0438b430c0fa0a6a2f, type: 3}
   m_Name: WeaponAssetRef
   m_EditorClassIdentifier: Assembly-CSharp::AssetReferences
-  key: Weapon
+  key: Weapons
   assets:
   - m_AssetGUID: d0c32318984847e428ac1bce4ea19377
     m_SubObjectName: 
