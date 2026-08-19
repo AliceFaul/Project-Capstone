@@ -3,6 +3,13 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
+public enum FloatingTextType
+{
+    None,
+    FloatUp,
+    Bounce
+}
+
 [RequireComponent(typeof(CanvasGroup))]
 public class FloatingText : UIElement
 {

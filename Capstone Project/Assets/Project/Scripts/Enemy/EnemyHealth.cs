@@ -4,12 +4,19 @@ namespace Mhieu.Enemy
 {
     public class EnemyHealth : MonoBehaviour, IAttackable
     {
-        [Header("Setting")] [SerializeField] private float maxHealth = 100f;
+        private static readonly int Hit = Animator.StringToHash("Hit");
+
+        [Header("Setting")] 
+        [SerializeField] private float maxHealth = 100f;
+        [SerializeField] private Animator animator;
 
         private float _currentHealth;
 
         private void Awake()
         {
+            if(animator == null)
+                animator = GetComponentInChildren<Animator>();
+            
             _currentHealth = maxHealth;
         }
 
@@ -17,11 +24,19 @@ namespace Mhieu.Enemy
         {
             _currentHealth -= damage;
             _currentHealth = Mathf.Clamp(_currentHealth, 0f, maxHealth);
+            
+            OnTakeDamage();
 
             if (_currentHealth <= 0f)
             {
                 Die();
             }
+        }
+
+        private void OnTakeDamage()
+        {
+            animator.SetTrigger(Hit);
+            // Damage flash
         }
 
         private void Die()
