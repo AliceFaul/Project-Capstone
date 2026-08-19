@@ -18,7 +18,7 @@ public enum QuestGoalType
 public class QuestData : ScriptableObject
 {
     [Header("1. THÔNG TIN BẢN CHẤT")]
-    public string questID;             
+    public string questID;
     public string questTitle;          // Tên nhiệm vụ
     [TextArea(3, 5)]
     public string questDescription;    // Mô tả nhiệm vụ
@@ -26,9 +26,9 @@ public class QuestData : ScriptableObject
 
     [Header("2. ĐIỀU KIỆN HOÀN THÀNH")]
     public QuestGoalType goalType;     // Loại mục tiêu (Nhặt đồ hay Diệt quái)
-    public ItemData targetItem;        // Món đồ cần thu thập (nếu goalType sửa lại CollectItem)
-    public string targetEnemyID;       // ID quái cần diệt (nếu goalType sửa lại KillEnemy)
-    public int requiredAmount = 1;     // Số lượng cần đạt (VD: Nhặt 5 gỗ, diệt 10 quái)
+    public ItemData targetItem;        // Món đồ cần thu thập
+    public string targetEnemyID;       // ID quái cần diệt
+    public int requiredAmount = 1;     // Số lượng cần đạt
 
     [Header("3. PHẦN THƯỞNG")]
     public int rewardGold;             // Số tiền/vàng nhận được

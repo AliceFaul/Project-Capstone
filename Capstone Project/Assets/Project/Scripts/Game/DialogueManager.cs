@@ -11,14 +11,20 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI dialogueText;
-    [SerializeField] private GameObject continuePrompt; // Icon ClickPrompt 
+
+    [Header("Blox Fruits Buttons")]
+    [SerializeField] private GameObject nextButton;    // Kéo NextButton vào 
+    [SerializeField] private GameObject acceptButton;  // Kéo AcceptButton vào 
+    [SerializeField] private GameObject declineButton; // Kéo DeclineButton vào 
 
     [Header("Cấu hình Chạy chữ")]
-    [SerializeField] private float typingSpeed = 0.03f; // Tốc độ hiện từng chữ
+    [SerializeField] private float typingSpeed = 0.03f;
 
     private Queue<string> sentences = new Queue<string>();
     private bool isTyping = false;
     private string currentSentence;
+    private QuestData currentQuest; // Lưu QuestData hiện tại từ NPC
+    private NPC currentNPC;         // Lưu NPC hiện tại đang tương tác
     public bool IsDialogueActive { get; private set; }
 
     private void Awake()
@@ -34,35 +40,31 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
         dialoguePanel.SetActive(false);
-        if (continuePrompt != null) continuePrompt.SetActive(false);
+        HideAllButtons();
     }
 
     private void Update()
     {
-        // Bấm chuột trái khi đang thoại
         if (IsDialogueActive && Input.GetMouseButtonDown(0))
         {
             if (isTyping)
             {
-                // Nếu chữ đang chạy mà click => Hiện luôn toàn bộ câu thoại
                 StopAllCoroutines();
                 dialogueText.text = currentSentence;
                 isTyping = false;
-                if (continuePrompt != null) continuePrompt.SetActive(true);
-            }
-            else
-            {
-                // Nếu chữ hiện xong mà click => Sang câu tiếp theo
-                DisplayNextSentence();
+                ShowCorrectButtons();
             }
         }
     }
 
-    public void StartDialogue(string npcName, string[] dialogueSentences)
+    // Đã thêm tham số NPC npc = null để lưu lại tham chiếu NPC đang tương tác
+    public void StartDialogue(string npcName, string[] dialogueSentences, QuestData questData = null, NPC npc = null)
     {
         IsDialogueActive = true;
         dialoguePanel.SetActive(true);
         nameText.text = npcName;
+        currentQuest = questData; // Nhận QuestData truyền vào
+        currentNPC = npc;         // Nhận NPC truyền vào
 
         sentences.Clear();
         foreach (string sentence in dialogueSentences)
@@ -81,7 +83,9 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
+        HideAllButtons();
         currentSentence = sentences.Dequeue();
+
         StopAllCoroutines();
         StartCoroutine(TypeSentence(currentSentence));
     }
@@ -90,7 +94,6 @@ public class DialogueManager : MonoBehaviour
     {
         isTyping = true;
         dialogueText.text = "";
-        if (continuePrompt != null) continuePrompt.SetActive(false);
 
         foreach (char letter in sentence.ToCharArray())
         {
@@ -99,26 +102,64 @@ public class DialogueManager : MonoBehaviour
         }
 
         isTyping = false;
-        if (continuePrompt != null) continuePrompt.SetActive(true);
+        ShowCorrectButtons();
+    }
+
+    private void ShowCorrectButtons()
+    {
+        if (sentences.Count > 0)
+        {
+            if (nextButton != null) nextButton.SetActive(true);
+            SetChoiceButtonsActive(false);
+        }
+        else
+        {
+            if (nextButton != null) nextButton.SetActive(false);
+            SetChoiceButtonsActive(true);
+        }
+    }
+
+    private void SetChoiceButtonsActive(bool isActive)
+    {
+        if (acceptButton != null) acceptButton.SetActive(isActive);
+        if (declineButton != null) declineButton.SetActive(isActive);
+    }
+
+    private void HideAllButtons()
+    {
+        if (nextButton != null) nextButton.SetActive(false);
+        SetChoiceButtonsActive(false);
     }
 
     public void EndDialogue()
     {
         IsDialogueActive = false;
         dialoguePanel.SetActive(false);
+        HideAllButtons();
     }
 
-    // xử lý khi bấm nút Chấp nhận
     public void OnAcceptClicked()
     {
-        Debug.Log("Người chơi đã CHẤP NHẬN!");
-        EndDialogue(); // Đóng hộp thoại
+        Debug.Log("Đã CHẤP NHẬN nhiệm vụ!");
+
+        // Truyền quest sang PlayerQuestManager (nếu có)
+        if (currentQuest != null && PlayerQuestManager.Instance != null)
+        {
+            PlayerQuestManager.Instance.AcceptQuest(currentQuest);
+        }
+
+        // Gọi NPC đổi trạng thái sang đứng yên
+        if (currentNPC != null)
+        {
+            currentNPC.SetIdleState();
+        }
+
+        EndDialogue();
     }
 
-    // xử lý khi bấm nút Từ chối
     public void OnDeclineClicked()
     {
-        Debug.Log("Người chơi đã TỪ CHỐI!");
-        EndDialogue(); // Đóng hộp thoại
+        Debug.Log("Đã TỪ CHỐI nhiệm vụ!");
+        EndDialogue();
     }
 }

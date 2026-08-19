@@ -243,7 +243,7 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"[QuestManager] Đã làm mới {countToPick} Daily Quest!");
     }
 
-    private void SaveResetTime(DateTime time) // lấy chính xác mốc 4 giờ, cho dù có tắt game hoặc đổi múi giờ
+    private void SaveResetTime(DateTime time) // lấy chính xác mốc 4 giờ, cho dù có tắt game hoặc đổi múi giờ   
     {
         PlayerPrefs.SetString(LAST_RESET_TIME_KEY, time.ToString("o")); // Chuỗi ISO 8601 chuẩn
         PlayerPrefs.Save();

@@ -9,17 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d380f9177a1c2c448bff99a14de84ce, type: 3}
-  m_Name: NewQuestData
+  m_Script: {fileID: 11500000, guid: c81b3d17f07df21418d1fa7db29c04b9, type: 3}
+  m_Name: NewQuestData 1
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: 
-  questTitle: 
-  questDescription: 
-  questType: 0
-  goalType: 0
+  questID: Q01_InRun
+  questTitle: "Di\u1EC7t Qu\xE1i R\u1EEBng"
+  questDescription: "H\xE3y di\u1EC7t 5 con qu\xE1i xung quanh l\xE0ng \u0111\u1EC3
+    gi\xFAp d\xE2n l\xE0ng an t\xE2m."
+  questType: 1
+  goalType: 1
   targetItem: {fileID: 0}
-  targetEnemyID: 
-  requiredAmount: 1
-  rewardGold: 0
+  targetEnemyID: Slime_Green
+  requiredAmount: 5
+  rewardGold: 1000
   rewardItem: {fileID: 0}
   rewardItemAmount: 1
