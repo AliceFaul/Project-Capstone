@@ -8,6 +8,10 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     
+    [Header("Init Resource Manager")]
+    [Tooltip("Need initialize Resource Manager first to preload assets")]
+    [SerializeField] private ResourceManager resourceManager;
+    
     [Header("Managers")]
     [SerializeField] private List<MonoBehaviour> managers = new();
     
@@ -28,9 +32,18 @@ public class GameManager : MonoBehaviour
 
     private void OnValidate()
     {
+        if (resourceManager == null)
+        {
+            Debug.LogError($"[GameManager] Not implement Resource Manager! This is obligatory manager to load assets");    
+        } 
+        
         foreach (var manager in managers.Where(manager => manager != null && manager is not IManager))
         {
             Debug.LogError($"[GameManager] {manager.name} isn't implement IManager", manager);
+            if (manager is ResourceManager)
+            {
+                Debug.LogWarning($"[GameManager] Resource Manager shouldn't implement in this list.");
+            }
         }
 
         if (loadingScreen != null && loadingScreen is not ILoading)
@@ -66,10 +79,60 @@ public class GameManager : MonoBehaviour
     private async Task BootSequence()
     {
         var managerList = managers.OfType<IManager>().ToList();
-        int totalSteps = managerList.Count + (preloadGroups?.Length ?? 0);
+        int totalSteps = 1 /* ResourceManager */ + (preloadGroups?.Length ?? 0) + managerList.Count;
         int completedSteps = 0;
         
-        // Step 1: Initialize all IManager in List
+        // Step 1: Initialize Resource Manager first
+        if (resourceManager == null)
+        {
+            Debug.LogError($"[GameManager] Resource Manager haven't implemented! Can't continue boot sequence");
+            return;
+        }
+
+        bool resourceManagerOk;
+        try
+        {
+            resourceManagerOk = await resourceManager.Initialize();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[GameManager] ResourceManager failed to initialize: {e.Message}");
+            resourceManagerOk = false;
+        }
+
+        if (!resourceManagerOk)
+        {
+            Debug.LogError($"[GameManager] {resourceManager.name} failed to initialize! Stop boot sequence.");
+            return;
+        }
+
+        completedSteps++;
+        
+        // Step 2: Preload asset groups
+        if (preloadGroups is { Length: > 0 })
+        {
+            if (preloadGroupsInParallel)
+            {
+                var tasks = preloadGroups.Select(g => resourceManager.Preload(g)).ToArray();
+                await Task.WhenAll(tasks);
+                
+                completedSteps += preloadGroups.Length;
+            }
+            else
+            {
+                foreach (var group in preloadGroups)
+                {
+                    if (verboseLogging)
+                    {
+                        Debug.Log($"[GameManager] Preloading group {group}...");
+                    }
+                    await resourceManager.Preload(group);
+                    completedSteps++;
+                }
+            }
+        }
+        
+        // Step 3: Initialize all IManager in List
         foreach (var manager in managerList)
         {
             string managerName = (manager as MonoBehaviour)?.GetType().Name ?? manager.GetType().Name;
@@ -103,35 +166,7 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        // Step 2: Preload asset groups
-        if (preloadGroups is { Length: > 0 })
-        {
-            if (ResourceManager.Instance == null)
-            {
-                Debug.LogError($"[GameManager] Check ResourceManager in managers and initialized!");
-            } 
-            else if (preloadGroupsInParallel)
-            {
-                var tasks = preloadGroups.Select(g => ResourceManager.Instance.Preload(g)).ToArray();
-                await Task.WhenAll(tasks);
-                
-                completedSteps += preloadGroups.Length;
-            }
-            else
-            {
-                foreach (var group in preloadGroups)
-                {
-                    if (verboseLogging)
-                    {
-                        Debug.Log($"[GameManager] Preloading group {group}...");
-                    }
-                    await ResourceManager.Instance.Preload(group);
-                    completedSteps++;
-                }
-            }
-        }
-        
-        // Step 3: Finished. Disable loading screen and invoke event
+        // Step 4: Finished. Disable loading screen and invoke event
         _loadingScreen?.Hide();
         
         IsReady = true;

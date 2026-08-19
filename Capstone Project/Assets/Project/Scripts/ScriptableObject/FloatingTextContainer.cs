@@ -4,6 +4,13 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "NewFloatingTextContainer", menuName = "PrefabContainer/FloatingTextContainer")]
 public class FloatingTextContainer : ScriptableObject
 {
-    [SerializeField] private List<PopupEntry> floatingTexts;
-    public List<PopupEntry> FloatingTexts => floatingTexts;
+    [SerializeField] private List<Entry> floatingTexts;
+    public List<Entry> FloatingTexts => floatingTexts;
+}
+
+[System.Serializable]
+public class Entry
+{
+    public string id;
+    public GameObject prefab;
 }

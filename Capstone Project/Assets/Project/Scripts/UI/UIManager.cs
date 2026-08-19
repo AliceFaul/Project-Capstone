@@ -11,8 +11,17 @@ public class UIManager : MonoBehaviour, IManager
     
     public async Task<bool> Initialize()
     {
-        _popupService = new PopupService();
-        _floatingTextService = new FloatingTextService();
+        try
+        {
+            _popupService = new PopupService();
+            _floatingTextService = new FloatingTextService();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[UIManager] Failed to initialize {nameof(UIManager)}: {e.Message}");  
+            return false;
+        }
+        
         await Task.CompletedTask;
         return true;
     }

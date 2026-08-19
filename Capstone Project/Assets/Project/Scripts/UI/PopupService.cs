@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro.EditorUtilities;
 using UnityEngine.Localization;
 using UnityEngine;
-using Object = System.Object;
 
 public class PopupService : IPopupService
 {
-    private Dictionary<string, GameObject> _popupsPrefab = new();
-    private Dictionary<string, GameObject> _activePopups = new();
+    private readonly Dictionary<string, GameObject> _popupsPrefab = new();
+    private readonly Dictionary<string, GameObject> _activePopups = new();
     
     private GameObject _canvas;
 
     public PopupService()
     {
         PopupContainer popup = ResourceManager.Instance.GetAsset<PopupContainer>("PopupContainer");
+
+        if (popup == null)
+        {
+            Debug.LogError($"[PopupService] PopupContainer not found! Need to preload in Resource Manager.");
+            return;
+        }
+        
         foreach (var entry in popup.Popups)
         {
             _popupsPrefab[entry.id] = entry.prefab;

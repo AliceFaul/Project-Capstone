@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerCombat : MonoBehaviour {
     [Header("Combat Setting")]
@@ -71,14 +72,14 @@ public class PlayerCombat : MonoBehaviour {
     public void SetTarget(Transform target)
     {
         _currentTarget = target;
-        Debug.Log($"Target: {target.name}");
+        Debug.Log($"[PlayerCombat] Target: {target.name}");
     }
 
     // Call this method in the PlayerController when the player clicks on an enemy
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
     public void CmdAttack() {
-        Debug.Log("Attacking");
+        Debug.Log("[PlayerCombat] Attacking");
         
         if(_currentTarget == null) 
             return;
@@ -121,7 +122,8 @@ public class PlayerCombat : MonoBehaviour {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
                 attackable.TakeDamage(result.Damage);
                 CameraShake.Instance.ShakeCamera();
-                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {result.Damage} damage.");
+                CreateDamagePopup(enemy, result.Damage);
+                Debug.Log($"[PlayerCombat] Attacked {enemy.name} for {result.Damage} damage.");
             } else {
                 Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
             }
@@ -135,7 +137,7 @@ public class PlayerCombat : MonoBehaviour {
         if(_currentAmmo <= 0) 
             return;
         
-        Debug.Log("Shooting");
+        Debug.Log("[PlayerCombat] Shooting");
         
         if(Time.time - _lastShootTime < .7f) 
             return;
@@ -189,6 +191,30 @@ public class PlayerCombat : MonoBehaviour {
                 _currentRangedWeapon = args.NewEquipmentData;
                 break;
         }
+    }
+
+    private void CreateDamagePopup(Collider damageable, float damage)
+    {
+        if (UIManager.Instance == null)
+        {
+            Debug.LogError($"[PlayerCombat] UIManager instance is null");
+            return;
+        }
+        
+        var floatingTextService = UIManager.Instance.GetFloatingTextService();
+        if (floatingTextService == null)
+        {
+            Debug.LogError($"[PlayerCombat] FloatingText service is null]");
+        }
+
+        string instanceId = $"dmg_{damageable.GetInstanceID()}_{Time.frameCount}_{Random.Range(0, 9999)}";
+        var position = damageable.bounds.center + Vector3.up * (damageable.bounds.extents.y * 0.5f);
+        
+        floatingTextService?.Create("DamageText", 
+                                            instanceId, 
+                                            damage.ToString("0"), 
+                                            position, 
+                                            isMoving: true);
     }
 
     private void AdjustAmmo(int amount = 1)

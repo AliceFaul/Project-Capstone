@@ -18,4 +18,10 @@ public interface IFloatingTextService : IUIService
                 LocalizedString content, 
                 Vector3 position, 
                 bool isMoving);
+
+    void Create(string prefabId, 
+                string instanceId, 
+                string content, 
+                Vector3 position, 
+                bool isMoving);
 }
