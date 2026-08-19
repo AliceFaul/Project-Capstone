@@ -12,6 +12,7 @@ public enum CommandType
 public class PlayerController : MonoBehaviour {
     [Header("References")]
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private ParticleSystem clickEffect;
     [SerializeField] private PlayerInvokerCommand invoker;
 
     [Header("Layer")]
@@ -151,6 +152,7 @@ public class PlayerController : MonoBehaviour {
         if(((1 << hitLayer) & groundLayer) != 0) {
             // Move to the clicked position on the ground
             ExecuteMovement(hit.point);
+            Instantiate(clickEffect, hit.point, Quaternion.identity);
             Debug.Log(hit.collider.gameObject.name);
             return;
         }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Mhieu.Enemy
 {
@@ -8,6 +9,8 @@ namespace Mhieu.Enemy
 
         [Header("Setting")] 
         [SerializeField] private float maxHealth = 100f;
+        [SerializeField] private Image healthBar;
+        [SerializeField] private ParticleSystem impactParticles;
         [SerializeField] private Animator animator;
 
         private float _currentHealth;
@@ -18,6 +21,7 @@ namespace Mhieu.Enemy
                 animator = GetComponentInChildren<Animator>();
             
             _currentHealth = maxHealth;
+            UpdateHealthBar(_currentHealth / maxHealth);
         }
 
         public void TakeDamage(float damage)
@@ -36,7 +40,14 @@ namespace Mhieu.Enemy
         private void OnTakeDamage()
         {
             animator.SetTrigger(Hit);
+            UpdateHealthBar(_currentHealth / maxHealth);
+            Instantiate(impactParticles, transform.position + Vector3.up, transform.rotation);
             // Damage flash
+        }
+
+        private void UpdateHealthBar(float amount)
+        {
+            healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, amount, Time.deltaTime * 1.5f);
         }
 
         private void Die()
