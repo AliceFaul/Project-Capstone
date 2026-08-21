@@ -1,15 +1,12 @@
 ﻿using UnityEngine.Localization;
 using System;
+using UnityEditor;
 
-public enum PopupType
+public interface IPopupService : IUIService
 {
-    Message,
-    Warning,
-    Confirm,
-    Reward
-}
-
-public interface IPopupService : IUIService<PopupType>
-{
-    void Create(PopupType popupType);
+    void Create(string prefabId, 
+                string instanceId, 
+                LocalizedString content, 
+                Action onClick1, 
+                Action onClick2);
 }

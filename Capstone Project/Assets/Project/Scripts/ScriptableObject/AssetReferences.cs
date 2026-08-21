@@ -13,10 +13,3 @@ public class AssetReferences : ScriptableObject
     public List<AssetReference> Assets => assets;
     public List<AssetLabelReference> Labels => labels;
 }
-
-[CreateAssetMenu(fileName = "NewAssetReferencesList", menuName = "Data/AssetReferencesList")]
-public class AssetReferencesList : ScriptableObject
-{
-    [SerializeField] private List<AssetReferences> references;
-    public List<AssetReferences> References => references;
-}

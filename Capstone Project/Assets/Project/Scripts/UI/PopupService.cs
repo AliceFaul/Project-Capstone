@@ -3,39 +3,62 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Localization;
 using UnityEngine;
-using Object = System.Object;
 
 public class PopupService : IPopupService
 {
-    private readonly Dictionary<PopupType, Popup> _popupsPrefab = new();
-    private readonly Dictionary<Guid, Popup> _activePopups = new();
+    private readonly Dictionary<string, GameObject> _popupsPrefab = new();
+    private readonly Dictionary<string, GameObject> _activePopups = new();
     
-    private readonly GameObject _canvas;
+    private GameObject _canvas;
 
-    public PopupService(PopupContainer container, GameObject canvas)
+    public PopupService()
     {
-        _canvas = canvas;
+        PopupContainer popup = ResourceManager.Instance.GetAsset<PopupContainer>("PopupContainer");
 
-        foreach (var popup in container.Popups.Where(popup => !_popupsPrefab.ContainsKey(popup.type)))
+        if (popup == null)
         {
-            _popupsPrefab.Add(popup.type, popup.prefab);
-        }
-    }
-    
-    public void Create(PopupType popupType)
-    {
-        if (!_popupsPrefab.TryGetValue(popupType, out var popup))
-        {
-            Debug.LogError($"Popup Type {popupType} not found");
+            Debug.LogError($"[PopupService] PopupContainer not found! Need to preload in Resource Manager.");
             return;
         }
         
-        Popup popupInstance = UnityEngine.Object.Instantiate(popup, _canvas.transform);
-        Guid id = Guid.NewGuid();
-        _activePopups.Add(id, popupInstance);
+        foreach (var entry in popup.Popups)
+        {
+            _popupsPrefab[entry.id] = entry.prefab;
+        }
     }
+    
+    public void Create(string prefabId, string instanceId, LocalizedString content, Action onClick1, Action onClick2)
+    {
+        if (_activePopups.ContainsKey(instanceId))
+        {
+            Destroy(instanceId, 0f);
+        }
 
-    public void Show(Guid id)
+        if (_canvas == null)
+        {
+            CanvasCreator canvasCreator = new CanvasCreator();
+            _canvas = canvasCreator.Create(false);
+        }
+
+        GameObject popupGo = GameObject.Instantiate(_popupsPrefab[prefabId], _canvas.transform);
+        Popup popup = popupGo.GetComponent<Popup>();
+
+        if (onClick1 == null && onClick2 == null)
+        {
+            popup.Setup(instanceId, content);
+        }
+        else
+        {
+            popup.Setup(instanceId, content, onClick1, onClick2);
+        }
+        
+        _activePopups.Add(instanceId, popupGo);
+    }
+    
+    public void Create(string prefabId, string instanceId, LocalizedString content)
+        => Create(prefabId, instanceId, content, null, null);
+
+    public void Show(string id)
     {
         if (_activePopups.TryGetValue(id, out var popupInstance))
         {
@@ -43,11 +66,11 @@ public class PopupService : IPopupService
         }
         else
         {
-            Debug.LogError($"[PopupService]: Popup with {id} not found");
+            Debug.LogError($"[PopupService] Popup with {id} not found");
         }
     }
 
-    public void Hide(Guid id)
+    public void Hide(string id)
     {
         if (_activePopups.TryGetValue(id, out var popupInstance))
         {
@@ -55,12 +78,20 @@ public class PopupService : IPopupService
         }
         else
         {
-            Debug.LogError($"[PopupService]: Popup with {id} not found");
+            Debug.LogError($"[PopupService] Popup with {id} not found");
         }
     }
 
-    public void Destroy(Guid id, float time)
+    public void Destroy(string id, float time)
     {
-        
+        if (_activePopups.TryGetValue(id, out var popupInstance))
+        {
+            GameObject.Destroy(popupInstance.gameObject);
+            _activePopups.Remove(id);
+        }
+        else
+        {
+            Debug.LogError($"[PopupService] Popup with instanceId {id} not found");
+        }
     }
 }

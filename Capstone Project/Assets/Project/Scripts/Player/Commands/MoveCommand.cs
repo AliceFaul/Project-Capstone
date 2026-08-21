@@ -12,7 +12,10 @@ public class MoveCommand : ICommand<Vector3>  {
     public void Execute(Vector3 destination) {
         if(_movement != null) {
             if (!_modifier.CanMove)
+            {
+                Debug.Log($"Player can't move because movement is disabled");
                 return;
+            }
             
             _movement.MoveTo(destination);
         } else { 

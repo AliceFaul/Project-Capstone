@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using System.Threading.Tasks;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Object = UnityEngine.Object;
 
 public enum EquipmentType { None, MeleeWeapon, RangedWeapon, Armor, Artifact, Special }
 public enum WeaponType { Sword, Axe, Bow, Crossbow }
@@ -16,6 +21,10 @@ public class EquipmentAttribute
 [CreateAssetMenu(menuName = "Inventory/Equipment Data",  fileName = "New Equipment Data")]
 public class EquipmentData : ItemData
 {
+    [Header("Runtime Key")]
+    public string equipmentPrefabKey;
+    public string EquipmentPrefabKey => equipmentPrefabKey;
+    
     [Header("Equipment")]
     public EquipmentType equipmentType;
     public WeaponType weaponType;
@@ -36,12 +45,20 @@ public class EquipmentData : ItemData
     public float critDamageModifier;
     
     [Header("Visuals")] 
-    [SerializeField] private string key;
-    public string Key => key;
+    public AssetReference equipmentPrefabRef; // just for editor
+    public AssetReference EquipmentPrefabRef => equipmentPrefabRef;
     
-    public Mesh equipmentMesh;
-    public Material[] equipmentMaterial;
+#if UNITY_EDITOR
 
+    private void OnValidate()
+    {
+        equipmentPrefabKey = equipmentPrefabRef != null && equipmentPrefabRef.editorAsset != null
+            ? equipmentPrefabRef.editorAsset.name
+            :  null;
+    }
+
+#endif
+    
     public override void Use()
     {
         base.Use();
@@ -50,20 +67,66 @@ public class EquipmentData : ItemData
     }
 }
 
-public class WeaponFactory
+public static class WeaponFactory
 {
-    public GameObject Create(string weaponKey, Transform socket)
+    public static async Task<GameObject> Create(EquipmentData equipment, Transform socket)
     {
-        GameObject prefab = ResourceManager.Instance.GetAsset<GameObject>(weaponKey);
-        if (prefab == null)
+        if (equipment == null)
         {
-            Debug.LogError($"[WeaponFactory] Weapon prefab not found; {weaponKey}");
+            Debug.LogError($"[WeaponFactory] Equipment data is null, can't create weapon");
             return null;
         }
-        return Object.Instantiate(prefab, socket);
+
+        if (socket == null)
+        {
+            Debug.LogError($"[WeaponFactory] Socket (in player hand) is null");
+            return null;
+        }
+
+        GameObject prefab = null;
+
+        if (!string.IsNullOrEmpty(equipment.EquipmentPrefabKey) &&
+            ResourceManager.Instance != null &&
+            ResourceManager.Instance.IsLoaded(equipment.EquipmentPrefabKey))
+        {
+            prefab = ResourceManager.Instance.GetAsset<GameObject>(equipment.EquipmentPrefabKey);
+        }
+        else
+        {
+            Debug.LogError($"[WeaponFactory] {equipment.itemName} haven't preload in ResourceManager, " +
+                           $"doing fallback load directly (slow). " +
+                           $"Needed call Preload in ResourceManager");
+            
+#if UNITY_EDITOR 
+            
+            var tempRef = equipment.EquipmentPrefabRef;
+            if (tempRef != null)
+            {
+                var handle = tempRef.LoadAssetAsync<GameObject>();
+                await handle.Task;
+
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    prefab = handle.Result;
+                }
+            }
+#endif
+        }
+
+        if (prefab == null)
+        {
+            Debug.LogError($"[WeaponFactory] Not found prefab in '{equipment.itemName}' (key: {equipment.EquipmentPrefabKey}).");
+            return null;
+        }
+        
+        GameObject instance = Object.Instantiate(prefab, socket);
+        instance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        instance.transform.localScale = Vector3.one;
+        instance.name = $"{equipment.itemName}_Visual";
+        return instance;
     }
     
-    public void DestroyInstance(GameObject instance)
+    public static void DestroyInstance(GameObject instance)
     {
         if(instance == null)
             return;

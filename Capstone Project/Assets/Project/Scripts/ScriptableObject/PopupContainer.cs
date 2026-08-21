@@ -4,8 +4,8 @@ using UnityEngine;
 [System.Serializable]
 public class PopupEntry
 {
-    public PopupType type;
-    public Popup prefab;
+    public string id;
+    public GameObject prefab;
 }
 
 [CreateAssetMenu(fileName = "PopupContainer", menuName = "PrefabContainer/PopupContainer")]

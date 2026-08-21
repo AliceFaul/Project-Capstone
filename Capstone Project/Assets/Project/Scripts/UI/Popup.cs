@@ -17,16 +17,16 @@ public class Popup : UIElement
         _animator = GetComponent<Animator>();
     }
 
-    public void Setup(Guid InstanceID, LocalizedString content, Action button1, Action button2)
+    public void Setup(string instanceId, LocalizedString content, Action onClick1, Action onClick2)
     {
-        this.InstanceID = InstanceID;
+        this.InstanceID = instanceId;
         contentText.ChangeText(content);
 
         if (this.button1 != null)
         {
             this.button1.onClick.AddListener(() =>
             {
-                button1?.Invoke();
+                onClick1?.Invoke();
                 StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
             });
         }
@@ -35,14 +35,14 @@ public class Popup : UIElement
         {
             this.button2.onClick.AddListener(() =>
             {
-                button2?.Invoke();
+                onClick2?.Invoke();
                 StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
             });
         }
     }
     
-    public void Setup(Guid InstaceID, LocalizedString content)
-        => Setup(InstaceID, content, null, null);
+    public void Setup(string instanceId, LocalizedString content)
+        => Setup(instanceId, content, null, null);
     
     private IEnumerator ClosePopup(float time)
     {

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerCombat : MonoBehaviour {
     [Header("Combat Setting")]
@@ -9,12 +10,20 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     
+    [Header("Status Effects (Just in now)")]
+    public StatusEffect[] effects;
+    
     [Header("Ammo Setting")]
     [SerializeField] private int maxAmmo = 15;
     [SerializeField] private TMP_Text ammoText;
     
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
+    
+    [Header("Impact feel")]
+    [SerializeField] private float hitStopDuration = 0.05f;
+    [SerializeField] private float hitStopTimeScale = 0.02f;
+    private Coroutine _hitStopRoutine;
     
     // === CURRENT WEAPON ===
     private EquipmentData _currentMeleeWeapon;
@@ -42,6 +51,11 @@ public class PlayerCombat : MonoBehaviour {
         _equipmentManager = EquipmentManager.Instance;
         _runtime = GetComponent<PlayerRuntime>();
         _controller = GetComponent<PlayerController>();
+
+        foreach (var statusEffect in effects)
+        {
+            statusEffect.OnStatusApplied += HandleStatusApplied;
+        }
     }
 
     private void Start()
@@ -66,19 +80,33 @@ public class PlayerCombat : MonoBehaviour {
     {
         if (_equipmentManager != null)
             _equipmentManager.OnEquipmentChanged -= UpdateWeapon;
+
+        foreach (var statusEffect in effects)
+        {
+            statusEffect.OnStatusApplied -= HandleStatusApplied;
+        }
     }
 
     public void SetTarget(Transform target)
     {
         _currentTarget = target;
-        Debug.Log($"Target: {target.name}");
+        Debug.Log($"[PlayerCombat] Target: {target.name}");
+    }
+
+    private void HandleStatusApplied(IAttackable target, IStatusEffect statusEffect)
+    {
+        if(target is not MonoBehaviour mb)
+            return;
+
+        var statusUI = mb.GetComponentInChildren<StatusEffectUI>();
+        statusUI?.ShowEffects(statusEffect);
     }
 
     // Call this method in the PlayerController when the player clicks on an enemy
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
     public void CmdAttack() {
-        Debug.Log("Attacking");
+        Debug.Log("[PlayerCombat] Attacking");
         
         if(_currentTarget == null) 
             return;
@@ -113,6 +141,8 @@ public class PlayerCombat : MonoBehaviour {
     public void CmdDealDamage()
     {
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
+        bool didHitAnything = false;
+        
         foreach(Collider enemy in hitEnemies) {
             // Check if the enemy has an IAttackable component and call TakeDamage
             IAttackable attackable = enemy.GetComponent<IAttackable>();
@@ -120,12 +150,25 @@ public class PlayerCombat : MonoBehaviour {
             {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
                 attackable.TakeDamage(result.Damage);
-                CameraShake.Instance.ShakeCamera();
-                Debug.Log($"[Melee Attack]: Attacked {enemy.name} for {result.Damage} damage.");
+                CreateDamagePopup(enemy, result.Damage);
+                
+                if (effects.Length > 0)
+                {
+                    foreach (var t in effects)
+                    {
+                        Cast(t, attackable);
+                    }
+                }
+                
+                didHitAnything = true;
+                Debug.Log($"[PlayerCombat] Attacked {enemy.name} for {result.Damage} damage.");
             } else {
-                Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
+                Debug.LogWarning($"[PlayerCombat] Enemy {enemy.name} does not implement IAttackable.");
             }
         }
+
+        if (didHitAnything)
+            Impact();
     }
     
     // Call this method in the PlayerController when the player right clicks
@@ -135,7 +178,7 @@ public class PlayerCombat : MonoBehaviour {
         if(_currentAmmo <= 0) 
             return;
         
-        Debug.Log("Shooting");
+        Debug.Log("[PlayerCombat] Shooting");
         
         if(Time.time - _lastShootTime < .7f) 
             return;
@@ -161,6 +204,46 @@ public class PlayerCombat : MonoBehaviour {
         projectile.GetComponent<Projectile>().Initialize(direction, result.Damage);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
+    }
+
+    private void Cast(StatusEffect effect, IAttackable target)
+    {
+        effect.Apply(target);
+        var mb = target as MonoBehaviour;
+
+        if (effect.castVfx && mb)
+            Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
+
+        if (effect.runningVfx && mb)
+        {
+            var runningVfx = Instantiate(effect.runningVfx, mb.transform);
+            Destroy(runningVfx, 3f);
+        }
+        
+        // TODO: Add audio service
+    }
+
+    private void Impact()
+    {
+        if(CameraShake.Instance != null)
+            CameraShake.Instance.ShakeCamera();
+
+        if (_hitStopRoutine != null)
+        {
+            StopCoroutine(_hitStopRoutine);
+            Time.timeScale = 1f;
+        }
+        _hitStopRoutine = StartCoroutine(HitStopCo());
+    }
+
+    private IEnumerator HitStopCo()
+    {
+        float previousTimeScale = Time.timeScale;
+        Time.timeScale = hitStopTimeScale;
+
+        yield return new WaitForSecondsRealtime(hitStopDuration);
+        Time.timeScale = previousTimeScale;
+        _hitStopRoutine = null;
     }
 
     private void RotateToTarget()
@@ -189,6 +272,29 @@ public class PlayerCombat : MonoBehaviour {
                 _currentRangedWeapon = args.NewEquipmentData;
                 break;
         }
+    }
+
+    private void CreateDamagePopup(Collider damageable, float damage)
+    {
+        if (UIManager.Instance == null)
+        {
+            Debug.LogError($"[PlayerCombat] UIManager instance is null");
+            return;
+        }
+        
+        var floatingTextService = UIManager.Instance.GetFloatingTextService();
+        if (floatingTextService == null)
+        {
+            Debug.LogError($"[PlayerCombat] FloatingText service is null]");
+        }
+
+        string instanceId = $"dmg_{damageable.GetInstanceID()}_{Time.frameCount}_{Random.Range(0, 9999)}";
+        var position = damageable.bounds.center + Vector3.up * (damageable.bounds.extents.y * 0.5f);
+        
+        floatingTextService?.Create("DamageText", 
+                                            instanceId, 
+                                            damage.ToString("0"), 
+                                            position);
     }
 
     private void AdjustAmmo(int amount = 1)

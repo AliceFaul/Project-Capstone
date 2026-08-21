@@ -6,7 +6,7 @@ using TMPro;
 
 public class LocalizationText : MonoBehaviour, ITextProvider
 {
-    [SerializeField] private LocalizedString _localizedString;
+    [SerializeField] private LocalizedString localizedString;
 
     private TMP_Text _text;
     
@@ -23,28 +23,28 @@ public class LocalizationText : MonoBehaviour, ITextProvider
             return;
         }
 
-        _localizedString.StringChanged += (localizedString) =>
+        localizedString.StringChanged += (value) =>
         {
-            _text.text = localizedString;
+            _text.text = value;
         };
     }
 
     public void SetArguments(List<string> value)
     {
-        _localizedString.Arguments = value.ToArray();
+        localizedString.Arguments = value.ToArray();
     }
 
     public void ChangeText(LocalizedString text)
     {
-        if(_localizedString != null)
-            _localizedString.StringChanged -= UpdateText;
+        if(localizedString != null)
+            localizedString.StringChanged -= UpdateText;
 
-        _localizedString = text;
+        localizedString = text;
 
-        if(_localizedString != null)
-            _localizedString.StringChanged += UpdateText;
+        if(localizedString != null)
+            localizedString.StringChanged += UpdateText;
 
-        _localizedString?.RefreshString();
+        localizedString?.RefreshString();
     }
 
     private void UpdateText(string value)

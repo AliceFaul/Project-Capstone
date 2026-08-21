@@ -19,6 +19,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 9d2056dcf837a4c4ab662ffd4e65d641, type: 3}
   isStackable: 0
   maxStackSize: 64
+  equipmentPrefabKey: Rune_Ancient_Bow
   equipmentType: 2
   weaponType: 2
   level: 100
@@ -35,6 +36,9 @@ MonoBehaviour:
   attackRangeModifier: 0
   critChanceModifier: 0
   critDamageModifier: 0
-  equipmentMesh: {fileID: -6665426260531058033, guid: 7d58dd8d9be70844ea75845156e4179d, type: 3}
-  equipmentMaterial:
-  - {fileID: 2100000, guid: 1ee4688279d442648af0e658d7bb0cb8, type: 2}
+  equipmentPrefabRef:
+    m_AssetGUID: d0c32318984847e428ac1bce4ea19377
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
