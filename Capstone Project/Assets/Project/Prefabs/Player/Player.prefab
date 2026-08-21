@@ -370,6 +370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   mainCamera: {fileID: 0}
+  clickEffect: {fileID: 5028353888405606245, guid: 36c1964b5ef5b78419b5a20c09c27200, type: 3}
   invoker: {fileID: 6772811288144300525}
   groundLayer:
     serializedVersion: 2
@@ -396,12 +397,18 @@ MonoBehaviour:
   attackPoint: {fileID: 1992679372487895210}
   firePoint: {fileID: 8082828905780165329}
   projectilePrefab: {fileID: 3525247006018424799, guid: 005bd325fc5a95946838cf813e21d702, type: 3}
+  effects: []
   maxAmmo: 100
   ammoText: {fileID: 0}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  hitStopDuration: 0.05
+  hitStopTimeScale: 0.02
   AttackRange: 0
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &6254586106571862876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -459,6 +466,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8db2114c3df5f814b9f09defd16a1800, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  rotationSpeed: 900
+  acceleration: 60
+  angularAcceleration: 1080
+  stopSpeedThreshold: 0.05
 --- !u!114 &743074079644308432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -648,6 +659,11 @@ MonoBehaviour:
   agent: {fileID: 5104284016174206928}
   runtime: {fileID: 6254586106571862876}
   combat: {fileID: 2759596504568213360}
+  rootTransform: {fileID: 7612427732099748046}
+  runDust: {fileID: 0}
+  squashStretchDuration: 0.15
+  startStretchScale: {x: 0.85, y: 1.15, z: 0.85}
+  stopSquashScale: {x: 1.15, y: 0.85, z: 1.15}
 --- !u!114 &3527156759941933987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,13 +676,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4ef38f4f4fd6a784db482513fb24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
-  meleeVisual: {fileID: 4377164829979836274}
-  meleeMeshFilter: {fileID: 0}
-  meleeMeshRenderer: {fileID: 0}
-  weaponTrail: {fileID: 0}
-  rangedVisual: {fileID: 2736309775522622721}
-  rangedMeshFilter: {fileID: 0}
-  rangedMeshRenderer: {fileID: 0}
+  meleeSocket: {fileID: 5594313983555539030}
+  rangedSocket: {fileID: 8723449264484825119}
 --- !u!4 &1131708700260700962 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7886280063208347070, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}

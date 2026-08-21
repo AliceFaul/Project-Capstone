@@ -10,6 +10,9 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     
+    [Header("Status Effects (Just in now)")]
+    public StatusEffect[] effects;
+    
     [Header("Ammo Setting")]
     [SerializeField] private int maxAmmo = 15;
     [SerializeField] private TMP_Text ammoText;
@@ -48,6 +51,11 @@ public class PlayerCombat : MonoBehaviour {
         _equipmentManager = EquipmentManager.Instance;
         _runtime = GetComponent<PlayerRuntime>();
         _controller = GetComponent<PlayerController>();
+
+        foreach (var statusEffect in effects)
+        {
+            statusEffect.OnStatusApplied += HandleStatusApplied;
+        }
     }
 
     private void Start()
@@ -72,12 +80,26 @@ public class PlayerCombat : MonoBehaviour {
     {
         if (_equipmentManager != null)
             _equipmentManager.OnEquipmentChanged -= UpdateWeapon;
+
+        foreach (var statusEffect in effects)
+        {
+            statusEffect.OnStatusApplied -= HandleStatusApplied;
+        }
     }
 
     public void SetTarget(Transform target)
     {
         _currentTarget = target;
         Debug.Log($"[PlayerCombat] Target: {target.name}");
+    }
+
+    private void HandleStatusApplied(IAttackable target, IStatusEffect statusEffect)
+    {
+        if(target is not MonoBehaviour mb)
+            return;
+
+        var statusUI = mb.GetComponentInChildren<StatusEffectUI>();
+        statusUI?.ShowEffects(statusEffect);
     }
 
     // Call this method in the PlayerController when the player clicks on an enemy
@@ -129,6 +151,15 @@ public class PlayerCombat : MonoBehaviour {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
                 attackable.TakeDamage(result.Damage);
                 CreateDamagePopup(enemy, result.Damage);
+                
+                if (effects.Length > 0)
+                {
+                    foreach (var t in effects)
+                    {
+                        Cast(t, attackable);
+                    }
+                }
+                
                 didHitAnything = true;
                 Debug.Log($"[PlayerCombat] Attacked {enemy.name} for {result.Damage} damage.");
             } else {
@@ -173,6 +204,23 @@ public class PlayerCombat : MonoBehaviour {
         projectile.GetComponent<Projectile>().Initialize(direction, result.Damage);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
+    }
+
+    private void Cast(StatusEffect effect, IAttackable target)
+    {
+        effect.Apply(target);
+        var mb = target as MonoBehaviour;
+
+        if (effect.castVfx && mb)
+            Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
+
+        if (effect.runningVfx && mb)
+        {
+            var runningVfx = Instantiate(effect.runningVfx, mb.transform);
+            Destroy(runningVfx, 3f);
+        }
+        
+        // TODO: Add audio service
     }
 
     private void Impact()
