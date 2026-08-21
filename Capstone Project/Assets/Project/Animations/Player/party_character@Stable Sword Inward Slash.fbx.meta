@@ -55,8 +55,22 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.6016431
+      - time: 0.41881913
+        functionName: ActivateTrail
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.58067536
         functionName: DealDamage
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.67083526
+        functionName: DeactivateTrail
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

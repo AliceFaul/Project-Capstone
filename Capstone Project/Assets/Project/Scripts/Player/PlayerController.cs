@@ -126,12 +126,16 @@ public class PlayerController : MonoBehaviour {
         InputHandler.OnLeftClick += HandleLeftClick;
         InputHandler.OnRightClick += HandleRightClick;
         Movement.OnDestinationReached += OnDestinationReached;
+        Movement.OnMoveStart += OnMoveStart;
+        Movement.OnMoveStop += OnMoveStop;
     }
 
     private void OnDisable() {
         InputHandler.OnLeftClick -= HandleLeftClick;
         InputHandler.OnRightClick -= HandleRightClick;
         Movement.OnDestinationReached -= OnDestinationReached;
+        Movement.OnMoveStart -= OnMoveStart;
+        Movement.OnMoveStop -= OnMoveStop;
     }
 
     private void HandleLeftClick() { 
@@ -140,8 +144,6 @@ public class PlayerController : MonoBehaviour {
             return;
         }
         
-        Debug.Log("Right Click");
-
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 
         if(!Physics.Raycast(ray, out RaycastHit hit)) {
@@ -194,11 +196,13 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteAttack(Transform target) {
-        if (invoker != null)
-        {
-            invoker.ExecuteCommand(_attackCommand, target);
-            currentCommand = CommandType.Attack;
-        }
+        Movement?.SnapFaceTowards(target.position);
+
+        if (invoker == null) 
+            return;
+        
+        invoker.ExecuteCommand(_attackCommand, target);
+        currentCommand = CommandType.Attack;
     }
 
     private void ExecuteInteraction() { 
@@ -209,6 +213,16 @@ public class PlayerController : MonoBehaviour {
     {
         PlayerModifier.AttackModifier(!value);
         PlayerModifier.MoveModifier(!value);
+    }
+
+    private void OnMoveStart(Vector3 destination)
+    {
+        // VFX like spawn dust in footstep, sfx, shake camera, etc...
+    }
+
+    private void OnMoveStop()
+    { 
+        // VFX like spawn dust in footstep, sfx, shake camera, etc...
     }
 
     private void OnDestinationReached()

@@ -1,8 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class TrailVFXHandler : MonoBehaviour
 {
     [SerializeField] private ParticleSystem trailParticles;
+
+    private void Start()
+    {
+        trailParticles.Stop();
+    }
 
     public void Attach(Transform trailPoint)
     {

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8602361153905227493}
   - component: {fileID: 4669778101875308864}
   - component: {fileID: 7433918205971402122}
+  - component: {fileID: 3314958357748442760}
   m_Layer: 0
   m_Name: Inferno_Sword
   m_TagString: Untagged
@@ -25,12 +26,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8947079371753237599}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5424997503371446743}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4669778101875308864
 MeshFilter:
@@ -51,10 +54,17 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -76,6 +86,89 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3314958357748442760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8947079371753237599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a56d1ed6944446b79e229eaccf363837, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrailVFXHandler
+  trailParticles: {fileID: 8524740971323451677}
+--- !u!1001 &6269802951860070986
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8602361153905227493}
+    m_Modifications:
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067317725209262159, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+      propertyPath: m_Name
+      value: Sword trail prefab
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+--- !u!4 &5424997503371446743 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2038906790376547229, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+  m_PrefabInstance: {fileID: 6269802951860070986}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &8524740971323451677 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2400179112009483095, guid: d59d393f92a9f3f4e87157b0a5be0418, type: 3}
+  m_PrefabInstance: {fileID: 6269802951860070986}
+  m_PrefabAsset: {fileID: 0}

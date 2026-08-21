@@ -17,6 +17,11 @@ public class PlayerCombat : MonoBehaviour {
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
+    [Header("Impact feel")]
+    [SerializeField] private float hitStopDuration = 0.05f;
+    [SerializeField] private float hitStopTimeScale = 0.02f;
+    private Coroutine _hitStopRoutine;
+    
     // === CURRENT WEAPON ===
     private EquipmentData _currentMeleeWeapon;
     private EquipmentData _currentRangedWeapon;
@@ -114,6 +119,8 @@ public class PlayerCombat : MonoBehaviour {
     public void CmdDealDamage()
     {
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
+        bool didHitAnything = false;
+        
         foreach(Collider enemy in hitEnemies) {
             // Check if the enemy has an IAttackable component and call TakeDamage
             IAttackable attackable = enemy.GetComponent<IAttackable>();
@@ -121,13 +128,16 @@ public class PlayerCombat : MonoBehaviour {
             {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
                 attackable.TakeDamage(result.Damage);
-                CameraShake.Instance.ShakeCamera();
                 CreateDamagePopup(enemy, result.Damage);
+                didHitAnything = true;
                 Debug.Log($"[PlayerCombat] Attacked {enemy.name} for {result.Damage} damage.");
             } else {
-                Debug.LogWarning($"Enemy {enemy.name} does not implement IAttackable.");
+                Debug.LogWarning($"[PlayerCombat] Enemy {enemy.name} does not implement IAttackable.");
             }
         }
+
+        if (didHitAnything)
+            Impact();
     }
     
     // Call this method in the PlayerController when the player right clicks
@@ -163,6 +173,29 @@ public class PlayerCombat : MonoBehaviour {
         projectile.GetComponent<Projectile>().Initialize(direction, result.Damage);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
+    }
+
+    private void Impact()
+    {
+        if(CameraShake.Instance != null)
+            CameraShake.Instance.ShakeCamera();
+
+        if (_hitStopRoutine != null)
+        {
+            StopCoroutine(_hitStopRoutine);
+            Time.timeScale = 1f;
+        }
+        _hitStopRoutine = StartCoroutine(HitStopCo());
+    }
+
+    private IEnumerator HitStopCo()
+    {
+        float previousTimeScale = Time.timeScale;
+        Time.timeScale = hitStopTimeScale;
+
+        yield return new WaitForSecondsRealtime(hitStopDuration);
+        Time.timeScale = previousTimeScale;
+        _hitStopRoutine = null;
     }
 
     private void RotateToTarget()
@@ -213,8 +246,7 @@ public class PlayerCombat : MonoBehaviour {
         floatingTextService?.Create("DamageText", 
                                             instanceId, 
                                             damage.ToString("0"), 
-                                            position, 
-                                            isMoving: true);
+                                            position);
     }
 
     private void AdjustAmmo(int amount = 1)

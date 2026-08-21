@@ -192,8 +192,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  bounceHeight: 0.5
-  bounceHorizontalDistance: 0.15
+  bounceHeight: 2
+  bounceHorizontalDistance: 0.6
   bounceRotation: 10
   bounceVerticalCurve:
     serializedVersion: 2

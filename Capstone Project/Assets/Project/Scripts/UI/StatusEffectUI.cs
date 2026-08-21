@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using UnityEngine.Rendering;
 
 public class StatusEffectIcon
 {
@@ -23,8 +23,8 @@ public class StatusEffectIcon
 public class StatusEffectUI : MonoBehaviour
 {
     [SerializeField] private GameObject statusEffectIcon;
-    [SerializeField] private Dictionary<StatusEffectType, Sprite> statusEffectSprites;
-    [SerializeField] private Dictionary<StatusEffectType, Color> statusEffectColors;
+    [SerializeField] private SerializedDictionary<StatusEffectType, Sprite> statusEffectSprites;
+    [SerializeField] private SerializedDictionary<StatusEffectType, Color> statusEffectColors;
     
     private readonly Dictionary<StatusEffectData, StatusEffectIcon> _statusEffectIcons = new();
 

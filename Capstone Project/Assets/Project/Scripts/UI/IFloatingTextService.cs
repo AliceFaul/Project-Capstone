@@ -13,7 +13,7 @@ public interface IFloatingTextService : IUIService
                 LocalizedString content, 
                 Vector3 position);
 
-    void Create(string prefabId, 
+    /*void Create(string prefabId, 
                 string instanceId, 
                 LocalizedString content, 
                 Vector3 position, 
@@ -23,5 +23,5 @@ public interface IFloatingTextService : IUIService
                 string instanceId, 
                 string content, 
                 Vector3 position, 
-                bool isMoving);
+                bool isMoving); */
 }

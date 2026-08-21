@@ -27,7 +27,7 @@ public class FloatingTextService : IFloatingTextService
         }
     }
 
-    public void Create(string prefabId, string instanceId, string content, Vector3 position, bool isMoving)
+    public void Create(string prefabId, string instanceId, string content, Vector3 position)
     {
         if (_activeTexts.ContainsKey(instanceId))
         {
@@ -56,7 +56,7 @@ public class FloatingTextService : IFloatingTextService
             return;
         }
 
-        textGo.GetComponent<FloatingText>().Setup(instanceId, content, isMoving, (id) =>
+        textGo.GetComponent<FloatingText>().Setup(instanceId, content, (id) =>
         {
             if (_activeTexts.TryGetValue(id, out GameObject instance))
             {
@@ -71,13 +71,13 @@ public class FloatingTextService : IFloatingTextService
         _activeTexts.Add(instanceId, textGo);
     }
     
-    public void Create(string prefabId, string instanceId, LocalizedString content, Vector3 position, bool isMoving)
+    public void Create(string prefabId, string instanceId, LocalizedString content, Vector3 position)
     {
         content.GetLocalizedStringAsync().Completed += handle =>
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                Create(prefabId, instanceId, handle.Result, position, isMoving);
+                Create(prefabId, instanceId, handle.Result, position);
             }
             else
             {
@@ -85,16 +85,9 @@ public class FloatingTextService : IFloatingTextService
             }
         };
     }
-    
-
-    public void Create(string prefabId, string instanceId, string content, Vector3 position)
-        => Create(prefabId, instanceId, content, position, isMoving: false);
-
-    public void Create(string prefabId, string instanceId, LocalizedString content, Vector3 position)
-        => Create(prefabId, instanceId, content, position, isMoving: false);
 
     public void Create(string prefabId, string instanceId, LocalizedString content)
-        => Create(prefabId, instanceId, content.GetLocalizedString(), Vector3.zero, isMoving: false);
+        => Create(prefabId, instanceId, content.GetLocalizedString(), Vector3.zero);
     
     
     public void Show(string id)

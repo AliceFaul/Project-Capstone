@@ -63,7 +63,7 @@ public class FloatingText : UIElement
         }
     }
 
-    public void Setup(string instanceId, string content, bool isMoving, Action<string> onFinished)
+    public void Setup(string instanceId, string content, Action<string> onFinished)
     {
         InstanceID = instanceId;
         text.text = content;
@@ -76,7 +76,7 @@ public class FloatingText : UIElement
         if(_routine != null)
             StopCoroutine(_routine);
         
-        _routine = StartCoroutine(PlayAnimation(isMoving));
+        _routine = StartCoroutine(PlayAnimation());
     }
 
     public void StopAndFinish()
@@ -87,13 +87,8 @@ public class FloatingText : UIElement
         _onFinished?.Invoke(InstanceID);
     }
 
-    private IEnumerator PlayAnimation(bool isMoving)
+    private IEnumerator PlayAnimation()
     {
-        if (!isMoving && type == FloatingTextType.Static)
-        {
-            yield return AutoDestruction();
-        }
-        
         switch (type)
         {
             case FloatingTextType.FloatUp:
@@ -101,6 +96,9 @@ public class FloatingText : UIElement
                 break;
             case FloatingTextType.Bounce:
                 yield return Bounce();
+                break;
+            default: // Static
+                yield return AutoDestruction();
                 break;
         }
     }
@@ -138,7 +136,6 @@ public class FloatingText : UIElement
             _animationRotation = Quaternion.Euler(0f, 0f, rotation);
             
             canvasGroup.alpha = alphaCurve.Evaluate(normalized);
-            Billboard();
             yield return null;
         }
         
