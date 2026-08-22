@@ -235,6 +235,9 @@ public class PlayerController : MonoBehaviour {
             case CommandType.Attack:
                 Combat.CmdAttack();
                 break;
+            case CommandType.Interact:
+                // Interact...
+                break;
         }
         
         currentCommand = CommandType.None;
