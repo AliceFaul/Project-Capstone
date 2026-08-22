@@ -260,6 +260,7 @@ GameObject:
   - component: {fileID: 743074079644308432}
   - component: {fileID: 1594350380156625181}
   - component: {fileID: 6241995475581806153}
+  - component: {fileID: 9006754850781956550}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -434,14 +435,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4f0678f1f3746e994b1595bf9a1c7ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRuntime
-  baseHealth: 100
-  baseDefense: 1
-  baseDamage: 0
-  baseMoveSpeed: 5
-  baseAttackSpeed: 0
-  baseAttackRange: 0
-  baseCritChance: 5
-  baseCritDamage: 50
+  level: 1
+  currentExp: 0
+  expToNextLevel: 100
+  playerArchive: {fileID: 4069758127545282674}
 --- !u!114 &4069758127545282674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -455,6 +452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerArchive
   goldObtained: 0
+  gemObtained: 0
   itemObtained: 0
   enemyDefeated: 0
   totalDamageDealt: 0
@@ -547,6 +545,19 @@ MonoBehaviour:
   alphaRef: _Alpha
   alphaRate: 0.1
   alphaRefreshRate: 0.05
+--- !u!114 &9006754850781956550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a41eca1700f4e6a831a70cce78163ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterInstall
+  characterData: {fileID: 11400000, guid: 3c70fe4f4e387f44384285eeed2f3d63, type: 2}
 --- !u!1001 &7117115669241743004
 PrefabInstance:
   m_ObjectHideFlags: 0

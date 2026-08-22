@@ -71,7 +71,7 @@ public class PlayerCombat : MonoBehaviour {
 
         _currentMeleeWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon);
         _currentRangedWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon);
-        AttackRange = _currentMeleeWeapon.attributes.attackRange;
+        UpdateAttackRange();
 
         _equipmentManager.OnEquipmentChanged += UpdateWeapon;
     }
@@ -149,8 +149,8 @@ public class PlayerCombat : MonoBehaviour {
             if(attackable != null)
             {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
-                attackable.TakeDamage(result.Damage);
-                CreateDamagePopup(enemy, result.Damage);
+                attackable.TakeDamage(result.Damage, _runtime);
+                // CreateDamagePopup(enemy, result.Damage);
                 
                 if (effects.Length > 0)
                 {
@@ -266,12 +266,20 @@ public class PlayerCombat : MonoBehaviour {
         {
             case EquipmentType.MeleeWeapon:
                 _currentMeleeWeapon = args.NewEquipmentData;
-                AttackRange = _currentMeleeWeapon.attributes.attackRange;
+                UpdateAttackRange();
                 break;
             case EquipmentType.RangedWeapon:
                 _currentRangedWeapon = args.NewEquipmentData;
                 break;
         }
+    }
+
+    private void UpdateAttackRange()
+    {
+        if (_currentMeleeWeapon == null)
+            return;
+
+        AttackRange = _currentMeleeWeapon.attributes.attackRange + _currentMeleeWeapon.attackRangeModifier;
     }
 
     private void CreateDamagePopup(Collider damageable, float damage)
@@ -301,17 +309,5 @@ public class PlayerCombat : MonoBehaviour {
     {
         _currentAmmo += amount;
         ammoText.text = _currentAmmo.ToString(); // Update ammo text
-    }
-
-    public void OnDrawGizmosSelected() {
-        if (_runtime == null)
-            _runtime = GetComponent<PlayerRuntime>();
-
-        if (_runtime == null)
-            return;
-        
-        if(attackPoint == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, _runtime.AttackRange);
     }
 }

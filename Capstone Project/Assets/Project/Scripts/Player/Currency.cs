@@ -17,7 +17,7 @@ public class CurrencyAmount
 
 public class Currency
 {
-    [SerializeField] private readonly List<CurrencyAmount> _initialBalances = new List<CurrencyAmount>
+    private readonly List<CurrencyAmount> _initialBalances = new List<CurrencyAmount>
     {
         new CurrencyAmount
         {
@@ -40,7 +40,7 @@ public class Currency
     {
         foreach (var currency in _initialBalances)
         {
-            ((Action<CurrencyType, int>)null)?.Invoke(currency.type, currency.amount);
+            _balances[currency.type] = currency.amount;
         }
     }
     

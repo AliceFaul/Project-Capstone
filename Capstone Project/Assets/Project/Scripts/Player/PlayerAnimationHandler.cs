@@ -25,6 +25,10 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     [Tooltip("Scale when end moving")] [SerializeField]
     private Vector3 stopSquashScale = new Vector3(1.15f, 0.85f, 1.15f);
+    
+    [Header("Attack Speed")]
+    [SerializeField] private float baseAnimationAttackSpeed = 1f;
+    [SerializeField] private float minAnimatorSpeed = 0.1f;
 
     private Coroutine _scaleRoutine;
     private ParticleSystem.EmissionModule _dustEmission;
@@ -47,6 +51,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private void Awake()
     {
         _animator = GetComponent<Animator>();
+        _animator.speed = 1f;
 
         if (rootTransform == null)
         {
@@ -114,6 +119,11 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     {
         if (_stateMachine == null)
             return;
+        
+        if (oldState == CharacterStateType.Attack && newState != CharacterStateType.Attack)
+        {
+            ResetAnimatorSpeed();
+        }
 
         switch (newState)
         {
@@ -163,6 +173,8 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     private void AttackProcess()
     {
+        ApplyAttackSpeed();
+        
         if (_requestAttacking)
         {
             _requestAttacking = false;
@@ -186,6 +198,23 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     {
         _animator.SetTrigger(_attackHash);
         AttackCount = attackCount;
+    }
+
+    private void ApplyAttackSpeed()
+    {
+        if (runtime == null || baseAnimationAttackSpeed <= 0f)
+        {
+            _animator.speed = 1f;
+            return;
+        }
+        
+        float multiplier = runtime.TotalAttackSpeed / baseAnimationAttackSpeed;
+        _animator.speed = Mathf.Max(minAnimatorSpeed, multiplier);
+    }
+    
+    private void ResetAnimatorSpeed()
+    {
+        _animator.speed = 1f;
     }
 
     private int AttackCount

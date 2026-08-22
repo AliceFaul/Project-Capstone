@@ -17,12 +17,12 @@ public static class DamageCalculator
 {
     public static DamageResult Calculate(PlayerRuntime runtime, EquipmentData equipment)
     {
-        var damage = runtime.Damage;
+        var damage = runtime.TotalDamage;
 
         bool isCritical = false;
 
-        var critChance = runtime.CritChance;
-        var critDamage = runtime.CritDamage;
+        var critChance = runtime.TotalCritChance;
+        var critDamage = runtime.TotalCritDamage;
 
         if (equipment != null)
         {

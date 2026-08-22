@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private NavMeshAgent _agent;
     private PlayerRuntime _runtime;
     
-    public float NormalizedSpeed => _runtime != null && _runtime.MoveSpeed > 0f ? 
-            Mathf.Clamp01(_agent.velocity.magnitude / _runtime.MoveSpeed) : 
+    public float NormalizedSpeed => _runtime != null && _runtime.TotalSpeed > 0f ? 
+            Mathf.Clamp01(_agent.velocity.magnitude / _runtime.TotalSpeed) : 
             0f;
     
     private bool _isMoving = false;
@@ -89,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
     {
         bool wasIdle = !_isMoving;
         
-        _agent.speed = _runtime.MoveSpeed;
+        _agent.speed = _runtime.TotalSpeed;
         _agent.stoppingDistance = stoppingDistance;
         _destinationReached = false;
         _isMoving = true;

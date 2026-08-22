@@ -5,7 +5,8 @@ public class CharacterData : ScriptableObject // use for all entity character
 {
     public int characterId;
     public GameObject characterPrefab;
-
+    
+    // For enemy entity
     public float expOnKill;
     public float goldOnKill;
 

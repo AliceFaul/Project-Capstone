@@ -60,9 +60,9 @@ public class RuntimeDebugUI : MonoBehaviour
             $"Attack Speed: {_equipmentManager.Melee.attributes.attackSpeed} \n" +
             $"Range: {_equipmentManager.Melee.attributes.attackRange} \n\n" +
             $"===== MOVEMENT ===== \n" +
-            $"Move Speed: {runtime.MoveSpeed} \n\n" +
+            $"Move Speed: {runtime.TotalSpeed} \n\n" +
             $"===== DEFENSE ===== \n" +
-            $"Defense: {runtime.Defense} \n\n" +
+            $"Defense: {runtime.TotalArmor} \n\n" +
             $"===== CRITICAL ===== \n" +
             $"Crit Chance: {_equipmentManager.Melee.attributes.critChance} \n" +
             $"Crit Damage: {_equipmentManager.Melee.attributes.critDamage} \n\n" +

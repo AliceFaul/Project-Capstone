@@ -8,9 +8,9 @@ public class DamageFlasher
     private readonly float _flashDuration = 0.15f;
     private readonly CountdownTimer _flashTimer;
 
-    private readonly MeshRenderer _renderer;
+    private readonly Renderer _renderer;
 
-    public DamageFlasher(MeshRenderer renderer, Material flashMaterial)
+    public DamageFlasher(Renderer renderer, Material flashMaterial)
     {
         _renderer = renderer;
         _defaultMaterial = _renderer.material;
@@ -20,6 +20,9 @@ public class DamageFlasher
 
     public void Trigger()
     {
+        if(_renderer == null)
+            return;
+        
         _renderer.material = _flashMaterial;
         _flashTimer.OnTimerStop = UpdateFlash;
         _flashTimer.Start();
@@ -27,6 +30,18 @@ public class DamageFlasher
 
     private void UpdateFlash()
     {
+        if(_renderer == null)
+            return;
+        
         _renderer.material = _defaultMaterial;
+    }
+    
+    public void Stop()
+    {
+        _flashTimer.Stop();
+        if (_renderer != null)
+        {
+            _renderer.material = _defaultMaterial;
+        }
     }
 }
