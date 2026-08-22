@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System;
 
-public enum BonusStat { Health, Defense, Damage, AttackRange, AttackSpeed, MoveSpeed, CritChance, CritDamage }
-
 public class PlayerRuntime : MonoBehaviour, IAttackable
 {
     [Header("Character Base Stats")]
@@ -34,8 +32,9 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     private float _bonusCritDamage;
 
     public event Action OnStatsChanged; // On Stats Changed event
-    public event Action<int> OnHPChanged; // On Health Changed event
+    public event Action<int> OnHpChanged; // On Health Changed event
     public event Action OnHit;
+    
     private int _currentHealth;
     
     // === CURRENT STATS ===
@@ -68,7 +67,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     {
         _equipmentManager = EquipmentManager.Instance;
         _currentHealth = baseHealth;
-        OnHPChanged?.Invoke(_currentHealth);
+        OnHpChanged?.Invoke(_currentHealth);
         _equipmentManager.OnEquipmentChanged += HandleEquipmentChanged;
     }
 
@@ -171,7 +170,7 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
         _currentHealth -= (int)finalDamage;
         _currentHealth = Mathf.Clamp(_currentHealth, 0, baseHealth);
         
-        OnHPChanged?.Invoke(_currentHealth);
+        OnHpChanged?.Invoke(_currentHealth);
         OnHit?.Invoke();
 
         if (_currentHealth <= 0)
@@ -199,6 +198,6 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     public void Revive()
     {
         _currentHealth = baseHealth;
-        OnHPChanged?.Invoke(_currentHealth);
+        OnHpChanged?.Invoke(_currentHealth);
     }
 }
