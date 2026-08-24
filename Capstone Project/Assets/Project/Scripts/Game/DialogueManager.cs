@@ -147,7 +147,7 @@ public class DialogueManager : MonoBehaviour
         {
             PlayerQuestManager.Instance.AcceptQuest(currentQuest);
         }
-
+       
         // Gọi NPC đổi trạng thái sang đứng yên
         if (currentNPC != null)
         {

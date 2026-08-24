@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerQuestManager : MonoBehaviour
 {
     public static PlayerQuestManager Instance { get; private set; }
 
-    [SerializeField] private QuestData activeQuest;
+    // Danh sách nhiệm vụ đã nhận
+    public List<QuestData> acceptedQuests = new List<QuestData>();
 
     private void Awake()
     {
@@ -16,9 +18,13 @@ public class PlayerQuestManager : MonoBehaviour
         Instance = this;
     }
 
+    // Hàm nhận quest chuẩn chỉnh
     public void AcceptQuest(QuestData quest)
     {
-        activeQuest = quest;
-        Debug.Log($"<color=green>[QUEST ACCEPTED]</color> Đã nhận nhiệm vụ: {quest.questTitle}");
+        if (quest != null && !acceptedQuests.Contains(quest))
+        {
+            acceptedQuests.Add(quest);
+            Debug.Log("Đã thêm vào acceptedQuests: " + quest.questTitle);
+        }
     }
 }

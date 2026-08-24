@@ -1,16 +1,18 @@
 ﻿using UnityEngine;
 
-// 1. Phân loại nv theo yêu cầu (Lobby vs In-Run từ NPC)
+// Phân loại nv Quest Log
 public enum QuestType
 {
-    LobbyDaily, // Nhiệm vụ mỗi ngày nhận ở Lobby (Reset mỗi 4 tiếng)
-    InRun       // Nhiệm vụ nhận từ NPC trong màn chơi để lấy vật phẩm
+    Lobby,      // Nhiệm vụ sảnh
+    LobbyDaily, // Nhiệm vụ mỗi ngày
+    InRun,      // Nhiệm vụ nhận từ NPC trong màn chơi
+    Main,       // Nhiệm vụ chính
+    Side        // Nhiệm vụ phụ
 }
 
-// 2. Loại mục tiêu cần hoàn thành
 public enum QuestGoalType
 {
-    CollectItem, // Nhặt vật phẩm (Gỗ, Đá, Thuốc,...)
+    CollectItem, // Nhặt vật phẩm (Gỗ, Đá, Thuốc)
     KillEnemy    // Tiêu diệt quái vật
 }
 
@@ -22,7 +24,7 @@ public class QuestData : ScriptableObject
     public string questTitle;          // Tên nhiệm vụ
     [TextArea(3, 5)]
     public string questDescription;    // Mô tả nhiệm vụ
-    public QuestType questType;        // LobbyDaily hay InRun
+    public QuestType questType;        // Loại nhiệm vụ (Lobby, Main, Side)
 
     [Header("2. ĐIỀU KIỆN HOÀN THÀNH")]
     public QuestGoalType goalType;     // Loại mục tiêu (Nhặt đồ hay Diệt quái)
@@ -31,7 +33,7 @@ public class QuestData : ScriptableObject
     public int requiredAmount = 1;     // Số lượng cần đạt
 
     [Header("3. PHẦN THƯỞNG")]
-    public int rewardGold;             // Số tiền/vàng nhận được
+    public int rewardGold;              // Số vàng nhận được
     public ItemData rewardItem;        // Vật phẩm thưởng
     public int rewardItemAmount = 1;   // Số lượng vật phẩm thưởng
 }
