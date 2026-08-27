@@ -15,8 +15,10 @@ public class ItemSlotElement : VisualElement
     private readonly VisualElement _iconImage;
     private readonly Label _quantityLabel;
     private readonly VisualElement _equippedBadge;
+    private readonly VisualElement _rarityRibbon;
     private readonly Label _typeLabel;
     private string _currentRarityClass;
+    private bool _isSelected;
 
     // Click luon ban (dung de hien Detail Panel). DoubleClicked chi ban them khi click 2 lan lien
     // tiep (Unity tinh san clickCount trong ClickEvent theo double-click-time cua he thong) -
@@ -42,6 +44,13 @@ public class ItemSlotElement : VisualElement
         _typeLabel.style.display = DisplayStyle.None;
         Add(_typeLabel);
 
+        // Dai mau goc tren-trai the hien do hiem, giong style Minecraft Dungeons - an khi slot
+        // trong hoac khi item chua co rarity gan (xem SetRarity).
+        _rarityRibbon = new VisualElement();
+        _rarityRibbon.AddToClassList("item-slot__rarity-ribbon");
+        _rarityRibbon.style.display = DisplayStyle.None;
+        Add(_rarityRibbon);
+
         _quantityLabel = new Label();
         _quantityLabel.AddToClassList("item-slot__quantity");
         _quantityLabel.style.display = DisplayStyle.None;
@@ -53,6 +62,15 @@ public class ItemSlotElement : VisualElement
         Add(_equippedBadge);
 
         RegisterCallback<ClickEvent>(OnClick);
+    }
+
+    // Vien xanh sang khi slot dang duoc chon (giong o "Pickaxe"/"Sword" vien xanh trong anh mau) -
+    // goi tu ben ngoai (InventoryScreenController) khi 1 slot duoc click, va SetSelected(false)
+    // cho slot duoc chon truoc do.
+    public void SetSelected(bool selected)
+    {
+        _isSelected = selected;
+        EnableInClassList("item-slot--selected", selected);
     }
 
     // Goi 1 lan luc setup slot (Melee/Armor/Ranged/Artifact/Rune) - text nay se tu an di khi
@@ -113,7 +131,7 @@ public class ItemSlotElement : VisualElement
     }
 
     // rarityUssClass vi du: "item-slot--rarity-common", "item-slot--rarity-legendary"...
-    // Dinh nghia mau/vien tuong ung trong USS, component nay chi lo gan/go class.
+    // Dinh nghia mau vien + mau dai ribbon goc tuong ung trong USS.
     public void SetRarity(string rarityUssClass)
     {
         ClearRarity();
@@ -122,6 +140,8 @@ public class ItemSlotElement : VisualElement
 
         _currentRarityClass = rarityUssClass;
         AddToClassList(rarityUssClass);
+        _rarityRibbon.AddToClassList(rarityUssClass + "-ribbon");
+        _rarityRibbon.style.display = DisplayStyle.Flex;
     }
 
     private void ClearRarity()
@@ -129,6 +149,8 @@ public class ItemSlotElement : VisualElement
         if (!string.IsNullOrEmpty(_currentRarityClass))
         {
             RemoveFromClassList(_currentRarityClass);
+            _rarityRibbon.RemoveFromClassList(_currentRarityClass + "-ribbon");
+            _rarityRibbon.style.display = DisplayStyle.None;
             _currentRarityClass = null;
         }
     }

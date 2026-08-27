@@ -2,59 +2,58 @@
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/theme.uss?fileID=7433441132597879392&amp;guid=bb15ad5c429032040bbfc746a270548c&amp;type=3#theme"/>
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/item-slot.uss?fileID=7433441132597879392&amp;guid=dfb791b80be04ed4a8498e8fb12a3e5f&amp;type=3#item-slot"/>
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/icon-label.uss?fileID=7433441132597879392&amp;guid=073030101e7c0254dbffed9e7e8b51db&amp;type=3#icon-label"/>
-    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/inventory-screen.uss?fileID=7433441132597879392&amp;guid=371909b7eb3dfc849943d1169c656a4a&amp;type=3#inventory-screen"/>
-    <ui:VisualElement name="inventory-screen" class="inventory-screen">
-        <ui:VisualElement name="top-bar" class="inventory-screen__top-bar" style="height: 70px;">
-            <ui:VisualElement name="currency-group" class="inventory-screen__currency-group">
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/inventory-screen.uss?fileID=7433441132597879392&amp;guid=b98b5f3c9c1c7ce429937e3061a3aacf&amp;type=3#inventory-screen"/>
+    <ui:VisualElement name="inventory-screen" class="inventory-screen" style="background-color: rgb(37, 22, 18);">
+        <ui:VisualElement name="top-bar" class="inventory-screen__top-bar" style="height: 128px; translate: 0 26px;">
+            <ui:VisualElement name="currency-group" class="inventory-screen__currency-group" style="height: 87px; width: 346px;">
                 <IconLabelElement name="gold-display" icon-class="icon-gold" text="0"/>
                 <IconLabelElement name="gem-display" icon-class="icon-gem" text="0"/>
             </ui:VisualElement>
-            <ui:Button name="close-button" text="X" class="button-base inventory-screen__close-button"/>
+            <ui:Button name="close-button" text="X" class="button-base inventory-screen__close-button" style="height: 70px; width: 70px;"/>
         </ui:VisualElement>
-        <ui:VisualElement name="body" class="inventory-screen__body">
-            <ui:VisualElement name="left-panel" class="inventory-screen__left-panel">
-                <ui:VisualElement name="equip-row" class="inventory-screen__equip-row">
-                    <ItemSlotElement name="slot-melee"/>
-                    <ItemSlotElement name="slot-armor"/>
-                    <ItemSlotElement name="slot-ranged"/>
+        <ui:VisualElement name="body" class="inventory-screen__body" style="justify-content: center; width: 1920px; height: 1080px; background-size: 100% 100%; align-items: stretch; flex-direction: row; translate: 0 42px;">
+            <ui:VisualElement name="left-panel" class="inventory-screen__left-panel" style="align-self: flex-start; align-items: center; justify-content: space-around; position: absolute; top: 5px; left: 8px; width: 563px; height: 928px;">
+                <ui:VisualElement name="equip-row" class="inventory-screen__equip-row" style="height: 230px; width: 587px; align-self: center; justify-content: space-between; align-items: flex-start; position: relative; translate: 29px 35px;">
+                    <ItemSlotElement name="slot-melee" style="align-self: center; justify-content: space-evenly; align-items: stretch; flex-direction: row-reverse;"/>
+                    <ItemSlotElement name="slot-armor" style="align-self: stretch; justify-content: flex-start;"/>
+                    <ItemSlotElement name="slot-ranged" style="align-items: center; align-self: center;"/>
                 </ui:VisualElement>
                 <ui:VisualElement name="model-row" class="inventory-screen__model-row">
                     <ui:VisualElement name="level-progress" class="inventory-screen__level-progress panel">
-                        <ui:Label name="level-label" text="Lv. 1"/>
+                        <ui:Label name="level-label" text="Lv. 1" class="label"/>
                     </ui:VisualElement>
                     <ui:VisualElement name="model-viewport" class="inventory-screen__model-viewport panel"/>
                 </ui:VisualElement>
-                <ui:VisualElement name="artifact-row" class="inventory-screen__artifact-row">
+                <ui:VisualElement name="artifact-row" class="inventory-screen__artifact-row" style="translate: 0 0;">
                     <ItemSlotElement name="slot-artifact-0"/>
                     <ItemSlotElement name="slot-artifact-1"/>
                     <ItemSlotElement name="slot-artifact-2"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:ScrollView name="inventory-scroll" mode="Vertical" class="inventory-screen__center-panel panel">
-                <ui:VisualElement name="inventory-grid" class="inventory-screen__grid"/>
+            <ui:ScrollView name="inventory-scroll" mode="Vertical" class="inventory-screen__center-panel" style="position: relative; height: 870px; width: 442px; top: auto; left: auto; justify-content: space-between; align-items: stretch; align-self: flex-start; translate: -47px 0; flex-direction: column; padding-top: 8px; margin-bottom: 0; background-color: rgba(0, 0, 0, 0);">
+                <ui:VisualElement name="inventory-grid" class="inventory-screen__grid" style="justify-content: space-between; align-self: auto; align-content: center; align-items: stretch;"/>
             </ui:ScrollView>
-            <ui:VisualElement name="detail-panel" class="inventory-screen__detail-panel panel">
-                <ui:Label name="detail-rarity" text="" class="detail-panel__rarity"/>
-                <ui:Label name="detail-name" text="" class="detail-panel__name"/>
-                <ui:VisualElement name="detail-icon" class="detail-panel__icon"/>
-                <ui:Label name="detail-description" text="" class="detail-panel__description"/>
-                <ui:VisualElement name="detail-stats" class="detail-panel__stats">
-                    <ui:VisualElement class="detail-panel__stat-row">
-                        <ui:Label name="stat-damage" text="Damage/Armor: 0"/>
-                        <ui:Label name="stat-speed" text="Speed: 0"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="detail-panel__stat-row">
-                        <ui:Label name="stat-crit-chance" text="Crit Chance: 0%"/>
-                        <ui:Label name="stat-crit-damage" text="Crit Damage: 0%"/>
-                    </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="detail-panel" class="inventory-screen__detail-panel" style="padding-left: 16px; margin-left: 0; position: absolute; top: auto; left: auto; width: 539px; height: 836px; justify-content: space-between; bottom: -537px; right: 1393px; background-color: rgba(0, 0, 0, 0);">
+            <ui:Label name="detail-rarity" text="" class="detail-panel__rarity" style="font-size: 15px;"/>
+            <ui:Label name="detail-name" text="" enable-rich-text="true" class="detail-panel__name" style="color: rgb(255, 255, 255); align-items: stretch; align-self: flex-start; font-size: 45px;"/>
+            <ui:VisualElement name="detail-icon" class="detail-panel__icon" style="align-self: flex-end; align-items: flex-end; justify-content: space-evenly; align-content: auto; flex-direction: column; translate: 0 -132px; width: 200px; height: 200px;"/>
+            <ui:Label name="detail-description" text="" display-tooltip-when-elided="true" class="detail-panel__description" style="align-items: stretch; align-self: flex-start; translate: 0 -209px; font-size: 20px; color: rgb(255, 255, 255);"/>
+            <ui:VisualElement name="detail-stats" class="detail-panel__stats" style="width: 399px; justify-content: space-around; align-items: stretch; translate: 0 68px;">
+                <ui:VisualElement class="detail-panel__stat-row">
+                    <ui:Label name="stat-damage" text="Power: 0" style="color: rgb(255, 255, 255); font-size: 20px;"/>
+                    <ui:Label name="stat-speed" text="Speed: 0" style="color: rgb(255, 255, 255); font-size: 20px;"/>
                 </ui:VisualElement>
-                <ui:Label text="Rune" class="detail-panel__rune-title"/>
-                <ui:VisualElement name="rune-row" class="detail-panel__rune-row">
-                    <ItemSlotElement name="rune-slot-0"/>
-                    <ItemSlotElement name="rune-slot-1"/>
-                    <ItemSlotElement name="rune-slot-2"/>
+                <ui:VisualElement class="detail-panel__stat-row">
+                    <ui:Label name="stat-crit-chance" text="Crit Chance: 0%" style="color: rgb(255, 255, 255); font-size: 20px;"/>
+                    <ui:Label name="stat-crit-damage" text="Crit Damage: 0%" style="color: rgb(255, 255, 255); font-size: 20px;"/>
                 </ui:VisualElement>
-                <ui:Label name="detail-empty-hint" text="Chon 1 item de xem chi tiet" class="detail-panel__empty-hint"/>
+            </ui:VisualElement>
+            <ui:Label text="Runes" name="rune-title" class="detail-panel__rune-title" style="font-size: 30px; translate: 0 43px;"/>
+            <ui:VisualElement name="rune-row" class="detail-panel__rune-row" style="height: 189px; width: 508px; justify-content: space-between; align-self: auto; align-items: center;">
+                <ItemSlotElement name="rune-slot-0" style="width: 125px; height: 125px;"/>
+                <ItemSlotElement name="rune-slot-1" style="width: 125px; height: 125px;"/>
+                <ItemSlotElement name="rune-slot-2" style="width: 125px; height: 125px;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
