@@ -1,0 +1,170 @@
+.inventory-screen {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0.55);
+    padding-bottom: 0;
+    opacity: 1;
+}
+
+.inventory-screen__top-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-m);
+    -unity-background-scale-mode: stretch-to-fill;
+    border-bottom-width: 0;
+    border-top-width: 0;
+}
+
+.inventory-screen__currency-group {
+    flex-direction: row;
+}
+
+.inventory-screen__currency-group > .icon-label {
+    margin-right: var(--spacing-s);
+}
+
+.inventory-screen__close-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    -unity-text-align: middle-center;
+}
+
+.inventory-screen__body {
+    flex-grow: 1;
+    flex-direction: row;
+    padding: 0 var(--spacing-l) var(--spacing-l) var(--spacing-l);
+}
+
+.inventory-screen__left-panel {
+    width: 320px;
+    align-items: center;
+}
+
+.inventory-screen__equip-row {
+    flex-direction: row;
+    margin-bottom: var(--spacing-m);
+}
+
+.inventory-screen__model-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-m);
+}
+
+.inventory-screen__level-progress {
+    width: 88px;
+    height: 88px;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-s);
+}
+
+.inventory-screen__level-progress .label {
+    color: var(--color-text);
+    font-size: var(--font-size-large);
+    -unity-font-style: bold;
+}
+
+.inventory-screen__model-viewport {
+    width: 200px;
+    height: 300px;
+    background-color: var(--color-panel-alt);
+}
+
+.inventory-screen__artifact-row {
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
+    bottom: auto;
+    opacity: 1;
+}
+
+.inventory-screen__center-panel {
+    flex-grow: 1;
+    margin: 0 var(--spacing-m);
+    padding: var(--spacing-s);
+}
+
+.inventory-screen__grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.inventory-screen__detail-panel {
+    width: 300px;
+    padding: var(--spacing-m);
+}
+
+.detail-panel__rarity {
+    color: var(--color-rarity-rare);
+    font-size: var(--font-size-small);
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.detail-panel__name {
+    color: var(--color-text);
+    font-size: var(--font-size-large);
+    -unity-font-style: bold;
+    margin-bottom: var(--spacing-s);
+}
+
+.detail-panel__icon {
+    width: 120px;
+    height: 120px;
+    align-self: center;
+    background-color: var(--color-panel-alt);
+    border-width: 2px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-s);
+    -unity-background-scale-mode: scale-to-fit;
+    margin-bottom: var(--spacing-m);
+}
+
+.detail-panel__description {
+    color: var(--color-text-dim);
+    font-size: var(--font-size-base);
+    white-space: normal;
+    margin-bottom: var(--spacing-m);
+}
+
+.detail-panel__stats {
+    margin-bottom: var(--spacing-m);
+}
+
+.detail-panel__stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xs);
+}
+
+.detail-panel__stat-row .label {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+}
+
+.detail-panel__rune-title {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: var(--spacing-s);
+}
+
+.detail-panel__rune-row {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.detail-panel__rune-row .item-slot {
+    width: 64px;
+    height: 64px;
+}
+
+.detail-panel__empty-hint {
+    color: var(--color-text-dim);
+    font-size: var(--font-size-base);
+    -unity-text-align: middle-center;
+    margin-top: var(--spacing-l);
+}

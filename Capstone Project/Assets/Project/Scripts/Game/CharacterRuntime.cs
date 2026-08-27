@@ -77,7 +77,6 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     }
 
     private static readonly DamageReduceCal DamageReduceCal = new DamageReduceCal();
-    
     public virtual void TakeDamage(float damage, ICharacterRuntime runtime)
     {
         if(this == null)

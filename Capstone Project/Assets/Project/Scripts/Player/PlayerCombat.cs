@@ -10,7 +10,7 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     
-    [Header("Status Effects (Just in now)")]
+    [Header("Status Effects (Test)")]
     public StatusEffect[] effects;
     
     [Header("Ammo Setting")]

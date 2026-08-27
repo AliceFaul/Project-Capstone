@@ -1,0 +1,31 @@
+.icon-label {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--color-panel);
+    border-width: 2px;
+    border-color: var(--color-border);
+    border-radius: 20px;
+    padding: 2px var(--spacing-s) 2px 2px;
+}
+
+.icon-label__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    background-color: var(--color-panel-alt);
+    border-width: 1px;
+    border-color: var(--color-border-light);
+    margin-right: var(--spacing-xs);
+}
+
+.icon-label__text {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    -unity-font-style: bold;
+}
+
+/* Gan icon-class="icon-gold" / "icon-gem" / "icon-level" trong UI Builder Inspector.
+   Thay background-image bang sprite that cua ban khi co. */
+.icon-gold { background-color: #d6a13d; }
+.icon-gem { background-color: #3d8fd6; }
+.icon-level { background-color: #6bd63d; }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1579891772053446028}
   - component: {fileID: 242668761019023848}
   m_Layer: 7
-  m_Name: Health background
+  m_Name: Health container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1513005280143676927}
   m_Father: {fileID: 7424973337189051273}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -86,6 +87,8 @@ GameObject:
   - component: {fileID: 2527537138281969020}
   - component: {fileID: 3209293989943632239}
   - component: {fileID: 7323865698488765521}
+  - component: {fileID: 1613876440686715131}
+  - component: {fileID: 4125391969291901210}
   m_Layer: 7
   m_Name: Training dummy
   m_TagString: Untagged
@@ -149,6 +152,32 @@ MonoBehaviour:
   healthBar: {fileID: 3944545331766739665}
   impactParticles: {fileID: 5880797563141009103, guid: 265d3a5ba69981a4698ceabcedf368b0, type: 3}
   animator: {fileID: 2098764815971040546}
+--- !u!114 &1613876440686715131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791700865853121237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a41eca1700f4e6a831a70cce78163ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterInstall
+  characterData: {fileID: 11400000, guid: 5efdba99ccbf87c4eb343d501acfc64e, type: 2}
+--- !u!114 &4125391969291901210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791700865853121237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea31cd4282564572b9980ebda52c3d83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
+  currentState: 0
 --- !u!1 &2357698169738666712
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,7 +208,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7424973337189051273}
+  m_Father: {fileID: 4768786162952347728}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -207,7 +236,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.25498164, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -332,7 +361,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7424973337189051273}
   m_Layer: 7
-  m_Name: Enemy health container
+  m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -351,7 +380,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4768786162952347728}
-  - {fileID: 1513005280143676927}
   m_Father: {fileID: 8918713378821172629}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

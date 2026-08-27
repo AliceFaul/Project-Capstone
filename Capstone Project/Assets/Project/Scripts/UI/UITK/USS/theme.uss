@@ -1,0 +1,52 @@
+:root {
+    --color-bg: #1b1712;
+    --color-panel: #2a241c;
+    --color-panel-alt: #332c22;
+    --color-border: #5a4d38;
+    --color-border-light: #7a6a4d;
+    --color-text: #ece3d2;
+    --color-text-dim: #a99d84;
+    --color-accent: #c98a3a;
+    --color-accent-hover: #e0a355;
+
+    --color-rarity-common: #8a8a8a;
+    --color-rarity-rare: #3d8fd6;
+    --color-rarity-epic: #a04dd6;
+    --color-rarity-legendary: #d6a13d;
+
+    --font-size-small: 12px;
+    --font-size-base: 14px;
+    --font-size-large: 20px;
+    --font-size-title: 28px;
+
+    --spacing-xs: 4px;
+    --spacing-s: 8px;
+    --spacing-m: 16px;
+    --spacing-l: 24px;
+
+    --radius-s: 4px;
+    --radius-m: 8px;
+}
+
+.panel {
+    background-color: var(--color-panel);
+    border-width: 2px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-m);
+}
+
+.button-base {
+    background-color: var(--color-panel-alt);
+    border-width: 2px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-s);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    padding: var(--spacing-s) var(--spacing-m);
+    transition-duration: 0.1s;
+}
+
+.button-base:hover {
+    background-color: var(--color-border);
+    border-color: var(--color-border-light);
+}

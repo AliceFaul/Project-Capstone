@@ -1,0 +1,61 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/theme.uss?fileID=7433441132597879392&amp;guid=bb15ad5c429032040bbfc746a270548c&amp;type=3#theme"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/item-slot.uss?fileID=7433441132597879392&amp;guid=dfb791b80be04ed4a8498e8fb12a3e5f&amp;type=3#item-slot"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/icon-label.uss?fileID=7433441132597879392&amp;guid=073030101e7c0254dbffed9e7e8b51db&amp;type=3#icon-label"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/inventory-screen.uss?fileID=7433441132597879392&amp;guid=371909b7eb3dfc849943d1169c656a4a&amp;type=3#inventory-screen"/>
+    <ui:VisualElement name="inventory-screen" class="inventory-screen">
+        <ui:VisualElement name="top-bar" class="inventory-screen__top-bar" style="height: 70px;">
+            <ui:VisualElement name="currency-group" class="inventory-screen__currency-group">
+                <IconLabelElement name="gold-display" icon-class="icon-gold" text="0"/>
+                <IconLabelElement name="gem-display" icon-class="icon-gem" text="0"/>
+            </ui:VisualElement>
+            <ui:Button name="close-button" text="X" class="button-base inventory-screen__close-button"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="body" class="inventory-screen__body">
+            <ui:VisualElement name="left-panel" class="inventory-screen__left-panel">
+                <ui:VisualElement name="equip-row" class="inventory-screen__equip-row">
+                    <ItemSlotElement name="slot-melee"/>
+                    <ItemSlotElement name="slot-armor"/>
+                    <ItemSlotElement name="slot-ranged"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="model-row" class="inventory-screen__model-row">
+                    <ui:VisualElement name="level-progress" class="inventory-screen__level-progress panel">
+                        <ui:Label name="level-label" text="Lv. 1"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="model-viewport" class="inventory-screen__model-viewport panel"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="artifact-row" class="inventory-screen__artifact-row">
+                    <ItemSlotElement name="slot-artifact-0"/>
+                    <ItemSlotElement name="slot-artifact-1"/>
+                    <ItemSlotElement name="slot-artifact-2"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="inventory-scroll" mode="Vertical" class="inventory-screen__center-panel panel">
+                <ui:VisualElement name="inventory-grid" class="inventory-screen__grid"/>
+            </ui:ScrollView>
+            <ui:VisualElement name="detail-panel" class="inventory-screen__detail-panel panel">
+                <ui:Label name="detail-rarity" text="" class="detail-panel__rarity"/>
+                <ui:Label name="detail-name" text="" class="detail-panel__name"/>
+                <ui:VisualElement name="detail-icon" class="detail-panel__icon"/>
+                <ui:Label name="detail-description" text="" class="detail-panel__description"/>
+                <ui:VisualElement name="detail-stats" class="detail-panel__stats">
+                    <ui:VisualElement class="detail-panel__stat-row">
+                        <ui:Label name="stat-damage" text="Damage/Armor: 0"/>
+                        <ui:Label name="stat-speed" text="Speed: 0"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="detail-panel__stat-row">
+                        <ui:Label name="stat-crit-chance" text="Crit Chance: 0%"/>
+                        <ui:Label name="stat-crit-damage" text="Crit Damage: 0%"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label text="Rune" class="detail-panel__rune-title"/>
+                <ui:VisualElement name="rune-row" class="detail-panel__rune-row">
+                    <ItemSlotElement name="rune-slot-0"/>
+                    <ItemSlotElement name="rune-slot-1"/>
+                    <ItemSlotElement name="rune-slot-2"/>
+                </ui:VisualElement>
+                <ui:Label name="detail-empty-hint" text="Chon 1 item de xem chi tiet" class="detail-panel__empty-hint"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
