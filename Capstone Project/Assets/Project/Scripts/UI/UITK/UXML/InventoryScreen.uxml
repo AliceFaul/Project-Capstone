@@ -24,13 +24,13 @@
                     </ui:VisualElement>
                     <ui:VisualElement name="model-viewport" class="inventory-screen__model-viewport panel"/>
                 </ui:VisualElement>
-                <ui:VisualElement name="artifact-row" class="inventory-screen__artifact-row" style="translate: 0 0;">
+                <ui:VisualElement name="artifact-row" class="inventory-screen__artifact-row" style="translate: 0 -29px;">
                     <ItemSlotElement name="slot-artifact-0"/>
                     <ItemSlotElement name="slot-artifact-1"/>
                     <ItemSlotElement name="slot-artifact-2"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:ScrollView name="inventory-scroll" mode="Vertical" class="inventory-screen__center-panel" style="position: relative; height: 870px; width: 442px; top: auto; left: auto; justify-content: space-between; align-items: stretch; align-self: flex-start; translate: -47px 0; flex-direction: column; padding-top: 8px; margin-bottom: 0; background-color: rgba(0, 0, 0, 0);">
+            <ui:ScrollView name="inventory-scroll" mode="Vertical" class="inventory-screen__center-panel" style="position: relative; height: 830px; width: 442px; top: auto; left: auto; justify-content: space-between; align-items: stretch; align-self: flex-start; translate: -47px 0; flex-direction: column; padding-top: 8px; margin-bottom: 0; background-color: rgba(0, 0, 0, 0);">
                 <ui:VisualElement name="inventory-grid" class="inventory-screen__grid" style="justify-content: space-between; align-self: auto; align-content: center; align-items: stretch;"/>
             </ui:ScrollView>
         </ui:VisualElement>

@@ -56,8 +56,7 @@ public class IconLabelElement : VisualElement
     {
         _label.text = text;
     }
-
-    // Dung khi gan gia tri so (Gold/Gem/Level) - dinh dang co dau phay ngan cach hang nghin.
+    
     public void SetAmount(int amount)
     {
         _label.text = amount.ToString("N0");
