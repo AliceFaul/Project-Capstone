@@ -274,11 +274,17 @@ public class InventoryScreenController : MonoBehaviour
 
         foreach (var invSlot in PlayerInventory.Instance.slots)
         {
-            if (invSlot.itemData == null)
-                continue;
-
             var slot = new ItemSlotElement();
-            slot.SetItem(invSlot, invSlot.itemData.icon, invSlot.stackSize, isEquipped: false, GetItemRarity(invSlot.itemData));
+
+            if (invSlot.itemData != null)
+            {
+                slot.SetItem(invSlot, invSlot.itemData.icon, invSlot.stackSize, isEquipped: false, GetItemRarity(invSlot.itemData));
+            }
+            else
+            {
+                slot.SetEmpty();
+            }
+            
             slot.Clicked += SelectSlot;
             slot.DoubleClicked += OnGridSlotDoubleClicked;
             

@@ -253,6 +253,7 @@ GameObject:
   - component: {fileID: 2854524255848535839}
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6254586106571862876}
+  - component: {fileID: 6983588896542028798}
   - component: {fileID: 4069758127545282674}
   - component: {fileID: 1396825416686326437}
   - component: {fileID: 6772811288144300525}
@@ -439,6 +440,20 @@ MonoBehaviour:
   currentExp: 0
   expToNextLevel: 100
   playerArchive: {fileID: 4069758127545282674}
+--- !u!114 &6983588896542028798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbd528274aa54764be1845c218a0f8db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMenuNavigate
+  inventoryScreen: {fileID: 0}
+  inventoryButton: {fileID: 0}
 --- !u!114 &4069758127545282674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -523,7 +538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   slots: []
-  maxSlots: 24
+  maxSlots: 50
   itemPickupPrefab: {fileID: 0}
 --- !u!114 &6241995475581806153
 MonoBehaviour:
@@ -704,6 +719,8 @@ MonoBehaviour:
   squashStretchDuration: 0.15
   startStretchScale: {x: 0.85, y: 1.15, z: 0.85}
   stopSquashScale: {x: 1.15, y: 0.85, z: 1.15}
+  baseAnimationAttackSpeed: 1
+  minAnimatorSpeed: 0.1
 --- !u!114 &3527156759941933987
 MonoBehaviour:
   m_ObjectHideFlags: 0

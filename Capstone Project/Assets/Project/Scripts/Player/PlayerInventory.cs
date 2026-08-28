@@ -36,10 +36,24 @@ public class PlayerInventory : MonoBehaviour
         }
 
         Instance = this;
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        slots.Clear();
+
+        for (int i = 0; i < maxSlots; i++)
+        {
+            slots.Add(new InventorySlot(null, 0));
+        }
     }
 
     public bool AddItem(ItemData item, int amount)
     {
+        if (item == null || amount <= 0)
+            return false;
+        
         bool hasAdded = false;
 
         // Xử lý cộng dồn nếu vật phẩm cho phép xếp chồng
@@ -66,13 +80,21 @@ public class PlayerInventory : MonoBehaviour
             }
         }
 
-        // Tạo ô trống mới nếu còn dư đồ hoặc đồ không cho cộng dồn
-        while (amount > 0 && slots.Count < maxSlots)
+        // Find an empty slot
+        foreach (var slot in slots)
         {
-            int amountToNewSlot = Mathf.Min(amount, item.maxStackSize);
-            slots.Add(new InventorySlot(item, amountToNewSlot));
-            amount -= amountToNewSlot;
+            if(slot.itemData != null) 
+                continue;
+
+            int amountToAdd = Mathf.Min(amount, item.maxStackSize);
+            
+            slot.itemData = item;
+            slot.stackSize = amountToAdd;
+            
+            amount -= amountToAdd;
             hasAdded = true;
+            
+            if (amount <= 0) break;
         }
 
         // Kích hoạt Event nếu có bất kỳ ô mới nào được thêm vào thành công
@@ -106,7 +128,9 @@ public class PlayerInventory : MonoBehaviour
                 else
                 {
                     amount -= slots[i].stackSize;
-                    slots.RemoveAt(i); // Ô đồ trống hoàn toàn thì xóa ô đó khỏi List
+                    
+                    slots[i].itemData = null;
+                    slots[i].stackSize = 0;
                 }
 
                 if (amount <= 0) break; // Đã trừ đủ số lượng cần xóa
