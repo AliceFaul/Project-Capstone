@@ -181,6 +181,8 @@ public class EquipmentManager : MonoBehaviour
         if(removed == null)
             return;
         
+        inventory?.AddItem(removed, 1);
+        
         OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(
             type,
             removed,
