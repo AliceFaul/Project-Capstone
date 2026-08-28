@@ -70,12 +70,12 @@
     border-color: var(--color-rarity-common);
 }
 
-.item-slot--rarity-rare {
-    border-color: var(--color-rarity-rare);
+.item-slot--rarity-uncommon {
+    border-color: var(--color-rarity-uncommon);
 }
 
-.item-slot--rarity-epic {
-    border-color: var(--color-rarity-epic);
+.item-slot--rarity-rare {
+    border-color: var(--color-rarity-rare);
 }
 
 .item-slot--rarity-legendary {
@@ -87,14 +87,14 @@
     border-left-color: var(--color-rarity-common);
 }
 
+.item-slot--rarity-uncommon-ribbon {
+    border-top-color: var(--color-rarity-uncommon);
+    border-left-color: var(--color-rarity-uncommon);
+}
+
 .item-slot--rarity-rare-ribbon {
     border-top-color: var(--color-rarity-rare);
     border-left-color: var(--color-rarity-rare);
-}
-
-.item-slot--rarity-epic-ribbon {
-    border-top-color: var(--color-rarity-epic);
-    border-left-color: var(--color-rarity-epic);
 }
 
 .item-slot--rarity-legendary-ribbon {

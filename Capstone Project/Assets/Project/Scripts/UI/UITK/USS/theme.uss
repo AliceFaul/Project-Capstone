@@ -13,8 +13,8 @@
     --color-accent-hover: rgb(244, 199, 102);
     --color-selected: rgb(87, 200, 77);
     --color-rarity-common: rgb(207, 199, 184);
-    --color-rarity-rare: rgb(87, 200, 77);
-    --color-rarity-epic: rgb(180, 99, 224);
+    --color-rarity-uncommon: rgb(87, 200, 77);
+    --color-rarity-rare: rgb(27 81 229);
     --color-rarity-legendary: rgb(224, 138, 44);
     --font-size-small: 12px;
     --font-size-base: 15px;

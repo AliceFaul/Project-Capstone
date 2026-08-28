@@ -1,13 +1,13 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-// Script demo/khoi dau cho man Inventory + Equipment - dung DU LIEU TEST de ban thay UI hoat
-// dong ngay trong Play Mode. Tim phan "TEST DATA" o cuoi file, xoa/thay bang he thong
-// Inventory/EquipmentManager THAT cua ban khi san sang (goi RefreshInventoryGrid voi data that).
 [RequireComponent(typeof(UIDocument))]
 public class InventoryScreenController : MonoBehaviour
 {
+    private PlayerRuntime _playerRuntime;
+    
     private VisualElement _root;
     private VisualElement _inventoryGrid;
     private VisualElement _detailStats;
@@ -32,23 +32,75 @@ public class InventoryScreenController : MonoBehaviour
     private ItemSlotElement[] _runeSlots;
     private VisualElement _modelViewport;
 
+    private ItemSlotElement _selectedSlot;
+
     private void OnEnable()
     {
         var document = GetComponent<UIDocument>();
         _root = document.rootVisualElement;
 
         QueryElements();
-        WireEquipSlotLabels();
         WireCloseButton();
         WireEquipSlotClicks();
         WireModelClick();
 
+        _playerRuntime = FindFirstObjectByType<PlayerRuntime>();
+
+        SubscribeEvents();
         ShowEmptyDetail();
+        RefreshInventoryGrid();
+        RefreshEquipSlots();
+        RefreshPlayerHeader();
 
         // ===== TEST DATA - xoa 2 dong duoi khi noi voi he thong that =====
-        PopulateTestInventory();
+        /*PopulateTestInventory();
         SetCurrency(gold: 1250, gem: 34);
-        SetLevel(7);
+        SetLevel(7);*/
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
+    private void SubscribeEvents()
+    {
+        PlayerInventory.OnInventoryChanged += RefreshInventoryGrid;
+
+        if (EquipmentManager.Instance != null)
+        {
+            EquipmentManager.Instance.OnEquipmentChanged += HandleEquipmentChanged;
+        }
+
+        if (_playerRuntime != null)
+        {
+            _playerRuntime.OnExpChanged += HandleExpChanged;
+            _playerRuntime.OnLevelUp += HandleLevelUpChanged;
+            if (_playerRuntime.Currency != null)
+            {
+                _playerRuntime.Currency.OnCurrencyChanged += HandleCurrencyChanged;
+            }
+        }
+    }
+
+    private void UnsubscribeEvents()
+    {
+        PlayerInventory.OnInventoryChanged -= RefreshInventoryGrid;
+
+        if (EquipmentManager.Instance != null)
+        {
+            EquipmentManager.Instance.OnEquipmentChanged -= HandleEquipmentChanged;
+        }
+
+        if (_playerRuntime != null)
+        {
+            _playerRuntime.OnExpChanged -= HandleExpChanged;
+            _playerRuntime.OnLevelUp -= HandleLevelUpChanged;
+            if (_playerRuntime.Currency != null)
+            {
+                _playerRuntime.Currency.OnCurrencyChanged -= HandleCurrencyChanged;
+            }
+        }
     }
 
     private void QueryElements()
@@ -87,24 +139,6 @@ public class InventoryScreenController : MonoBehaviour
             _root.Q<ItemSlotElement>("rune-slot-1"),
             _root.Q<ItemSlotElement>("rune-slot-2"),
         };
-    }
-
-    private void WireEquipSlotLabels()
-    {
-        _slotMelee.SetSlotTypeLabel("Melee");
-        _slotMelee.SetEmpty();
-
-        _slotArmor.SetSlotTypeLabel("Armor");
-        _slotArmor.SetEmpty();
-
-        _slotRanged.SetSlotTypeLabel("Ranged");
-        _slotRanged.SetEmpty();
-
-        foreach (var slot in _artifactSlots)
-        {
-            slot.SetSlotTypeLabel("Artifact");
-            slot.SetEmpty();
-        }
 
         foreach (var slot in _runeSlots)
         {
@@ -121,12 +155,24 @@ public class InventoryScreenController : MonoBehaviour
 
     private void WireEquipSlotClicks()
     {
-        _slotMelee.Clicked += ShowDetail;
-        _slotArmor.Clicked += ShowDetail;
-        _slotRanged.Clicked += ShowDetail;
+        _slotMelee.SetSlotTypeLabel("Melee");
+        _slotMelee.Clicked += SelectSlot;
+        _slotMelee.DoubleClicked += _ => EquipmentManager.Instance?.Unequip(EquipmentType.MeleeWeapon);
+        
+        _slotArmor.SetSlotTypeLabel("Armor");
+        _slotArmor.Clicked += SelectSlot;
+        _slotArmor.DoubleClicked += _ => EquipmentManager.Instance?.Unequip(EquipmentType.Armor);
+        
+        _slotRanged.SetSlotTypeLabel("Ranged");
+        _slotRanged.Clicked += SelectSlot;
+        _slotRanged.DoubleClicked += _ => EquipmentManager.Instance?.Unequip(EquipmentType.RangedWeapon);
 
         foreach (var slot in _artifactSlots)
-            slot.Clicked += ShowDetail;
+        {
+            slot.SetSlotTypeLabel("Artifact");
+            slot.Clicked += SelectSlot;
+            slot.DoubleClicked += _ => EquipmentManager.Instance?.Unequip(EquipmentType.Artifact);
+        }
     }
 
     private void WireModelClick()
@@ -138,108 +184,236 @@ public class InventoryScreenController : MonoBehaviour
     }
 
     public void Close()
-    {
-        // Doi thanh cach ban dang quan ly mo/dong man hinh (vi du UIManager.CloseScreen(this))
-        gameObject.SetActive(false);
-    }
+        => gameObject.SetActive(false);
 
-    public void SetCurrency(int gold, int gem)
+    private void RefreshPlayerHeader()
+    {
+        if (_playerRuntime == null)
+        {
+            Debug.LogError($"[InventoryScreenController] Player Runtime not found in scene!");
+            return;
+        }
+        
+        SetLevel(_playerRuntime.Level);
+
+        if (_playerRuntime.Currency != null)
+            SetCurrency(_playerRuntime.Currency.Gold(), _playerRuntime.Currency.Gem());
+    }
+    
+    private void SetCurrency(int gold, int gem)
     {
         _goldDisplay.SetAmount(gold);
         _gemDisplay.SetAmount(gem);
     }
 
-    public void SetLevel(int level)
+    private void SetLevel(int level)
     {
         _levelLabel.text = $"Lv. {level}";
     }
 
+    private void HandleExpChanged(float current, float toNext)
+    {
+        // TODO: Update process EXP in UXML, need Painter2D
+    }
+
+    private void HandleLevelUpChanged(int level)
+        => SetLevel(level);
+
+    private void HandleCurrencyChanged(CurrencyType type, int amount)
+    {
+        switch (type)
+        {
+            case CurrencyType.Gold:
+                _goldDisplay.SetAmount(amount); break;
+            case CurrencyType.Gem:
+                _gemDisplay.SetAmount(amount); break;
+        }
+    }
+    
+    // ===================== EQUIPMENT =====================
+
+    private void HandleEquipmentChanged(EquipmentChangedEventArgs args)
+        => RefreshEquipSlots();
+    
+    private void RefreshEquipSlots()
+    {
+        var manager = EquipmentManager.Instance;
+        if(manager == null)
+            return;
+        
+        SetEquipSlot(_slotMelee, manager.Melee);
+        SetEquipSlot(_slotArmor, manager.Armor);
+        SetEquipSlot(_slotRanged, manager.Ranged);
+
+        for (int i = 0; i < _artifactSlots.Length; i++)
+        {
+            var artifact = i < manager.Artifacts.Length ? manager.Artifacts[i] : null;
+            SetEquipSlot(_artifactSlots[i], artifact);
+        }
+    }
+
+    private void SetEquipSlot(ItemSlotElement slot, EquipmentData equipment)
+    {
+        if (equipment == null)
+        {
+            slot.SetEmpty();
+            return;
+        }
+        
+        slot.SetItem(equipment, equipment.icon, quantity: 1, isEquipped: true, GetItemRarity(equipment));
+    }
+
     // ===================== INVENTORY GRID =====================
 
-    // Goi ham nay voi danh sach item THAT khi tich hop voi InventorySystem cua ban - thay
-    // InventoryTestItem bang kieu ItemInstance thuc te.
-    public void RefreshInventoryGrid(IReadOnlyList<InventoryTestItem> items)
+    public void RefreshInventoryGrid()
     {
         _inventoryGrid.Clear();
 
-        foreach (var item in items)
-        {
-            var slot = new ItemSlotElement();
-            slot.SetItem(item, item.icon, item.quantity, isEquipped: false, item.rarityUssClass);
-            slot.Clicked += ShowDetail;
-            slot.DoubleClicked += OnGridSlotDoubleClicked;
+        if(PlayerInventory.Instance == null)
+            return;
 
+        foreach (var invSlot in PlayerInventory.Instance.slots)
+        {
+            if (invSlot.itemData == null)
+                continue;
+
+            var slot = new ItemSlotElement();
+            slot.SetItem(invSlot, invSlot.itemData.icon, invSlot.stackSize, isEquipped: false, GetItemRarity(invSlot.itemData));
+            slot.Clicked += SelectSlot;
+            slot.DoubleClicked += OnGridSlotDoubleClicked;
+            
             _inventoryGrid.Add(slot);
         }
     }
 
     private void OnGridSlotDoubleClicked(ItemSlotElement slot)
     {
-        if (slot.BoundItem is not InventoryTestItem item)
+        if (slot.BoundItem is not InventorySlot invSlot || invSlot.itemData == null)
             return;
-
-        // TODO: thay bang logic that - kiem tra item.equipmentType, tim equip slot tuong ung
-        // (Melee/Armor/Ranged), neu slot do dang co item thi swap, khong thi equip thang vao.
-        Debug.Log($"[InventoryScreen] Equip/Swap requested: {item.itemName}");
+        
+        // Equip/Swap player equipment
+        invSlot.itemData.Use();
     }
 
     // ===================== DETAIL PANEL =====================
 
+    private void SelectSlot(ItemSlotElement slot)
+    {
+        if(_selectedSlot != null)
+            _selectedSlot.SetSelected(false);
+        
+        _selectedSlot = slot;
+        slot.SetSelected(true);
+        
+        ShowDetail(slot);
+    }
+    
     private void ShowDetail(ItemSlotElement slot)
     {
-        if (slot.BoundItem is not InventoryTestItem item)
+        ItemData item = slot.BoundItem switch
+        {
+            InventorySlot invSlot => invSlot.itemData,
+            EquipmentData equipment => equipment,
+            _ => null
+        };
+
+        if (item == null)
         {
             ShowEmptyDetail();
             return;
         }
 
-        _detailEmptyHint.style.display = DisplayStyle.None;
+        // _detailEmptyHint.style.display = DisplayStyle.None;
 
-        _detailRarity.text = item.rarityLabel;
+        _detailRarity.text = item.rarity.ToString();
+        RemoveRarityBadge();
+        _detailRarity.AddToClassList(GetItemRarity(item));
+        
         _detailName.text = item.itemName;
-        _detailDescription.text = item.description;
+        _detailDescription.text = item.itemDescription;
         _detailIcon.style.backgroundImage = item.icon != null ? new StyleBackground(item.icon) : default(StyleBackground);
+        
+        bool isEquipment = item.itemType == ItemType.Equipment;
+        
+        _detailStats.style.display = isEquipment ? DisplayStyle.Flex : DisplayStyle.None;
 
-        _detailStats.style.display = item.isEquipment ? DisplayStyle.Flex : DisplayStyle.None;
-
-        if (item.isEquipment)
+        if (isEquipment && item is EquipmentData equipmentData)
         {
-            _statDamage.text = $"Damage/Armor: {item.damageOrArmor}";
-            _statSpeed.text = item.hasSpeed ? $"Speed: {item.speed}" : "";
-            _statCritChance.text = $"Crit Chance: {item.critChance}%";
-            _statCritDamage.text = $"Crit Damage: {item.critDamage}%";
+            int totalDamageOrArmor = equipmentData.attributes.damage + equipmentData.damageModifier;
+            float totalCritChance = equipmentData.attributes.critChance + equipmentData.critChanceModifier;
+            float totalCritDamage = equipmentData.attributes.critDamage + equipmentData.critDamageModifier;
+            
+            _statDamage.text = $"Damage/Armor: {totalDamageOrArmor}";
+            _statSpeed.text = equipmentData.equipmentType == EquipmentType.Armor ? "" : $"Speed: {equipmentData.attackSpeedModifier}";
+            _statCritChance.text = $"Crit Chance: {totalCritChance}%";
+            _statCritDamage.text = $"Crit Damage: {totalCritDamage}%";
         }
     }
 
-    // Goi ham nay khi nguoi choi click vao model player - doi detail panel sang hien stat tong
-    // cua nhan vat thay vi 1 item cu the.
+    // Click vao model player - hien detail panel total stats cua player
     public void ShowPlayerStats()
     {
-        _detailEmptyHint.style.display = DisplayStyle.None;
+        if (_selectedSlot != null)
+        {
+            _selectedSlot.SetSelected(false);
+            _selectedSlot = null;
+        }
+        
+        // _detailEmptyHint.style.display = DisplayStyle.None;
+        RemoveRarityBadge();
         _detailRarity.text = "";
-        _detailName.text = "Player Stats";
+        _detailName.text = "TOTAL STATS";
         _detailDescription.text = "";
         _detailIcon.style.backgroundImage = default(StyleBackground);
         _detailStats.style.display = DisplayStyle.Flex;
 
-        // TODO: noi voi PlayerRuntime that, vi du:
-        // _statDamage.text = $"Damage: {playerRuntime.TotalDamage}";
-        // _statSpeed.text = $"Speed: {playerRuntime.TotalSpeed}";
-        // _statCritChance.text = $"Crit Chance: {playerRuntime.TotalCritChance}%";
-        // _statCritDamage.text = $"Crit Damage: {playerRuntime.TotalCritDamage}%";
+        if (_playerRuntime == null) 
+            return;
+        
+        _statDamage.text = $"Damage: {_playerRuntime.TotalDamage}";
+        _statSpeed.text = $"Speed: {_playerRuntime.TotalSpeed:0.0}";
+        _statCritChance.text = $"Crit Chance: {_playerRuntime.TotalCritChance}%";
+        _statCritDamage.text = $"Crit Damage: {_playerRuntime.TotalCritDamage}%";
     }
 
     private void ShowEmptyDetail()
     {
+        if (_selectedSlot != null)
+        {
+            _selectedSlot.SetSelected(false);
+            _selectedSlot = null;
+        }
+        
+        RemoveRarityBadge();
         _detailRarity.text = "";
         _detailName.text = "";
         _detailDescription.text = "";
         _detailIcon.style.backgroundImage = default(StyleBackground);
         _detailStats.style.display = DisplayStyle.None;
-        _detailEmptyHint.style.display = DisplayStyle.Flex;
+        //_detailEmptyHint.style.display = DisplayStyle.Flex;
     }
 
-    // ===================== TEST DATA (xoa khi tich hop that) =====================
+    private void RemoveRarityBadge()
+    {
+        _detailRarity.RemoveFromClassList("item-slot--rarity-common");
+        _detailRarity.RemoveFromClassList("item-slot--rarity-uncommon");
+        _detailRarity.RemoveFromClassList("item-slot--rarity-rare");
+        _detailRarity.RemoveFromClassList("item-slot--rarity-legendary");
+    }
+
+    private string GetItemRarity(ItemData item)
+    {
+        switch (item.rarity)
+        {
+            case Rarity.Common: return "item-slot--rarity-common";
+            case Rarity.Uncommon: return "item-slot--rarity-uncommon";
+            case Rarity.Rare: return "item-slot--rarity-rare";
+            case Rarity.Legendary: return "item-slot--rarity-legendary";
+            default: return "item-slot--rarity-common";
+        }
+    }
+
+    // ===================== TEST DATA =====================
 
     private void PopulateTestInventory()
     {
@@ -273,7 +447,7 @@ public class InventoryScreenController : MonoBehaviour
             },
         };
 
-        RefreshInventoryGrid(testItems);
+        //RefreshInventoryGrid(testItems);
     }
 }
 

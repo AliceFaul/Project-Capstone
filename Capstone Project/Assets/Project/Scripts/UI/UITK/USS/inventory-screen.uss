@@ -187,13 +187,13 @@
     margin-bottom: var(--spacing-xs);
 }
 
-.detail-panel__rarity.item-slot--rarity-rare {
-    background-color: var(--color-rarity-rare);
+.detail-panel__rarity.item-slot--rarity-uncommon {
+    background-color: var(--color-rarity-uncommon);
     color: var(--color-text);
 }
 
-.detail-panel__rarity.item-slot--rarity-epic {
-    background-color: var(--color-rarity-epic);
+.detail-panel__rarity.item-slot--rarity-rare {
+    background-color: var(--color-rarity-rare);
     color: var(--color-text);
 }
 

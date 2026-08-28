@@ -34,10 +34,10 @@
                 <ui:VisualElement name="inventory-grid" class="inventory-screen__grid" style="justify-content: space-between; align-self: auto; align-content: center; align-items: stretch;"/>
             </ui:ScrollView>
         </ui:VisualElement>
-        <ui:VisualElement name="detail-panel" class="inventory-screen__detail-panel" style="padding-left: 16px; margin-left: 0; position: absolute; top: auto; left: auto; width: 539px; height: 836px; justify-content: space-between; bottom: -537px; right: 1393px; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement name="detail-panel" class="inventory-screen__detail-panel" style="padding-left: 16px; margin-left: 0; position: absolute; top: auto; left: auto; width: 696px; height: 836px; justify-content: space-between; bottom: -537px; right: 1393px; background-color: rgba(0, 0, 0, 0);">
             <ui:Label name="detail-rarity" text="" class="detail-panel__rarity" style="font-size: 15px;"/>
-            <ui:Label name="detail-name" text="" enable-rich-text="true" class="detail-panel__name" style="color: rgb(255, 255, 255); align-items: stretch; align-self: flex-start; font-size: 45px;"/>
-            <ui:VisualElement name="detail-icon" class="detail-panel__icon" style="align-self: flex-end; align-items: flex-end; justify-content: space-evenly; align-content: auto; flex-direction: column; translate: 0 -132px; width: 200px; height: 200px;"/>
+            <ui:VisualElement name="detail-icon" class="detail-panel__icon" style="align-self: flex-end; align-items: flex-end; justify-content: space-evenly; align-content: auto; flex-direction: column; translate: 0 -132px; width: 200px; height: 200px; background-color: rgba(46, 28, 22, 0); border-top-color: rgba(107, 74, 47, 0); border-left-color: rgba(107, 74, 47, 0); border-right-color: rgba(107, 74, 47, 0); border-bottom-color: rgba(107, 74, 47, 0);"/>
+            <ui:Label name="detail-name" text="" enable-rich-text="true" class="detail-panel__name" style="color: rgb(255, 255, 255); align-items: stretch; align-self: flex-start; font-size: 45px; translate: 0 -245px;"/>
             <ui:Label name="detail-description" text="" display-tooltip-when-elided="true" class="detail-panel__description" style="align-items: stretch; align-self: flex-start; translate: 0 -209px; font-size: 20px; color: rgb(255, 255, 255);"/>
             <ui:VisualElement name="detail-stats" class="detail-panel__stats" style="width: 399px; justify-content: space-around; align-items: stretch; translate: 0 68px;">
                 <ui:VisualElement class="detail-panel__stat-row">
