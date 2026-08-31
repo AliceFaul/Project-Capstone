@@ -59,6 +59,14 @@ public class LoadingScreen : MonoBehaviour, ILoading
             messageText.text = message;
     }
 
+    public void SetMessage(string message)
+    {
+        if (messageText != null)
+            messageText.text = message;
+        else
+            Debug.LogError($"[ILoading] TMP_Text missing!");
+    }
+
     private async Task Fade(float target)
     {
         float start = canvasGroup.alpha;

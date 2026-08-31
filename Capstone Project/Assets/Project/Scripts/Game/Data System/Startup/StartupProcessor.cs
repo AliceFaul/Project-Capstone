@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class StartupProcessor : MonoBehaviour
@@ -19,47 +20,66 @@ public class StartupProcessor : MonoBehaviour
     private CancellationTokenSource _cts;
 
     private InputSystem_Actions _input;
-    private bool _isCompleted = false;
-    private bool _isLoadingScene = false;
-
     private bool _offlineMode = false;
+
+    private TaskCompletionSource<bool> _clickTcs;
 
     private async void Awake()
     {
-        if (Instance != null && Instance != this)
+        try
         {
-            Destroy(gameObject);
-            return;
-        }
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         
-        _input = new InputSystem_Actions();
-        _input.UI.Enable();
-        _input.UI.Click.performed += ctx => WaitForClicked();
+            _input = new InputSystem_Actions();
+            _input.UI.Enable();
+            _input.UI.Click.performed += OnClickPerformed;
         
-        _loading = loadingScreen as ILoading;
-        _loading?.Show();
+            if(loadingScreen == null)
+                loadingScreen = GameObject.FindWithTag("LoadingScreen").GetComponent<MonoBehaviour>();
+            _loading = loadingScreen as ILoading;
+            
+            Debug.Log($"[StartupProcessor] Waiting clicked...");
+            _loading?.SetMessage($"Click to start!");
+            await WaitForClicked();
+            _loading?.Show();
         
-        AsyncOperationHandle<StartupList> handle = Addressables.LoadAssetAsync<StartupList>("StartupList");
-        _startupList = await handle.Task;
+            AsyncOperationHandle<StartupList> handle = Addressables.LoadAssetAsync<StartupList>("StartupList");
+            _startupList = await handle.Task;
         
-        _serviceRegistry = new ServiceRegistry();
-        _cts = new CancellationTokenSource();
+            _serviceRegistry = new ServiceRegistry();
+            _cts = new CancellationTokenSource();
         
-        var pipelineResult = await RunAllSteps(_cts.Token);
-        if (pipelineResult.IsSuccess)
-        {
-            Debug.Log("[StartupProcessor] Startup Complete");
-            _isCompleted = true;
+            var pipelineResult = await RunAllSteps(_cts.Token);
+            if (pipelineResult.IsSuccess)
+            {
+                Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
+                await WaitForClicked();
+                OpenMainMenu();
+            }
+            else
+            {
+                Debug.LogWarning($"[StartupProcessor] Startup Failed, Error id = {pipelineResult.ErrorId}");
+                var errorHandler = new StartupErrorController();
+                errorHandler.ThrowError(pipelineResult.ErrorId);
+            }
         }
-        else
+        catch (Exception e)
         {
-            Debug.LogWarning($"[StartupProcessor] Startup Failed, Error id = {pipelineResult.ErrorId}");
-            var errorHandler = new StartupErrorController();
-            errorHandler.ThrowError(pipelineResult.ErrorId);
+            Debug.LogException(e);
         }
+    }
+
+    private void OnDestroy()
+    {
+        if(_input != null)
+            _input.UI.Click.performed -= OnClickPerformed;
     }
 
     private struct StartupPipeline
@@ -82,6 +102,7 @@ public class StartupProcessor : MonoBehaviour
 
         int index = 0;
         _loading?.SetProgress(0f, "Running startup system...");
+        
         while (index < _startupList.steps.Count)
         {
             var step = _startupList.steps[index];
@@ -101,7 +122,7 @@ public class StartupProcessor : MonoBehaviour
                 timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeout));
                 try
                 {
-                    CancellationToken effectiveCt = step.HasTimeout ? CancellationToken.None : timeoutCts.Token;
+                    CancellationToken effectiveCt = step.HasTimeout ? timeoutCts.Token : CancellationToken.None;
                     var result = await step.RunTasks(_serviceRegistry, effectiveCt);
 
                     if (!result.IsSuccess)
@@ -150,12 +171,21 @@ public class StartupProcessor : MonoBehaviour
         }
     }
 
-    private async void WaitForClicked()
+    private Task WaitForClicked()
     {
-        if (!_isCompleted || _isLoadingScene) return;
-        _isLoadingScene = true;
-        // Disable startup progress ui
+        _clickTcs = new TaskCompletionSource<bool>();
+        return _clickTcs.Task;
+    }
+
+    private void OnClickPerformed(InputAction.CallbackContext context)
+    {
+        _clickTcs?.TrySetResult(true);
+    }
+
+    private void OpenMainMenu()
+    {
         _input.UI.Disable();
+        // TODO: Connect to Main Menu Screen Controller
     }
 
     public TService GetService<TService>()

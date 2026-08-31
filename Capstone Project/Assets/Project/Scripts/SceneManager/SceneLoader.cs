@@ -36,12 +36,26 @@ public class SceneLoader : MonoBehaviour
 
     private void OnEnable()
     {
+        SceneManager.sceneLoaded -= OnLoadScene; 
         SceneManager.sceneLoaded += OnLoadScene;
+    }
+    
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnLoadScene;
     }
 
     private void OnLoadScene(Scene scene, LoadSceneMode mode)
     {
-        animator?.Play("Scene_Open");
+        if (animator != null)
+        {
+            animator.Play("Scene_Open");
+        }
+        else
+        {
+            animator = GetComponentInChildren<Animator>();
+            animator?.Play("Scene_Open");
+        }
         canvas.worldCamera = Camera.main;
     }
 
