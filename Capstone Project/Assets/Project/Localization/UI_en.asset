@@ -17,7 +17,27 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: 8e91f412eceb3b941818484cedbd590a, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 477687062528
+    m_Localized: LEVEL UP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 595077242880
+    m_Localized: Loaded time out. Retry!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 615797104640
+    m_Localized: Loaded failed. Retry!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 517084160000
+    m_Localized: No step to start.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 264285069312
+    m_Localized: ERROR
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

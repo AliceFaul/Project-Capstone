@@ -13,8 +13,28 @@ MonoBehaviour:
   m_Name: UI Shared Data
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
   m_TableCollectionName: UI
-  m_TableCollectionNameGuidString: 00000000000000000000000000000000
-  m_Entries: []
+  m_TableCollectionNameGuidString: 8e91f412eceb3b941818484cedbd590a
+  m_Entries:
+  - m_Id: 264285069312
+    m_Key: UI_GENERIC_ERROR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 477687062528
+    m_Key: LevelUp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 517084160000
+    m_Key: UI_NO_STEPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 595077242880
+    m_Key: UI_STEP_TIMEOUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 615797104640
+    m_Key: UI_STEP_FAILED
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
