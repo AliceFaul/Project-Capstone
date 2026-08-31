@@ -397,6 +397,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneLoader
   animator: {fileID: 900449102}
+  canvas: {fileID: 1164091470}
   sceneRefs:
   - sceneName: MainMenu
     preloadKeys:

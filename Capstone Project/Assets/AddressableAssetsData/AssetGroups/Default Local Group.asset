@@ -40,6 +40,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 80faa882a4706a740ae2a229478daa87
+    m_Address: StartupList
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 97d88fb9a3565d84daf5fff081fcbb91
     m_Address: Infernno_Sword
     m_ReadOnly: 0
