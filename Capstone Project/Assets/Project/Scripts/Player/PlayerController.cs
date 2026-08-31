@@ -144,6 +144,9 @@ public class PlayerController : MonoBehaviour {
             return;
         }
         
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition))
+            return;
+        
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 
         if(!Physics.Raycast(ray, out RaycastHit hit)) {
@@ -177,6 +180,9 @@ public class PlayerController : MonoBehaviour {
     private void HandleRightClick() {
         // Handle right-click actions if needed
         // Ranged attack, special ability, etc.
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition))
+            return;
+        
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
@@ -234,6 +240,9 @@ public class PlayerController : MonoBehaviour {
                 break;
             case CommandType.Attack:
                 Combat.CmdAttack();
+                break;
+            case CommandType.Interact:
+                // Interact...
                 break;
         }
         

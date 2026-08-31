@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using Mhieu.Enemy;
 
 [Serializable]
 public class StatusEffect
@@ -23,7 +22,7 @@ public class StatusEffect
         {
             var effect = template.Clone();
             
-            if (target is EnemyHealth enemy)
+            if (target is Mhieu.Enemy.EnemyHealth enemy)
             {
                 enemy.ApplyEffect(effect);
             }

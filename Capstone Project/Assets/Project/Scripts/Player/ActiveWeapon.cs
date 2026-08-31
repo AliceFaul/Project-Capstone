@@ -89,7 +89,10 @@ public class ActiveWeapon : MonoBehaviour
     private async Task UpdateMeleeWeapon(EquipmentData equipment)
     {
         if (equipment == null || equipment.equipmentType != EquipmentType.MeleeWeapon)
+        {
+            WeaponFactory.DestroyInstance(_currentMeleeVisual);
             return;
+        }
         
         int requestId = ++_meleeRequestId;
         GameObject newWeapon = await WeaponFactory.Create(equipment, meleeSocket);
@@ -109,7 +112,10 @@ public class ActiveWeapon : MonoBehaviour
     private async Task UpdateRangedWeapon(EquipmentData equipment)
     {
         if (equipment == null || equipment.equipmentType != EquipmentType.RangedWeapon)
+        {
+            WeaponFactory.DestroyInstance(_currentRangedVisual);
             return;
+        }
         
         int requestId = ++_rangedRequestId;
         GameObject newWeapon = await WeaponFactory.Create(equipment, rangedSocket);

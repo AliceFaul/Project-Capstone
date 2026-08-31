@@ -253,12 +253,15 @@ GameObject:
   - component: {fileID: 2854524255848535839}
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6254586106571862876}
+  - component: {fileID: 6983588896542028798}
+  - component: {fileID: 4069758127545282674}
   - component: {fileID: 1396825416686326437}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
   - component: {fileID: 743074079644308432}
   - component: {fileID: 1594350380156625181}
   - component: {fileID: 6241995475581806153}
+  - component: {fileID: 9006754850781956550}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -397,7 +400,12 @@ MonoBehaviour:
   attackPoint: {fileID: 1992679372487895210}
   firePoint: {fileID: 8082828905780165329}
   projectilePrefab: {fileID: 3525247006018424799, guid: 005bd325fc5a95946838cf813e21d702, type: 3}
-  effects: []
+  effects:
+  - castSound: {fileID: 0}
+    castVfx: {fileID: 1524533970525000399, guid: 1133dff0b5fda2e4295d301899b1582d, type: 3}
+    runningVfx: {fileID: 4425129568585013132, guid: bbeeb0ddc21369746aaaae5c5c1c09cf, type: 3}
+    effects:
+    - rid: 1412566157160874374
   maxAmmo: 100
   ammoText: {fileID: 0}
   enemyLayer:
@@ -408,7 +416,14 @@ MonoBehaviour:
   AttackRange: 0
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 1412566157160874374
+      type: {class: DamageOverTime, ns: , asm: Assembly-CSharp}
+      data:
+        statusType: 2
+        Duration: 5
+        TickInterval: 1
+        DamagePerTick: 10
 --- !u!114 &6254586106571862876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -421,14 +436,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4f0678f1f3746e994b1595bf9a1c7ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRuntime
-  baseHealth: 100
-  baseDefense: 1
-  baseDamage: 0
-  baseMoveSpeed: 5
-  baseAttackSpeed: 0
-  baseAttackRange: 0
-  baseCritChance: 5
-  baseCritDamage: 50
+  level: 1
+  currentExp: 0
+  expToNextLevel: 100
+  playerArchive: {fileID: 4069758127545282674}
+--- !u!114 &6983588896542028798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbd528274aa54764be1845c218a0f8db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMenuNavigate
+  inventoryScreen: {fileID: 0}
+  inventoryButton: {fileID: 0}
+--- !u!114 &4069758127545282674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de69f8704537433fab9be95c3b5f4dd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerArchive
+  goldObtained: 0
+  gemObtained: 0
+  itemObtained: 0
+  enemyDefeated: 0
+  totalDamageDealt: 0
+  totalDamageReceived: 0
 --- !u!114 &1396825416686326437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -495,7 +538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   slots: []
-  maxSlots: 24
+  maxSlots: 50
   itemPickupPrefab: {fileID: 0}
 --- !u!114 &6241995475581806153
 MonoBehaviour:
@@ -517,6 +560,19 @@ MonoBehaviour:
   alphaRef: _Alpha
   alphaRate: 0.1
   alphaRefreshRate: 0.05
+--- !u!114 &9006754850781956550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a41eca1700f4e6a831a70cce78163ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterInstall
+  characterData: {fileID: 11400000, guid: 3c70fe4f4e387f44384285eeed2f3d63, type: 2}
 --- !u!1001 &7117115669241743004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -656,7 +712,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationHandler
   controller: {fileID: 2854524255848535839}
-  agent: {fileID: 5104284016174206928}
   runtime: {fileID: 6254586106571862876}
   combat: {fileID: 2759596504568213360}
   rootTransform: {fileID: 7612427732099748046}
@@ -664,6 +719,8 @@ MonoBehaviour:
   squashStretchDuration: 0.15
   startStretchScale: {x: 0.85, y: 1.15, z: 0.85}
   stopSquashScale: {x: 1.15, y: 0.85, z: 1.15}
+  baseAnimationAttackSpeed: 1
+  minAnimatorSpeed: 0.1
 --- !u!114 &3527156759941933987
 MonoBehaviour:
   m_ObjectHideFlags: 0

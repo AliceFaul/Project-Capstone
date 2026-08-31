@@ -10,7 +10,7 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     
-    [Header("Status Effects (Just in now)")]
+    [Header("Status Effects (Test)")]
     public StatusEffect[] effects;
     
     [Header("Ammo Setting")]
@@ -71,7 +71,7 @@ public class PlayerCombat : MonoBehaviour {
 
         _currentMeleeWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon);
         _currentRangedWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon);
-        AttackRange = _currentMeleeWeapon.attributes.attackRange;
+        UpdateAttackRange();
 
         _equipmentManager.OnEquipmentChanged += UpdateWeapon;
     }
@@ -109,6 +109,9 @@ public class PlayerCombat : MonoBehaviour {
         Debug.Log("[PlayerCombat] Attacking");
         
         if(_currentTarget == null) 
+            return;
+        
+        if(_currentMeleeWeapon == null)
             return;
 
         if (_activeCombatWindow)
@@ -149,8 +152,7 @@ public class PlayerCombat : MonoBehaviour {
             if(attackable != null)
             {
                 var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
-                attackable.TakeDamage(result.Damage);
-                CreateDamagePopup(enemy, result.Damage);
+                attackable.TakeDamage(result.Damage, _runtime);
                 
                 if (effects.Length > 0)
                 {
@@ -176,6 +178,9 @@ public class PlayerCombat : MonoBehaviour {
     public void CmdShoot(Vector3 mousePosition)
     {
         if(_currentAmmo <= 0) 
+            return;
+        
+        if(_currentRangedWeapon == null)
             return;
         
         Debug.Log("[PlayerCombat] Shooting");
@@ -266,7 +271,7 @@ public class PlayerCombat : MonoBehaviour {
         {
             case EquipmentType.MeleeWeapon:
                 _currentMeleeWeapon = args.NewEquipmentData;
-                AttackRange = _currentMeleeWeapon.attributes.attackRange;
+                UpdateAttackRange();
                 break;
             case EquipmentType.RangedWeapon:
                 _currentRangedWeapon = args.NewEquipmentData;
@@ -274,44 +279,17 @@ public class PlayerCombat : MonoBehaviour {
         }
     }
 
-    private void CreateDamagePopup(Collider damageable, float damage)
+    private void UpdateAttackRange()
     {
-        if (UIManager.Instance == null)
-        {
-            Debug.LogError($"[PlayerCombat] UIManager instance is null");
+        if (_currentMeleeWeapon == null)
             return;
-        }
-        
-        var floatingTextService = UIManager.Instance.GetFloatingTextService();
-        if (floatingTextService == null)
-        {
-            Debug.LogError($"[PlayerCombat] FloatingText service is null]");
-        }
 
-        string instanceId = $"dmg_{damageable.GetInstanceID()}_{Time.frameCount}_{Random.Range(0, 9999)}";
-        var position = damageable.bounds.center + Vector3.up * (damageable.bounds.extents.y * 0.5f);
-        
-        floatingTextService?.Create("DamageText", 
-                                            instanceId, 
-                                            damage.ToString("0"), 
-                                            position);
+        AttackRange = _currentMeleeWeapon.attributes.attackRange + _currentMeleeWeapon.attackRangeModifier;
     }
 
     private void AdjustAmmo(int amount = 1)
     {
         _currentAmmo += amount;
         ammoText.text = _currentAmmo.ToString(); // Update ammo text
-    }
-
-    public void OnDrawGizmosSelected() {
-        if (_runtime == null)
-            _runtime = GetComponent<PlayerRuntime>();
-
-        if (_runtime == null)
-            return;
-        
-        if(attackPoint == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, _runtime.AttackRange);
     }
 }

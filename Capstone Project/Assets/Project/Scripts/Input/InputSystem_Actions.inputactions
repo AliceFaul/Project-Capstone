@@ -86,6 +86,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "ToggleInventory",
+                    "type": "Button",
+                    "id": "480e0039-144e-4f49-bbb4-bab6ac9bcaa0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleMinimap",
+                    "type": "Button",
+                    "id": "6c494b6b-c763-4595-b623-fec5f65f722f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -187,52 +205,54 @@
                     "action": "MousePosition",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8e65f7d1-3d26-4c4d-be47-25ae55f861d5",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleInventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "713a5157-9a2e-4c00-96d3-36e9d30016ed",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMinimap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
         {
             "name": "UI",
-            "id": "52e961fc-5837-42bf-80c7-803c232d2100",
+            "id": "c4c452ca-7656-448c-80e7-f8b709d246aa",
             "actions": [
                 {
-                    "name": "Inventory",
+                    "name": "Click",
                     "type": "Button",
-                    "id": "a3fddafa-bf44-46b6-818e-cb593a8bac5e",
+                    "id": "4596567b-c5de-4630-9e23-3a82436b708b",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Minimap",
-                    "type": "Button",
-                    "id": "58c27531-780a-416d-981a-e7b0e3f7ad1f",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "Hold",
                     "initialStateCheck": false
                 }
             ],
             "bindings": [
                 {
                     "name": "",
-                    "id": "7cb1db7a-0837-4e2e-bdee-bdeb1ec4c69f",
-                    "path": "<Keyboard>/b",
+                    "id": "75a607e1-8cdf-44e9-a0df-4862363c2bd2",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Inventory",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3825d0dc-08b2-4145-bf0d-319ff261a29b",
-                    "path": "<Keyboard>/tab",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Minimap",
+                    "groups": "",
+                    "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

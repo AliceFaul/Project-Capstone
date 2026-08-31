@@ -1,56 +1,47 @@
 ﻿using UnityEngine;
 using System;
+using UnityEngine.Localization;
 
-public enum BonusStat { Health, Defense, Damage, AttackRange, AttackSpeed, MoveSpeed, CritChance, CritDamage }
-
-public class PlayerRuntime : MonoBehaviour, IAttackable
+public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
 {
-    [Header("Character Base Stats")]
-    [SerializeField] private int baseHealth = 100;
-    [SerializeField] private int baseDefense = 1;
-    [SerializeField] private int baseDamage = 5;
-    [SerializeField] private float baseMoveSpeed = 5f;
-    [SerializeField] private float baseAttackSpeed = 1f;
-    [SerializeField] private float baseAttackRange = 1.2f;
-    [SerializeField] private float baseCritChance = 5f;
-    [SerializeField] private float baseCritDamage = 100f;
+    [Header("Experience")]
+    [SerializeField] protected float currentExp = 0;
+    [SerializeField] protected float expToNextLevel = 100;
+    public float CurrentExp => currentExp;
+    public float ExpToNextLevel => expToNextLevel;
+    public event Action<int> OnLevelUp;
+    public event Action<float, float> OnExpChanged;
     
+    [Header("Player Bonus Stats")]
+    protected float bonusAttackSpeed = 0f;
+    protected float bonusAttackRange = 0f;
+    protected float bonusCritChance = 0f;
+    protected float bonusCritDamage = 0f;
+    
+    public float BonusAttackSpeed => bonusAttackSpeed;
+    public float BonusAttackRange => bonusAttackRange;
+    public float BonusCritChance => bonusCritChance;
+    public float BonusCritDamage => bonusCritDamage;
+
+    [Header("Player Total Stats")] 
+    protected float totalAttackSpeed => CharacterData.baseAttackSpeed + bonusAttackSpeed;
+    protected float totalAttackRange => CharacterData.baseAttackRange + bonusAttackRange;
+    protected float totalCritChance => CharacterData.baseCritChance + bonusCritChance;
+    protected float totalCritDamage => CharacterData.baseCritDamage + bonusCritDamage;
+
+    public float TotalAttackSpeed => totalAttackSpeed;
+    public float TotalAttackRange => totalAttackRange;
+    public float TotalCritChance => totalCritChance;
+    public float TotalCritDamage => totalCritDamage;
+
+    private Currency _currency;
+    public Currency Currency => _currency;
+
     private EquipmentManager _equipmentManager;
-    
-    // === EQUIPMENT STATS === (Help debug)
-    private int _equipmentDefense;
-    private float _equipmentMoveSpeed;
-    
-    // === BONUS STATS ===
-    private int _bonusHealth; // Reserved for future potion/buff system
-    private int _bonusDamage;
-    private int _bonusDefense;
-    
-    private float _bonusMoveSpeed;
-    private float _bonusAttackSpeed;
-    private float _bonusAttackRange;
-    
-    private float _bonusCritChance;
-    private float _bonusCritDamage;
 
+    public PlayerArchive playerArchive;
     public event Action OnStatsChanged; // On Stats Changed event
-    public event Action<int> OnHPChanged; // On Health Changed event
-    public event Action OnHit;
-    private int _currentHealth;
     
-    // === CURRENT STATS ===
-    public int Health => _currentHealth;
-    
-    public int Damage { get; private set; }
-    public int Defense { get; private set; }
-    
-    public float MoveSpeed { get; private set; }
-    public float AttackSpeed { get; private set; }
-    public float AttackRange { get; private set; }
-    
-    public float CritChance { get; private set; }
-    public float CritDamage { get; private set; }
-
     private void Awake()
     {
         Init();
@@ -59,146 +50,126 @@ public class PlayerRuntime : MonoBehaviour, IAttackable
     
     private void Start()
     {
-        Debug.Log($"Damage = {Damage}");
-        Debug.Log($"Range = {AttackRange}");
-        Debug.Log($"Speed = {AttackSpeed}");
+        Debug.Log($"Damage = {TotalDamage}");
+        Debug.Log($"Range = {TotalAttackRange}");
+        Debug.Log($"Speed = {TotalSpeed}");
     }
 
-    private void Init()
+    public override void Init()
     {
+        base.Init();
         _equipmentManager = EquipmentManager.Instance;
-        _currentHealth = baseHealth;
-        OnHPChanged?.Invoke(_currentHealth);
         _equipmentManager.OnEquipmentChanged += HandleEquipmentChanged;
+        
+        _currency = new Currency();
+        _currency.OnCurrencyGained += OnGoldObtained;
+        
+        if(playerArchive == null)
+            playerArchive = GetComponent<PlayerArchive>();
     }
-
-    private void ApplyEquipment(EquipmentData equipment)
+    
+    public void GainExp(float amount)
     {
-        if(equipment == null)
+        if(amount <= 0)
             return;
+        
+        currentExp += amount;
+        OnExpChanged?.Invoke(currentExp, expToNextLevel);
 
-        _equipmentDefense += equipment.armorModifier;
-        _equipmentMoveSpeed += equipment.speedModifier;
-    }
-
-    public void ApplyBonusStat(BonusStat bonusStat, float amount)
-    {
-        switch (bonusStat)
+        while (currentExp >= expToNextLevel)
         {
-            case BonusStat.Health:
-                _bonusHealth += (int)amount; break;
-            case BonusStat.Damage:
-                _bonusDamage += (int)amount; break;
-            case BonusStat.Defense:
-                _bonusDefense += (int)amount; break;
-            case BonusStat.MoveSpeed:
-                _bonusMoveSpeed += amount; break;
-            case BonusStat.AttackSpeed:
-                _bonusAttackSpeed += amount; break;
-            case BonusStat.AttackRange:
-                _bonusAttackRange += amount; break;
-            case BonusStat.CritChance:
-                _bonusCritChance += amount; break;
-            case BonusStat.CritDamage:
-                _bonusCritDamage += amount; break;
+            currentExp -= expToNextLevel;
+            LevelUp();
         }
     }
 
-    private void CalculateTotalStats()
+    private readonly LocalizedString _localizedText = new LocalizedString("UI", "LevelUp");
+    protected virtual void LevelUp()
     {
-        Damage = baseDamage + _bonusDamage;
-        
-        Defense = baseDefense + (_equipmentDefense + _bonusDefense);
-        MoveSpeed = baseMoveSpeed + (_equipmentMoveSpeed + _bonusMoveSpeed);
-        
-        AttackSpeed = baseAttackSpeed + _bonusAttackSpeed;
-        AttackRange = baseAttackRange + _bonusAttackRange;
-        
-        CritChance = baseCritChance + _bonusCritChance;
-        CritDamage = baseCritDamage + _bonusCritDamage;
-        
-        OnStatsChanged?.Invoke();
-        
-        Debug.Log($"Move:{MoveSpeed} Damage:{Damage} AttackSpeed:{AttackSpeed} AttackRange: {AttackRange}");
+        level++;
+        OnLevelUp?.Invoke(level);
+
+        expToNextLevel = Mathf.Round(expToNextLevel * 1.25f);
+
+        Hp = TotalHealth;
+        HpChanged(Hp);
+
+        var floatingText = UIManager.Instance?.GetFloatingTextService();
+        floatingText?.Create("LevelUpText", Guid.NewGuid().ToString(), _localizedText, transform.position + Vector3.up * 1.1f);
+        Debug.Log($"[PlayerRuntime] {gameObject.name} level up to level {level}!");
+    }
+
+    protected override void ApplyBonusStat(BonusStat bonusStat, float amount)
+    {
+        base.ApplyBonusStat(bonusStat, amount);
+
+        switch (bonusStat)
+        {
+            case BonusStat.AttackRange:
+                bonusAttackRange += amount; break;
+            case BonusStat.AttackSpeed:
+                bonusAttackSpeed += amount; break;
+            case BonusStat.CritChance:
+                bonusCritChance += amount; break;
+            case BonusStat.CritDamage:
+                bonusCritDamage += amount; break;
+        }
+    }
+    
+    protected override void ResetBonusStats()
+    {
+        base.ResetBonusStats();
+        bonusAttackSpeed = 0f;
+        bonusAttackRange = 0f;
+        bonusCritChance = 0f;
+        bonusCritDamage = 0f;
     }
 
     private void RefreshStats()
     {
-        ResetEquipmentStats();
-
         if (_equipmentManager == null)
         {
             _equipmentManager = EquipmentManager.Instance;
         }
+        
+        ResetBonusStats();
 
-        ApplyEquipment(_equipmentManager.Armor);
-
-        foreach (var artifact in _equipmentManager.Artifacts)
+        AppyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon));
+        AppyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon));
+        
+        var armor = _equipmentManager.Armor;
+        if (armor != null)
         {
-            ApplyEquipment(artifact);
+            ApplyBonusStat(BonusStat.Defense, armor.armorModifier);
+            ApplyBonusStat(BonusStat.MoveSpeed, armor.speedModifier);
         }
 
-        CalculateTotalStats();
-    }
-    
-    private void HandleEquipmentChanged(EquipmentChangedEventArgs args)
-    {
-        switch (args.EquipmentType)
-        {
-            case EquipmentType.Armor:
-            case EquipmentType.Artifact:
-                RefreshStats();
-                break;
-        }
+        OnStatsChanged?.Invoke();
     }
 
-    private void ResetEquipmentStats()
+    public void AppyAttributes(EquipmentData equipment)
     {
-        _equipmentDefense = 0;
-        _equipmentMoveSpeed = 0;
-    }
-    
-    public void TakeDamage(float damage)
-    {
-        if(this == null)
+        if(equipment == null)
             return;
         
-        DamageReduceCal damageCal = new DamageReduceCal();
-        float finalDamage = damageCal.Calculate(damage, Defense);
-        
-        OnTakeDamage(finalDamage);
-        
-        _currentHealth -= (int)finalDamage;
-        _currentHealth = Mathf.Clamp(_currentHealth, 0, baseHealth);
-        
-        OnHPChanged?.Invoke(_currentHealth);
-        OnHit?.Invoke();
+        ApplyBonusStat(BonusStat.AttackSpeed, equipment.attackSpeedModifier);
+    }
 
-        if (_currentHealth <= 0)
+    private void HandleEquipmentChanged(EquipmentChangedEventArgs args)
+    {
+        RefreshStats();
+    }
+
+    private void OnGoldObtained(CurrencyType type, int amount)
+    {
+        switch (type)
         {
-            Die();
+            case CurrencyType.Gold:
+                playerArchive.goldObtained += amount;
+                break;
+            case CurrencyType.Gem:
+                playerArchive.gemObtained += amount;
+                break;
         }
-
-        Debug.Log($"{gameObject} took {finalDamage} damage, remaining {_currentHealth} health");
-    }
-
-    private void OnTakeDamage(float damage)
-    {
-        // Update UI
-        // Trigger damage flash
-        // Damage Popup
-        // etc...
-    }
-
-    private void Die()
-    {
-        // Change State
-        // Disable/Destroy object
-    }
-
-    public void Revive()
-    {
-        _currentHealth = baseHealth;
-        OnHPChanged?.Invoke(_currentHealth);
     }
 }

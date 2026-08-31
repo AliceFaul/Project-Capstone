@@ -35,13 +35,12 @@ public class EquipmentManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(gameObject);  
             return;
         }
 
         Instance = this;
         inventory = PlayerInventory.Instance;
-        Debug.Log($"EquipmentManager Awake : {GetInstanceID()}");
     }
 
     public EquipmentData GetCurrentEquipment(EquipmentType equipmentType)
@@ -72,18 +71,12 @@ public class EquipmentManager : MonoBehaviour
         switch (equipment.equipmentType)
         {
             case EquipmentType.MeleeWeapon:
-                if (inventory != null && Melee != null)
-                {
-                    inventory.AddItem(Melee, 1);
-                }
-                else
-                {
-                    Debug.LogWarning("Player Inventory is missing or Melee is empty");
-                }
-
                 EquipmentData oldMelee = Melee;
-                Melee = equipment;
                 
+                if(oldMelee != null)
+                    inventory?.AddItem(oldMelee, 1);
+                
+                Melee = equipment;
                 Debug.Log($"Invoke Event : {oldMelee?.itemName} -> {Melee?.itemName}");
                 
                 OnEquipmentChanged?.Invoke(
@@ -93,19 +86,13 @@ public class EquipmentManager : MonoBehaviour
                         Melee));
                 break;
             case EquipmentType.RangedWeapon:
-                if (inventory != null && Ranged != null)
-                {
-                    inventory.AddItem(Ranged, 1);
-                }
-                else
-                {
-                    Debug.LogWarning("Player Inventory is missing or Ranged is empty");
-                }
-                
                 EquipmentData oldRanged = Ranged;
-                Ranged = equipment;
                 
-                Debug.Log($"Invoke Event : {oldRanged?.itemName} -> {Melee?.itemName}");
+                if(oldRanged != null)
+                    inventory?.AddItem(oldRanged, 1);
+                
+                Ranged = equipment;
+                Debug.Log($"Invoke Event : {oldRanged?.itemName} -> {Ranged?.itemName}");
                 
                 OnEquipmentChanged?.Invoke(
                     new EquipmentChangedEventArgs(
@@ -114,19 +101,13 @@ public class EquipmentManager : MonoBehaviour
                         Ranged));
                 break;
             case EquipmentType.Armor:
-                if (inventory != null && Armor != null)
-                {
-                    inventory.AddItem(Armor, 1);
-                }
-                else
-                {
-                    Debug.LogWarning("Player Inventory is missing or Armor is empty");
-                }
-                
                 EquipmentData oldArmor = Armor;
-                Armor = equipment;
                 
-                Debug.Log($"Invoke Event : {oldArmor?.itemName} -> {Melee?.itemName}");
+                if(oldArmor != null)
+                    inventory?.AddItem(oldArmor, 1);
+                
+                Armor = equipment;
+                Debug.Log($"Invoke Event : {oldArmor?.itemName} -> {Armor?.itemName}");
                 
                 OnEquipmentChanged?.Invoke(
                     new EquipmentChangedEventArgs(
@@ -136,7 +117,6 @@ public class EquipmentManager : MonoBehaviour
                 break;
             case EquipmentType.Artifact:
                 int emptySlot = -1;
-
                 for(int i = 0; i < Artifacts.Length; i++)
                 {
                     if(Artifacts[i] == null)
@@ -146,41 +126,43 @@ public class EquipmentManager : MonoBehaviour
                     }
                 }
 
-                if(emptySlot >= 0)
+                EquipmentData oldArtifact = null;
+                int targetSlot = emptySlot;
+
+                if (targetSlot < 0)
                 {
-                    Artifacts[emptySlot] = equipment;
-                }
-                else
-                {
-                    inventory.AddItem(Artifacts[0],1);
-                    Artifacts[0] = equipment;
+                    targetSlot = 0;
+                    oldArtifact = Artifacts[0];
+                    if(oldArtifact != null)
+                        inventory?.AddItem(oldArtifact, 1);
                 }
                 
-                // TODO: Add OnEquipmentChanged event
+                Artifacts[targetSlot] = equipment;
+                
+                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(
+                    EquipmentType.Artifact,
+                    oldArtifact,
+                    equipment));
                 break;
         }
-        Debug.Log($"Equip : {GetInstanceID()}");
     }
 
-    public void Unequip(ItemData item)
+    public void Unequip(EquipmentType type)
     {
-        if(item.itemType != ItemType.Equipment)
-            return;
-        
-        EquipmentData equipment = item as EquipmentData;
-        
-        if (equipment == null)
-            return;
+        EquipmentData removed = null;
 
-        switch (equipment.equipmentType)
+        switch (type)
         {
             case EquipmentType.MeleeWeapon:
+                removed = Melee;
                 Melee = null;
                 break;
             case EquipmentType.RangedWeapon:
+                removed = Ranged;
                 Ranged = null;
                 break;
             case EquipmentType.Armor:
+                removed = Armor;
                 Armor = null;
                 break;
             case EquipmentType.Artifact:
@@ -188,12 +170,33 @@ public class EquipmentManager : MonoBehaviour
                 {
                     if (Artifacts[i] != null)
                     {
+                        removed = Artifacts[i];
                         Artifacts[i] = null;
-                        return;
+                        break;
                     }
                 }
-                Artifacts[0] = null;
                 break;
         }
+        
+        if(removed == null)
+            return;
+        
+        inventory?.AddItem(removed, 1);
+        
+        OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(
+            type,
+            removed,
+            null));
+    }
+
+    public void Unequip(ItemData item)
+    {
+        if(item.itemType != ItemType.Equipment)
+            return;
+        
+        if(item is not EquipmentData equipment)
+            return;
+        
+        Unequip(equipment.equipmentType);
     }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class UIElement : MonoBehaviour
 {
-    public string InstanceID { get; set; }
+    protected string InstanceID { get; set; }
     public event Action<UIElement> OnClosed;
 
     public virtual void Initialize(string id)

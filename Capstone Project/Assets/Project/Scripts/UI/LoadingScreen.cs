@@ -1,11 +1,15 @@
 ﻿using System;
 using UnityEngine;
 using System.Threading.Tasks;
+using TMPro;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class LoadingScreen : MonoBehaviour, ILoading
 {
     [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Image progressBar;
+    [SerializeField] private TMP_Text messageText;
     [SerializeField] private float fadeDuration = 0.25f;
     
     private Coroutine _fadeRoutine;
@@ -44,6 +48,23 @@ public class LoadingScreen : MonoBehaviour, ILoading
         {
             Debug.LogError($"Missing CanvasGroup: {e.Message}");
         }
+    }
+
+    public void SetProgress(float progress01, string message = null)
+    {
+        if (progressBar != null)
+            progressBar.fillAmount = Mathf.Clamp01(progress01);
+        
+        if(messageText != null && message != null)
+            messageText.text = message;
+    }
+
+    public void SetMessage(string message)
+    {
+        if (messageText != null)
+            messageText.text = message;
+        else
+            Debug.LogError($"[ILoading] TMP_Text missing!");
     }
 
     private async Task Fade(float target)

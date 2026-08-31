@@ -11,6 +11,9 @@ public class ItemData : ScriptableObject
     public string id;               // ID dùng để quản lý mã vật phẩm
     public string itemName;         // Tên hiển thị của vật phẩm trong game
     
+    [TextArea(2, 5)]
+    public string itemDescription;
+    
     public ItemType itemType;
     public Rarity rarity;
     

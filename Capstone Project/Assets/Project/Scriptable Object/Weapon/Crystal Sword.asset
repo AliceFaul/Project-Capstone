@@ -32,7 +32,7 @@ MonoBehaviour:
   damageModifier: 0
   armorModifier: 0
   speedModifier: 3
-  attackSpeedModifier: 0
+  attackSpeedModifier: 0.6
   attackRangeModifier: 0
   critChanceModifier: 0
   critDamageModifier: 0

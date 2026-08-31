@@ -11,7 +11,6 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private PlayerMovement _movement;
 
     [SerializeField] private PlayerController controller;
-    [SerializeField] private NavMeshAgent agent;
     [SerializeField] private PlayerRuntime runtime;
     [SerializeField] private PlayerCombat combat;
 
@@ -26,6 +25,10 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     [Tooltip("Scale when end moving")] [SerializeField]
     private Vector3 stopSquashScale = new Vector3(1.15f, 0.85f, 1.15f);
+    
+    [Header("Attack Speed")]
+    [SerializeField] private float baseAnimationAttackSpeed = 1f;
+    [SerializeField] private float minAnimatorSpeed = 0.1f;
 
     private Coroutine _scaleRoutine;
     private ParticleSystem.EmissionModule _dustEmission;
@@ -33,21 +36,22 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     // === ANIMATOR HASH ===
     // === LOCOMOTION ===
-    private readonly int LocomotionHash = Animator.StringToHash("Speed");
+    private readonly int _locomotionHash = Animator.StringToHash("Speed");
 
     // === ATTACKING ===
-    private readonly int AttackHash = Animator.StringToHash("Attack");
-    private readonly int AttackCountHash = Animator.StringToHash("AttackCount");
+    private readonly int _attackHash = Animator.StringToHash("Attack");
+    private readonly int _attackCountHash = Animator.StringToHash("AttackCount");
     private bool _requestAttacking;
 
-    private readonly int RollHash = Animator.StringToHash("Roll");
-    private readonly int HitHash = Animator.StringToHash("Hit");
-    private readonly int DeadHash = Animator.StringToHash("Dead");
-    private readonly int InteractHash = Animator.StringToHash("Interact");
+    private readonly int _rollHash = Animator.StringToHash("Roll");
+    private readonly int _hitHash = Animator.StringToHash("Hit");
+    private readonly int _deadHash = Animator.StringToHash("Dead");
+    private readonly int _interactHash = Animator.StringToHash("Interact");
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
+        _animator.speed = 1f;
 
         if (rootTransform == null)
         {
@@ -115,20 +119,25 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     {
         if (_stateMachine == null)
             return;
+        
+        if (oldState == CharacterStateType.Attack && newState != CharacterStateType.Attack)
+        {
+            ResetAnimatorSpeed();
+        }
 
         switch (newState)
         {
             case CharacterStateType.Roll:
-                PlayAnimation(RollHash, 0.2f);
+                PlayAnimation(_rollHash, 0.2f);
                 break;
             case CharacterStateType.Hit:
-                PlayAnimation(HitHash, 0.2f);
+                PlayAnimation(_hitHash, 0.2f);
                 break;
             case CharacterStateType.Dead:
-                PlayAnimation(DeadHash, 0.2f);
+                PlayAnimation(_deadHash, 0.2f);
                 break;
             case CharacterStateType.Interact:
-                PlayAnimation(InteractHash, 0.2f);
+                PlayAnimation(_interactHash, 0.2f);
                 break;
         }
     }
@@ -152,18 +161,20 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         if (_stateMachine.CurrentState != CharacterStateType.Locomotion)
             return;
 
-        var speed = runtime.MoveSpeed == 0
+        /*var speed = runtime.MoveSpeed == 0
             ? 0
-            : Mathf.Clamp01(agent.velocity.magnitude / runtime.MoveSpeed); 
+            : Mathf.Clamp01(agent.velocity.magnitude / runtime.MoveSpeed); */
         
-        _animator.SetFloat(LocomotionHash, speed);
+        _animator.SetFloat(_locomotionHash, _movement.NormalizedSpeed);
 
         if (runDust != null && runDust.isPlaying)
-            _dustEmission.rateOverTimeMultiplier = Mathf.Lerp(0.3f, 1f, speed);
+            _dustEmission.rateOverTimeMultiplier = Mathf.Lerp(0.3f, 1f, _movement.NormalizedSpeed);
     }
 
     private void AttackProcess()
     {
+        ApplyAttackSpeed();
+        
         if (_requestAttacking)
         {
             _requestAttacking = false;
@@ -185,14 +196,31 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     public void CmdAttackTrigger(int attackCount)
     {
-        _animator.SetTrigger(AttackHash);
+        _animator.SetTrigger(_attackHash);
         AttackCount = attackCount;
+    }
+
+    private void ApplyAttackSpeed()
+    {
+        if (runtime == null || baseAnimationAttackSpeed <= 0f)
+        {
+            _animator.speed = 1f;
+            return;
+        }
+        
+        float multiplier = runtime.TotalAttackSpeed / baseAnimationAttackSpeed;
+        _animator.speed = Mathf.Max(minAnimatorSpeed, multiplier);
+    }
+    
+    private void ResetAnimatorSpeed()
+    {
+        _animator.speed = 1f;
     }
 
     private int AttackCount
     {
-        get => _animator.GetInteger(AttackCountHash);
-        set => _animator.SetInteger(AttackCountHash, value);
+        get => _animator.GetInteger(_attackCountHash);
+        set => _animator.SetInteger(_attackCountHash, value);
     }
 
     public void CmdRequestAttacking() => _requestAttacking = true;
