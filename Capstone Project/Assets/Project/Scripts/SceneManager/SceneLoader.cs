@@ -15,8 +15,10 @@ public class SceneLoader : MonoBehaviour
 {
     public static SceneLoader Instance  { get; private set; }
     [SerializeField] private Animator animator;
+    [SerializeField] private Canvas canvas;
+    [SerializeField] private List<SceneRef> sceneRefs;
     
-    private List<SceneRef> _sceneRefs;
+    private InitManagerHelper _initManagerHelper;
 
     private void Awake()
     {
@@ -28,6 +30,8 @@ public class SceneLoader : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        
+        _initManagerHelper = GetComponent<InitManagerHelper>();
     }
 
     private void OnEnable()
@@ -37,18 +41,36 @@ public class SceneLoader : MonoBehaviour
 
     private void OnLoadScene(Scene scene, LoadSceneMode mode)
     {
-        animator.Play("Scene_Open");
-        var canvas = GetComponent<Canvas>();
+        animator?.Play("Scene_Open");
         canvas.worldCamera = Camera.main;
     }
 
-    private async Task LoadSceneProcess(string sceneName, bool isInitialize)
+    public async Task LoadScene(string sceneName, bool initHelper)
+    {
+        Debug.Log($"[SceneLoader] Loading scene {sceneName}");
+        await LoadSceneProcess(sceneName, initHelper);
+    }
+
+    private async Task LoadSceneProcess(string sceneName, bool initHelper)
     {
         AsyncOperation operation = null;
 
-        if (isInitialize)
+        if (initHelper)
         {
-            operation = SceneManager.LoadSceneAsync("LoadingScene");
+            operation = SceneManager.LoadSceneAsync("Loading");
+
+            _initManagerHelper.preloadGroups = new List<string>();
+            
+            foreach (var sr in sceneRefs)
+            {
+                if (sr.sceneName == sceneName)
+                {
+                    _initManagerHelper.preloadGroups = sr.preloadKeys;
+                    break;
+                }
+            }
+            
+            _initManagerHelper.loadSceneWhenDone = sceneName;
 
             if (operation != null)
             {
@@ -64,12 +86,17 @@ public class SceneLoader : MonoBehaviour
                 operation.allowSceneActivation = false;
         }
         
-        animator.Play("Scene_Close");
+        animator?.Play("Scene_Close");
         
         await AnimationProcess();
         
         if(operation != null)
             operation.allowSceneActivation = true;
+
+        if (initHelper)
+        {
+            _initManagerHelper.Load();
+        }
     }
 
     private async Task AnimationProcess()
