@@ -49,12 +49,18 @@ public class PopupService : IPopupService
         }
         else
         {
-            popup.Setup(instanceId, content, onClick1, onClick2);
+            if(onClick1 != null && onClick2 == null)
+                popup.Setup(instanceId, content, onClick1, null);
+            else 
+                popup.Setup(instanceId, content, onClick1, onClick2);
         }
-        
+
         _activePopups.Add(instanceId, popupGo);
     }
-    
+
+    public void Create(string prefabId, string instanceId, LocalizedString content, Action onClick1)
+        => Create(prefabId, instanceId, content, onClick1, null);
+
     public void Create(string prefabId, string instanceId, LocalizedString content)
         => Create(prefabId, instanceId, content, null, null);
 

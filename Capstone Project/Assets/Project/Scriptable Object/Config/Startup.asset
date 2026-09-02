@@ -10,25 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c435c64a5002b0438b430c0fa0a6a2f, type: 3}
-  m_Name: WeaponAssetRef
+  m_Name: Startup
   m_EditorClassIdentifier: Assembly-CSharp::AssetReferences
-  key: Weapons
+  key: Startup
   assets:
-  - m_AssetGUID: d0c32318984847e428ac1bce4ea19377
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
   - m_AssetGUID: 6590e99a522921647ac15769767472cd
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
+  - m_AssetGUID: 6987889f56981a94496fef73e5ba62de
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 1
   - m_AssetGUID: 97d88fb9a3565d84daf5fff081fcbb91
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
+    m_EditorAssetChanged: 1
+  - m_AssetGUID: d0c32318984847e428ac1bce4ea19377
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 1
   labels:
   - m_LabelString: 
   - m_LabelString: 

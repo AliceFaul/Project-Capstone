@@ -48,6 +48,6 @@ public class Popup : UIElement
     {
         _animator.Play($"Close");
         yield return new WaitForSeconds(time);
-        Close();
+        Destroy(this.gameObject);
     }
 }

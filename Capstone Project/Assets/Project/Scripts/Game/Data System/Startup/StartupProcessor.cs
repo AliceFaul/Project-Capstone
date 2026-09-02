@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class StartupProcessor : MonoBehaviour
@@ -16,6 +17,11 @@ public class StartupProcessor : MonoBehaviour
     private StartupList _startupList;
     private IServiceRegistry _serviceRegistry;
     private ILoading _loading;
+    
+    private readonly LocalizedString _clickToWaitLocale = new LocalizedString("UI", "CLICK_TO_START");
+    private readonly LocalizedString _runningStartupLocale = new LocalizedString("UI", "RUNNING_STARTUP");
+    private readonly LocalizedString _stepFailedLocale = new LocalizedString("UI", "UI_STEP_FAILED");
+    private readonly LocalizedString _stepTimeoutLocale = new LocalizedString("UI", "UI_STEP_TIMEOUT");
 
     private CancellationTokenSource _cts;
 
@@ -46,7 +52,7 @@ public class StartupProcessor : MonoBehaviour
             _loading = loadingScreen as ILoading;
             
             Debug.Log($"[StartupProcessor] Waiting clicked...");
-            _loading?.SetMessage($"Click to start!");
+            _loading?.SetMessage(_clickToWaitLocale);
             await WaitForClicked();
             _loading?.Show();
         
@@ -60,6 +66,8 @@ public class StartupProcessor : MonoBehaviour
             if (pipelineResult.IsSuccess)
             {
                 Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
+                _loading?.SetMessage(_clickToWaitLocale);
+                _loading?.Hide();
                 await WaitForClicked();
                 OpenMainMenu();
             }
@@ -101,7 +109,7 @@ public class StartupProcessor : MonoBehaviour
         }
 
         int index = 0;
-        _loading?.SetProgress(0f, "Running startup system...");
+        _loading?.SetProgress(0f, _runningStartupLocale);
         
         while (index < _startupList.steps.Count)
         {
@@ -128,7 +136,7 @@ public class StartupProcessor : MonoBehaviour
                     if (!result.IsSuccess)
                     {
                         Debug.LogWarning($"[StartupProcessor] Step failed: {stepName}, error id: {result.ErrorId}, message: {result.Message}");
-                        _loading?.SetProgress(1f, "Step failed");
+                        _loading?.SetProgress(1f, _stepFailedLocale);
                         return StartupPipeline.Failure(result.ErrorId ?? "STEP_FAILED",
                             $"Step {stepName} failed: {result.Message}");
                     }
@@ -140,7 +148,7 @@ public class StartupProcessor : MonoBehaviour
                 catch (OperationCanceledException)
                 {
                     Debug.LogWarning($"[StartupProcessor] Step timeout or cancelled: {stepName}");
-                    _loading?.SetProgress(1f, "Step timeout error");
+                    _loading?.SetProgress(1f, _stepTimeoutLocale);
                     return StartupPipeline.Failure("STEP_TIMEOUT", $"Step {stepName} timed out");
                 }
                 catch (Exception e)

@@ -38,6 +38,26 @@ MonoBehaviour:
     m_Localized: "L\u1ED6I"
     m_Metadata:
       m_Items: []
+  - m_Id: 575997936017408
+    m_Localized: "Nh\u1EA5n \u0111\u1EC3 B\u1EAFt \u0111\u1EA7u!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 585364450189312
+    m_Localized: "\u0110\xF3ng"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612590688280576
+    m_Localized: "Kh\xF4ng t\xECm th\u1EA5y t\xE0i nguy\xEAn qu\u1EA3n l\xFD."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612720728481792
+    m_Localized: "T\u1EA3i t\xE0i nguy\xEAn th\u1EA5t b\u1EA1i"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 620669442072576
+    m_Localized: "\u0110ang kh\u1EDFi \u0111\u1ED9ng..."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

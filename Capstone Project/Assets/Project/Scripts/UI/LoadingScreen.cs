@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Threading.Tasks;
 using TMPro;
+using UnityEngine.Localization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -9,11 +10,16 @@ public class LoadingScreen : MonoBehaviour, ILoading
 {
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Image progressBar;
-    [SerializeField] private TMP_Text messageText;
+    [SerializeField] private LocalizationText messageText;
     [SerializeField] private float fadeDuration = 0.25f;
     
     private Coroutine _fadeRoutine;
-    
+
+    private void Awake()
+    {
+        messageText.InitText();
+    }
+
     public async void Show()
     {
         try
@@ -50,19 +56,19 @@ public class LoadingScreen : MonoBehaviour, ILoading
         }
     }
 
-    public void SetProgress(float progress01, string message = null)
+    public void SetProgress(float progress01, LocalizedString message = null)
     {
         if (progressBar != null)
             progressBar.fillAmount = Mathf.Clamp01(progress01);
         
         if(messageText != null && message != null)
-            messageText.text = message;
+            messageText.ChangeText(message);
     }
 
-    public void SetMessage(string message)
+    public void SetMessage(LocalizedString message)
     {
         if (messageText != null)
-            messageText.text = message;
+            messageText.ChangeText(message);
         else
             Debug.LogError($"[ILoading] TMP_Text missing!");
     }

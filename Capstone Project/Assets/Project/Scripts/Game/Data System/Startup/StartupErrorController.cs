@@ -46,7 +46,13 @@ public class StartupErrorController
                 localized = new LocalizedString(TableName, dynamicKey);
             }
         }
+        
+        UIManager.Instance?.GetPopupService().Create("ErrorPopup", errorId, localized, () => OnClose("ErrorPopup"));
+    }
 
-        UIManager.Instance?.GetPopupService().Create("ErrorPopup", errorId, localized);
+    private static void OnClose(string prefabId)
+    {
+        var go = GameObject.Find(prefabId);
+        GameObject.Destroy(go);
     }
 }

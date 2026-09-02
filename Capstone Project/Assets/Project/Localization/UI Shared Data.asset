@@ -35,6 +35,26 @@ MonoBehaviour:
     m_Key: UI_STEP_FAILED
     m_Metadata:
       m_Items: []
+  - m_Id: 575997936017408
+    m_Key: CLICK_TO_START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 585364450189312
+    m_Key: CLOSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612590688280576
+    m_Key: UI_ROOT_MANAGER_NOT_FOUND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612720728481792
+    m_Key: UI_ASSET_PRELOAD_FAILED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 620669442072576
+    m_Key: RUNNING_STARTUP
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

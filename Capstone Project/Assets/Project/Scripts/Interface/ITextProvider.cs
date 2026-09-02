@@ -5,5 +5,5 @@ public interface ITextProvider
 {
     void InitText();
     void SetArguments(List<string> value);
-    void ChangeText(LocalizedString text);
+    void ChangeText(LocalizedString valueText);
 }
