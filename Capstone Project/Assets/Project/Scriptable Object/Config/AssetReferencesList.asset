@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: AssetReferencesList
   m_EditorClassIdentifier: Assembly-CSharp::AssetReferencesList
   references:
-  - {fileID: 11400000, guid: 8bad377f9a9999b47ad43c97b1998fa2, type: 2}
   - {fileID: 11400000, guid: ed3414242655f4048b640383bed3347b, type: 2}
+  - {fileID: 11400000, guid: 8bad377f9a9999b47ad43c97b1998fa2, type: 2}

@@ -11,10 +11,13 @@ public class AssetsStep : StartupStep
     public override async Task<StartupStepResult> RunTasks(IServiceRegistry serviceRegistry, CancellationToken ct)
     {
         ResourceManager rm = ResourceManager.Instance;
-        
-        if(rm == null)
+
+        if (rm == null)
+        {
             Debug.LogError("[AssetsStep] ResourceManager instance not found");
-        
+            return StartupStepResult.Failure("RESOURCE_MANAGER_NOT_FOUND", $"ResourceManager instance not found");
+        }
+
         try
         {
             await rm.Preload("Startup");

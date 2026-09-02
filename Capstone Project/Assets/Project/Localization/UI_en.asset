@@ -39,7 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 575997936017408
-    m_Localized: Tap to Start!
+    m_Localized: Tap to Start.
     m_Metadata:
       m_Items: []
   - m_Id: 585364450189312
@@ -56,6 +56,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 620669442072576
     m_Localized: Running startup...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630245382037504
+    m_Localized: Tap to continue.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630485623382016
+    m_Localized: Can't find Resource Manager.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630930177662976
+    m_Localized: Incorrect manager type.
     m_Metadata:
       m_Items: []
   references:

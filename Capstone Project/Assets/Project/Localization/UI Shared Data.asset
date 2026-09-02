@@ -55,6 +55,18 @@ MonoBehaviour:
     m_Key: RUNNING_STARTUP
     m_Metadata:
       m_Items: []
+  - m_Id: 630245382037504
+    m_Key: CLICK_TO_CONTINUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630485623382016
+    m_Key: UI_RESOURCE_MANAGER_NOT_FOUND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630930177662976
+    m_Key: UI_MANAGER_TYPE_NOT_FOUND
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

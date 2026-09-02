@@ -17,7 +17,13 @@ public class LoadingScreen : MonoBehaviour, ILoading
 
     private void Awake()
     {
-        messageText.InitText();
+        if(canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>();
+        
+        if(messageText != null)
+            messageText.InitText();
+        else
+            Debug.LogError($"[ILoading] Localization text missing!");
     }
 
     public async void Show()
@@ -26,7 +32,7 @@ public class LoadingScreen : MonoBehaviour, ILoading
         {
             gameObject.SetActive(true);
             
-            await FadeOut();
+            await FadeToVisible();
         
             canvasGroup.alpha = 1;
             canvasGroup.blocksRaycasts = true;
@@ -42,7 +48,7 @@ public class LoadingScreen : MonoBehaviour, ILoading
     {
         try
         {
-            await FadeIn();
+            await FadeToHidden();
         
             canvasGroup.alpha = 0;
             canvasGroup.blocksRaycasts = false;
@@ -54,6 +60,18 @@ public class LoadingScreen : MonoBehaviour, ILoading
         {
             Debug.LogError($"Missing CanvasGroup: {e.Message}");
         }
+    }
+
+    public void ShowProgressBar()
+    {
+        if(progressBar != null)
+            progressBar.gameObject.SetActive(true);
+    }
+
+    public void HideProgressBar()
+    {
+        if(progressBar != null)
+            progressBar.gameObject.SetActive(false);
     }
 
     public void SetProgress(float progress01, LocalizedString message = null)
@@ -87,12 +105,12 @@ public class LoadingScreen : MonoBehaviour, ILoading
         canvasGroup.alpha = target;
     }
 
-    private async Task FadeOut()
+    private async Task FadeToVisible()
     {
         await Fade(1);
     }
     
-    private async Task FadeIn()
+    private async Task FadeToHidden()
     {
         await Fade(0);
     }

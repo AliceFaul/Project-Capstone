@@ -18,7 +18,8 @@ public class StartupProcessor : MonoBehaviour
     private IServiceRegistry _serviceRegistry;
     private ILoading _loading;
     
-    private readonly LocalizedString _clickToWaitLocale = new LocalizedString("UI", "CLICK_TO_START");
+    private readonly LocalizedString _clickToStartLocale = new LocalizedString("UI", "CLICK_TO_START");
+    private readonly LocalizedString _clickToContinueLocale = new LocalizedString("UI", "CLICK_TO_CONTINUE");
     private readonly LocalizedString _runningStartupLocale = new LocalizedString("UI", "RUNNING_STARTUP");
     private readonly LocalizedString _stepFailedLocale = new LocalizedString("UI", "UI_STEP_FAILED");
     private readonly LocalizedString _stepTimeoutLocale = new LocalizedString("UI", "UI_STEP_TIMEOUT");
@@ -52,7 +53,7 @@ public class StartupProcessor : MonoBehaviour
             _loading = loadingScreen as ILoading;
             
             Debug.Log($"[StartupProcessor] Waiting clicked...");
-            _loading?.SetMessage(_clickToWaitLocale);
+            _loading?.SetMessage(_clickToStartLocale);
             await WaitForClicked();
             _loading?.Show();
         
@@ -66,9 +67,10 @@ public class StartupProcessor : MonoBehaviour
             if (pipelineResult.IsSuccess)
             {
                 Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
-                _loading?.SetMessage(_clickToWaitLocale);
-                _loading?.Hide();
+                _loading?.SetMessage(_clickToContinueLocale);
+                _loading?.HideProgressBar();
                 await WaitForClicked();
+                _loading?.Hide();
                 OpenMainMenu();
             }
             else

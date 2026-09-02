@@ -38,7 +38,7 @@ public class InitManagersStep : StartupStep
             if (type == null)
             {
                 Debug.LogError($"[InitManagersStep] Can't find type {typeName}");
-                continue;
+                return StartupStepResult.Failure("MANAGER_TYPE_NOT_FOUND", $"Can't resolve type {typeName}");
             }
             
             var component = rootManagerTransform.GetComponent(type);
@@ -47,7 +47,7 @@ public class InitManagersStep : StartupStep
             
             IManager manager = (IManager)component;
             await manager.Initialize();
-            serviceRegistry.Register(component);
+            serviceRegistry.Register(type, manager);
         }
 
         return StartupStepResult.Success();
