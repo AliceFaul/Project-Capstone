@@ -20,7 +20,7 @@ public class AssetsStep : StartupStep
 
         try
         {
-            await rm.Preload("Startup");
+            await rm.Preload("Startup", ct);
         }
         catch (Exception e)
         {

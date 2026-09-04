@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Linq;
+using System.Threading;
+using Object = UnityEngine.Object;
 
 public class ResourceManager : MonoBehaviour, IManager
 {
@@ -38,10 +41,13 @@ public class ResourceManager : MonoBehaviour, IManager
         }
     }
 
-    public async Task Preload(string groupKey)
+    public async Task Preload(string groupKey, CancellationToken ct = default)
     {
         if (_assetReferences.TryGetValue(groupKey, out var assetReferences))
         {
+            ct.ThrowIfCancellationRequested();
+            var failedKeys = new List<string>();
+            
             if (assetReferences.Assets.Count > 0)
             {
                 var toLoad = assetReferences.Assets
@@ -52,7 +58,7 @@ public class ResourceManager : MonoBehaviour, IManager
                     .Select(ar => ar.LoadAssetAsync<Object>())
                     .ToList();
 
-                await Task.WhenAll(handles.Select(h => h.Task));
+                await WaitWithCancellation(Task.WhenAll(handles.Select(h => h.Task)), ct);
 
                 for (int i = 0; i < handles.Count; i++)
                 {
@@ -66,6 +72,7 @@ public class ResourceManager : MonoBehaviour, IManager
                     else
                     {
                         Debug.LogError($"[ResourceManager] failed to load asset in group {groupKey} (index {i})");
+                        failedKeys.Add(assetRef.Asset != null ? assetRef.Asset.name : $"index_{i}");
                     }
                 }
             }
@@ -74,7 +81,9 @@ public class ResourceManager : MonoBehaviour, IManager
             {
                 foreach (var label in assetReferences.Labels)
                 {
-                    var locations = await Addressables.LoadResourceLocationsAsync(label).Task;
+                    ct.ThrowIfCancellationRequested();
+
+                    var locations = await WaitWithCancellation(Addressables.LoadResourceLocationsAsync(label).Task, ct);
                     
                     var locationsToLoad = locations
                         .Where(loc => !_loadedAssets.ContainsKey(loc.PrimaryKey)).ToList();
@@ -82,7 +91,7 @@ public class ResourceManager : MonoBehaviour, IManager
                     var handles = locationsToLoad
                         .Select(Addressables.LoadAssetAsync<Object>).ToList();
 
-                    await Task.WhenAll(handles.Select(h => h.Task));
+                    await WaitWithCancellation(Task.WhenAll(handles.Select(h => h.Task)), ct);
 
                     for (int i = 0; i < handles.Count; i++)
                     {
@@ -96,18 +105,53 @@ public class ResourceManager : MonoBehaviour, IManager
                         else
                         {
                             Debug.LogError($"[ResourceManager] {location.PrimaryKey} hasn't been loaded");
+                            failedKeys.Add(location.PrimaryKey);
                         }
                     }
                 }
             }
+
+            if (failedKeys.Count > 0)
+                throw new Exception($"[ResourceManager] {failedKeys.Count} asset(s) failed to load in group {groupKey}: {string.Join(", ", failedKeys)}");
         }
         else
         {
             Debug.LogError($"[ResourceManager] Asset with key: {groupKey} load failed");
+            throw new KeyNotFoundException($"[ResourceManager] Asset with key: {groupKey} not found in AssetReferencesList.");
         }
         
         _preloadedGroups.Add(groupKey);
         Debug.Log($"[ResourceManager] {groupKey} has been preloaded");
+    }
+
+    private static async Task WaitWithCancellation(Task task, CancellationToken ct)
+    {
+        if (!ct.CanBeCanceled)
+        {
+            await task;
+            return;
+        }
+
+        var cancelTask = Task.Delay(Timeout.Infinite, ct);
+        var completed = await Task.WhenAny(task, cancelTask);
+
+        if (completed == cancelTask)
+            ct.ThrowIfCancellationRequested();
+
+        await task;
+    }
+    
+    private static async Task<T> WaitWithCancellation<T>(Task<T> task, CancellationToken ct)
+    {
+        if (!ct.CanBeCanceled)
+            return await task;
+        
+        var cancelTask = Task.Delay(Timeout.Infinite, ct);
+        var completed = await Task.WhenAny(task, cancelTask);
+        if(completed == cancelTask)
+            ct.ThrowIfCancellationRequested();
+
+        return await task;
     }
 
     public T GetAsset<T>(string assetKey) where T : Object
