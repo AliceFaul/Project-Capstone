@@ -67,6 +67,10 @@ MonoBehaviour:
     m_Key: UI_MANAGER_TYPE_NOT_FOUND
     m_Metadata:
       m_Items: []
+  - m_Id: 1467084305211392
+    m_Key: UI_CONFIG_LOAD_FAILED
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

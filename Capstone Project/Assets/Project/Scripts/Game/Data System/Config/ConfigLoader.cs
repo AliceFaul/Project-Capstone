@@ -6,7 +6,7 @@ public class ConfigLoader : IConfigLoader
 
     public ConfigLoader()
     {
-        _reader = new JsonReader(Application.persistentDataPath + "/config.json");
+        _reader = new JsonReader(Application.persistentDataPath + ".json");
     }
     
     public void LoadConfig(ScriptableObject config)

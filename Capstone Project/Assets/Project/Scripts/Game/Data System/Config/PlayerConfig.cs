@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlayerConfig", menuName = "Config/Player")]
-public class PlayerConfig : ScriptableObject
+public class PlayerConfig : ScriptableObject, IConfig
 {
     [Header("Graphic")]
     public int quality;

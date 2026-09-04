@@ -70,6 +70,10 @@ MonoBehaviour:
     m_Localized: "Sai ki\u1EC3u qu\u1EA3n l\xFD."
     m_Metadata:
       m_Items: []
+  - m_Id: 1467084305211392
+    m_Localized: "Kh\xF4ng t\xECm th\u1EA5y t\u1EC7p c\u1EA5u h\xECnh."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

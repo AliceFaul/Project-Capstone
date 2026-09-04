@@ -70,6 +70,10 @@ MonoBehaviour:
     m_Localized: Incorrect manager type.
     m_Metadata:
       m_Items: []
+  - m_Id: 1467084305211392
+    m_Localized: Can't find configure file.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
