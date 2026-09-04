@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 1164091473}
   - component: {fileID: 1164091472}
   m_Layer: 5
-  m_Name: Bootstrap
+  m_Name: Scene Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
