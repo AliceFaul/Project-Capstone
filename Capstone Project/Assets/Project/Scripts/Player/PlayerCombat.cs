@@ -106,8 +106,6 @@ public class PlayerCombat : MonoBehaviour {
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
     public void CmdAttack() {
-        Debug.Log("[PlayerCombat] Attacking");
-        
         if(_currentTarget == null) 
             return;
         
@@ -127,8 +125,10 @@ public class PlayerCombat : MonoBehaviour {
         _controller.CmdCombatLocked(true);
         
         RotateToTarget();
-        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
+        
+        _controller.AnimationHandler.CmdSetAttackSpeed(_currentMeleeWeapon.equipmentType);
         _controller.AnimationHandler.CmdRequestAttacking();
+        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
 
     public void CmdActiveComboWindow(bool value) => _activeCombatWindow = value;
@@ -193,9 +193,11 @@ public class PlayerCombat : MonoBehaviour {
         transform.forward = direction.normalized;
         
         _shootPosition = mousePosition;
+        
         _controller.CmdCombatLocked(true);
-        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
+        _controller.AnimationHandler.CmdSetAttackSpeed(_currentRangedWeapon.equipmentType);
         _controller.AnimationHandler.CmdAttackTrigger(1);
+        _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
 
     public void CmdSpawnProjectile()

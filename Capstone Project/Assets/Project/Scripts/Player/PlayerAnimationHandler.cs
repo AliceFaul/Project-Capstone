@@ -29,6 +29,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     [Header("Attack Speed")]
     [SerializeField] private float baseAnimationAttackSpeed = 1f;
     [SerializeField] private float minAnimatorSpeed = 0.1f;
+    private EquipmentType _currentWeaponType = EquipmentType.MeleeWeapon;
 
     private Coroutine _scaleRoutine;
     private ParticleSystem.EmissionModule _dustEmission;
@@ -84,9 +85,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private void OnDestroy()
     {
         if (_stateMachine != null)
-        {
             _stateMachine.OnStateChange -= TriggerAnimation;
-        }
 
         if (_movement != null)
         {
@@ -121,9 +120,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
             return;
         
         if (oldState == CharacterStateType.Attack && newState != CharacterStateType.Attack)
-        {
             ResetAnimatorSpeed();
-        }
 
         switch (newState)
         {
@@ -207,15 +204,13 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
             _animator.speed = 1f;
             return;
         }
-        
-        float multiplier = runtime.TotalAttackSpeed / baseAnimationAttackSpeed;
+
+        float currentAttackSpeed = runtime.GetCurrentAttackSpeed(_currentWeaponType);
+        float multiplier = currentAttackSpeed / baseAnimationAttackSpeed;
         _animator.speed = Mathf.Max(minAnimatorSpeed, multiplier);
     }
     
-    private void ResetAnimatorSpeed()
-    {
-        _animator.speed = 1f;
-    }
+    private void ResetAnimatorSpeed() => _animator.speed = 1f;
 
     private int AttackCount
     {
@@ -223,6 +218,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         set => _animator.SetInteger(_attackCountHash, value);
     }
 
+    public void CmdSetAttackSpeed(EquipmentType type) => _currentWeaponType = type;
     public void CmdRequestAttacking() => _requestAttacking = true;
 
     // === ATTACK ANIMATION EVENT

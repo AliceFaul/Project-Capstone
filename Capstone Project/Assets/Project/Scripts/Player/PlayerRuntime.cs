@@ -142,14 +142,14 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     private void RefreshStats()
     {
         if (_equipmentManager == null)
-        {
             _equipmentManager = EquipmentManager.Instance;
-        }
         
         ResetBonusStats();
 
+        /*
         ApplyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon));
         ApplyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon));
+        */
         
         var armor = _equipmentManager.Armor;
         if (armor != null)
@@ -170,8 +170,15 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     }
 
     private void HandleEquipmentChanged(EquipmentChangedEventArgs args)
+        => RefreshStats();
+
+    public float GetCurrentAttackSpeed(EquipmentType type)
     {
-        RefreshStats();
+        var equipment = _equipmentManager.GetCurrentEquipment(type);
+        float speed = equipment != null ? equipment.attackSpeedModifier : 0f;
+
+        float baseAttackSpeed = CharacterData != null ? CharacterData.baseAttackSpeed : 1f;
+        return baseAttackSpeed + speed + bonusAttackSpeed;
     }
 
     private void OnGoldObtained(CurrencyType type, int amount)

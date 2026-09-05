@@ -53,10 +53,17 @@ public class StartupProcessor : MonoBehaviour
             _loading = loadingScreen as ILoading;
             
             Debug.Log($"[StartupProcessor] Waiting clicked...");
-            _loading?.SetMessage(_clickToStartLocale);
+            if (_loading != null)
+            {
+                await _loading.HideProgressBar();
+                _loading.SetMessage(_clickToStartLocale);
+            }
+
             await WaitForClicked();
-            _loading?.Show();
-        
+
+            if(_loading != null)
+                await _loading.ShowProgressBar();
+
             AsyncOperationHandle<StartupList> handle = Addressables.LoadAssetAsync<StartupList>("StartupList");
             _startupList = await handle.Task;
         
@@ -67,10 +74,16 @@ public class StartupProcessor : MonoBehaviour
             if (pipelineResult.IsSuccess)
             {
                 Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
-                _loading?.SetMessage(_clickToContinueLocale);
-                _loading?.HideProgressBar();
+                _loading?.SetProgress(1f, _clickToContinueLocale);
+                await Task.Delay(300);
+
+                if (_loading != null)
+                    await _loading.HideProgressBar();
+                
                 await WaitForClicked();
-                _loading?.Hide();
+                
+                if (_loading != null)
+                    await _loading.Hide();
                 OpenMainMenu();
             }
             else
@@ -195,6 +208,7 @@ public class StartupProcessor : MonoBehaviour
     private void OpenMainMenu()
     {
         _input.UI.Disable();
+        Debug.Log($"[StartupProcessor] Opening main menu");
         // TODO: Connect to Main Menu Screen Controller
     }
 
