@@ -16,7 +16,7 @@ public class JsonReader
 
         if (!File.Exists(path))
         {
-            Debug.LogError($"[JsonReader] File not found: {path}");
+            Debug.LogWarning($"[JsonReader] File not found: {path}");
             return null;
         }
         

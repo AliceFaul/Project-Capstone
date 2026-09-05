@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -12,7 +11,14 @@ public class ConfigStep : StartupStep
     public override async Task<StartupStepResult> RunTasks(IServiceRegistry serviceRegistry, CancellationToken ct)
     {
         IServiceRegistry sr = new ServiceRegistry();
-        ConfigReferenceList configList = ResourceManager.Instance.GetAsset<ConfigReferenceList>("ConfigList");
+        ConfigReferenceList configList = ResourceManager.Instance.GetAsset<ConfigReferenceList>("ConfigReferenceList");
+
+        if (configList == null)
+        {
+            Debug.LogError($"[ConfigStep] Not found ConfigReferenceList asset. Please check assets has preloaded before config step.");
+            return StartupStepResult.Failure("CONFIG_LIST_NOT_FOUND", $"ConfigReferenceList not found - please check again.");
+        }
+        
         IConfigLoader configLoader = new ConfigLoader();
 
         foreach (var config in configList.Configs)
@@ -26,10 +32,7 @@ public class ConfigStep : StartupStep
             {
                 configLoader.LoadConfig(config);
 
-                var registryMethod = typeof(IServiceRegistry).GetMethod("Register");
-                MethodInfo genericRegister = registryMethod?.MakeGenericMethod(type);
-                genericRegister?.Invoke(sr, new object[] { config });
-
+                sr.Register(type, config);
                 Debug.Log($"[ConfigStep] Read {fileName} successfully.");
             }
             catch (Exception e)

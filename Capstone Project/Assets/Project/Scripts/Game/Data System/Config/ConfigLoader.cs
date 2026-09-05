@@ -6,7 +6,7 @@ public class ConfigLoader : IConfigLoader
 
     public ConfigLoader()
     {
-        _reader = new JsonReader(Application.persistentDataPath + ".json");
+        _reader = new JsonReader(Application.persistentDataPath);
     }
     
     public void LoadConfig(ScriptableObject config)
@@ -18,8 +18,14 @@ public class ConfigLoader : IConfigLoader
         }
 
         string fileName = config.name + ".json";
-        
         string json = _reader.Read(fileName);
+
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogWarning($"[ConfigLoader] Not found config file {fileName} (Is your first time play?) -" + $"return default value {config.name}.");
+            return;
+        }
+        
         JsonUtility.FromJsonOverwrite(json, config);
     }
 }

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: StartupList
   m_EditorClassIdentifier: Assembly-CSharp::StartupList
   steps:
-  - {fileID: 11400000, guid: a4ab358820aeb92499b34990dc068128, type: 2}
   - {fileID: 11400000, guid: aecf25f92aab8974390e904821485be7, type: 2}
   - {fileID: 11400000, guid: 95624568afe5b1345b22661d5f6fae78, type: 2}
+  - {fileID: 11400000, guid: a4ab358820aeb92499b34990dc068128, type: 2}

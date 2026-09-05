@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 906d493bd61b4a7f80a879840e95c321, type: 3}
   m_Name: PlayerConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerConfig
-  quality: 0
-  fps: 0
+  quality: 1
+  fps: 30
   activeCameraShake: 1
-  masterVolume: 0
-  musicVolume: 0
-  sfxVolume: 0
+  masterVolume: 1
+  musicVolume: 1
+  sfxVolume: 1
   showDamageText: 1
   inventory: 0
   minimap: 0
