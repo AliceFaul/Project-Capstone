@@ -20,5 +20,5 @@ public interface IPlayerRuntime : ICharacterRuntime
     float BonusCritDamage { get; }
     
     void GainExp(float amount);
-    void AppyAttributes(EquipmentData equipment);
+    void ApplyAttributes(EquipmentData equipment);
 }

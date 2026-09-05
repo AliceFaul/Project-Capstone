@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 906d493bd61b4a7f80a879840e95c321, type: 3}
-  m_Name: PlayerConfig
+  m_Name: PlayerSetting
   m_EditorClassIdentifier: Assembly-CSharp::PlayerConfig
   quality: 1
   fps: 30

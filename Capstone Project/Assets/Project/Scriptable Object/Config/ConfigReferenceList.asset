@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: ConfigReferenceList
   m_EditorClassIdentifier: Assembly-CSharp::ConfigReferenceList
   configs:
+  - {fileID: 11400000, guid: 6597bf0745aeb1e45b98bb13c91d3ab3, type: 2}
   - {fileID: 11400000, guid: 12a27edf5e7bac84fa9af0bf5f27e490, type: 2}

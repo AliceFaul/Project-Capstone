@@ -8,7 +8,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 {
     [Header("Character Attributes")] 
     [SerializeField] protected int level;
-    public int Level => level;
+    public virtual int Level => level;
     
     [Header("Character Bonus Stats")] 
     private int bonusHealth = 0;

@@ -255,11 +255,11 @@ GameObject:
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 6983588896542028798}
   - component: {fileID: 4069758127545282674}
+  - component: {fileID: 1594350380156625181}
   - component: {fileID: 1396825416686326437}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
   - component: {fileID: 743074079644308432}
-  - component: {fileID: 1594350380156625181}
   - component: {fileID: 6241995475581806153}
   - component: {fileID: 9006754850781956550}
   m_Layer: 9
@@ -437,8 +437,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRuntime
   level: 1
-  currentExp: 0
-  expToNextLevel: 100
   playerArchive: {fileID: 4069758127545282674}
 --- !u!114 &6983588896542028798
 MonoBehaviour:
@@ -472,6 +470,21 @@ MonoBehaviour:
   enemyDefeated: 0
   totalDamageDealt: 0
   totalDamageReceived: 0
+--- !u!114 &1594350380156625181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a04cfa56a0511804ab8ae11da33d27a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  slots: []
+  maxSlots: 50
+  itemPickupPrefab: {fileID: 0}
 --- !u!114 &1396825416686326437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,21 +538,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f9349dbfce55fd4a9bb839334b60a74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputHandler
---- !u!114 &1594350380156625181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9033850277288197346}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a04cfa56a0511804ab8ae11da33d27a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  slots: []
-  maxSlots: 50
-  itemPickupPrefab: {fileID: 0}
 --- !u!114 &6241995475581806153
 MonoBehaviour:
   m_ObjectHideFlags: 0
