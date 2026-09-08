@@ -172,6 +172,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ToggleInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""480e0039-144e-4f49-bbb4-bab6ac9bcaa0"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleMinimap"",
+                    ""type"": ""Button"",
+                    ""id"": ""6c494b6b-c763-4595-b623-fec5f65f722f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -222,7 +240,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c942a6d2-e456-4259-9e79-559a7db3b688"",
-                    ""path"": ""<Keyboard>/g"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -233,7 +251,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""63cc5d60-813d-4350-b953-b19fd4942aac"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -244,7 +262,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""ee45ca7a-f6b9-440c-9528-ffb605c2fe05"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/2"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -255,7 +273,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""eae941db-76e5-428a-a9ad-19eb6ba3bdc7"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/3"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -273,52 +291,54 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""MousePosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8e65f7d1-3d26-4c4d-be47-25ae55f861d5"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""713a5157-9a2e-4c00-96d3-36e9d30016ed"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleMinimap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
         {
             ""name"": ""UI"",
-            ""id"": ""52e961fc-5837-42bf-80c7-803c232d2100"",
+            ""id"": ""c4c452ca-7656-448c-80e7-f8b709d246aa"",
             ""actions"": [
                 {
-                    ""name"": ""Inventory"",
+                    ""name"": ""Click"",
                     ""type"": ""Button"",
-                    ""id"": ""a3fddafa-bf44-46b6-818e-cb593a8bac5e"",
+                    ""id"": ""4596567b-c5de-4630-9e23-3a82436b708b"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Minimap"",
-                    ""type"": ""Button"",
-                    ""id"": ""58c27531-780a-416d-981a-e7b0e3f7ad1f"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""7cb1db7a-0837-4e2e-bdee-bdeb1ec4c69f"",
-                    ""path"": ""<Keyboard>/b"",
+                    ""id"": ""75a607e1-8cdf-44e9-a0df-4862363c2bd2"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Inventory"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""3825d0dc-08b2-4145-bf0d-319ff261a29b"",
-                    ""path"": ""<Keyboard>/tab"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Minimap"",
+                    ""groups"": """",
+                    ""action"": ""Click"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -399,10 +419,11 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Artifact2 = m_Player.FindAction("Artifact2", throwIfNotFound: true);
         m_Player_Artifact3 = m_Player.FindAction("Artifact3", throwIfNotFound: true);
         m_Player_MousePosition = m_Player.FindAction("MousePosition", throwIfNotFound: true);
+        m_Player_ToggleInventory = m_Player.FindAction("ToggleInventory", throwIfNotFound: true);
+        m_Player_ToggleMinimap = m_Player.FindAction("ToggleMinimap", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
-        m_UI_Inventory = m_UI.FindAction("Inventory", throwIfNotFound: true);
-        m_UI_Minimap = m_UI.FindAction("Minimap", throwIfNotFound: true);
+        m_UI_Click = m_UI.FindAction("Click", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -493,6 +514,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Artifact2;
     private readonly InputAction m_Player_Artifact3;
     private readonly InputAction m_Player_MousePosition;
+    private readonly InputAction m_Player_ToggleInventory;
+    private readonly InputAction m_Player_ToggleMinimap;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -540,6 +563,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/MousePosition".
         /// </summary>
         public InputAction @MousePosition => m_Wrapper.m_Player_MousePosition;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleInventory".
+        /// </summary>
+        public InputAction @ToggleInventory => m_Wrapper.m_Player_ToggleInventory;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleMinimap".
+        /// </summary>
+        public InputAction @ToggleMinimap => m_Wrapper.m_Player_ToggleMinimap;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -593,6 +624,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @MousePosition.started += instance.OnMousePosition;
             @MousePosition.performed += instance.OnMousePosition;
             @MousePosition.canceled += instance.OnMousePosition;
+            @ToggleInventory.started += instance.OnToggleInventory;
+            @ToggleInventory.performed += instance.OnToggleInventory;
+            @ToggleInventory.canceled += instance.OnToggleInventory;
+            @ToggleMinimap.started += instance.OnToggleMinimap;
+            @ToggleMinimap.performed += instance.OnToggleMinimap;
+            @ToggleMinimap.canceled += instance.OnToggleMinimap;
         }
 
         /// <summary>
@@ -631,6 +668,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @MousePosition.started -= instance.OnMousePosition;
             @MousePosition.performed -= instance.OnMousePosition;
             @MousePosition.canceled -= instance.OnMousePosition;
+            @ToggleInventory.started -= instance.OnToggleInventory;
+            @ToggleInventory.performed -= instance.OnToggleInventory;
+            @ToggleInventory.canceled -= instance.OnToggleInventory;
+            @ToggleMinimap.started -= instance.OnToggleMinimap;
+            @ToggleMinimap.performed -= instance.OnToggleMinimap;
+            @ToggleMinimap.canceled -= instance.OnToggleMinimap;
         }
 
         /// <summary>
@@ -668,8 +711,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     // UI
     private readonly InputActionMap m_UI;
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
-    private readonly InputAction m_UI_Inventory;
-    private readonly InputAction m_UI_Minimap;
+    private readonly InputAction m_UI_Click;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -682,13 +724,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public UIActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "UI/Inventory".
+        /// Provides access to the underlying input action "UI/Click".
         /// </summary>
-        public InputAction @Inventory => m_Wrapper.m_UI_Inventory;
-        /// <summary>
-        /// Provides access to the underlying input action "UI/Minimap".
-        /// </summary>
-        public InputAction @Minimap => m_Wrapper.m_UI_Minimap;
+        public InputAction @Click => m_Wrapper.m_UI_Click;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -715,12 +753,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_UIActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_UIActionsCallbackInterfaces.Add(instance);
-            @Inventory.started += instance.OnInventory;
-            @Inventory.performed += instance.OnInventory;
-            @Inventory.canceled += instance.OnInventory;
-            @Minimap.started += instance.OnMinimap;
-            @Minimap.performed += instance.OnMinimap;
-            @Minimap.canceled += instance.OnMinimap;
+            @Click.started += instance.OnClick;
+            @Click.performed += instance.OnClick;
+            @Click.canceled += instance.OnClick;
         }
 
         /// <summary>
@@ -732,12 +767,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UIActions" />
         private void UnregisterCallbacks(IUIActions instance)
         {
-            @Inventory.started -= instance.OnInventory;
-            @Inventory.performed -= instance.OnInventory;
-            @Inventory.canceled -= instance.OnInventory;
-            @Minimap.started -= instance.OnMinimap;
-            @Minimap.performed -= instance.OnMinimap;
-            @Minimap.canceled -= instance.OnMinimap;
+            @Click.started -= instance.OnClick;
+            @Click.performed -= instance.OnClick;
+            @Click.canceled -= instance.OnClick;
         }
 
         /// <summary>
@@ -906,6 +938,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMousePosition(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleInventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleInventory(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleMinimap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleMinimap(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
@@ -915,18 +961,11 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     public interface IUIActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Inventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Click" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnInventory(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Minimap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMinimap(InputAction.CallbackContext context);
+        void OnClick(InputAction.CallbackContext context);
     }
 }

@@ -22,7 +22,7 @@ public class ItemPickup : MonoBehaviour
             if (pickedUpSuccessfully)
             {
                 Debug.Log($"[Inventory] Đã nhặt: {amount}x {itemData.itemName}");
-
+                
                 Destroy(gameObject); // Xóa vật phẩm khỏi map
             }
         }

@@ -1,43 +1,153 @@
+using System;
 using UnityEngine;
+
+public enum CommandType
+{
+    None,
+    Move,
+    Attack,
+    Interact
+}
 
 public class PlayerController : MonoBehaviour {
     [Header("References")]
-    [SerializeField] private InputHandler inputHandler;
-    [SerializeField] private PlayerMovement movement;
-    [SerializeField] private PlayerCombat combat;
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private ParticleSystem clickEffect;
     [SerializeField] private PlayerInvokerCommand invoker;
 
     [Header("Layer")]
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
+    
+    [SerializeField] private CommandType currentCommand;
+    private ICommand<Vector3> _moveCommand;
+    private ICommand<Transform> _attackCommand;
+    
+    private PlayerMovement _movement;
+    public PlayerMovement Movement
+    {
+        get
+        {
+            if (_movement == null)
+            {
+                _movement = GetComponent<PlayerMovement>();
+            }
+            return _movement;
+        }
+        set => _movement = value;
+    }
+    
+    private PlayerCombat _combat;
+    public PlayerCombat Combat
+    {
+        get
+        {
+            if (_combat == null)
+            {
+                _combat = GetComponent<PlayerCombat>();
+            }
+            return _combat;
+        }
+        set => _combat = value;
+    }
+    
+    private PlayerStateMachine _stateMachine;
+    public PlayerStateMachine StateMachine
+    {
+        get
+        {
+            if (_stateMachine == null)
+            {
+                _stateMachine = GetComponent<PlayerStateMachine>();
+            }
+            return _stateMachine;
+        }
+        set => _stateMachine = value;
+    }
+    
+    private InputHandler _inputHandler;
+    public InputHandler InputHandler
+    {
+        get
+        {
+            if (_inputHandler == null)
+            {
+                _inputHandler = GetComponent<InputHandler>();
+            }
+            return _inputHandler;
+        }
+        set => _inputHandler = value;
+    }
+    
+    private PlayerModifier _playerModifier;
+    public PlayerModifier PlayerModifier
+    {
+        get
+        {
+            if (_playerModifier == null)
+            {
+                _playerModifier = new PlayerModifier();
+            }
+            return _playerModifier;
+        }
+        set => _playerModifier = value;
+    }
+    
+    private PlayerAnimationHandler _animationHandler;
+    public PlayerAnimationHandler AnimationHandler
+    {
+        get
+        {
+            if (_animationHandler == null)
+            {
+                _animationHandler = GetComponentInChildren<PlayerAnimationHandler>();
+            }
+            return _animationHandler;
+        }
+        set => _animationHandler = value;
+    }
 
     private void Awake() {
         if(mainCamera == null) {
             mainCamera = Camera.main;
         }
+        
+        _moveCommand = new MoveCommand(this);
+        _attackCommand = new AttackCommand(this);
+    }
+
+    private void Update()
+    {
+        AnimationHandler.UpdateAnimation();
     }
 
     private void OnEnable() {
-        inputHandler.OnLeftClick += HandleLeftClick;
-        inputHandler.OnRightClick += HandleRightClick;
-        movement.OnDestinationReached += OnDestinationReached;
+        InputHandler.OnLeftClick += HandleLeftClick;
+        InputHandler.OnRightClick += HandleRightClick;
+        Movement.OnDestinationReached += OnDestinationReached;
+        Movement.OnMoveStart += OnMoveStart;
+        Movement.OnMoveStop += OnMoveStop;
     }
 
     private void OnDisable() {
-        inputHandler.OnLeftClick -= HandleLeftClick;
-        inputHandler.OnRightClick -= HandleRightClick;
-        movement.OnDestinationReached -= OnDestinationReached;
+        InputHandler.OnLeftClick -= HandleLeftClick;
+        InputHandler.OnRightClick -= HandleRightClick;
+        Movement.OnDestinationReached -= OnDestinationReached;
+        Movement.OnMoveStart -= OnMoveStart;
+        Movement.OnMoveStop -= OnMoveStop;
     }
 
     private void HandleLeftClick() { 
-        if(inputHandler == null) {
+        if(InputHandler == null) {
             Debug.LogWarning("InputHandler is not assigned.");
             return;
         }
-
-        Ray ray = mainCamera.ScreenPointToRay(inputHandler.MousePosition);
+        
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition))
+            return;
+        
+        Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 
         if(!Physics.Raycast(ray, out RaycastHit hit)) {
             return;
@@ -47,6 +157,7 @@ public class PlayerController : MonoBehaviour {
         if(((1 << hitLayer) & groundLayer) != 0) {
             // Move to the clicked position on the ground
             ExecuteMovement(hit.point);
+            Instantiate(clickEffect, hit.point, Quaternion.identity);
             Debug.Log(hit.collider.gameObject.name);
             return;
         }
@@ -69,36 +180,73 @@ public class PlayerController : MonoBehaviour {
     private void HandleRightClick() {
         // Handle right-click actions if needed
         // Ranged attack, special ability, etc.
-        Ray ray = mainCamera.ScreenPointToRay(inputHandler.MousePosition);
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition))
+            return;
+        
+        Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
             return;
         }
-        
-        combat.Shoot(hit.point);
+
+        Movement.Stop();
+        Combat.CmdShoot(hit.point);
     }
 
     private void ExecuteMovement(Vector3 destination) {
-        ICommand moveCommand = new MoveCommand(movement, destination);
         if(invoker != null) { 
-            invoker.ExecuteCommand(moveCommand);
+            invoker.ExecuteCommand(_moveCommand, destination);
+            currentCommand = CommandType.Move;
         }
+        StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
 
-    private void ExecuteAttack(Transform target) { 
-        ICommand attackCommand = new AttackCommand(combat, movement, target);
-        if (invoker != null)
-        {
-            invoker.ExecuteCommand(attackCommand);
-        }
+    private void ExecuteAttack(Transform target) {
+        Movement?.SnapFaceTowards(target.position);
+
+        if (invoker == null) 
+            return;
+        
+        invoker.ExecuteCommand(_attackCommand, target);
+        currentCommand = CommandType.Attack;
     }
 
     private void ExecuteInteraction() { 
     
     }
 
+    public void CmdCombatLocked(bool value)
+    {
+        PlayerModifier.AttackModifier(!value);
+        PlayerModifier.MoveModifier(!value);
+    }
+
+    private void OnMoveStart(Vector3 destination)
+    {
+        // VFX like spawn dust in footstep, sfx, shake camera, etc...
+    }
+
+    private void OnMoveStop()
+    { 
+        // VFX like spawn dust in footstep, sfx, shake camera, etc...
+    }
+
     private void OnDestinationReached()
     {
-        combat.Attack();
+        switch (currentCommand)
+        {
+            case CommandType.Move: 
+                // Move...
+                break;
+            case CommandType.Attack:
+                Combat.CmdAttack();
+                break;
+            case CommandType.Interact:
+                // Interact...
+                break;
+        }
+        
+        currentCommand = CommandType.None;
+        Debug.Log("Destination Reached");
     }
 }

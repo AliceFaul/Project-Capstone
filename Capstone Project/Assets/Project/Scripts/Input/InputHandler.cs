@@ -11,6 +11,7 @@ public class InputHandler : MonoBehaviour {
     public event Action OnLeftClick;
     public event Action OnRightClick;
     // TODO: Add more events for other input actions as needed
+    public event Action OnToggleInventory;
 
     private void Awake() {
         _actions = new InputSystem_Actions();
@@ -21,6 +22,7 @@ public class InputHandler : MonoBehaviour {
 
         _actions.Player.LeftClick.performed += LeftClickPerformed;
         _actions.Player.RightClick.performed += RightClickPerformed;
+        _actions.Player.ToggleInventory.performed += ToggleInventoryPerformed;
     }
 
     private void OnDisable() {
@@ -28,6 +30,7 @@ public class InputHandler : MonoBehaviour {
 
         _actions.Player.LeftClick.performed -= LeftClickPerformed;
         _actions.Player.RightClick.performed -= RightClickPerformed;
+        _actions.Player.ToggleInventory.performed -= ToggleInventoryPerformed;
     }
 
     private void LeftClickPerformed(InputAction.CallbackContext context) { 
@@ -37,5 +40,10 @@ public class InputHandler : MonoBehaviour {
     private void RightClickPerformed(InputAction.CallbackContext context)
     {
         OnRightClick?.Invoke();
+    }
+
+    private void ToggleInventoryPerformed(InputAction.CallbackContext context)
+    {
+        OnToggleInventory?.Invoke();
     }
 }

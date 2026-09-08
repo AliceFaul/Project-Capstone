@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
+  m_Name: Crystal Sword
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  id: Mhieu_Sword_Id_2
+  itemName: Crystal Sword
+  itemType: 1
+  rarity: 3
+  icon: {fileID: 21300000, guid: 193bf5ce06d0c964da2635b288c3421f, type: 3}
+  isStackable: 0
+  maxStackSize: 64
+  equipmentPrefabKey: Crystal_Sword
+  equipmentType: 1
+  weaponType: 0
+  level: 100
+  attributes:
+    damage: 970
+    attackSpeed: 2
+    attackRange: 1.5
+    critChance: 25
+    critDamage: 136
+  damageModifier: 0
+  armorModifier: 0
+  speedModifier: 3
+  attackSpeedModifier: 0.6
+  attackRangeModifier: 0
+  critChanceModifier: 0
+  critDamageModifier: 0
+  equipmentPrefabRef:
+    m_AssetGUID: 6590e99a522921647ac15769767472cd
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0

@@ -1,17 +1,23 @@
 using UnityEngine;
 
-public class MoveCommand : ICommand {
-    private PlayerMovement _movement;
-    private Vector3 _destination;
+public class MoveCommand : ICommand<Vector3>  {
+    private readonly PlayerMovement _movement;
+    private readonly PlayerModifier _modifier;
 
-    public MoveCommand(PlayerMovement movement, Vector3 destination) {
-        _movement = movement;
-        _destination = destination;
+    public MoveCommand(PlayerController controller) {
+        _movement = controller.Movement;
+        _modifier = controller.PlayerModifier;
     }
 
-    public void Execute() {
-        if(_movement != null) { 
-            _movement.MoveTo(_destination);
+    public void Execute(Vector3 destination) {
+        if(_movement != null) {
+            if (!_modifier.CanMove)
+            {
+                Debug.Log($"Player can't move because movement is disabled");
+                return;
+            }
+            
+            _movement.MoveTo(destination);
         } else { 
             Debug.LogWarning("PlayerMovement is not assigned.");
         }

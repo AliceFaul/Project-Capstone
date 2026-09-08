@@ -1,0 +1,66 @@
+:root {
+    --color-bg: rgb(21, 12, 10);
+    --color-panel: rgba(37, 22, 18, 0.94);
+    --color-panel-alt: rgb(46, 28, 22);
+    --color-panel-highlight: rgb(61, 40, 32);
+    --color-border: rgb(107, 74, 47);
+    --color-border-light: rgb(168, 120, 63);
+    --color-border-dark: rgb(58, 40, 26);
+    --color-text: rgb(240, 230, 210);
+    --color-text-dim: rgb(184, 169, 140);
+    --color-text-title: rgb(255, 233, 179);
+    --color-accent: rgb(224, 165, 60);
+    --color-accent-hover: rgb(244, 199, 102);
+    --color-selected: rgb(87, 200, 77);
+    --color-rarity-common: rgb(207, 199, 184);
+    --color-rarity-uncommon: rgb(87, 200, 77);
+    --color-rarity-rare: rgb(27 81 229);
+    --color-rarity-legendary: rgb(224, 138, 44);
+    --font-size-small: 12px;
+    --font-size-base: 15px;
+    --font-size-large: 22px;
+    --font-size-title: 30px;
+    --spacing-xs: 4px;
+    --spacing-s: 8px;
+    --spacing-m: 16px;
+    --spacing-l: 24px;
+    --radius-s: 3px;
+    --radius-m: 6px;
+}
+
+.panel {
+    background-color: var(--color-panel);
+    border-width: 3px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-m);
+    align-items: center;
+    justify-content: space-between;
+    align-self: flex-start;
+    align-content: center;
+    opacity: 1;
+}
+
+.button-base {
+    background-color: var(--color-panel-alt);
+    border-width: 3px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-s);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    -unity-font-style: bold;
+    padding: var(--spacing-s) var(--spacing-m);
+    transition-duration: 0.1s;
+}
+
+.button-base:hover {
+    background-color: var(--color-panel-highlight);
+    border-color: var(--color-accent);
+}
+
+.text-title {
+    color: var(--color-text-title);
+    font-size: var(--font-size-large);
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    background-color: rgb(255, 255, 255);
+}
