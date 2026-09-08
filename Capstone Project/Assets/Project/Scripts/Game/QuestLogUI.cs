@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public class QuestLogUI : MonoBehaviour
 {
@@ -10,14 +11,14 @@ public class QuestLogUI : MonoBehaviour
     [SerializeField] private GameObject questLogPanel;
 
     [Header("Danh sách & Prefab")]
-    [SerializeField] private Transform questListContent; // Khung chứa danh sách các nút Quest
-    [SerializeField] private GameObject questItemPrefab; // Prefab của QuestItemUI
+    [SerializeField] private Transform questListContent;
+    [SerializeField] private GameObject questItemPrefab;
 
     [Header("Khung Chi Tiết")]
     [SerializeField] private TextMeshProUGUI detailTitleText;
     [SerializeField] private TextMeshProUGUI detailDescText;
 
-    private QuestType currentFilter = QuestType.LobbyDaily; // Đổi mặc định sang LobbyDaily
+    private QuestType currentFilter = QuestType.LobbyDaily;
 
     private void Awake()
     {
@@ -26,14 +27,12 @@ public class QuestLogUI : MonoBehaviour
 
     private void Start()
     {
-        // Ẩn panel lúc bắt đầu game
         if (questLogPanel != null)
             questLogPanel.SetActive(false);
     }
 
     private void Update()
     {
-        // Kiểm tra nhấn phím J
         if (Input.GetKeyDown(KeyCode.J))
         {
             ToggleQuestLog();
@@ -49,11 +48,10 @@ public class QuestLogUI : MonoBehaviour
 
         if (isActive)
         {
-            FilterByLobbyDaily(); // Mặc định hiện Quest LobbyDaily khi mở
+            FilterByLobbyDaily();
         }
     }
 
-    // Các hàm gán vào nút Tab phân loại trên UI
     public void FilterByLobbyDaily() => FilterQuests(QuestType.LobbyDaily);
     public void FilterByInRun() => FilterQuests(QuestType.InRun);
 
@@ -65,10 +63,8 @@ public class QuestLogUI : MonoBehaviour
 
     public void RefreshQuestList()
     {
-        // 1. Kiểm tra an toàn cho questListContent để tránh crash
         if (questListContent == null) return;
 
-        // Xóa danh sách nút cũ
         foreach (Transform child in questListContent)
         {
             Destroy(child.gameObject);
@@ -76,41 +72,46 @@ public class QuestLogUI : MonoBehaviour
 
         ClearDetails();
 
-        // 2. Kiểm tra an toàn cho PlayerQuestManager và acceptedQuests
-        if (PlayerQuestManager.Instance == null || PlayerQuestManager.Instance.acceptedQuests == null)
-        {
-            return;
-        }
+        if (QuestManager.Instance == null) return;
 
-        // Lấy toàn bộ quest từ PlayerQuestManager và lọc theo tab
-        List<QuestData> allQuests = PlayerQuestManager.Instance.acceptedQuests;
-        List<QuestData> filteredList = allQuests.FindAll(q => q != null && q.questType == currentFilter);
+        // Lấy danh sách nhiệm vụ từ QuestManager dựa trên filter
+        List<ActiveQuest> targetList = (currentFilter == QuestType.LobbyDaily)
+            ? QuestManager.Instance.activeLobbyQuests
+            : QuestManager.Instance.activeInRunQuests;
+
+        if (targetList == null || targetList.Count == 0) return;
 
         // Tạo ra các nút nhiệm vụ trong danh sách
-        foreach (QuestData quest in filteredList)
+        foreach (ActiveQuest quest in targetList)
         {
             if (questItemPrefab == null) break;
 
             GameObject itemObj = Instantiate(questItemPrefab, questListContent);
             QuestItemUI itemScript = itemObj.GetComponent<QuestItemUI>();
+
             if (itemScript != null)
             {
-                itemScript.Setup(quest, this);
+                // Truyền ActiveQuest và gửi hàm ShowQuestDetails làm callback khi click
+                itemScript.Setup(quest, ShowQuestDetails);
             }
         }
 
-        // Hiển thị chi tiết nv đầu tiên nếu tìm thấy
-        if (filteredList.Count > 0)
+        // Hiển thị chi tiết nv đầu tiên
+        if (targetList.Count > 0)
         {
-            ShowQuestDetails(filteredList[0]);
+            ShowQuestDetails(targetList[0]);
         }
     }
 
-    public void ShowQuestDetails(QuestData quest)
+    public void ShowQuestDetails(ActiveQuest quest)
     {
-        if (quest == null) return;
-        if (detailTitleText != null) detailTitleText.text = quest.questTitle;
-        if (detailDescText != null) detailDescText.text = quest.questDescription;
+        if (quest == null || quest.data == null) return;
+
+        if (detailTitleText != null)
+            detailTitleText.text = quest.data.questTitle;
+
+        if (detailDescText != null)
+            detailDescText.text = $"{quest.data.questDescription}\n\nTiến độ: {quest.currentAmount}/{quest.data.requiredAmount}";
     }
 
     private void ClearDetails()

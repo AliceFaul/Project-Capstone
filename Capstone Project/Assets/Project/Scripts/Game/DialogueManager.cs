@@ -13,9 +13,9 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI dialogueText;
 
     [Header("Blox Fruits Buttons")]
-    [SerializeField] private GameObject nextButton;    // Kéo NextButton vào 
-    [SerializeField] private GameObject acceptButton;  // Kéo AcceptButton vào 
-    [SerializeField] private GameObject declineButton; // Kéo DeclineButton vào 
+    [SerializeField] private GameObject nextButton;    
+    [SerializeField] private GameObject acceptButton;  
+    [SerializeField] private GameObject declineButton;  
 
     [Header("Cấu hình Chạy chữ")]
     [SerializeField] private float typingSpeed = 0.03f;
@@ -57,7 +57,7 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // Đã thêm tham số NPC npc = null để lưu lại tham chiếu NPC đang tương tác
+    //tham số NPC npc = null, lưu lại tham chiếu NPC đang tương tác
     public void StartDialogue(string npcName, string[] dialogueSentences, QuestData questData = null, NPC npc = null)
     {
         IsDialogueActive = true;
@@ -143,11 +143,11 @@ public class DialogueManager : MonoBehaviour
         Debug.Log("Đã CHẤP NHẬN nhiệm vụ!");
 
         // Truyền quest sang PlayerQuestManager (nếu có)
-        if (currentQuest != null && PlayerQuestManager.Instance != null)
+        if (currentQuest != null && QuestManager.Instance != null)
         {
-            PlayerQuestManager.Instance.AcceptQuest(currentQuest);
+            QuestManager.Instance.AcceptQuest(currentQuest); //AddQuest(currentQuest)
         }
-       
+
         // Gọi NPC đổi trạng thái sang đứng yên
         if (currentNPC != null)
         {

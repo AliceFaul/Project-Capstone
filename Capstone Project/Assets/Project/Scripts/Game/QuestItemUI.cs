@@ -1,22 +1,27 @@
-using UnityEngine;
-using TMPro;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using System;
 
 public class QuestItemUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI titleText;
-    [SerializeField] private Button button;
+    [SerializeField] private Button itemButton;
 
-    private QuestData questData;
-    private QuestLogUI questLogUI;
-
-    public void Setup(QuestData quest, QuestLogUI logUI)
+    // Sửa tham số QuestData thành ActiveQuest
+    public void Setup(ActiveQuest activeQuest, Action<ActiveQuest> onClicked)
     {
-        questData = quest;
-        questLogUI = logUI;
-        titleText.text = quest.questTitle;
+        if (activeQuest == null || activeQuest.data == null) return;
 
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => questLogUI.ShowQuestDetails(questData));
+        if (titleText != null)
+        {
+            titleText.text = activeQuest.data.questTitle;
+        }
+
+        if (itemButton != null)
+        {
+            itemButton.onClick.RemoveAllListeners();
+            itemButton.onClick.AddListener(() => onClicked?.Invoke(activeQuest));
+        }
     }
 }

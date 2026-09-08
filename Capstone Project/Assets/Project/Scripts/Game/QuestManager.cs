@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement; // Bổ sung thư viện quản lý Scene
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class ActiveQuest
@@ -33,7 +33,7 @@ public class QuestManager : MonoBehaviour
     private readonly TimeSpan resetInterval = TimeSpan.FromHours(4); // Reset sau 4 tiếng
 
     [Header("Cấu hình Scene")]
-    [SerializeField] private string lobbySceneName = "LobbyScene"; // Đổi tên thành tên Scene Lobby trong project
+    [SerializeField] private string lobbySceneName = "LobbyScene"; // Tên Scene Lobby trong project
 
     public static event Action OnQuestUpdated;
 
@@ -56,16 +56,15 @@ public class QuestManager : MonoBehaviour
     private void OnEnable()
     {
         PlayerInventory.OnInventoryChanged += CheckCollectItemQuests;
-        SceneManager.sceneLoaded += OnSceneLoaded; // Lắng nghe event chuyển Scene
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
         PlayerInventory.OnInventoryChanged -= CheckCollectItemQuests;
-        SceneManager.sceneLoaded -= OnSceneLoaded; // Hủy lắng nghe event chuyển Scene
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // Tự động kiểm tra mỗi khi chuyển sang Scene mới
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == lobbySceneName)
@@ -75,9 +74,6 @@ public class QuestManager : MonoBehaviour
     }
 
     #region --- LOGIC IN-RUN QUEST ---
-    /// <summary>
-    /// Xóa toàn bộ nhiệm vụ ngắn hạn khi kết thúc Run / quay về Lobby
-    /// </summary>
     public void ClearInRunQuests()
     {
         if (activeInRunQuests.Count > 0)
@@ -93,6 +89,13 @@ public class QuestManager : MonoBehaviour
     public bool AddQuest(QuestData quest)
     {
         if (quest == null) return false;
+
+        // Kiểm tra tránh trùng lặp nhiệm vụ đã nhận
+        if (IsQuestActive(quest))
+        {
+            Debug.LogWarning($"[QuestManager] Nhiệm vụ {quest.questTitle} đã có trong danh sách!");
+            return false;
+        }
 
         ActiveQuest newQuest = new ActiveQuest(quest);
 
@@ -114,6 +117,19 @@ public class QuestManager : MonoBehaviour
 
         OnQuestUpdated?.Invoke();
         return true;
+    }
+
+    /// <summary>
+    /// Hàm tương thích với DialogueManager (gọi từ OnAcceptClicked)
+    /// </summary>
+    public void AcceptQuest(QuestData quest)
+    {
+        AddQuest(quest);
+    }
+
+    private bool IsQuestActive(QuestData quest)
+    {
+        return activeLobbyQuests.Exists(q => q.data == quest) || activeInRunQuests.Exists(q => q.data == quest);
     }
     #endregion
 
@@ -183,7 +199,7 @@ public class QuestManager : MonoBehaviour
     }
     #endregion
 
-    #region LOGIC RESET DAILY QUEST (SYSTEM.DATETIME & PLAYERPREFS)
+    #region LOGIC RESET DAILY QUEST
     public void CheckAndResetDailyQuests()
     {
         string lastResetString = PlayerPrefs.GetString(LAST_RESET_TIME_KEY, string.Empty);
@@ -218,13 +234,12 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-    private void GenerateNewDailyQuests() // hàm tạo danh sách nv hằng ngày mới
+    private void GenerateNewDailyQuests()
     {
         activeLobbyQuests.Clear();
 
         if (dailyQuestPool == null || dailyQuestPool.Count == 0) return;
 
-        // Xáo trộn danh sách (Fisher-Yates Shuffle)
         List<QuestData> shuffledPool = new List<QuestData>(dailyQuestPool);
         for (int i = 0; i < shuffledPool.Count; i++)
         {
@@ -243,15 +258,12 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"[QuestManager] Đã làm mới {countToPick} Daily Quest!");
     }
 
-    private void SaveResetTime(DateTime time) // lấy chính xác mốc 4 giờ, cho dù có tắt game hoặc đổi múi giờ   
+    private void SaveResetTime(DateTime time)
     {
-        PlayerPrefs.SetString(LAST_RESET_TIME_KEY, time.ToString("o")); // Chuỗi ISO 8601 chuẩn
+        PlayerPrefs.SetString(LAST_RESET_TIME_KEY, time.ToString("o"));
         PlayerPrefs.Save();
     }
 
-    /// <summary>
-    /// Trả về chuỗi thời gian còn lại (HH:MM:SS) để gắn lên UI đồng hồ
-    /// </summary>
     public string GetRemainingTimeFormat()
     {
         string lastResetString = PlayerPrefs.GetString(LAST_RESET_TIME_KEY, string.Empty);
