@@ -27,7 +27,7 @@ public class StartupProcessor : MonoBehaviour
     private CancellationTokenSource _cts;
 
     private InputSystem_Actions _input;
-    private bool _offlineMode = false;
+    private readonly bool _offlineMode = false;
 
     private TaskCompletionSource<bool> _clickTcs;
 
@@ -84,6 +84,7 @@ public class StartupProcessor : MonoBehaviour
                 
                 if (_loading != null)
                     await _loading.Hide();
+                
                 OpenMainMenu();
             }
             else
