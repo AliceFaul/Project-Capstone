@@ -33,6 +33,8 @@ public class EmailLoginHandler : MonoBehaviour
                 Debug.LogError($"[EmailLoginHandler] Email field or password field is empty]");
                 return;
             }
+            
+            AuthUIHandler.Instance.SetLoadingState(true);
 
             try
             {
@@ -55,6 +57,8 @@ public class EmailLoginHandler : MonoBehaviour
             {
                 Debug.LogError($"[EmailLoginHandler] Login exception occured: {e.Message}");
             }
+            
+            AuthUIHandler.Instance.SetLoadingState(false);
         }
         catch (Exception e)
         {

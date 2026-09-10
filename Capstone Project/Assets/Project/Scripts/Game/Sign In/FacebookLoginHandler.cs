@@ -28,6 +28,7 @@ public class FacebookLoginHandler : MonoBehaviour
     {
         try
         {
+            AuthUIHandler.Instance.SetLoadingState(true);
             if (FB.IsLoggedIn)
             {
                 var aToken = AccessToken.CurrentAccessToken.TokenString;
@@ -35,14 +36,13 @@ public class FacebookLoginHandler : MonoBehaviour
 
                 try
                 {
-                    await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>()
-                        .FacebookLogin(aToken).ContinueWith(playFabTask =>
-                        {
-                            if (playFabTask.IsFaulted || playFabTask.IsCanceled)
-                                Debug.LogError($"[FacebookLoginHandler] Login failed: {playFabTask.Exception}");
-                            else
-                                Debug.Log($"[FacebookLoginHandler] Successfully logged in.");
-                        });
+                    await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().FacebookLogin(aToken).ContinueWith(playFabTask =>
+                    {
+                        if (playFabTask.IsFaulted || playFabTask.IsCanceled)
+                            Debug.LogError($"[FacebookLoginHandler] Login failed: {playFabTask.Exception}");
+                        else
+                            Debug.Log($"[FacebookLoginHandler] Successfully logged in.");
+                    });
                 }
                 catch (Exception e)
                 {
@@ -53,6 +53,7 @@ public class FacebookLoginHandler : MonoBehaviour
             {
                 Debug.Log($"[FacebookLoginHandler] User cancelled login or error: {result.Error}.");
             }
+            AuthUIHandler.Instance.SetLoadingState(false);
         }
         catch (Exception e)
         {
@@ -62,6 +63,7 @@ public class FacebookLoginHandler : MonoBehaviour
 
     private void FacebookLogin()
     {
+        AuthUIHandler.Instance.SetLoadingState(true);
         var perm = new List<string>() { "public_profile", "email" };
         FB.LogInWithReadPermissions(perm, AuthCallback);
     }

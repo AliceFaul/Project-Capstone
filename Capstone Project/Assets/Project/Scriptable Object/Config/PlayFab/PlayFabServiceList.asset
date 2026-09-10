@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayFabServiceList
   services:
   - {fileID: 11400000, guid: 87e8367b4b7c4724bb2838d03c985c2e, type: 2}
+  - {fileID: 11400000, guid: df071aee25e76fc4989b932ab4acf141, type: 2}

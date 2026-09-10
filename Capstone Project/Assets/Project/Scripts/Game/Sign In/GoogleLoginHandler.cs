@@ -18,11 +18,13 @@ public class GoogleLoginHandler : MonoBehaviour
     {
         try
         {
+            AuthUIHandler.Instance.SetLoadingState(true);
             string authCode = await GetGoogleAuthCode();
         
             if (string.IsNullOrEmpty(authCode))
             {
                 Debug.LogError($"[GoogleLoginHandler] Can't get auth code from Google SDK.");
+                AuthUIHandler.Instance.SetLoadingState(false);
                 return;
             }
         
@@ -33,10 +35,12 @@ public class GoogleLoginHandler : MonoBehaviour
                 else
                     Debug.Log($"[GoogleLoginHandler] Login succeeded: {playFabTask.Result}");
             });
+            AuthUIHandler.Instance.SetLoadingState(false);
         }
         catch (Exception e)
         {
             Debug.LogError($"[GoogleLoginHandler] User cancelled login or error: {e.Message}");
+            AuthUIHandler.Instance.SetLoadingState(false);
         }
     }
 

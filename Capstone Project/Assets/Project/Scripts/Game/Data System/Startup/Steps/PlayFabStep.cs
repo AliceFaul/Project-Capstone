@@ -55,7 +55,7 @@ public class PlayFabStep : StartupStep
         await playFabManager.Initialize(serviceRegistry, ct);
         
         var playFabAuthentication = playFabManager.GetService<PlayFabAuthentication>();
-        bool isLoginSuccess = await playFabAuthentication.DefaultIdLogin();
+        bool isLoginSuccess = await playFabAuthentication.DefaultIdLogin(ct);
 
         if (!isLoginSuccess)
             return StartupStepResult.Failure("PLAY_FAB_LOGIN_FAILED", $"Couldn't sign in");

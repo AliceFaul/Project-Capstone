@@ -46,26 +46,27 @@ public class EmailRegisterHandler : MonoBehaviour
                 return;
             }
 
+            AuthUIHandler.Instance.SetLoadingState(true);
+            
             try
             {
-                await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>()
-                    .EmailRegister(email, password, username).ContinueWith(task =>
+                await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailRegister(email, password, username).ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
                     {
-                        if (task.IsFaulted)
-                        {
-                            Debug.LogError(
-                                $"[EmailRegisterHandler] An error occured while registering user {username}! Error: " +
-                                task.Exception?.GetBaseException().Message);
-                        }
-                        else
-                        {
-                            Debug.Log($"[EmailRegisterHandler] Registered user {username} successfully!");
-                            PlayerPrefs.SetString("SAVED_USERNAME", username);
-                            PlayerPrefs.SetString("SAVED_EMAIL", email);
-                            PlayerPrefs.SetString("SAVED_PASSWORD", password);
-                            PlayerPrefs.Save();
-                        }
-                    });
+                        Debug.LogError($"[EmailRegisterHandler] An error occured while registering user {username}! Error: " + task.Exception?.GetBaseException().Message);
+                    }
+                    else
+                    {
+                        Debug.Log($"[EmailRegisterHandler] Registered user {username} successfully!");
+                        PlayerPrefs.SetString("SAVED_USERNAME", username);
+                        PlayerPrefs.SetString("SAVED_EMAIL", email);
+                        PlayerPrefs.SetString("SAVED_PASSWORD", password);
+                        PlayerPrefs.Save();
+                    }
+                });
+                
+                AuthUIHandler.Instance.SetLoadingState(false);
             }
             catch (Exception e)
             {

@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
+public class GameData
+{
+    public int Level;
+    public float CurrentExp;
+    public float ExpToNextLevel;
+    public List<CurrencyAmount> CurrencyBalances;
+}
+
 // Replaced the data fields in Player Runtime;
 // data is now loaded during the Config step to provide an instance available for use throughout the application.
 [CreateAssetMenu(fileName = "PlayerDataConfig", menuName = "Config/Progress")]
@@ -86,5 +94,25 @@ public class PlayerDataConfig : ScriptableObject, IConfig
         level++;
         expToNextLevel = Mathf.Round(expToNextLevel * 1.25f);
         OnLevelUp?.Invoke(level);
+    }
+
+    public GameData ToGameData()
+    {
+        return new GameData
+        {
+            Level = this.level,
+            CurrentExp = this.currentExp,
+            ExpToNextLevel = this.expToNextLevel,
+            CurrencyBalances = this.currencyBalances,
+        };
+    }
+
+    public void ApplyGameData(GameData gameData)
+    {
+        if(gameData == null) return;
+        this.level = gameData.Level;
+        this.currentExp = gameData.CurrentExp;
+        this.expToNextLevel = gameData.ExpToNextLevel;
+        this.currencyBalances = gameData.CurrencyBalances;
     }
 }
