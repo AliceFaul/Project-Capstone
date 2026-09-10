@@ -2,12 +2,10 @@
 using UnityEngine;
 using Facebook.Unity;
 using UnityEngine.UI;
-using Firebase.Extensions;
 
 public class FacebookLoginHandler : MonoBehaviour
 {
     [SerializeField] private Button loginButton;
-    private Firebase.Auth.FirebaseAuth _auth;
 
     private void Awake()
     {
@@ -24,11 +22,6 @@ public class FacebookLoginHandler : MonoBehaviour
             loginButton = GetComponent<Button>();
         
         loginButton?.onClick.AddListener(FacebookLogin);
-    }
-
-    private void Start()
-    {
-        _auth = Firebase.Auth.FirebaseAuth.DefaultInstance;
     }
 
     private void InitCallback()
@@ -52,43 +45,21 @@ public class FacebookLoginHandler : MonoBehaviour
     {
         if (FB.IsLoggedIn)
         {
-            var aToken = AccessToken.CurrentAccessToken;
-            FacebookAuth(aToken.TokenString);
-        }
-        else
-        {
-            Debug.Log($"[FacebookLoginHandler] User cancelled login.");
-        }
-    }
-
-    private void FacebookAuth(string aToken)
-    {
-        var credential = Firebase.Auth.FacebookAuthProvider.GetCredential(aToken);
-        _auth.SignInWithCredentialAsync(credential).ContinueWithOnMainThread(task =>
-        {
-            if (task.IsCanceled)
-            {
-                Debug.LogError($"[FacebookLoginHandler] User cancelled login.");
-                return;
-            }
-
-            if (task.IsFaulted)
-            {
-                Debug.LogError($"[FacebookLoginHandler] Error: {task.Exception}");
-                return;
-            }
-            
-            var user = task.Result;
-            Debug.Log($"[FacebookLoginHandler] Successfully logged in as {user.DisplayName} ({user.UserId})");
+            var aToken = AccessToken.CurrentAccessToken.TokenString;
+            Debug.Log($"[FacebookLoginHandler] Logged in as {aToken}");
             
             StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().FacebookLogin(aToken).ContinueWith(playFabTask =>
             {
-                if(playFabTask.IsFaulted || playFabTask.IsCanceled)
+                if (playFabTask.IsFaulted || playFabTask.IsCanceled)
                     Debug.LogError($"[FacebookLoginHandler] Login failed: {playFabTask.Exception}");
                 else
                     Debug.Log($"[FacebookLoginHandler] Successfully logged in.");
             });
-        });
+        }
+        else
+        {
+            Debug.Log($"[FacebookLoginHandler] User cancelled login or error: {result.Error}.");
+        }
     }
 
     private void FacebookLogin()

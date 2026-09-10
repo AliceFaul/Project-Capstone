@@ -25,8 +25,8 @@ public class EmailLoginHandler : MonoBehaviour
             return;
         }
 
-        string email = emailInputField.text;
-        string password = passwordInputField.text;
+        string email = emailInputField.text.Trim();
+        string password = passwordInputField.text.Trim();
 
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
@@ -36,10 +36,17 @@ public class EmailLoginHandler : MonoBehaviour
         
         StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailLogin(email, password).ContinueWith(task =>
         {
-            if(task.IsFaulted)
+            if (task.IsFaulted)
+            {
                 Debug.LogError($"[EmailLoginHandler] Login failed: {task.Exception}]");
+            }
             else
+            {
                 Debug.Log($"[EmailLoginHandler] Login succeeded: {task.Result}");
+                PlayerPrefs.SetString("SAVED_EMAIL", email);
+                PlayerPrefs.SetString("SAVED_PASSWORD", password);
+                PlayerPrefs.Save();
+            }
         });
     }
 }

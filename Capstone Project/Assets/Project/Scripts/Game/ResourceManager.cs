@@ -58,7 +58,7 @@ public class ResourceManager : MonoBehaviour, IManager
                     .Select(ar => ar.LoadAssetAsync<Object>())
                     .ToList();
 
-                await WaitWithCancellation(Task.WhenAll(handles.Select(h => h.Task)), ct);
+                await AsyncUtils.WaitWithCancellation(Task.WhenAll(handles.Select(h => h.Task)), ct);
 
                 for (int i = 0; i < handles.Count; i++)
                 {
@@ -83,7 +83,7 @@ public class ResourceManager : MonoBehaviour, IManager
                 {
                     ct.ThrowIfCancellationRequested();
 
-                    var locations = await WaitWithCancellation(Addressables.LoadResourceLocationsAsync(label).Task, ct);
+                    var locations = await AsyncUtils.WaitWithCancellation(Addressables.LoadResourceLocationsAsync(label).Task, ct);
                     
                     var locationsToLoad = locations
                         .Where(loc => !_loadedAssets.ContainsKey(loc.PrimaryKey)).ToList();
@@ -91,7 +91,7 @@ public class ResourceManager : MonoBehaviour, IManager
                     var handles = locationsToLoad
                         .Select(Addressables.LoadAssetAsync<Object>).ToList();
 
-                    await WaitWithCancellation(Task.WhenAll(handles.Select(h => h.Task)), ct);
+                    await AsyncUtils.WaitWithCancellation(Task.WhenAll(handles.Select(h => h.Task)), ct);
 
                     for (int i = 0; i < handles.Count; i++)
                     {
@@ -122,36 +122,6 @@ public class ResourceManager : MonoBehaviour, IManager
         
         _preloadedGroups.Add(groupKey);
         Debug.Log($"[ResourceManager] {groupKey} has been preloaded");
-    }
-
-    private static async Task WaitWithCancellation(Task task, CancellationToken ct)
-    {
-        if (!ct.CanBeCanceled)
-        {
-            await task;
-            return;
-        }
-
-        var cancelTask = Task.Delay(Timeout.Infinite, ct);
-        var completed = await Task.WhenAny(task, cancelTask);
-
-        if (completed == cancelTask)
-            ct.ThrowIfCancellationRequested();
-
-        await task;
-    }
-    
-    private static async Task<T> WaitWithCancellation<T>(Task<T> task, CancellationToken ct)
-    {
-        if (!ct.CanBeCanceled)
-            return await task;
-        
-        var cancelTask = Task.Delay(Timeout.Infinite, ct);
-        var completed = await Task.WhenAny(task, cancelTask);
-        if(completed == cancelTask)
-            ct.ThrowIfCancellationRequested();
-
-        return await task;
     }
 
     public T GetAsset<T>(string assetKey) where T : Object

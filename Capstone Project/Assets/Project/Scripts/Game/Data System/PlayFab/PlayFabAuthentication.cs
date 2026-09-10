@@ -14,14 +14,14 @@ public class PlayFabAuthentication : PlayFabService
         return true;
     }
 
-    public async Task<bool> DefaultIdLogin()
+    public async Task<bool> DefaultIdLogin(CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>();
 
         var request = new LoginWithCustomIDRequest
         {
             CustomId = SystemInfo.deviceUniqueIdentifier,
-            CreateAccount = false
+            CreateAccount = true
         };
         
         PlayFabClientAPI.LoginWithCustomID(request, result =>
@@ -35,10 +35,10 @@ public class PlayFabAuthentication : PlayFabService
             task.TrySetResult(false);
         });
         
-        return await task.Task;
+        return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 
-    public async Task<bool> GoogleLogin(string token)
+    public async Task<bool> GoogleLogin(string token, CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>();
 
@@ -46,6 +46,7 @@ public class PlayFabAuthentication : PlayFabService
         {
             TitleId = PlayFabSettings.TitleId,
             ServerAuthCode = token,
+            CreateAccount = true
         };
 
         PlayFabClientAPI.LoginWithGoogleAccount(request, result =>
@@ -59,10 +60,10 @@ public class PlayFabAuthentication : PlayFabService
             task.TrySetResult(false);
         });
         
-        return await task.Task;
+        return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 
-    public async Task<bool> FacebookLogin(string token)
+    public async Task<bool> FacebookLogin(string token, CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>();
 
@@ -84,10 +85,10 @@ public class PlayFabAuthentication : PlayFabService
             task.TrySetResult(false);
         });
         
-        return await task.Task;
+        return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 
-    public async Task<bool> EmailRegister(string email, string password, string userName)
+    public async Task<bool> EmailRegister(string email, string password, string userName, CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>();
 
@@ -110,10 +111,10 @@ public class PlayFabAuthentication : PlayFabService
             task.TrySetResult(false);
         });
         
-        return await task.Task;
+        return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 
-    public async Task<bool> EmailLogin(string email, string password)
+    public async Task<bool> EmailLogin(string email, string password, CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>();
 
@@ -134,10 +135,10 @@ public class PlayFabAuthentication : PlayFabService
             task.TrySetResult(false);
         });
         
-        return await task.Task;
+        return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 
-    public async Task<bool> RecoveryPassword(string email)
+    public async Task<bool> RecoveryPassword(string email, CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>();
 
@@ -158,6 +159,6 @@ public class PlayFabAuthentication : PlayFabService
             task.TrySetResult(false);
         });
         
-        return await task.Task;
+        return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 }

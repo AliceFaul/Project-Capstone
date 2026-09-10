@@ -28,10 +28,10 @@ public class EmailRegisterHandler : MonoBehaviour
             return;
         }
         
-        string  username = usernameInputField.text;
-        string email = emailInputField.text;
-        string password = passwordInputField.text;
-        string confirmPassword = confirmPasswordInputField.text;
+        string  username = usernameInputField.text.Trim();
+        string email = emailInputField.text.Trim();
+        string password = passwordInputField.text.Trim();
+        string confirmPassword = confirmPasswordInputField.text.Trim();
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) ||
             string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
@@ -49,9 +49,17 @@ public class EmailRegisterHandler : MonoBehaviour
         StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailRegister(email, password, username).ContinueWith(task =>
         {
             if (task.IsFaulted)
+            {
                 Debug.LogError($"[EmailRegisterHandler] An error occured while registering user {username}! Error: " + task.Exception?.GetBaseException().Message);
-            else 
+            }
+            else
+            {
                 Debug.Log($"[EmailRegisterHandler] Registered user {username} successfully!");
+                PlayerPrefs.SetString("SAVED_USERNAME", username);
+                PlayerPrefs.SetString("SAVED_EMAIL", email);
+                PlayerPrefs.SetString("SAVED_PASSWORD", password);
+                PlayerPrefs.Save();
+            }
         });
     }
 }
