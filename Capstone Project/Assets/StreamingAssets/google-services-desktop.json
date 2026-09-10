@@ -7,12 +7,25 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:250887901863:android:81587baf184e95af98c182",
+        "mobilesdk_app_id": "1:250887901863:android:dc7ac449611543e798c182",
         "android_client_info": {
           "package_name": "com.BCG.CapstoneProject"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "250887901863-5ed5qtgedessl52dpn2p1dburh4m2t0p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.BCG.CapstoneProject",
+            "certificate_hash": "1b90aa60f8525be960a6adbf687b4901c87e227a"
+          }
+        },
+        {
+          "client_id": "250887901863-t31ab1e9muqfghtgp8idcv4novl62odv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCujbfIJ1PMA2ZbsyYKBaiS8lxHI7IHG90"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "250887901863-t31ab1e9muqfghtgp8idcv4novl62odv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
