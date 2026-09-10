@@ -55,6 +55,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c069734916fdb914b84445516131031e
+    m_Address: PlayFabServiceList
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0c32318984847e428ac1bce4ea19377
     m_Address: Rune_Ancient_Bow
     m_ReadOnly: 0
