@@ -2,6 +2,7 @@
 using UnityEngine;
 using Facebook.Unity;
 using UnityEngine.UI;
+using System;
 
 public class FacebookLoginHandler : MonoBehaviour
 {
@@ -9,56 +10,53 @@ public class FacebookLoginHandler : MonoBehaviour
 
     private void Awake()
     {
-        if (!FB.IsInitialized)
-        {
-            FB.Init(InitCallback, OnHideUnity);
-        }
-        else
-        {
-            FB.ActivateApp();
-        }
-        
-        if(loginButton == null)
-            loginButton = GetComponent<Button>();
-        
+        if (!FB.IsInitialized) FB.Init(InitCallback, OnHideUnity);
+        else FB.ActivateApp();
+        if(loginButton == null) loginButton = GetComponent<Button>();
         loginButton?.onClick.AddListener(FacebookLogin);
     }
 
     private void InitCallback()
     {
-        if (FB.IsInitialized)
-        {
-            FB.ActivateApp();
-        }
-        else
-        {
-            Debug.LogError("[FacebookLoginHandler] Failed to initialize the Facebook SDK. Check logs for details.");
-        }
+        if (FB.IsInitialized) FB.ActivateApp();
+        else Debug.LogError("[FacebookLoginHandler] Failed to initialize the Facebook SDK. Check logs for details.");
     }
 
-    private void OnHideUnity(bool isGameShown)
-    {
-        Time.timeScale = isGameShown ? 1 : 0;
-    }
+    private void OnHideUnity(bool isGameShown) => Time.timeScale = isGameShown ? 1 : 0;
 
-    private void AuthCallback(ILoginResult result)
+    private async void AuthCallback(ILoginResult result)
     {
-        if (FB.IsLoggedIn)
+        try
         {
-            var aToken = AccessToken.CurrentAccessToken.TokenString;
-            Debug.Log($"[FacebookLoginHandler] Logged in as {aToken}");
-            
-            StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().FacebookLogin(aToken).ContinueWith(playFabTask =>
+            if (FB.IsLoggedIn)
             {
-                if (playFabTask.IsFaulted || playFabTask.IsCanceled)
-                    Debug.LogError($"[FacebookLoginHandler] Login failed: {playFabTask.Exception}");
-                else
-                    Debug.Log($"[FacebookLoginHandler] Successfully logged in.");
-            });
+                var aToken = AccessToken.CurrentAccessToken.TokenString;
+                Debug.Log($"[FacebookLoginHandler] Logged in as {aToken}");
+
+                try
+                {
+                    await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>()
+                        .FacebookLogin(aToken).ContinueWith(playFabTask =>
+                        {
+                            if (playFabTask.IsFaulted || playFabTask.IsCanceled)
+                                Debug.LogError($"[FacebookLoginHandler] Login failed: {playFabTask.Exception}");
+                            else
+                                Debug.Log($"[FacebookLoginHandler] Successfully logged in.");
+                        });
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[FacebookLoginHandler] Exception: {e.Message}");
+                }
+            }
+            else
+            {
+                Debug.Log($"[FacebookLoginHandler] User cancelled login or error: {result.Error}.");
+            }
         }
-        else
+        catch (Exception e)
         {
-            Debug.Log($"[FacebookLoginHandler] User cancelled login or error: {result.Error}.");
+            Debug.LogException(e);
         }
     }
 

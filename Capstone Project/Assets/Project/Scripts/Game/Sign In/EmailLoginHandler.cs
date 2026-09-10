@@ -11,42 +11,54 @@ public class EmailLoginHandler : MonoBehaviour
 
     private void Awake()
     {
-        if(loginButton == null)
-            loginButton = GetComponent<Button>();
-        
+        if(loginButton == null) loginButton = GetComponent<Button>();
         loginButton?.onClick.AddListener(OnLoginClicked);
     }
 
-    private void OnLoginClicked()
+    private async void OnLoginClicked()
     {
-        if (emailInputField == null || passwordInputField == null)
-        { 
-            Debug.LogError($"[EmailLoginHandler] Email field or Password field is empty");
-            return;
-        }
-
-        string email = emailInputField.text.Trim();
-        string password = passwordInputField.text.Trim();
-
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        try
         {
-            Debug.LogError($"[EmailLoginHandler] Email field or password field is empty]");
-            return;
+            if (emailInputField == null || passwordInputField == null)
+            { 
+                Debug.LogError($"[EmailLoginHandler] Email field or Password field is empty");
+                return;
+            }
+
+            string email = emailInputField.text.Trim();
+            string password = passwordInputField.text.Trim();
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                Debug.LogError($"[EmailLoginHandler] Email field or password field is empty]");
+                return;
+            }
+
+            try
+            {
+                await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailLogin(email, password).ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
+                    { 
+                        Debug.LogError($"[EmailLoginHandler] Login failed: {task.Exception}]");
+                    }
+                    else 
+                    { 
+                        Debug.Log($"[EmailLoginHandler] Login succeeded: {task.Result}"); 
+                        PlayerPrefs.SetString("SAVED_EMAIL", email); 
+                        PlayerPrefs.SetString("SAVED_PASSWORD", password); 
+                        PlayerPrefs.Save();
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[EmailLoginHandler] Login exception occured: {e.Message}");
+            }
         }
-        
-        StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailLogin(email, password).ContinueWith(task =>
+        catch (Exception e)
         {
-            if (task.IsFaulted)
-            {
-                Debug.LogError($"[EmailLoginHandler] Login failed: {task.Exception}]");
-            }
-            else
-            {
-                Debug.Log($"[EmailLoginHandler] Login succeeded: {task.Result}");
-                PlayerPrefs.SetString("SAVED_EMAIL", email);
-                PlayerPrefs.SetString("SAVED_PASSWORD", password);
-                PlayerPrefs.Save();
-            }
-        });
+            Debug.LogException(e);
+        }
     }
 }
