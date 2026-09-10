@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/theme.uss?fileID=7433441132597879392&amp;guid=bb15ad5c429032040bbfc746a270548c&amp;type=3#theme"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/item-slot.uss?fileID=7433441132597879392&amp;guid=dfb791b80be04ed4a8498e8fb12a3e5f&amp;type=3#item-slot"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/icon-label.uss?fileID=7433441132597879392&amp;guid=073030101e7c0254dbffed9e7e8b51db&amp;type=3#icon-label"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/main-menu.uss?fileID=7433441132597879392&amp;guid=5f6c4ff6bfd745a418ec5c25c9ebbd81&amp;type=3#main-menu"/>
+    <ui:VisualElement name="main-menu-screen" class="main-menu-screen">
+        <ui:VisualElement name="character-block" class="main-menu__character-block" style="top: 451px; left: 869px;">
+            <ui:VisualElement name="model-viewport" class="main-menu__model-viewport"/>
+            <ui:VisualElement name="stats-column" class="main-menu__stats-column">
+                <IconLabelElement name="level-display" icon-class="icon-level" text="Lv. 1"/>
+                <IconLabelElement name="gold-display" icon-class="icon-gold" text="0"/>
+                <IconLabelElement name="gem-display" icon-class="icon-gem" text="0"/>
+            </ui:VisualElement>
+            <ui:Label name="player-name-label" text="Player Name" class="main-menu__player-name"/>
+            <ui:Button name="change-skin-button" text="Change Skin" class="button-base main-menu__change-skin-button"/>
+        </ui:VisualElement>
+        <ui:Button name="start-game-button" text="Start Game" class="button-base main-menu__start-button" style="background-color: rgb(71, 161, 0);"/>
+        <ui:Button name="option-button" text="Option" class="button-base main-menu__option-button" style="translate: -81px 0;"/>
+        <ui:Button name="quit-button" text="Quit" class="button-base main-menu__quit-button"/>
+        <ui:VisualElement name="change-skin-panel" class="main-menu__change-skin-panel panel">
+            <ui:Label text="Chon Skin" class="text-title main-menu__panel-title"/>
+            <ui:ScrollView name="skin-scroll" mode="Horizontal" class="main-menu__skin-scroll">
+                <ui:VisualElement name="skin-grid" class="main-menu__skin-grid"/>
+            </ui:ScrollView>
+            <ui:Button name="close-skin-button" text="Dong" class="button-base main-menu__close-skin-button"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

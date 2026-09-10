@@ -1,0 +1,116 @@
+.main-menu-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.main-menu__character-block {
+    position: absolute;
+    top: 130px;
+    left: 540px;
+}
+
+.main-menu__model-viewport {
+    width: 127px;
+    height: 216px;
+    background-color: transparent;
+    border-width: 2px;
+    border-color: var(--color-border);
+}
+
+.main-menu__stats-column {
+    position: absolute;
+    top: 0;
+    left: 175px;
+    width: 135px;
+}
+
+.main-menu__stats-column > .icon-label {
+    margin-bottom: var(--spacing-s);
+}
+
+.main-menu__player-name {
+    position: absolute;
+    top: 236px;
+    width: 127px;
+    color: var(--color-text-title);
+    font-size: var(--font-size-large);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.main-menu__change-skin-button {
+    position: absolute;
+    top: 275px;
+    left: -40px;
+    width: 207px;
+}
+
+.main-menu__start-button {
+    position: absolute;
+    left: 40px;
+    bottom: 45px;
+    width: 400px;
+    height: 150px;
+    font-size: 35px;
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(41, 41, 41);
+    -unity-font-style: bold;
+    border-top-color: rgb(151, 255, 0);
+    border-left-color: rgb(151, 255, 0);
+    border-right-color: rgb(151, 255, 0);
+    border-bottom-color: rgb(151, 255, 0);
+}
+
+.main-menu__option-button {
+    position: absolute;
+    right: 213px;
+    bottom: 55px;
+    width: 240px;
+    height: 80px;
+    background-color: rgb(0, 0, 0);
+    font-size: 23px;
+    -unity-font-style: bold;
+}
+
+.main-menu__quit-button {
+    position: absolute;
+    right: 20px;
+    bottom: 55px;
+    width: 240px;
+    height: 80px;
+    font-size: 23px;
+    background-color: rgb(0, 0, 0);
+}
+
+.main-menu__change-skin-panel {
+    position: absolute;
+    left: 50%;
+    bottom: 40px;
+    width: 600px;
+    margin-left: -300px;
+    padding: var(--spacing-m);
+    display: none;
+}
+
+.main-menu__panel-title {
+    -unity-text-align: upper-center;
+    margin-bottom: var(--spacing-s);
+}
+
+.main-menu__skin-scroll {
+    height: 110px;
+    margin-bottom: var(--spacing-s);
+}
+
+.main-menu__skin-grid {
+    flex-direction: row;
+}
+
+.main-menu__close-skin-button {
+    align-self: center;
+    width: 140px;
+}

@@ -19,7 +19,7 @@ MonoBehaviour:
   musicVolume: 1
   sfxVolume: 1
   showDamageText: 1
-  inventory: 0
-  minimap: 0
-  heal: 0
-  dash: 0
+  inventory: 98
+  minimap: 9
+  heal: 101
+  dash: 32
