@@ -22,41 +22,60 @@ public class AuthUIHandler : MonoBehaviour
     {
         try
         {
-            await TryAutoLogin();
+            SetLoadingState(true);
+            bool autoLogin = await TryAutoLogin();
+
+            if (autoLogin)
+            {
+                OnAuthSuccess();
+            }
+            else
+            {
+                SetLoadingState(false);
+                ShowAuthPanel();
+            }
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            Debug.LogError($"[AuthUIHandler] Error: {e.Message}");
         }
     }
 
-    private async Task TryAutoLogin()
+    public void OnAuthSuccess()
+    {
+        SetLoadingState(false);
+        if(authPanel != null) authPanel.SetActive(false);
+        EventManager.Instance.Trigger("ON_AUTH_SUCCESS");
+    }
+
+    private async Task<bool> TryAutoLogin()
     {
         if (PlayerPrefs.HasKey("SAVED_EMAIL") && PlayerPrefs.HasKey("SAVED_PASSWORD"))
         {
             string email = PlayerPrefs.GetString("SAVED_EMAIL");
             string password = PlayerPrefs.GetString("SAVED_PASSWORD");
-            
-            SetLoadingState(true);
             Debug.Log($"[AuthUIHandler] Found saved credentials: {email}, {password}. Attempting to login...");
 
             try
             {
-                await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailLogin(email, password).ContinueWith(task =>
-                {
-                    if (task.IsFaulted || task.IsCanceled)
-                        Debug.LogError($"[AuthUIHandler] Auto-Login failed: {task.Exception}");
-                    else
-                        Debug.Log($"[AuthUIHandler] Auto-Login succeeded: {task.IsCompleted}");
-                });
+                return await StartupProcessor.Instance.GetService<PlayFabServiceManager>()
+                    .GetService<PlayFabAuthentication>().EmailLogin(email, password);
             }
             catch (Exception e)
             {
                 Debug.LogError($"[AuthUIHandler] Auto-Login exception: {e.Message}");
+                return false;
             }
-            
-            SetLoadingState(false);
         }
+        
+        return false;
+    }
+
+    private void ShowAuthPanel()
+    {
+        if(authPanel != null) authPanel.SetActive(true);
+        if(loginPanel != null) loginPanel.SetActive(true);
+        if(registerPanel != null) registerPanel.SetActive(false);
     }
 
     public void SetLoadingState(bool loading)

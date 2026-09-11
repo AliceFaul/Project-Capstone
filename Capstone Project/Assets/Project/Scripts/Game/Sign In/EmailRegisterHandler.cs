@@ -50,27 +50,27 @@ public class EmailRegisterHandler : MonoBehaviour
             
             try
             {
-                await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailRegister(email, password, username).ContinueWith(task =>
+                var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>()
+                    .GetService<PlayFabAuthentication>();
+                bool success = await authService.EmailRegister(email, password, username);
+                if (success)
                 {
-                    if (task.IsFaulted)
-                    {
-                        Debug.LogError($"[EmailRegisterHandler] An error occured while registering user {username}! Error: " + task.Exception?.GetBaseException().Message);
-                    }
-                    else
-                    {
-                        Debug.Log($"[EmailRegisterHandler] Registered user {username} successfully!");
-                        PlayerPrefs.SetString("SAVED_USERNAME", username);
-                        PlayerPrefs.SetString("SAVED_EMAIL", email);
-                        PlayerPrefs.SetString("SAVED_PASSWORD", password);
-                        PlayerPrefs.Save();
-                    }
-                });
-                
-                AuthUIHandler.Instance.SetLoadingState(false);
+                    PlayerPrefs.SetString("SAVED_USERNAME", username);
+                    PlayerPrefs.SetString("SAVED_EMAIL", email);
+                    PlayerPrefs.SetString("SAVED_PASSWORD", password);
+                    PlayerPrefs.Save();
+                    AuthUIHandler.Instance.OnAuthSuccess();
+                }
+                else
+                {
+                    Debug.LogError($"[EmailRegisterHandler] Failed to register user {username}!");
+                    AuthUIHandler.Instance.SetLoadingState(false);
+                }
             }
             catch (Exception e)
             {
                 Debug.LogError($"[EmailRegisterHandler] Registering user {username} failed! Error: {e.Message}");
+                AuthUIHandler.Instance.SetLoadingState(false);
             }
         }
         catch (Exception e)

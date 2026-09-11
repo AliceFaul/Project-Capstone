@@ -18,29 +18,33 @@ public class GoogleLoginHandler : MonoBehaviour
     {
         try
         {
-            AuthUIHandler.Instance.SetLoadingState(true);
             string authCode = await GetGoogleAuthCode();
         
             if (string.IsNullOrEmpty(authCode))
             {
                 Debug.LogError($"[GoogleLoginHandler] Can't get auth code from Google SDK.");
-                AuthUIHandler.Instance.SetLoadingState(false);
                 return;
             }
+            
+            AuthUIHandler.Instance.SetLoadingState(true);
         
-            await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().GoogleLogin(authCode).ContinueWith(playFabTask =>
+            var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>()
+                .GetService<PlayFabAuthentication>();
+            bool success = await authService.GoogleLogin(authCode);
+            if (success)
             {
-                if (playFabTask.IsFaulted || playFabTask.IsCanceled)
-                    Debug.LogError($"[GoogleLoginHandler] Login failed: {playFabTask.Exception}");
-                else
-                    Debug.Log($"[GoogleLoginHandler] Login succeeded: {playFabTask.Result}");
-            });
-            AuthUIHandler.Instance.SetLoadingState(false);
+                Debug.Log($"[GoogleLoginHandler] Google login successful: {authCode}");
+                AuthUIHandler.Instance.OnAuthSuccess();
+            }
+            else
+            {
+                Debug.LogError($"[GoogleLoginHandler] Google login failed: {authCode}]");
+                AuthUIHandler.Instance.SetLoadingState(false);
+            }
         }
         catch (Exception e)
         {
             Debug.LogError($"[GoogleLoginHandler] User cancelled login or error: {e.Message}");
-            AuthUIHandler.Instance.SetLoadingState(false);
         }
     }
 

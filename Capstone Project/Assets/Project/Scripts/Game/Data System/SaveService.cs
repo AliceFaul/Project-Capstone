@@ -39,8 +39,22 @@ public class SaveService : IGameService
         }
         _dataService = dataService;
         
-        await LoadData(ct);
+        EventManager.Instance.AddListener("ON_AUTH_SUCCESS", OnAuthSuccess);
+        
+        await Task.CompletedTask;
         return true;
+    }
+
+    private async void OnAuthSuccess()
+    {
+        try
+        {
+            await LoadData();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[SaveService] Failed to load data. Error: {e.Message}");
+        }
     }
 
     private async Task LoadData(CancellationToken ct = default)

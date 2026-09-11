@@ -28,7 +28,6 @@ public class FacebookLoginHandler : MonoBehaviour
     {
         try
         {
-            AuthUIHandler.Instance.SetLoadingState(true);
             if (FB.IsLoggedIn)
             {
                 var aToken = AccessToken.CurrentAccessToken.TokenString;
@@ -36,13 +35,21 @@ public class FacebookLoginHandler : MonoBehaviour
 
                 try
                 {
-                    await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().FacebookLogin(aToken).ContinueWith(playFabTask =>
+                    AuthUIHandler.Instance.SetLoadingState(true);
+                    
+                    var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>()
+                        .GetService<PlayFabAuthentication>();
+                    bool success = await authService.FacebookLogin(aToken);
+                    if (success)
                     {
-                        if (playFabTask.IsFaulted || playFabTask.IsCanceled)
-                            Debug.LogError($"[FacebookLoginHandler] Login failed: {playFabTask.Exception}");
-                        else
-                            Debug.Log($"[FacebookLoginHandler] Successfully logged in.");
-                    });
+                        Debug.Log($"[FacebookLoginHandler] Facebook login successfully {aToken}.");
+                        AuthUIHandler.Instance.OnAuthSuccess();
+                    }
+                    else
+                    {
+                        Debug.LogError($"[FacebookLoginHandler] Facebook login failed: {result.Error}");
+                        AuthUIHandler.Instance.SetLoadingState(false);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -53,7 +60,6 @@ public class FacebookLoginHandler : MonoBehaviour
             {
                 Debug.Log($"[FacebookLoginHandler] User cancelled login or error: {result.Error}.");
             }
-            AuthUIHandler.Instance.SetLoadingState(false);
         }
         catch (Exception e)
         {
@@ -63,7 +69,6 @@ public class FacebookLoginHandler : MonoBehaviour
 
     private void FacebookLogin()
     {
-        AuthUIHandler.Instance.SetLoadingState(true);
         var perm = new List<string>() { "public_profile", "email" };
         FB.LogInWithReadPermissions(perm, AuthCallback);
     }

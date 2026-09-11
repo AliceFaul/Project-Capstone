@@ -15,5 +15,7 @@ MonoBehaviour:
   rootManager: Script
   monoScripts:
   - {fileID: 11500000, guid: 4507f96605ff43b4977a4cdae35451cf, type: 3}
+  - {fileID: 11500000, guid: c6a0759f33ac4a189a10c2cc95aabcc5, type: 3}
   managerNames:
   - UIManager, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - EventManager, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

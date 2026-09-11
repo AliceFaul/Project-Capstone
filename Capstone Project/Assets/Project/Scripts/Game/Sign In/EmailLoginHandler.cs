@@ -38,27 +38,27 @@ public class EmailLoginHandler : MonoBehaviour
 
             try
             {
-                await StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().EmailLogin(email, password).ContinueWith(task =>
+                var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>()
+                    .GetService<PlayFabAuthentication>();
+                bool success = await authService.EmailLogin(email, password);
+                if (success)
                 {
-                    if (task.IsFaulted)
-                    { 
-                        Debug.LogError($"[EmailLoginHandler] Login failed: {task.Exception}]");
-                    }
-                    else 
-                    { 
-                        Debug.Log($"[EmailLoginHandler] Login succeeded: {task.Result}"); 
-                        PlayerPrefs.SetString("SAVED_EMAIL", email); 
-                        PlayerPrefs.SetString("SAVED_PASSWORD", password); 
-                        PlayerPrefs.Save();
-                    }
-                });
+                    PlayerPrefs.SetString("SAVED_EMAIL", email);
+                    PlayerPrefs.SetString("SAVED_PASSWORD", password);
+                    PlayerPrefs.Save();
+                    AuthUIHandler.Instance.OnAuthSuccess();
+                }
+                else
+                {
+                    Debug.LogError($"[EmailLoginHandler] Failed to login {email} {password}.");
+                    AuthUIHandler.Instance.SetLoadingState(false);
+                }
             }
             catch (Exception e)
             {
                 Debug.LogError($"[EmailLoginHandler] Login exception occured: {e.Message}");
+                AuthUIHandler.Instance.SetLoadingState(false);
             }
-            
-            AuthUIHandler.Instance.SetLoadingState(false);
         }
         catch (Exception e)
         {
