@@ -3,6 +3,7 @@ using UnityEngine;
 using Facebook.Unity;
 using UnityEngine.UI;
 using System;
+using System.Threading.Tasks;
 
 public class FacebookLoginHandler : MonoBehaviour
 {
@@ -24,51 +25,43 @@ public class FacebookLoginHandler : MonoBehaviour
 
     private void OnHideUnity(bool isGameShown) => Time.timeScale = isGameShown ? 1 : 0;
 
-    private async void AuthCallback(ILoginResult result)
+    private void AuthCallback(ILoginResult result)
     {
+        if(loginButton != null) loginButton.interactable = true;
+        if (FB.IsLoggedIn && result != null && !string.IsNullOrEmpty(result.AccessToken?.TokenString))
+        {
+            string aToken = result.AccessToken?.TokenString;
+            Debug.Log($"[FacebookLoginHandler] Facebook login successfully {aToken}");
+            _ = HandleLoginAsync(aToken);
+        }
+        else
+        {
+            Debug.LogError($"[FacebookLoginHandler] FB login cancelled or failed: {result?.Error}");
+        }
+    }
+
+    private async Task HandleLoginAsync(string aToken)
+    {
+        AuthUIHandler.Instance.SetLoadingState(true);
+
         try
         {
-            if (FB.IsLoggedIn)
-            {
-                var aToken = AccessToken.CurrentAccessToken.TokenString;
-                Debug.Log($"[FacebookLoginHandler] Logged in as {aToken}");
-
-                try
-                {
-                    AuthUIHandler.Instance.SetLoadingState(true);
-                    
-                    var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>()
-                        .GetService<PlayFabAuthentication>();
-                    bool success = await authService.FacebookLogin(aToken);
-                    if (success)
-                    {
-                        Debug.Log($"[FacebookLoginHandler] Facebook login successfully {aToken}.");
-                        AuthUIHandler.Instance.OnAuthSuccess();
-                    }
-                    else
-                    {
-                        Debug.LogError($"[FacebookLoginHandler] Facebook login failed: {result.Error}");
-                        AuthUIHandler.Instance.SetLoadingState(false);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[FacebookLoginHandler] Exception: {e.Message}");
-                }
-            }
-            else
-            {
-                Debug.Log($"[FacebookLoginHandler] User cancelled login or error: {result.Error}.");
-            }
+            var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>();
+            bool success = await authService.FacebookLogin(aToken);
+            if (success) AuthUIHandler.Instance.OnAuthSuccess();
+            else AuthUIHandler.Instance.SetLoadingState(false);
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            Debug.LogError($"[FacebookLoginHandler] Login exception: {e.Message}");
+            AuthUIHandler.Instance.SetLoadingState(false);
         }
     }
 
     private void FacebookLogin()
     {
+        if(!FB.IsInitialized) return;
+        if(loginButton != null) loginButton.interactable = false; // Avoid duplicate request
         var perm = new List<string>() { "public_profile", "email" };
         FB.LogInWithReadPermissions(perm, AuthCallback);
     }

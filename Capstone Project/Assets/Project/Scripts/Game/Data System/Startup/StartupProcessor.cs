@@ -25,10 +25,8 @@ public class StartupProcessor : MonoBehaviour
     private readonly LocalizedString _stepTimeoutLocale = new LocalizedString("UI", "UI_STEP_TIMEOUT");
 
     private CancellationTokenSource _cts;
-
     private InputSystem_Actions _input;
     private readonly bool _offlineMode = false;
-
     private TaskCompletionSource<bool> _clickTcs;
 
     private async void Awake()
@@ -71,20 +69,26 @@ public class StartupProcessor : MonoBehaviour
             _cts = new CancellationTokenSource();
         
             var pipelineResult = await RunAllSteps(_cts.Token);
+            
             if (pipelineResult.IsSuccess)
             {
-                Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
                 _loading?.SetProgress(1f, _clickToContinueLocale);
                 await Task.Delay(300);
-
-                if (_loading != null)
-                    await _loading.HideProgressBar();
+                if(_loading != null) await _loading.HideProgressBar();
                 
+                if (AuthUIHandler.Instance != null)
+                {
+                    bool result = await AuthUIHandler.Instance.TryLogin();
+                    if (!result)
+                    {
+                        Debug.LogError($"[StartupProcessor] Authentication failed or cancelled.");
+                        return;
+                    }
+                }
+                
+                Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
                 await WaitForClicked();
-                
-                if (_loading != null)
-                    await _loading.Hide();
-                
+                if (_loading != null) await _loading.Hide();
                 OpenMainMenu();
             }
             else
@@ -153,8 +157,7 @@ public class StartupProcessor : MonoBehaviour
                     {
                         Debug.LogWarning($"[StartupProcessor] Step failed: {stepName}, error id: {result.ErrorId}, message: {result.Message}");
                         _loading?.SetProgress(1f, _stepFailedLocale);
-                        return StartupPipeline.Failure(result.ErrorId ?? "STEP_FAILED",
-                            $"Step {stepName} failed: {result.Message}");
+                        return StartupPipeline.Failure(result.ErrorId ?? "STEP_FAILED", $"Step {stepName} failed: {result.Message}");
                     }
                     else
                     {

@@ -3,13 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class SaveService : IGameService
+public class SaveService : IGameService, IDisposable
 {
     private const string SaveKey = "PLAYER_DATA";
     
     private readonly ConfigManager _configManager;
     private readonly PlayFabServiceManager _playFabService;
     private readonly JsonWriter _writer;
+    private readonly JsonReader _reader;
 
     private PlayFabDataFlow _dataService;
     private PlayerDataConfig _config;
@@ -19,6 +20,7 @@ public class SaveService : IGameService
         _configManager = configManager;
         _playFabService = playFabService;
         _writer = new JsonWriter(Application.persistentDataPath);
+        _reader = new JsonReader(Application.persistentDataPath);
     }
     
     public async Task<bool> Initialize(IServiceRegistry serviceRegistry, CancellationToken ct = default)
@@ -77,7 +79,7 @@ public class SaveService : IGameService
                 var gameData = JsonUtility.FromJson<GameData>(cloudJson);
                 _config.ApplyGameData(gameData);
                 Debug.Log($"[SaveService] Charged data from PlayFab (cloud) successfully.)");
-                WriteLocalCache(cloudJson);
+                _writer.Write(gameData, _config.name + ".json");
             }
             catch (Exception e)
             {
@@ -87,15 +89,42 @@ public class SaveService : IGameService
         else
         {
             Debug.Log($"[SaveService] Not found data in cloud. Using local data/default.");
+            try
+            {
+                string localJson = _reader.Read(_config.name + ".json");
+                if (!string.IsNullOrEmpty(localJson))
+                {
+                    var localData = JsonUtility.FromJson<GameData>(localJson);
+                    _config.ApplyGameData(localData);
+                    Debug.Log($"[SaveService] Charged data from PlayFab (local) successfully.)");
+                }
+                else
+                {
+                    Debug.Log($"[SaveService] No local cache found. Starting with clean data config.");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SaveService] Parse local data failed: {e.Message}");
+            }
         }
     }
 
     public async Task<bool> SaveData(CancellationToken ct = default)
     {
         if(_config == null || _dataService == null) return false;
-        string json = JsonUtility.ToJson(_config.ToGameData());
-        WriteLocalCache(json);
+        var currentData = _config.ToGameData();
 
+        try
+        {
+            _writer.Write(currentData, _config.name + ".json");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[SaveService] Failed to write local cache. Error: {e.Message}");
+        }
+
+        string json = JsonUtility.ToJson(currentData);
         bool cloudOk = false;
         try
         {
@@ -110,15 +139,5 @@ public class SaveService : IGameService
         return cloudOk;
     }
 
-    private void WriteLocalCache(string json)
-    {
-        try
-        {
-            _writer.Write(json, _config.name + ".json");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[SaveService] Failed to write local cache. Error: {e.Message}]");
-        }
-    }
+    public void Dispose() => EventManager.Instance?.RemoveListener("ON_AUTH_SUCCESS", OnAuthSuccess);
 }

@@ -12,33 +12,36 @@ public class AuthUIHandler : MonoBehaviour
     [SerializeField] private GameObject registerPanel;
     [SerializeField] private GameObject loadingOverlay;
 
+    private TaskCompletionSource<bool> _tcs;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        if(authPanel != null) authPanel.SetActive(false);
+        SetLoadingState(false);
     }
 
-    private async void Start()
+    /// <summary>
+    /// Call when Startup progress completed and try to log-in
+    /// </summary>
+    public async Task<bool> TryLogin()
     {
-        try
-        {
-            SetLoadingState(true);
-            bool autoLogin = await TryAutoLogin();
+        _tcs = new TaskCompletionSource<bool>();
+        SetLoadingState(true);
+        bool autoLogin = await TryAutoLogin();
 
-            if (autoLogin)
-            {
-                OnAuthSuccess();
-            }
-            else
-            {
-                SetLoadingState(false);
-                ShowAuthPanel();
-            }
-        }
-        catch (Exception e)
+        if (autoLogin)
         {
-            Debug.LogError($"[AuthUIHandler] Error: {e.Message}");
+            OnAuthSuccess();
         }
+        else
+        {
+            SetLoadingState(false);
+            ShowAuthPanel();
+        }
+        
+        return await _tcs.Task;
     }
 
     public void OnAuthSuccess()
@@ -46,6 +49,7 @@ public class AuthUIHandler : MonoBehaviour
         SetLoadingState(false);
         if(authPanel != null) authPanel.SetActive(false);
         EventManager.Instance.Trigger("ON_AUTH_SUCCESS");
+        _tcs.TrySetResult(true);
     }
 
     private async Task<bool> TryAutoLogin()

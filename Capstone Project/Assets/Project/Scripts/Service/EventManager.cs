@@ -24,18 +24,18 @@ public class EventManager : MonoBehaviour, IManager
     {
         _eventListeners.TryAdd(eventName, null);
         _eventListeners[eventName] += callback;
-        Debug.Log($"[EventManager] Added event: {eventName}]");
+        Debug.Log($"[EventManager] Added event: {eventName}");
     }
 
     public void RemoveListener(string eventName, Action callback)
     {
         if(_eventListeners.ContainsKey(eventName)) _eventListeners[eventName] -= callback;
-        Debug.Log($"[EventManager] Removed event: {eventName}]");
+        Debug.Log($"[EventManager] Removed event: {eventName}");
     }
 
     public void Trigger(string eventName)
     {
         if(_eventListeners.TryGetValue(eventName, out var callback)) callback?.Invoke();
-        Debug.Log($"[EventManager] Triggered event: {eventName}]");
+        Debug.Log($"[EventManager] Triggered event: {eventName}");
     }
 }
