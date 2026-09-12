@@ -23,7 +23,6 @@ public class PlayerMovement : MonoBehaviour
     
     private bool _isMoving = false;
     private bool _destinationReached = false;
-    private bool _hasStartedMoveThisRun = false;
     
     public event Action OnDestinationReached;
     public event Action<Vector3> OnMoveStart;
@@ -49,14 +48,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(!_isMoving)
-            return;
-        
-        if(_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance)
-            return;
-        
-        if(_destinationReached)
-            return;
+        if(!_isMoving) return;
+        if(_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance) return;
+        if(_destinationReached) return;
         
         _isMoving = false;
         _agent.ResetPath();

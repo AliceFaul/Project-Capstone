@@ -85,10 +85,7 @@ public class PlayerController : MonoBehaviour {
     {
         get
         {
-            if (_playerModifier == null)
-            {
-                _playerModifier = new PlayerModifier();
-            }
+            _playerModifier ??= new PlayerModifier();
             return _playerModifier;
         }
         set => _playerModifier = value;

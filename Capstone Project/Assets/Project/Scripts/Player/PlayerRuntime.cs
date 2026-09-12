@@ -94,16 +94,14 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         }
     }
 
-    public void GainExp(float amount)
-        => _config?.GainExp(amount);
+    public void GainExp(float amount) => _config?.GainExp(amount);
 
-    private void ExpChanged(float exp, float toNext)
-        => OnExpChanged?.Invoke(exp, toNext);
+    private void ExpChanged(float exp, float toNext) => OnExpChanged?.Invoke(exp, toNext);
     
     private readonly LocalizedString _localizedText = new LocalizedString("UI", "LevelUp");
     protected virtual void LevelUp(int newLevel)
     {
-        OnLevelUp?.Invoke(newLevel);
+        OnLevelUp?.Invoke(newLevel); // This event use for ui driven
 
         Hp = TotalHealth;
         HpChanged(Hp);

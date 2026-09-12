@@ -34,6 +34,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig
 
     public event Action<int> OnLevelUp;
     public event Action<float, float> OnExpChanged;
+    public event Action OnDataApplied;
 
     // Use the lazy pattern to defer initialization until the object is used.
     private Lazy<Currency> _currency;
@@ -56,8 +57,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig
     // unsubscribe to avoid memory leak
     private void OnDisable()
     {
-        if(_currency is { IsValueCreated: true })
-            _currency.Value.OnCurrencyChanged -= SyncCurrency;
+        if(_currency is { IsValueCreated: true }) _currency.Value.OnCurrencyChanged -= SyncCurrency;
     }
 
     private void SyncCurrency(CurrencyType type, int amount)
@@ -76,9 +76,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig
 
     public void GainExp(float amount)
     {
-        if(amount <= 0)
-            return;
-        
+        if(amount <= 0) return;
         currentExp += amount;
         OnExpChanged?.Invoke(currentExp, expToNextLevel);
 
@@ -113,6 +111,16 @@ public class PlayerDataConfig : ScriptableObject, IConfig
         this.level = gameData.Level;
         this.currentExp = gameData.CurrentExp;
         this.expToNextLevel = gameData.ExpToNextLevel;
-        this.currencyBalances = gameData.CurrencyBalances;
+        this.currencyBalances = gameData.CurrencyBalances ?? this.currencyBalances;
+
+        if (_currency is { IsValueCreated: true })
+        {
+            foreach (var balance in this.currencyBalances)
+            {
+                _currency.Value.Set(balance.type, balance.amount);
+            }
+        }
+        
+        OnDataApplied?.Invoke();
     }
 }
