@@ -133,8 +133,7 @@ public class EquipmentManager : MonoBehaviour
                 {
                     targetSlot = 0;
                     oldArtifact = Artifacts[0];
-                    if(oldArtifact != null)
-                        inventory?.AddItem(oldArtifact, 1);
+                    if(oldArtifact != null) inventory?.AddItem(oldArtifact, 1);
                 }
                 
                 Artifacts[targetSlot] = equipment;

@@ -59,8 +59,7 @@ public class StartupProcessor : MonoBehaviour
 
             await WaitForClicked();
 
-            if(_loading != null)
-                await _loading.ShowProgressBar();
+            if(_loading != null) await _loading.ShowProgressBar();
 
             AsyncOperationHandle<StartupList> handle = Addressables.LoadAssetAsync<StartupList>("StartupList");
             _startupList = await handle.Task;
@@ -82,6 +81,8 @@ public class StartupProcessor : MonoBehaviour
                     if (!result)
                     {
                         Debug.LogError($"[StartupProcessor] Authentication failed or cancelled.");
+                        var authErrorHandler = new StartupErrorController();
+                        authErrorHandler.ThrowError("AUTH_FAILED");
                         return;
                     }
                 }
@@ -213,7 +214,10 @@ public class StartupProcessor : MonoBehaviour
     {
         _input.UI.Disable();
         Debug.Log($"[StartupProcessor] Opening main menu");
-        // TODO: Connect to Main Menu Screen Controller
+        
+        var mainMenu = FindFirstObjectByType<MainMenu>();
+        if(mainMenu != null) mainMenu.OpenMainMenu();
+        else Debug.LogError($"[StartupProcessor] No main menu component found!");
     }
 
     public TService GetService<TService>()

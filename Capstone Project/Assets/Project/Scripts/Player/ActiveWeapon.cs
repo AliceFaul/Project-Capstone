@@ -21,8 +21,6 @@ public class ActiveWeapon : MonoBehaviour
     {
         try
         {
-            await WaitGameReady();
-            
             await UpdateMeleeWeapon(EquipmentManager.Instance.Melee);
             await UpdateRangedWeapon(EquipmentManager.Instance.Ranged);
             EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapons;
@@ -35,10 +33,10 @@ public class ActiveWeapon : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (EquipmentManager.Instance != null)
-            EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapons;
+        if (EquipmentManager.Instance != null) EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapons;
     }
 
+    /*
     private async Task WaitGameReady()
     {
         while (GameManager.Instance == null)
@@ -63,6 +61,7 @@ public class ActiveWeapon : MonoBehaviour
         await tcs.Task;
         GameManager.Instance.OnGameReady -= OnReady;
     }
+    */
 
     private async void UpdateWeapons(EquipmentChangedEventArgs args)
     {
