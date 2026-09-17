@@ -3,7 +3,7 @@
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/item-slot.uss?fileID=7433441132597879392&amp;guid=dfb791b80be04ed4a8498e8fb12a3e5f&amp;type=3#item-slot"/>
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/icon-label.uss?fileID=7433441132597879392&amp;guid=073030101e7c0254dbffed9e7e8b51db&amp;type=3#icon-label"/>
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/main-menu.uss?fileID=7433441132597879392&amp;guid=5f6c4ff6bfd745a418ec5c25c9ebbd81&amp;type=3#main-menu"/>
-    <ui:VisualElement name="main-menu-screen" class="main-menu-screen">
+    <ui:VisualElement name="main-menu-screen" class="main-menu-screen" style="border-top-color: rgba(0, 0, 0, 0); top: 1px; bottom: 2px; right: 3px; left: 1px; text-shadow: 0 0 0 rgba(0, 0, 0, 0);">
         <ui:VisualElement name="character-block" class="main-menu__character-block" style="top: 451px; left: 869px;">
             <ui:VisualElement name="model-viewport" class="main-menu__model-viewport"/>
             <ui:VisualElement name="stats-column" class="main-menu__stats-column">
@@ -11,12 +11,14 @@
                 <IconLabelElement name="gold-display" icon-class="icon-gold" text="0"/>
                 <IconLabelElement name="gem-display" icon-class="icon-gem" text="0"/>
             </ui:VisualElement>
-            <ui:Label name="player-name-label" text="Player Name" class="main-menu__player-name"/>
-            <ui:Button name="change-skin-button" text="Change Skin" class="button-base main-menu__change-skin-button"/>
+            <ui:VisualElement name="info-container" style="flex-grow: 1; translate: -90px 24px; height: 110px; width: 332px; align-items: center; background-color: rgba(51, 51, 51, 0.9); position: absolute; top: 230px; left: -12px; border-top-color: rgba(109, 109, 109, 0.9); border-left-color: rgba(41, 41, 41, 0.9); border-right-color: rgba(41, 41, 41, 0.9); border-bottom-color: rgba(30, 30, 30, 0.9); border-top-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-right-width: 5px; border-top-right-radius: 10px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+                <ui:Label name="player-name-label" text="Player Name" class="main-menu__player-name" style="transform-origin: center; translate: 0 3px; top: auto; color: rgb(149, 147, 140); -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 0.5px; -unity-text-align: middle-center;"/>
+                <ui:Button name="change-skin-button" text="Skin Settings" class="button-base main-menu__change-skin-button" style="-unity-text-align: middle-center; white-space: pre-wrap; top: auto; left: auto; bottom: 6px; width: 306px; background-color: rgb(51, 51, 51); border-top-color: rgb(141, 141, 141); border-left-color: rgb(141, 141, 141); border-bottom-color: rgb(141, 141, 141); border-right-color: rgb(141, 141, 141); color: rgb(255, 255, 255); -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 0.7px; font-size: 23px; height: 43px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-top-left-radius: 10px;"/>
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Button name="start-game-button" text="Start Game" class="button-base main-menu__start-button" style="background-color: rgb(71, 161, 0);"/>
-        <ui:Button name="option-button" text="Option" class="button-base main-menu__option-button" style="translate: -81px 0;"/>
-        <ui:Button name="quit-button" text="Quit" class="button-base main-menu__quit-button"/>
+        <ui:Button name="start-game-button" text="Start Game" class="button-base main-menu__start-button" style="background-color: rgb(60, 155, 60); background-image: none; border-top-color: rgb(131, 199, 36); border-left-color: rgb(63, 141, 63); border-bottom-color: rgb(63, 126, 63); border-right-color: rgb(63, 141, 63); opacity: 1; display: flex; width: 390px; height: 136px; border-top-width: 10px; border-bottom-width: 10px; border-left-width: 10px; border-right-width: 10px; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; color: rgb(255, 255, 255); font-size: 35px; -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 3px; translate: -13px 20px; text-shadow: 3px 5px 0 rgba(0, 0, 0, 0);"/>
+        <ui:Button name="option-button" text="Settings" class="button-base main-menu__option-button" style="translate: -38px 30px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-left-radius: 15px; border-top-color: rgb(51, 51, 51); border-left-color: rgb(51, 51, 51); border-bottom-color: rgb(51, 51, 51); border-right-color: rgb(51, 51, 51); -unity-text-align: middle-left; height: 55px; width: 200px; right: 249px; justify-content: space-between;"/>
+        <ui:Button name="quit-button" text="Exit" class="button-base main-menu__quit-button" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-color: rgb(51, 51, 51); border-left-color: rgb(51, 51, 51); border-bottom-color: rgb(51, 51, 51); border-right-color: rgb(51, 51, 51); -unity-text-align: middle-left; width: 200px; height: 55px; translate: -41px 30px; justify-content: space-between;"/>
         <ui:VisualElement name="change-skin-panel" class="main-menu__change-skin-panel panel">
             <ui:Label text="Chon Skin" class="text-title main-menu__panel-title"/>
             <ui:ScrollView name="skin-scroll" mode="Horizontal" class="main-menu__skin-scroll">
