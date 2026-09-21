@@ -16,5 +16,5 @@ public class CosmeticData : ScriptableObject
     public int priceGem;
     
     [Header("Unlock")]
-    public bool isUnlocked;
+    public bool unlockedByDefault;
 }

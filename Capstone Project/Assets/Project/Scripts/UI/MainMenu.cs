@@ -21,8 +21,8 @@ public class MainMenu : MonoBehaviour
         screen.StartGameClicked += StartGame;
         screen.OptionClicked += Option;
         screen.QuitClicked += QuitGame;
-        screen.ChangeSkinClicked += HandleChangeSkin;
-        screen.CloseSkinClicked += HandleCloseSkin;
+        screen.ChangeCosmeticClicked += HandleChangeCosmetic;
+        screen.CloseCosmeticClicked += HandleCloseCosmetic;
     }
 
     private void OnDisable()
@@ -30,8 +30,8 @@ public class MainMenu : MonoBehaviour
         screen.StartGameClicked -= StartGame;
         screen.OptionClicked -= Option;
         screen.QuitClicked -= QuitGame;
-        screen.ChangeSkinClicked -= HandleChangeSkin;
-        screen.CloseSkinClicked -= HandleCloseSkin;
+        screen.ChangeCosmeticClicked -= HandleChangeCosmetic;
+        screen.CloseCosmeticClicked -= HandleCloseCosmetic;
     }
 
     public void OpenMainMenu()
@@ -47,19 +47,17 @@ public class MainMenu : MonoBehaviour
         screen.Show();
     }
 
-    private void HandleChangeSkin()
+    private void HandleChangeCosmetic()
     {
         SetPriority(changeSkinCamera, ActivePriority);
         SetPriority(playerFocusCamera, InactivePriority);
-        screen.ToggleChangeSkinPanel(true);
         // TODO: Implement change skin system
     }
 
-    private void HandleCloseSkin()
+    private void HandleCloseCosmetic()
     {
         SetPriority(playerFocusCamera, ActivePriority);
         SetPriority(changeSkinCamera, InactivePriority);
-        screen.ToggleChangeSkinPanel(false);
     }
     
     private void StartGame()
