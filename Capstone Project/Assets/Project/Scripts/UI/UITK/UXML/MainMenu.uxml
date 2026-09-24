@@ -11,23 +11,23 @@
                 <IconLabelElement name="gem-display" icon-class="icon-gem" text="0"/>
             </ui:VisualElement>
             <ui:VisualElement name="info-container" style="flex-grow: 1; translate: -84px 0; height: 110px; width: 332px; align-items: center; background-color: rgba(51, 51, 51, 0.9); position: absolute; top: 189px; left: 13px; border-top-color: rgba(109, 109, 109, 0.9); border-left-color: rgba(41, 41, 41, 0.9); border-right-color: rgba(41, 41, 41, 0.9); border-bottom-color: rgba(30, 30, 30, 0.9); border-top-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-right-width: 5px; border-top-right-radius: 10px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-                <ui:Label name="player-name-label" text="Player Name" class="main-menu__player-name" style="transform-origin: center; translate: 0 3px; top: auto; color: rgb(149, 147, 140); -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 0.5px; -unity-text-align: middle-center;"/>
-                <ui:Button name="change-skin-button" text="Cosmetic Settings" class="button-base main-menu__change-cosmetic-button" style="-unity-text-align: middle-center; white-space: pre-wrap; top: auto; left: auto; bottom: 6px; width: 306px; background-color: rgb(51, 51, 51); border-top-color: rgb(141, 141, 141); border-left-color: rgb(141, 141, 141); border-bottom-color: rgb(141, 141, 141); border-right-color: rgb(141, 141, 141); color: rgb(255, 255, 255); -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 0.7px; font-size: 23px; height: 43px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-top-left-radius: 10px;"/>
+                <ui:Button text="Player Name" name="player-name-label" class="main-menu__player-name" style="position: absolute; top: auto; color: rgb(126, 126, 126); -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 1px; background-color: rgba(188, 188, 188, 0); border-top-color: rgba(149, 149, 149, 0); border-left-color: rgba(149, 149, 149, 0); border-bottom-color: rgba(149, 149, 149, 0); border-right-color: rgba(149, 149, 149, 0);"/>
+                <ui:Button name="change-cosmetic-button" text="Cosmetic Settings" class="button-base main-menu__change-cosmetic-button" style="-unity-text-align: middle-center; white-space: pre-wrap; top: auto; left: auto; bottom: 6px; width: 306px; background-color: rgb(51, 51, 51); border-top-color: rgb(141, 141, 141); border-left-color: rgb(141, 141, 141); border-bottom-color: rgb(141, 141, 141); border-right-color: rgb(141, 141, 141); color: rgb(255, 255, 255); -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 0.7px; font-size: 23px; height: 43px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-top-left-radius: 10px;"/>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Button name="start-game-button" text="Start Game" class="button-base main-menu__start-button" style="background-color: rgb(60, 155, 60); background-image: none; border-top-color: rgb(131, 199, 36); border-left-color: rgb(63, 141, 63); border-bottom-color: rgb(63, 126, 63); border-right-color: rgb(63, 141, 63); opacity: 1; display: flex; width: 430px; height: 170px; border-top-width: 10px; border-bottom-width: 10px; border-left-width: 10px; border-right-width: 10px; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; color: rgb(255, 255, 255); font-size: 40px; -unity-text-outline-color: rgb(0, 0, 0); -unity-text-outline-width: 3.5px; translate: -13px 20px; text-shadow: 3px 5px 0 rgba(0, 0, 0, 0);"/>
         <ui:Button name="option-button" text="Settings" class="button-base main-menu__option-button" style="translate: -38px 30px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-left-radius: 15px; border-top-color: rgb(51, 51, 51); border-left-color: rgb(51, 51, 51); border-bottom-color: rgb(51, 51, 51); border-right-color: rgb(51, 51, 51); -unity-text-align: middle-left; height: 65px; width: 220px; right: 270px; justify-content: space-between; display: flex;"/>
         <ui:Button name="quit-button" text="Exit" class="button-base main-menu__quit-button" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-top-color: rgb(51, 51, 51); border-left-color: rgb(51, 51, 51); border-bottom-color: rgb(51, 51, 51); border-right-color: rgb(51, 51, 51); -unity-text-align: middle-left; width: 220px; height: 65px; translate: -41px 30px; justify-content: space-between; display: flex;"/>
-        <ui:VisualElement name="settings-panel" class="main-menu__settings-panel panel" style="display: none;">
-            <ui:Label text="SETTINGS" class="text-title main-menu__settings-title"/>
-            <ui:VisualElement class="main-menu__settings-body">
+        <ui:VisualElement name="settings-panel" class="main-menu__settings-panel panel" style="display: none; height: 1080px; width: 1920px; border-top-color: rgb(107, 74, 47); top: 0%; left: 0%; margin-top: 0; margin-left: 0; padding-bottom: 0; padding-left: 0; padding-top: 0; padding-right: 0; translate: 0 0;">
+            <ui:Label text="SETTINGS" class="text-title main-menu__settings-title" style="background-color: rgba(255, 255, 255, 0);"/>
+            <ui:VisualElement class="main-menu__settings-body" style="translate: -849px 0;">
                 <ui:VisualElement name="settings-tabs" class="main-menu__settings-tabs">
                     <ui:Button name="tab-video" text="VIDEO" class="main-menu__settings-tab main-menu__settings-tab--active"/>
                     <ui:Button name="tab-audio" text="AUDIO" class="main-menu__settings-tab"/>
                     <ui:Button name="tab-gameplay" text="GAMEPLAY" class="main-menu__settings-tab"/>
                 </ui:VisualElement>
-                <ui:ScrollView name="settings-content" mode="Vertical" class="main-menu__settings-content">
-                    <ui:VisualElement name="page-video" class="main-menu__settings-page">
+                <ui:ScrollView name="settings-content" mode="Vertical" class="main-menu__settings-content" style="width: auto; height: 1016px;">
+                    <ui:VisualElement name="page-video" class="main-menu__settings-page" style="display: none; width: 1682px; height: 164px; position: absolute;">
                         <ui:VisualElement class="main-menu__setting-row">
                             <ui:Label text="Quality" class="main-menu__setting-label"/>
                             <ui:DropdownField name="quality-dropdown" class="main-menu__setting-dropdown"/>
@@ -41,7 +41,7 @@
                             <ui:Toggle name="camera-shake-toggle" class="main-menu__setting-toggle"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="page-audio" class="main-menu__settings-page">
+                    <ui:VisualElement name="page-audio" class="main-menu__settings-page" style="display: none; position: absolute; width: 1682px;">
                         <ui:VisualElement class="main-menu__setting-row">
                             <ui:Label text="Master" class="main-menu__setting-label"/>
                             <ui:Slider name="master-slider" low-value="0" high-value="1" class="main-menu__setting-slider"/>
@@ -58,7 +58,7 @@
                             <ui:Label name="sfx-value" text="100%" class="main-menu__setting-value"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="page-gameplay" class="main-menu__settings-page">
+                    <ui:VisualElement name="page-gameplay" class="main-menu__settings-page" style="display: none; position: absolute; width: 1683px;">
                         <ui:VisualElement class="main-menu__setting-row">
                             <ui:Label text="Show Damage Text" class="main-menu__setting-label"/>
                             <ui:Toggle name="damage-text-toggle" class="main-menu__setting-toggle"/>
@@ -66,7 +66,7 @@
                     </ui:VisualElement>
                 </ui:ScrollView>
             </ui:VisualElement>
-            <ui:Button name="close-settings-button" text="DONG" class="button-base main-menu__close-settings-button"/>
+            <ui:Button name="close-settings-button" text="X" class="button-base main-menu__close-settings-button" style="position: absolute; top: 2px; left: 1795px; width: 90px; height: 90px; font-size: 30px; color: rgb(255, 255, 255);"/>
         </ui:VisualElement>
         <ui:VisualElement name="change-cosmetic-panel" class="main-menu__change-cosmetic-panel panel" style="display: none; height: 850px; width: 820px; left: 867px; bottom: 238px; top: 110px; translate: 450px 37px; padding-top: 16px;">
             <ui:ScrollView name="cosmetic-scroll" mode="Horizontal" class="main-menu__cosmetic-scroll" style="width: 768px; height: 805px;">

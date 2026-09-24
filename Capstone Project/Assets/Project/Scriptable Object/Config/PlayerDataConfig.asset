@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc0a5b87110d4d8b97d91b7bf6b429ff, type: 3}
   m_Name: PlayerDataConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDataConfig
+  displayName: mahieuu2004
   level: 1
   currentExp: 0
   expToNextLevel: 100
@@ -20,3 +21,5 @@ MonoBehaviour:
     amount: 0
   - type: 1
     amount: 0
+  unlockedCosmeticIds: []
+  equippedCosmeticId: 

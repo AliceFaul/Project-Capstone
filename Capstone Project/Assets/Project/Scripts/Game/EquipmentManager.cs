@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class EquipmentChangedEventArgs : EventArgs
@@ -16,7 +17,7 @@ public class EquipmentChangedEventArgs : EventArgs
     }
 }
 
-public class EquipmentManager : MonoBehaviour
+public class EquipmentManager : MonoBehaviour, IManager
 {
     public static EquipmentManager Instance { get; private set; }
     
@@ -26,11 +27,18 @@ public class EquipmentManager : MonoBehaviour
     public EquipmentData Armor;
     public EquipmentData[] Artifacts =  new EquipmentData[3];
     
-    [Space]
-    
     public PlayerInventory inventory;
     public event Action<EquipmentChangedEventArgs> OnEquipmentChanged;
 
+    public async Task<bool> Initialize()
+    {
+        // TODO: Add save/load equipment in PlayerConfigData script
+        // TODO: Reference inventory
+        
+        await Task.CompletedTask;
+        return true;
+    }
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)

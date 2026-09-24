@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 
 public class ActiveWeapon : MonoBehaviour
 {
+    [SerializeField] private bool autoSync = false;
+    
     [Header("Melee Weapon")]
     [Tooltip("Socket to hold current prefab melee weapon")]
     [SerializeField] private Transform meleeSocket;
@@ -21,6 +23,8 @@ public class ActiveWeapon : MonoBehaviour
     {
         try
         {
+            if(!autoSync) return;
+            if(EquipmentManager.Instance == null) return;
             await UpdateMeleeWeapon(EquipmentManager.Instance.Melee);
             await UpdateRangedWeapon(EquipmentManager.Instance.Ranged);
             EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapons;

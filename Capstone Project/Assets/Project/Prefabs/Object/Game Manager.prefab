@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5828035896003088715}
   - component: {fileID: 974367419587723480}
   - component: {fileID: 3438681713323167097}
-  - component: {fileID: 168676760038488396}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -27,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1034871185574758174}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 454.9405, y: 1.24462, z: 422.43842}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -66,25 +65,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab112a13855a4cedae3d3c0bc5b7e1c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
---- !u!114 &168676760038488396
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1034871185574758174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e318d2f676cffd41a5e5d8154f5b6a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  resourceManager: {fileID: 0}
-  managers:
-  - {fileID: 0}
-  preloadGroups:
-  - Weapons
-  - UI
-  - Material
-  preloadGroupsInParallel: 0
-  loadingScreen: {fileID: 0}
-  verboseLogging: 0

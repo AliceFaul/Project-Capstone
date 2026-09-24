@@ -185,7 +185,10 @@ public class MainMenuScreen : MonoBehaviour
     }
     
     // ======== API ========
-    public void SetPlayerName(string playerName) => _playerNameLabel.text = playerName;
+    public void SetPlayerName(string playerName)
+    {
+        _playerNameLabel.text = playerName;
+    }
 
     public void Show()
     {
@@ -204,7 +207,6 @@ public class MainMenuScreen : MonoBehaviour
         _characterBlock.style.display = DisplayStyle.None;
         
         _selectedCosmetic = null;
-        _cosmeticConfirmRow.style.display = DisplayStyle.None;
         PopulateSkinGrid();
     }
 
@@ -250,7 +252,6 @@ public class MainMenuScreen : MonoBehaviour
         //TODO: Play SFX
         _selectedCosmetic = cosmetic;
         _cosmeticConfirmButton.text = isUnlocked ? "Done" : (cosmetic.priceGem > 0 ? $" Buy {cosmetic.priceGem} Gem" : $"Buy {cosmetic.priceGold} Gold");
-        _cosmeticConfirmRow.style.display = DisplayStyle.Flex;
         
         CosmeticPreviewed?.Invoke(cosmetic);
     }
