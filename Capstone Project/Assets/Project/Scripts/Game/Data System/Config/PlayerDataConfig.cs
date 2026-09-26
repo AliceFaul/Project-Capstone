@@ -2,6 +2,44 @@
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using Project.Capstone.Inventory;
+
+public interface IPlayerIdentity
+{
+    string DisplayName { get; }
+    event Action<string> OnDisplayNameChanged;
+    bool SetDisplayName(string newName, out string errorId);
+}
+
+public interface IProgression
+{
+    int Level { get; }
+    float CurrentExp { get; }
+    float ExpToNextLevel { get; }
+    event Action<int> OnLevelUp;
+    event Action<float, float> OnExpChanged;
+    void GainExp(float amount);
+}
+
+public interface ICurrency
+{
+    Currency Currency { get; }
+}
+
+public interface ICosmetics
+{
+    IReadOnlyList<string> UnlockedCosmeticIds { get; }
+    string EquippedCosmeticId { get; }
+    event Action<string> OnCosmeticEquipped;
+    bool IsCosmeticUnlocked(CosmeticData cosmetic);
+    bool PurchaseCosmetic(CosmeticData cosmetic);
+    void EquipCosmetic(CosmeticData cosmetic);
+}
+
+public interface IInventory
+{
+    Inventory Inventory { get; }
+}
 
 public class GameData
 {
@@ -10,6 +48,7 @@ public class GameData
     public float CurrentExp;
     public float ExpToNextLevel;
     public List<CurrencyAmount> CurrencyBalances;
+    public List<InventorySlotData> InventorySlots;
     public List<string> UnlockedCosmeticIds;
     public string EquippedCosmeticId;
 }
@@ -17,10 +56,10 @@ public class GameData
 // Replaced the data fields in Player Runtime;
 // data is now loaded during the Config step to provide an instance available for use throughout the application.
 [CreateAssetMenu(fileName = "PlayerDataConfig", menuName = "Config/Progress")]
-public class PlayerDataConfig : ScriptableObject, IConfig
+public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IProgression, ICurrency, ICosmetics, IInventory
 {
     [Header("Identity")]
-    // Empty name = Call popup service create set name popup when first time play game
+    // 'Unknown' name = Call popup service create set name popup when first time play game
     [SerializeField] private string displayName = "";
     
     [Header("Progression")]
@@ -28,7 +67,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig
     [SerializeField] private float currentExp = 0f;
     [SerializeField] private float expToNextLevel = 100f;
 
-    [Header("Currency (Sync while runtime)")]
+    [Header("Currency")]
     [SerializeField] private List<CurrencyAmount> currencyBalances = new List<CurrencyAmount>
     {
         new CurrencyAmount { type = CurrencyType.Gold, amount = 0 },
@@ -39,6 +78,10 @@ public class PlayerDataConfig : ScriptableObject, IConfig
     [SerializeField] private List<string> unlockedCosmeticIds = new List<string>();
     [SerializeField] private string equippedCosmeticId = "";
 
+    [Header("Inventory")]
+    [SerializeField] private int inventoryMaxSlots = 25;
+    [SerializeField] private ItemDatabase itemDatabase;
+    
     public string DisplayName => displayName;
     public int Level => level;
     public float CurrentExp => currentExp;
@@ -54,7 +97,10 @@ public class PlayerDataConfig : ScriptableObject, IConfig
 
     // Use the lazy pattern to defer initialization until the object is used.
     private Lazy<Currency> _currency;
+    private Lazy<Inventory> _inventory;
+    
     public Currency Currency => _currency.Value;
+    public Inventory Inventory => _inventory.Value;
     
     private void OnEnable()
     {
@@ -79,7 +125,6 @@ public class PlayerDataConfig : ScriptableObject, IConfig
     private void SyncCurrency(CurrencyType type, int amount)
     {
         var entry = currencyBalances.Find(x => x.type == type);
-
         if (entry != null) entry.amount = amount;
         else currencyBalances.Add(new CurrencyAmount { type = type, amount = amount });
     }
