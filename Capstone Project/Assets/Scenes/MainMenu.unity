@@ -25,7 +25,7 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.3137255, g: 0.2627451, b: 0.4901961, a: 1}
+  m_SubtractiveShadowColor: {r: 0.098039225, g: 0.08235294, b: 0.654902, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: cc421da483ed06c49933077a621bff25, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -1388,7 +1388,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 2
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -1752,6 +1752,10 @@ PrefabInstance:
     - target: {fileID: 5735001547704162772, guid: 947128093c62aea42b2986b73bf5086b, type: 3}
       propertyPath: m_Name
       value: FCP_Tent_Type1_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5735001547704162772, guid: 947128093c62aea42b2986b73bf5086b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 7785627479760450114, guid: 947128093c62aea42b2986b73bf5086b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2424,6 +2428,10 @@ PrefabInstance:
     - target: {fileID: 6613194585452116263, guid: 1b095296d9d51a545b2b1bd11e624b4f, type: 3}
       propertyPath: m_Name
       value: FCP__Lute_Type1_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6613194585452116263, guid: 1b095296d9d51a545b2b1bd11e624b4f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 7398591671180639709, guid: 1b095296d9d51a545b2b1bd11e624b4f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4185,6 +4193,10 @@ PrefabInstance:
     - target: {fileID: 3642673388449493917, guid: 2c7ee968c4b79eb41bc3844662918f22, type: 3}
       propertyPath: m_Name
       value: FCP_BundleOfWood_Type1_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3642673388449493917, guid: 2c7ee968c4b79eb41bc3844662918f22, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5952,6 +5964,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FCP_Tent_Type1_Color1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5735001547704162772, guid: 947128093c62aea42b2986b73bf5086b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 7785627479760450114, guid: 947128093c62aea42b2986b73bf5086b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15.880356
@@ -6190,6 +6206,10 @@ PrefabInstance:
     - target: {fileID: 8346086295276694427, guid: 5b78483a17f1d9f49ac480bebcc8f57b, type: 3}
       propertyPath: m_Name
       value: FCP_Bench_Type1_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8346086295276694427, guid: 5b78483a17f1d9f49ac480bebcc8f57b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7946,6 +7966,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FCP_CampCookingSetup_Type1_Color1
       objectReference: {fileID: 0}
+    - target: {fileID: 101797993815291553, guid: 39d101b9c9ecfda43a7f94b494b73229, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 7175066302156219126, guid: 39d101b9c9ecfda43a7f94b494b73229, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.449646
@@ -8044,6 +8068,10 @@ PrefabInstance:
     - target: {fileID: 9105888542923654724, guid: fbd2e5e94f47a404fa2b4cdcfd1113de, type: 3}
       propertyPath: m_Name
       value: FCP_Lantern_Type1_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9105888542923654724, guid: fbd2e5e94f47a404fa2b4cdcfd1113de, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 9126625275161637999, guid: fbd2e5e94f47a404fa2b4cdcfd1113de, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8146,6 +8174,10 @@ PrefabInstance:
     - target: {fileID: 4331521055192881963, guid: dfe678baaa2592a468d246f84fcb0012, type: 3}
       propertyPath: m_Name
       value: FCP_Campfire_Type1_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331521055192881963, guid: dfe678baaa2592a468d246f84fcb0012, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8270,6 +8302,10 @@ PrefabInstance:
     - target: {fileID: 4331521055192881963, guid: dfe678baaa2592a468d246f84fcb0012, type: 3}
       propertyPath: m_Name
       value: FCP_Campfire_Type1_Color1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331521055192881963, guid: dfe678baaa2592a468d246f84fcb0012, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9559,6 +9595,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FCP_Backpack_Type1_Color1
       objectReference: {fileID: 0}
+    - target: {fileID: 4491154335116048309, guid: 0ae46db1792e7114389f5a40a747a647, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 7735120271592140193, guid: 0ae46db1792e7114389f5a40a747a647, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.0923615
@@ -10320,6 +10360,10 @@ PrefabInstance:
     - target: {fileID: 2108520984331156871, guid: abc6ec378eed0054981426f1ec67fe69, type: 3}
       propertyPath: m_Name
       value: FCP_CampSign_Type2_Left_Color1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2108520984331156871, guid: abc6ec378eed0054981426f1ec67fe69, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 7965269478617407998, guid: abc6ec378eed0054981426f1ec67fe69, type: 3}
       propertyPath: m_LocalPosition.x

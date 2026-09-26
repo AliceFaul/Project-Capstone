@@ -47,12 +47,15 @@ public class StartupErrorController
             }
         }
         
-        UIManager.Instance?.GetPopupService().Create("ErrorPopup", errorId, localized, () => OnClose("ErrorPopup"));
+        UIManager.Instance?.GetPopupService().Create("ErrorPopup", errorId, localized, () =>
+        {
+            OnClose(errorId);
+            return true;
+        });
     }
-
-    private static void OnClose(string prefabId)
+    
+    private static void OnClose(string errorId)
     {
-        var go = GameObject.Find(prefabId);
-        GameObject.Destroy(go);
+        UIManager.Instance?.GetPopupService()?.Destroy(errorId);
     }
 }

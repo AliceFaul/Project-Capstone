@@ -17,28 +17,39 @@ public class Popup : UIElement
         _animator = GetComponent<Animator>();
     }
 
-    public void Setup(string instanceId, LocalizedString content, Action onClick1, Action onClick2)
+    public void Setup(string instanceId, LocalizedString content, Func<bool> onClick1, Func<bool> onClick2)
     {
         this.InstanceID = instanceId;
-        contentText.ChangeText(content);
+        if(contentText != null) contentText.ChangeText(content);
 
         if (this.button1 != null)
         {
+            this.button1.onClick.RemoveAllListeners();
             this.button1.onClick.AddListener(() =>
             {
-                onClick1?.Invoke();
-                StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
+                bool close = onClick1 == null || onClick1.Invoke();
+                if(close) StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
             });
         }
         
         if (this.button2 != null)
         {
+            this.button2.onClick.RemoveAllListeners();
             this.button2.onClick.AddListener(() =>
             {
-                onClick2?.Invoke();
-                StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
+                bool close = onClick2 == null || onClick2.Invoke();
+                if(close) StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
             });
         }
+    }
+
+    public void Setup(string instanceId, LocalizedString content, Action onClick1, Action onClick2)
+    {
+        Setup(
+            instanceId,
+            content,
+            onClick1 != null ? () => { onClick1(); return true; } : null,
+            onClick2 != null ? () => { onClick2(); return true; } : null);
     }
     
     public void Setup(string instanceId, LocalizedString content)
@@ -46,7 +57,7 @@ public class Popup : UIElement
     
     private IEnumerator ClosePopup(float time)
     {
-        _animator.Play($"Close");
+        if(_animator != null) _animator.Play($"Close");
         yield return new WaitForSeconds(time);
         Destroy(this.gameObject);
     }

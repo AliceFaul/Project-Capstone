@@ -245,6 +245,8 @@ public class MainMenuScreen : MonoBehaviour
             slot.Clicked += _ => OnCosmeticSlotClicked(cosmetic, isUnlocked);
             _cosmeticGrid.Add(slot);
         }
+        
+        Debug.Log($"[MainMenuScreen] Cosmetic Grid loaded!");
     }
 
     private void OnCosmeticSlotClicked(CosmeticData cosmetic, bool isUnlocked)
@@ -334,6 +336,8 @@ public class MainMenuScreen : MonoBehaviour
         SetAudioMixer("MasterVolume", _playerConfig.masterVolume);
         SetAudioMixer("MusicVolume", _playerConfig.musicVolume);
         SetAudioMixer("SFXVolume", _playerConfig.sfxVolume);
+        
+        Debug.Log($"[MainMenuScreen] Applied new settings");
     }
 
     private void SetAudioMixer(string param, float linearVolume)
