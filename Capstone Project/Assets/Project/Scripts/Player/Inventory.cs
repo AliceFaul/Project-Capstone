@@ -1,9 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace Project.Capstone.Inventory
 {
+    [Serializable]
+    public class InventorySlotData
+    {
+        public string itemId;
+        public int quantity;
+    }
+    
     [System.Serializable]
     public class InventorySlot
     {
@@ -27,7 +35,7 @@ namespace Project.Capstone.Inventory
     [System.Serializable]
     public class Inventory
     {
-        public List<InventorySlot> slots = new List<InventorySlot>();
+        public List<InventorySlot> slots;
         public int maxSlots;
         
         public event Action<List<InventorySlot>> OnInventoryChanged;
@@ -35,6 +43,7 @@ namespace Project.Capstone.Inventory
         public Inventory(int slotCount = 25)
         {
             maxSlots = slotCount;
+            slots = new List<InventorySlot>(maxSlots);
             slots.Clear();
 
             for (int i = 0; i < maxSlots; i++)
@@ -47,85 +56,133 @@ namespace Project.Capstone.Inventory
         {
             if (item == null)
             {
-                Debug.LogWarning($"[Inventory] Attempted to add a null Item!");
+                Debug.LogWarning($"[Inventory] Attempted to add a invalid Item or Quantity!");
                 return false;
             }
             
-            bool hasAdded = false;
-
+            int remaining = quantity;
+            int maxStack = item.isStackable ? Mathf.Max(1, item.maxStackSize) : 1;
+            
+            // Add to slots have an item
             if (item.isStackable)
             {
                 foreach (var slot in slots)
                 {
-                    if (!slot.IsEmpty && slot.item == item && slot.quantity < item.maxStackSize)
+                    if (!slot.IsEmpty && slot.item.id == item.id && slot.quantity < maxStack)
                     {
-                        int roomLeft = item.maxStackSize - slot.quantity;
-                        int amountToAdd = Mathf.Min(quantity, roomLeft);
+                        int roomLeft = maxStack - slot.quantity;
+                        int amountToAdd = Mathf.Min(remaining, roomLeft);
 
                         slot.quantity += amountToAdd;
-                        quantity -= amountToAdd;
-                        Debug.Log($"[Inventory] Adding {amountToAdd} item to {slot.item.itemName}!");
-                        hasAdded = true;
+                        remaining -= amountToAdd;
+                        
+                        if(remaining <= 0) break;
                     }
-                    
-                    if(quantity <= 0) break;
                 }
             }
             
-            foreach (var slot in slots)
+            // Add to empty slots
+            if (remaining > 0)
             {
-                if(!slot.IsEmpty) continue;
+                foreach (var slot in slots)
+                {
+                    if (!slot.IsEmpty) continue;
 
-                int amountToAdd = Mathf.Min(quantity, item.maxStackSize);
-            
-                slot.item = item;
-                slot.quantity = amountToAdd;
-            
-                quantity -= amountToAdd;
-                Debug.Log($"[Inventory] Adding {item.itemName} to empty slot!");
-                hasAdded = true;
-            
-                if (quantity <= 0) break;
+                    int amountToAdd = Mathf.Min(remaining, maxStack);
+
+                    slot.item = item;
+                    slot.quantity = amountToAdd;
+                    remaining -= amountToAdd;
+                    
+                    if (quantity <= 0) break;
+                }
+            }
+
+            bool hasAdded = remaining < quantity;
+
+            if (hasAdded)
+            {
+                OnInventoryChanged?.Invoke(slots);
+                Debug.Log($"[Inventory] Added {item.itemName} ({quantity}) to slots!");
             }
             
-            if(hasAdded) OnInventoryChanged?.Invoke(slots);
-            else Debug.Log($"[Inventory] Inventory full!");
-            return quantity <= 0;
+            if(remaining > 0) Debug.LogWarning($"[Inventory] Inventory full! Leftover quantity: {remaining}");
+            
+            return remaining <= 0;
         }
 
         public bool RemoveItem(ItemData item, int quantity = 1)
         {
-            int totalAmount = 0;
-            
-            foreach (var slot in slots) if (slot.item == item) totalAmount += slot.quantity;
+            if(item == null || quantity <= 0) return false;
+            int totalAmount = slots.Where(slot => !slot.IsEmpty && slot.item.id == item.id).Sum(slot => slot.quantity);
+
             if (totalAmount < quantity)
             {
                 Debug.Log($"[Inventory] {item.itemName} does not have enough {quantity} items left!");
                 return false;
             }
 
+            int remaining = quantity;
+            
             for (int i = slots.Count - 1; i >= 0; i--)
             {
-                if (slots[i].item == item)
+                if (!slots[i].IsEmpty && slots[i].item.id == item.id)
                 {
-                    if (slots[i].quantity > quantity)
+                    if (slots[i].quantity > remaining)
                     {
-                        slots[i].quantity -= quantity;
-                        quantity = 0;
+                        slots[i].quantity -= remaining;
+                        remaining = 0;
                     }
                     else
                     {
-                        quantity -= slots[i].quantity;
+                        remaining -= slots[i].quantity;
                         slots[i].Clear();
                     }
 
-                    if (quantity <= 0) break;
+                    if (remaining <= 0) break;
                 }
             }
 
-            Debug.Log($"[Inventory] Removed {item.itemName} ({quantity}) from slots!");
+            Debug.Log($"[Inventory] Successfully removed {quantity} x {item.itemName} from inventory!");
             OnInventoryChanged?.Invoke(slots);
             return true;
+        }
+
+        public List<InventorySlotData> ToData()
+        {
+            var data = new List<InventorySlotData>();
+
+            foreach (var slot in slots)
+            {
+                data.Add(new InventorySlotData
+                {
+                    itemId = slot.IsEmpty ? string.Empty : slot.item.id,
+                    quantity = slot.quantity
+                });
+            }
+            
+            return data;
+        }
+
+        public void ApplyData(List<InventorySlotData> data, Func<string, ItemData> itemLookup)
+        {
+            if(data == null) return;
+
+            for (int i = 0; i < maxSlots; i++)
+            {
+                if (i < data.Count && !string.IsNullOrEmpty(data[i].itemId))
+                {
+                    ItemData loadedItem = itemLookup?.Invoke(data[i].itemId);
+                    slots[i].item = loadedItem;
+                    slots[i].quantity = loadedItem != null ? data[i].quantity : 0;
+                }
+                else
+                {
+                    slots[i].Clear();
+                }
+            }
+            
+            OnInventoryChanged?.Invoke(slots);
         }
     }
 }

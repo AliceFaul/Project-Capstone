@@ -1,8 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
 using UnityEngine.Localization;
+using Random = UnityEngine.Random;
 
 public class MainMenu : MonoBehaviour
 {
@@ -19,10 +19,19 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private LocalizedString quitConfirmContent;
     [SerializeField] private LocalizedString nameEntryPromptContent;
 
+    private IPopupService _popupService;
     private PlayerDataConfig _config;
     
     private const int InactivePriority = 0;
     private const int ActivePriority = 20;
+
+    private void Start()
+    {
+        _popupService = UIManager.Instance?.GetPopupService();
+        var configMg = StartupProcessor.Instance?.GetService<ConfigManager>();
+        if (configMg != null && configMg.GetConfig(out PlayerDataConfig config)) _config = config;
+        CheckFirstTimePlayerName();
+    }
 
     private void OnEnable()
     {
@@ -90,19 +99,22 @@ public class MainMenu : MonoBehaviour
         Debug.Log($"[MainMenu] Open Options!");
         screen.ShowSettingsPanel();
     }
-    
+
     private void QuitGame()
     {
         Debug.Log("[MainMenu] Quit Game!");
-        var popupService = UIManager.Instance?.GetPopupService();
 
-        if (popupService != null)
+        if (_popupService != null)
         {
-            popupService.Create(
-                prefabId: "ConfirmQuitGame",
-                instanceId: Guid.NewGuid().ToString(), 
-                content: quitConfirmContent, 
-                onClick1: ConfirmQuit);
+            _popupService.Create(
+                prefabId: "QuitConfirmPopup",
+                instanceId: $"quit_confirm_popup_{Time.time}_{Random.Range(0, 9999)}",
+                content: quitConfirmContent,
+                onClick1: () =>
+                {
+                    ConfirmQuit();
+                    return true;
+                });
         }
         else
         {
@@ -135,24 +147,22 @@ public class MainMenu : MonoBehaviour
 
     private void OpenNameEntry()
     {
-        var popupService = UIManager.Instance?.GetPopupService();
+        if(_popupService == null || _config == null) return;
+        PlayerNameHandler component = null;
+        
+        GameObject popup = _popupService.Create(
+            prefabId: "NameEntryPopup",
+            instanceId: $"name_entry_popup_{Time.time}_{Random.Range(0, 9999)}",
+            content: nameEntryPromptContent,
+            onClick1: () => component != null && component.OnConfirm(),
+            onClick2: null);
 
-        if (popupService != null)
+        if (popup != null && popup.TryGetComponent<PlayerNameHandler>(out component))
         {
-            popupService.Create(
-                prefabId: "NameEntry",
-                instanceId: Guid.NewGuid().ToString(),
-                content: nameEntryPromptContent,
-                onClick1: RefreshPlayerName);
+            component.Initialize(_config);
         }
     }
 
-    private void RefreshPlayerName()
-    {
-        if(_config == null && screen == null) return;
-        screen.SetPlayerName(_config.DisplayName);
-    }
-    
     private WaitUntil WaitForBlend()
     {
         return new WaitUntil(() => brain == null || !brain.IsBlending);
