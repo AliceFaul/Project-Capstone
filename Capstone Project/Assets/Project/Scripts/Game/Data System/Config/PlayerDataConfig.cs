@@ -114,6 +114,12 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             instance.OnCurrencyChanged += SyncCurrency;
             return instance;
         }, LazyThreadSafetyMode.None);
+
+        _inventory = new Lazy<Inventory>(() =>
+        {
+            var instance = new Inventory(inventoryMaxSlots);
+            return instance;
+        }, LazyThreadSafetyMode.None);
     }
 
     // unsubscribe to avoid memory leak
@@ -211,6 +217,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             CurrencyBalances = this.currencyBalances,
             UnlockedCosmeticIds = this.unlockedCosmeticIds,
             EquippedCosmeticId = this.equippedCosmeticId,
+            InventorySlots = _inventory is { IsValueCreated: true } ? _inventory.Value.ToData() : new List<InventorySlotData>()
         };
     }
 
@@ -226,12 +233,19 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
         this.unlockedCosmeticIds = gameData.UnlockedCosmeticIds ?? this.unlockedCosmeticIds;
         this.equippedCosmeticId = gameData.EquippedCosmeticId ?? this.equippedCosmeticId;
 
+        // Sync currency data
         if (_currency is { IsValueCreated: true })
         {
             foreach (var balance in this.currencyBalances)
             {
                 _currency.Value.Set(balance.type, balance.amount);
             }
+        }
+
+        // Sync inventory data
+        if (gameData.InventorySlots != null)
+        {
+            Inventory.ApplyData(gameData.InventorySlots, itemId => itemDatabase != null ? itemDatabase.Get(itemId) : null);
         }
         
         OnDataApplied?.Invoke();

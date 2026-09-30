@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System;
 using System.Collections.Generic;
+using PlayFab.ProfilesModels;
 using UnityEngine.Audio;
 
 [RequireComponent(typeof(UIDocument))]
@@ -70,14 +71,7 @@ public class MainMenuScreen : MonoBehaviour
 
     private void OnDisable()
     {
-        if (_config != null)
-        {
-            _config.OnLevelUp -= HandleLevelUp;
-            _config.OnExpChanged -= HandleExpProgress;
-            _config.OnDataApplied -= Refresh;
-            _config.OnCosmeticEquipped -= HandleCosmeticEquipped;
-            if (_config.Currency != null) _config.Currency.OnCurrencyChanged -= HandleCurrency;
-        }
+        UnbindData();
     }
 
     private void QueryElements()
@@ -152,13 +146,22 @@ public class MainMenuScreen : MonoBehaviour
             return;
         }
         
-        _config.OnLevelUp += HandleLevelUp;
-        _config.OnExpChanged += HandleExpProgress;
+        _config.OnDisplayNameChanged += SetPlayerName;
         _config.OnDataApplied += Refresh;
-        _config.OnCosmeticEquipped += HandleCosmeticEquipped;
         if(_config.Currency != null) _config.Currency.OnCurrencyChanged += HandleCurrency;
+        Debug.Log($"[MainMenuScreen] Bind data successfully.");
         
         Refresh();
+    }
+
+    private void UnbindData()
+    {
+        if (_config == null) return;
+        _config.OnDataApplied -= Refresh;
+        _config.OnDisplayNameChanged -= SetPlayerName;
+        if (_config.Currency != null) _config.Currency.OnCurrencyChanged -= HandleCurrency;
+        
+        _config = null;
     }
 
     private void Refresh()
@@ -169,9 +172,6 @@ public class MainMenuScreen : MonoBehaviour
         _gemDisplay.SetAmount(_config.Currency.Gem());
         _playerNameLabel.text = string.IsNullOrEmpty(_config.DisplayName) ? "Unknown" : _config.DisplayName;
     }
-    
-    private void HandleLevelUp(int level) => _levelDisplay.SetText($"{level}");
-    private void HandleExpProgress(float current, float toNext) { /*TODO: Add exp progress bar around level text*/ }
 
     private void HandleCurrency(CurrencyType type, int amount)
     {
@@ -185,14 +185,14 @@ public class MainMenuScreen : MonoBehaviour
     }
     
     // ======== API ========
-    public void SetPlayerName(string playerName)
+    private void SetPlayerName(string playerName)
     {
         _playerNameLabel.text = playerName;
     }
 
     public void Show()
     {
-        if(_config == null) BindData();
+        if(!_config) BindData();
         _root.style.display = DisplayStyle.Flex;
     }
     
@@ -271,11 +271,6 @@ public class MainMenuScreen : MonoBehaviour
         
         _config.EquipCosmetic(_selectedCosmetic);
         PopulateSkinGrid();
-    }
-
-    private void HandleCosmeticEquipped(string cosmeticId)
-    {
-        if(IsCosmeticPanelOpen) PopulateSkinGrid();
     }
 
     public void ShowSettingsPanel()

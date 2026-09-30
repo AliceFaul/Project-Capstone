@@ -71,6 +71,26 @@ MonoBehaviour:
     m_Key: UI_CONFIG_LOAD_FAILED
     m_Metadata:
       m_Items: []
+  - m_Id: 9656482171592704
+    m_Key: ENTER_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Key: CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Key: UI_NAME_TOO_LONG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Key: UI_NAME_NULL_OR_WHITESPACE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Key: UI_NAME_INVALID
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

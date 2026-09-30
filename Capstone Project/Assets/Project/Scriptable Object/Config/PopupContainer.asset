@@ -17,3 +17,5 @@ MonoBehaviour:
     prefab: {fileID: 5610597670398877958, guid: d8394db0e64f8b84fb72f7495eb99887, type: 3}
   - id: ErrorPopup
     prefab: {fileID: 3540655577545304249, guid: b43754f06362b894c877f03059b94ca5, type: 3}
+  - id: NameEntryPopup
+    prefab: {fileID: 1443896409896398916, guid: 75ff067f16d02fe4c81f2a0707a62332, type: 3}

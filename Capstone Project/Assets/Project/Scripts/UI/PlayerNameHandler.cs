@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Localization;
 
@@ -13,21 +12,21 @@ public class PlayerNameHandler : MonoBehaviour
     private readonly LocalizedString _nameTooLong = new LocalizedString("UI", "NAME_TOO_LONG");
     private readonly LocalizedString _defaultError = new LocalizedString("UI", "NAME_INVALID");
 
-    private PlayerDataConfig _config;
+    private IPlayerIdentity _identity;
 
-    public void Initialize(PlayerDataConfig config)
+    public void Initialize(IPlayerIdentity identity)
     {
-        _config = config;
+        _identity = identity;
         errorMessage?.InitText();
-        if(_config != null && nameInput != null) nameInput.text = (_config.DisplayName == "Unknown") ? string.Empty : _config.DisplayName;
+        if(_identity != null && nameInput != null) nameInput.text = (_identity.DisplayName == "Unknown") ? string.Empty : _identity.DisplayName;
     }
 
     public bool OnConfirm()
     {
-        if(_config == null) return false;
+        if(_identity == null) return false;
         
         string newName = nameInput != null ?  nameInput.text : string.Empty;
-        bool success = _config.SetDisplayName(newName, out string errorId);
+        bool success = _identity.SetDisplayName(newName, out string errorId);
 
         if (success) return true;
         

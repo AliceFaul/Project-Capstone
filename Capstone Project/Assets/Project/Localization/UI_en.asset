@@ -74,6 +74,26 @@ MonoBehaviour:
     m_Localized: Can't find configure file.
     m_Metadata:
       m_Items: []
+  - m_Id: 9656482171592704
+    m_Localized: Please enter your display name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Localized: Name too long.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Localized: Name can't be empty.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Localized: Name invalid.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

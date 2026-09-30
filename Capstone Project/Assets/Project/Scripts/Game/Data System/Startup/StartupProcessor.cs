@@ -10,7 +10,15 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 public class StartupProcessor : MonoBehaviour
 {
     public static StartupProcessor Instance { get; private set; }
-
+    public InputSystem_Actions InputActions
+    {
+        get
+        {
+            _input ??= new InputSystem_Actions();
+            return _input;
+        }
+    }
+    
     [SerializeField] private float timeout = 10f;
     [SerializeField] private MonoBehaviour loadingScreen;
     
@@ -41,8 +49,8 @@ public class StartupProcessor : MonoBehaviour
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
-        
-            _input = new InputSystem_Actions();
+
+            _input ??= new InputSystem_Actions();
             _input.UI.Enable();
             _input.UI.Click.performed += OnClickPerformed;
         
@@ -90,7 +98,7 @@ public class StartupProcessor : MonoBehaviour
                 Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
                 await WaitForClicked();
                 if (_loading != null) await _loading.Hide();
-                OpenMainMenu();
+                await OpenMainMenu();
             }
             else
             {
@@ -107,8 +115,9 @@ public class StartupProcessor : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(_input != null)
-            _input.UI.Click.performed -= OnClickPerformed;
+        if (_input == null) return;
+        _input.Disable();
+        _input.Dispose();
     }
 
     private struct StartupPipeline
@@ -210,13 +219,13 @@ public class StartupProcessor : MonoBehaviour
         _clickTcs?.TrySetResult(true);
     }
 
-    private void OpenMainMenu()
+    private async Task OpenMainMenu()
     {
         _input.UI.Disable();
         Debug.Log($"[StartupProcessor] Opening main menu");
         
         var mainMenu = FindFirstObjectByType<MainMenu>();
-        if(mainMenu != null) mainMenu.OpenMainMenu();
+        if(mainMenu != null) await mainMenu.OpenMainMenu();
         else Debug.LogError($"[StartupProcessor] No main menu component found!");
     }
 
