@@ -80,15 +80,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 10864666261463040
-    m_Key: UI_NAME_TOO_LONG
+    m_Key: NAME_TOO_LONG
     m_Metadata:
       m_Items: []
   - m_Id: 10864761635741696
-    m_Key: UI_NAME_NULL_OR_WHITESPACE
+    m_Key: NAME_NULL_OR_WHITESPACE
     m_Metadata:
       m_Items: []
   - m_Id: 10865027739164672
-    m_Key: UI_NAME_INVALID
+    m_Key: NAME_INVALID
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11074257574305792
+    m_Key: ENTER_NEW_NAME
     m_Metadata:
       m_Items: []
   m_Metadata:

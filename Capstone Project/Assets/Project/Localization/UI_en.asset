@@ -94,6 +94,10 @@ MonoBehaviour:
     m_Localized: Name invalid.
     m_Metadata:
       m_Items: []
+  - m_Id: 11074257574305792
+    m_Localized: Enter new name
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

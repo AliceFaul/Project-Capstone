@@ -12,8 +12,17 @@ public class LocalizationText : MonoBehaviour, ITextProvider
     
     private void Awake()
     {
-        if(text == null)
-            text = GetComponent<TMP_Text>();
+        if(text == null) text = GetComponent<TMP_Text>();
+    }
+
+    private void OnEnable()
+    {
+        if(localizedString != null) localizedString.StringChanged += UpdateText;
+    }
+
+    private void OnDisable()
+    {
+        if(localizedString != null) localizedString.StringChanged -= UpdateText;
     }
 
     public void InitText()
@@ -37,22 +46,17 @@ public class LocalizationText : MonoBehaviour, ITextProvider
 
     public void ChangeText(LocalizedString valueText)
     {
-        if(localizedString != null)
-            localizedString.StringChanged -= UpdateText;
-
+        if(localizedString != null) localizedString.StringChanged -= UpdateText;
         localizedString = valueText;
-
-        if(localizedString != null)
-            localizedString.StringChanged += UpdateText;
-
+        if(localizedString != null) localizedString.StringChanged += UpdateText;
         localizedString?.RefreshString();
     }
 
     private void UpdateText(string value)
     {
-        if(text != null)
-            text.text = value;
-        else
-            Debug.LogError($"[LocalizationText] {gameObject.name} has no TMP_Text!");
+        if (!this || !gameObject) return;
+        
+        if(text != null) text.text = value;
+        else Debug.LogError($"[LocalizationText] {gameObject.name} has no TMP_Text!");
     }
 }

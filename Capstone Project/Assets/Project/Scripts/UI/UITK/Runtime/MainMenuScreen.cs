@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System;
 using System.Collections.Generic;
-using PlayFab.ProfilesModels;
 using UnityEngine.Audio;
 
 [RequireComponent(typeof(UIDocument))]
@@ -49,6 +48,7 @@ public class MainMenuScreen : MonoBehaviour
     public event Action ChangeCosmeticClicked;
     public event Action CloseCosmeticClicked;
     public event Action<CosmeticData> CosmeticPreviewed;
+    public event Action<CosmeticData> CosmeticSelected;
     public event Action CosmeticPreviewCanceled;
     public event Action PlayerNameClicked;
     
@@ -244,6 +244,8 @@ public class MainMenuScreen : MonoBehaviour
             
             slot.Clicked += _ => OnCosmeticSlotClicked(cosmetic, isUnlocked);
             _cosmeticGrid.Add(slot);
+            
+            if (isEquipped && _selectedCosmetic == null) OnCosmeticSlotClicked(cosmetic, isUnlocked);
         }
         
         Debug.Log($"[MainMenuScreen] Cosmetic Grid loaded!");
@@ -270,6 +272,8 @@ public class MainMenuScreen : MonoBehaviour
         }
         
         _config.EquipCosmetic(_selectedCosmetic);
+        CosmeticSelected?.Invoke(_selectedCosmetic);
+        
         PopulateSkinGrid();
     }
 
