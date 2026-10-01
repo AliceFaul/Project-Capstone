@@ -17,28 +17,25 @@ public class MainMenu : MonoBehaviour
     
     [Header("UI")]
     [SerializeField] private MainMenuScreen screen;
+    [SerializeField] private CharacterPreview preview;
 
     [Header("Popup")]
     [SerializeField] private LocalizedString quitConfirmContent;
     [SerializeField] private LocalizedString nameEntryPromptContent;
 
-    private InputSystem_Actions _input;
     private IPopupService _popupService;
     private PlayerDataConfig _config;
     
     private const int InactivePriority = 0;
     private const int ActivePriority = 20;
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape)) HandleEscapeKey();
+    }
+
     private void OnEnable()
     {
-        if(StartupProcessor.Instance != null) _input = StartupProcessor.Instance.InputActions;
-        
-        if (_input != null)
-        {
-            _input.UI.Enable();
-            _input.UI.Escape.performed += OnEscapeKeyHandle;
-        }
-        
         if(screen == null) return;
         
         screen.StartGameClicked += StartGame;
@@ -46,6 +43,9 @@ public class MainMenu : MonoBehaviour
         screen.QuitClicked += QuitGame;
         screen.ChangeCosmeticClicked += HandleChangeCosmetic;
         screen.CloseCosmeticClicked += HandleCloseCosmetic;
+        screen.CosmeticPreviewed += OnCosmeticPreviewed;
+        screen.CosmeticPreviewCanceled += OnCosmeticPreviewCanceled;
+        screen.CosmeticSelected += OnCosmeticEquipped;
         screen.PlayerNameClicked += OpenNameEntry;
     }
 
@@ -58,11 +58,10 @@ public class MainMenu : MonoBehaviour
         screen.QuitClicked -= QuitGame;
         screen.ChangeCosmeticClicked -= HandleChangeCosmetic;
         screen.CloseCosmeticClicked -= HandleCloseCosmetic;
+        screen.CosmeticPreviewed -= OnCosmeticPreviewed;
+        screen.CosmeticPreviewCanceled -= OnCosmeticPreviewCanceled;
+        screen.CosmeticSelected -= OnCosmeticEquipped;
         screen.PlayerNameClicked -= OpenNameEntry;
-
-        if (_input == null) return;
-        _input.UI.Escape.performed -= OnEscapeKeyHandle;
-        _input.UI.Disable();
     }
 
     public async Task OpenMainMenu()
@@ -72,6 +71,7 @@ public class MainMenu : MonoBehaviour
             _popupService = UIManager.Instance?.GetPopupService();
             var configMg = StartupProcessor.Instance?.GetService<ConfigManager>();
             if (configMg != null && configMg.GetConfig(out PlayerDataConfig config)) _config = config;
+            preview.Initialize(_config);
         
             await CheckFirstTimePlayerName();
             await Task.Delay(1000);
@@ -104,9 +104,22 @@ public class MainMenu : MonoBehaviour
         SetPriority(changeSkinCamera, InactivePriority);
         screen.HideChangeCosmeticPanel();
     }
-
-    private void OnEscapeKeyHandle(InputAction.CallbackContext ctx) => HandleEscapeKey();
     
+    private void OnCosmeticPreviewed(CosmeticData cosmetic)
+    {
+        if (preview != null) preview.PreviewCosmetic(cosmetic);
+    }
+
+    private void OnCosmeticPreviewCanceled()
+    {
+        if (preview != null) preview.RevertCosmetic();
+    }
+
+    private void OnCosmeticEquipped(CosmeticData cosmetic)
+    {
+        if (preview != null) preview.OnCosmeticEquipped(cosmetic);
+    }
+
     private void StartGame()
     {
         _ = SceneLoader.Instance.LoadScene("Mhieu", false);
