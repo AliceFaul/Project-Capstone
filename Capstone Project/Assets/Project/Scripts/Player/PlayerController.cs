@@ -66,6 +66,17 @@ public class PlayerController : MonoBehaviour {
         set => _stateMachine = value;
     }
     
+    private PlayerAbilityHolder _abilityHolder;
+    public PlayerAbilityHolder AbilityHolder
+    {
+        get
+        {
+            if(_abilityHolder == null) _abilityHolder = GetComponent<PlayerAbilityHolder>();
+            return _abilityHolder;
+        }
+        set => _abilityHolder = value;
+    }
+    
     private InputHandler _inputHandler;
     public InputHandler InputHandler
     {

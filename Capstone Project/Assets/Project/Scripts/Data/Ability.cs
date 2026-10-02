@@ -11,7 +11,7 @@ public abstract class Ability : ScriptableObject
     [SerializeField] private Sprite abilityIcon;
     
     [Header("Ability Input")]
-    [SerializeField] private InputActionReference input;
+    [SerializeField] private InputActionProperty input;
     
     [Header("VFX")]
     [SerializeField] private GameObject vfxPrefab;
@@ -19,7 +19,7 @@ public abstract class Ability : ScriptableObject
     public string AbilityName => abilityName;
     public float AbilityCooldown => abilityCooldown;
     public Sprite AbilityIcon => abilityIcon;
-    public InputActionReference Input => input;
+    public InputAction Input => input.action;
     
     protected IObjectPool<GameObject> VFXPool;
 

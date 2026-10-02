@@ -256,6 +256,7 @@ GameObject:
   - component: {fileID: 6983588896542028798}
   - component: {fileID: 4069758127545282674}
   - component: {fileID: 1594350380156625181}
+  - component: {fileID: 2410836123975081364}
   - component: {fileID: 1396825416686326437}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
@@ -485,6 +486,22 @@ MonoBehaviour:
   slots: []
   maxSlots: 50
   itemPickupPrefab: {fileID: 0}
+--- !u!114 &2410836123975081364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5eb2651b9da407a82c821fc686fe57f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAbilityHolder
+  abilities:
+  - {fileID: 11400000, guid: 4e4642a6eaae2b542b72c642c8feec91, type: 2}
+  - {fileID: 11400000, guid: 6625ec6d7fc365248a57aa2f5973e7ba, type: 2}
+  cooldownChannel: {fileID: 11400000, guid: 86bba598dd7bd3f4da02a4aa6934c274, type: 2}
 --- !u!114 &1396825416686326437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -731,6 +748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4ef38f4f4fd6a784db482513fb24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
+  autoSync: 0
   meleeSocket: {fileID: 5594313983555539030}
   rangedSocket: {fileID: 8723449264484825119}
 --- !u!4 &1131708700260700962 stripped

@@ -17,8 +17,6 @@ public class RollAbility : Ability
         var controller = parent.GetComponent<PlayerController>();
         if(controller == null || controller.Movement == null) yield break;
         
-        InitializePool();
-        
         // Get VFX from object pooling
         GameObject instanceFx = null;
         if (VFXPool != null)

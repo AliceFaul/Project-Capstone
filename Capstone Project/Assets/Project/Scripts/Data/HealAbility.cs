@@ -14,8 +14,6 @@ public class HealAbility : Ability
         if (playerRuntime == null || playerRuntime.IsMaxHealth) return;
         playerRuntime.Heal(healAmount);
         
-        InitializePool();
-
         if (VFXPool == null) return;
         var fx = VFXPool.Get();
         fx.transform.position = parent.transform.position;
