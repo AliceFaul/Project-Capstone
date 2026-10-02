@@ -25,7 +25,7 @@ public abstract class Ability : ScriptableObject
 
     public virtual void InitializePool()
     {
-        if(vfxPrefab == null) return;
+        if(vfxPrefab == null || VFXPool != null) return;
         
         VFXPool = new ObjectPool<GameObject>(
             createFunc: () => Instantiate(vfxPrefab),

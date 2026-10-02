@@ -155,17 +155,16 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     // Call in PlayerController
     private void LocomotionProcess()
     {
-        if (_stateMachine.CurrentState != CharacterStateType.Locomotion)
-            return;
+        if (_stateMachine.CurrentState != CharacterStateType.Locomotion) return;
 
-        /*var speed = runtime.MoveSpeed == 0
-            ? 0
-            : Mathf.Clamp01(agent.velocity.magnitude / runtime.MoveSpeed); */
-        
-        _animator.SetFloat(_locomotionHash, _movement.NormalizedSpeed);
+        var currentSpeed = _movement.NormalizedSpeed;
+        _animator.SetFloat(_locomotionHash, currentSpeed);
 
         if (runDust != null && runDust.isPlaying)
-            _dustEmission.rateOverTimeMultiplier = Mathf.Lerp(0.3f, 1f, _movement.NormalizedSpeed);
+        {
+            float targetEmission = Mathf.Lerp(0.3f, 10f, currentSpeed);
+            _dustEmission.rateOverTimeMultiplier = Mathf.MoveTowards(_dustEmission.rateOverTimeMultiplier, targetEmission, Time.deltaTime * 5f);
+        }
     }
 
     private void AttackProcess()
@@ -237,10 +236,8 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     private IEnumerator SquashStretchRoutine(Vector3 punchScale)
     {
-        if(rootTransform != null)
-            rootTransform.localScale = punchScale;
-        else
-            Debug.LogError($"Model transform have missed!");
+        if(rootTransform != null) rootTransform.localScale = punchScale;
+        else Debug.LogError($"Model transform have missed!");
 
         float elapsed = 0f;
         while (elapsed < squashStretchDuration)
@@ -258,20 +255,13 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     private void PlayDustInFoot()
     {
-        if(runDust == null)
-            return;
-
-        if (!runDust.isPlaying)
-        {
-            runDust.Play();
-        }
+        if(runDust == null) return;
+        if (!runDust.isPlaying) runDust.Play();
     }
 
     private void StopDustInFoot()
     {
-        if(runDust == null)
-            return;
-        
+        if(runDust == null) return;
         runDust.Stop(true,  ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 }

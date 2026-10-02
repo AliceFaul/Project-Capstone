@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System;
+using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class PlayerMovement : MonoBehaviour
@@ -44,17 +45,25 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         UpdateRotation();
+        UpdateMovement();
     }
 
-    private void FixedUpdate()
+    private void UpdateMovement()
     {
-        if(!_isMoving) return;
-        if(_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance) return;
-        if(_destinationReached) return;
+        if(!_isMoving || _destinationReached) return;
+        if(_agent.pathPending) return;
+        if(!(_agent.remainingDistance <= _agent.stoppingDistance)) return;
         
+        if (!_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f) CompleteMovement();
+    }
+
+    private void CompleteMovement()
+    {
         _isMoving = false;
+        _destinationReached = false;
         _agent.ResetPath();
-        _destinationReached = true;
+        _agent.velocity = Vector3.zero;
+        
         OnMoveStop?.Invoke();
         OnDestinationReached?.Invoke();
     }
@@ -68,31 +77,52 @@ public class PlayerMovement : MonoBehaviour
        => StartMoving(target.position, stoppingDistance);
 
     // Stops the player's movement by resetting the NavMeshAgent's path
-    public void Stop() { 
-        bool wasMoving = _isMoving;
+    public void Stop() 
+    { 
+        if(!_isMoving) return;
+        
         _isMoving = false;
         _agent.ResetPath();
-
-        if (wasMoving)
-        {
-            OnMoveStop?.Invoke();
-        }
+        _agent.velocity = Vector3.zero;
+        OnMoveStop?.Invoke();
     }
 
     private void StartMoving(Vector3 destination, float stoppingDistance)
     {
         bool wasIdle = !_isMoving;
         
-        _agent.speed = _runtime.TotalSpeed;
+        _agent.isStopped = false;
+        
+        _agent.speed = _runtime != null ? _runtime.TotalSpeed : _agent.speed;
         _agent.stoppingDistance = stoppingDistance;
         _destinationReached = false;
         _isMoving = true;
         _agent.SetDestination(destination);
         
         // Use for VFX/SFX
-        if (wasIdle)
+        if (wasIdle) OnMoveStart?.Invoke(destination);
+    }
+
+    public IEnumerator PerformRoll(Vector3 direction, float speed, float duration)
+    {
+        var elapsed = 0f;
+        var normalizedDirection = direction.normalized;
+        
+        // Stop current path to perform roll ability
+        if(_agent.enabled) _agent.isStopped = true;
+
+        while (elapsed < duration)
         {
-            OnMoveStart?.Invoke(destination);
+            if(_agent.enabled) _agent.Move(normalizedDirection * (speed * Time.deltaTime));
+            else transform.position += normalizedDirection * (speed * Time.deltaTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (_agent.enabled)
+        {
+            _agent.isStopped = false;
+            Stop();
         }
     }
     
@@ -102,8 +132,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 desiredDirection = _agent.desiredVelocity;
         desiredDirection.y = 0f;
 
-        if (desiredDirection.sqrMagnitude < 0.001f)
-            return;
+        if (desiredDirection.sqrMagnitude < 0.001f) return;
 
         Quaternion targetRotation = Quaternion.LookRotation(desiredDirection);
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
@@ -114,8 +143,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 direction = position - transform.position;
         direction.y = 0f;
 
-        if (direction.sqrMagnitude < 0.001f)
-            return;
+        if (direction.sqrMagnitude < 0.001f) return;
         
         transform.rotation = Quaternion.LookRotation(direction);
     }
