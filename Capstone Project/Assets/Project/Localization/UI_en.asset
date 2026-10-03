@@ -98,6 +98,42 @@ MonoBehaviour:
     m_Localized: Enter new name
     m_Metadata:
       m_Items: []
+  - m_Id: 11817063121035264
+    m_Localized: Enter username
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Localized: Enter email
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Localized: Enter password
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Localized: Confirm password
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Localized: Register
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Localized: Enter email/username
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Localized: Register now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Localized: Forgot password?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Localized: Log in
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

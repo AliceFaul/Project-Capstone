@@ -95,6 +95,42 @@ MonoBehaviour:
     m_Key: ENTER_NEW_NAME
     m_Metadata:
       m_Items: []
+  - m_Id: 11817063121035264
+    m_Key: ENTER_USERNAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Key: ENTER_EMAIL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Key: ENTER_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Key: CONFIRM_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Key: REGISTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Key: ENTER_EMAIL_USERNAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Key: REGISTER_NOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Key: FORGOT_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Key: LOG_IN
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

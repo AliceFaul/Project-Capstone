@@ -5,26 +5,23 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class StartupProcessor : MonoBehaviour
 {
     public static StartupProcessor Instance { get; private set; }
-    public InputSystem_Actions InputActions
-    {
-        get
-        {
-            _input ??= new InputSystem_Actions();
-            return _input;
-        }
-    }
     
     [SerializeField] private float timeout = 10f;
     [SerializeField] private MonoBehaviour loadingScreen;
+    [SerializeField] private Volume globalVolume;
+    [SerializeField][Range(0f, 1f)] private float blurFadeDuration = 0.6f;
     
     private StartupList _startupList;
     private IServiceRegistry _serviceRegistry;
     private ILoading _loading;
+    private DepthOfField _depthOfField;
     
     private readonly LocalizedString _clickToStartLocale = new LocalizedString("UI", "CLICK_TO_START");
     private readonly LocalizedString _clickToContinueLocale = new LocalizedString("UI", "CLICK_TO_CONTINUE");
@@ -50,12 +47,29 @@ public class StartupProcessor : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+            if (globalVolume != null || globalVolume.profile != null)
+            {
+                if (globalVolume.profile.TryGet(out _depthOfField))
+                {
+                    _depthOfField.active = true;
+                    switch (_depthOfField.mode.value)
+                    {
+                        case DepthOfFieldMode.Gaussian:
+                            _depthOfField.gaussianStart.value = 0f;
+                            _depthOfField.gaussianEnd.value = 10f;
+                            break;
+                        case DepthOfFieldMode.Bokeh:
+                            _depthOfField.focalLength.value = 50f;
+                            break;
+                    }
+                }
+            }
+            
             _input ??= new InputSystem_Actions();
             _input.UI.Enable();
             _input.UI.Click.performed += OnClickPerformed;
         
-            if(loadingScreen == null)
-                loadingScreen = GameObject.FindWithTag("LoadingScreen").GetComponent<MonoBehaviour>();
+            if(loadingScreen == null) loadingScreen = GameObject.FindWithTag("LoadingScreen").GetComponent<MonoBehaviour>();
             _loading = loadingScreen as ILoading;
             
             Debug.Log($"[StartupProcessor] Waiting clicked...");
@@ -97,6 +111,7 @@ public class StartupProcessor : MonoBehaviour
                 
                 Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
                 await WaitForClicked();
+                await FadeBlur(enable: false, blurFadeDuration);
                 if (_loading != null) await _loading.Hide();
                 await OpenMainMenu();
             }
@@ -214,11 +229,52 @@ public class StartupProcessor : MonoBehaviour
         return _clickTcs.Task;
     }
 
-    private void OnClickPerformed(InputAction.CallbackContext context)
-    {
-        _clickTcs?.TrySetResult(true);
-    }
+    private void OnClickPerformed(InputAction.CallbackContext context) => _clickTcs?.TrySetResult(true);
 
+    private async Task FadeBlur(bool enable, float duration)
+    {
+        if(globalVolume == null || globalVolume.profile == null) return;
+        if(_depthOfField == null && !globalVolume.profile.TryGet(out _depthOfField)) return;
+
+        if (!enable)
+        {
+            switch (_depthOfField.mode.value)
+            {
+                case DepthOfFieldMode.Gaussian:
+                {
+                    float startVal = _depthOfField.gaussianEnd.value;
+                    float targetVal = 50f;
+                    float elapsed = 0f;
+
+                    while (elapsed < duration)
+                    {
+                        elapsed += Time.deltaTime;
+                        _depthOfField.gaussianEnd.value = Mathf.Lerp(startVal, targetVal, elapsed / duration);
+                        await Task.Yield();
+                    }
+
+                    break;
+                }
+                case DepthOfFieldMode.Bokeh:
+                {
+                    float startFocal = _depthOfField.focalLength.value;
+                    float elapsed = 0f;
+
+                    while (elapsed < duration)
+                    {
+                        elapsed += Time.deltaTime;
+                        _depthOfField.focalLength.value = Mathf.Lerp(startFocal, 1f, elapsed / duration);
+                        await Task.Yield();
+                    }
+
+                    break;
+                }
+            }
+
+            _depthOfField.active = false;
+        }
+    }
+    
     private async Task OpenMainMenu()
     {
         _input.UI.Disable();

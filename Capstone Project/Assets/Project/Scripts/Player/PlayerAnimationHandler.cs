@@ -87,7 +87,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private void OnDisable()
     {
         if (_stateMachine != null) _stateMachine.OnStateChange -= TriggerAnimation;
-
+        
         if (_movement != null)
         {
             _movement.OnMoveStart -= OnMoveStart;
@@ -224,7 +224,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
     private void OnMoveStart(Vector3 destination) => PlayDustInFoot();
     private void OnMoveStop() => StopDustInFoot();
-
+    
     private void PlayDustInFoot()
     {
         if(runDust == null) return;
