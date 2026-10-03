@@ -15,7 +15,13 @@ public class RollAbility : Ability
         if(parent == null) yield break;
         
         var controller = parent.GetComponent<PlayerController>();
-        if(controller == null || controller.Movement == null) yield break;
+        if(controller == null || controller.Movement == null || controller.StateMachine == null) yield break;
+
+        controller.StateMachine.ChangeState(CharacterStateType.Roll);
+        controller.CmdCombatLocked(true);
+
+        var animHandler = controller.AnimationHandler;
+        float duration = animHandler != null ? animHandler.GetAnimationLength("Roll") : rollDuration;
         
         // Get VFX from object pooling
         GameObject instanceFx = null;
@@ -32,8 +38,15 @@ public class RollAbility : Ability
         }
         
         var rollDirection = parent.transform.forward;
-        yield return controller.Movement.PerformRoll(rollDirection, rollSpeed, rollDuration);
+        yield return controller.Movement.PerformRoll(rollDirection, rollSpeed, duration);
 
+        controller.CmdCombatLocked(false);
+
+        if (controller.StateMachine != null && controller.StateMachine.IsCurrentState(CharacterStateType.Roll))
+        {
+            controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
+        }
+        
         if (instanceFx != null && VFXPool != null)
         {
             instanceFx.transform.SetParent(null);

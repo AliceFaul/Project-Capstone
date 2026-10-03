@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Roll Ability
   m_EditorClassIdentifier: Assembly-CSharp::RollAbility
   abilityName: Roll
-  abilityCooldown: 10
+  abilityCooldown: 5
   abilityIcon: {fileID: 485823971, guid: 080cb6d98b00c2645b2c41df5f69bc78, type: 3}
   input:
     m_UseReference: 0

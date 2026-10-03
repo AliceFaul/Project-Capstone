@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using TMPro;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 {
@@ -20,60 +17,65 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     [SerializeField] private ParticleSystem runDust;
     [SerializeField] private float squashStretchDuration = 0.15f;
 
-    [Tooltip("Scale when start moving")] [SerializeField]
-    private Vector3 startStretchScale = new Vector3(0.85f, 1.15f, 0.85f);
-
-    [Tooltip("Scale when end moving")] [SerializeField]
-    private Vector3 stopSquashScale = new Vector3(1.15f, 0.85f, 1.15f);
-    
     [Header("Attack Speed")]
     [SerializeField] private float baseAnimationAttackSpeed = 1f;
     [SerializeField] private float minAnimatorSpeed = 0.1f;
     private EquipmentType _currentWeaponType = EquipmentType.MeleeWeapon;
 
-    private Coroutine _scaleRoutine;
+    private bool _requestAttacking;
     private ParticleSystem.EmissionModule _dustEmission;
     private int _currentHash;
+    
+    private int AttackCount
+    {
+        get => _animator != null ? _animator.GetInteger(_attackCountHash) : 0;
+        set { if (_animator != null) _animator.SetInteger(_attackCountHash, value); }
+    }
 
-    // === ANIMATOR HASH ===
-    // === LOCOMOTION ===
-    private readonly int _locomotionHash = Animator.StringToHash("Speed");
-
-    // === ATTACKING ===
+    // === ANIMATOR PARAMETER HASHES ===
+    private readonly int _speedParamHash = Animator.StringToHash("Speed");
     private readonly int _attackHash = Animator.StringToHash("Attack");
     private readonly int _attackCountHash = Animator.StringToHash("AttackCount");
-    private bool _requestAttacking;
 
+    // === ANIMATOR STATE HASHES (Zero GC Alloc) ===
+    private readonly int _locomotionStateHash = Animator.StringToHash("Locomotion");
     private readonly int _rollHash = Animator.StringToHash("Roll");
     private readonly int _hitHash = Animator.StringToHash("Hit");
     private readonly int _deadHash = Animator.StringToHash("Dead");
     private readonly int _interactHash = Animator.StringToHash("Interact");
+    
+    private readonly Dictionary<string, float> _clipLengthCache = new Dictionary<string, float>();
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _animator.speed = 1f;
+        if (_animator != null) _animator.speed = 1f;
 
-        if (rootTransform == null)
-        {
-            rootTransform = transform;
-        }
-
-        if (runDust != null)
-        {
-            _dustEmission = runDust.emission;
-        }
+        if (rootTransform == null) rootTransform = transform;
+        if (runDust != null) _dustEmission = runDust.emission;
 
         if (controller != null)
         {
             _stateMachine = controller.StateMachine;
             _movement = controller.Movement;
+            if (combat == null) combat = controller.Combat;
         }
+        
+        if (_animator == null || _animator.runtimeAnimatorController == null) return;
 
-        if (_stateMachine != null)
+        _clipLengthCache.Clear();
+        foreach (var clip in _animator.runtimeAnimatorController.animationClips)
         {
-            _stateMachine.OnStateChange += TriggerAnimation;
+            if (clip != null && !_clipLengthCache.ContainsKey(clip.name))
+            {
+                _clipLengthCache.Add(clip.name, clip.length);
+            }
         }
+    }
+
+    private void OnEnable()
+    {
+        if (_stateMachine != null) _stateMachine.OnStateChange += TriggerAnimation;
 
         if (_movement != null)
         {
@@ -82,10 +84,9 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         }
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
-        if (_stateMachine != null)
-            _stateMachine.OnStateChange -= TriggerAnimation;
+        if (_stateMachine != null) _stateMachine.OnStateChange -= TriggerAnimation;
 
         if (_movement != null)
         {
@@ -94,71 +95,46 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         }
     }
 
-    private void OnMoveStart(Vector3 destination)
-    {
-        PlayDustInFoot();
-        // RestartScaleRoutine(startStretchScale);
-    }
-
-    private void OnMoveStop()
-    {
-        StopDustInFoot();
-        // RestartScaleRoutine(stopSquashScale);
-    }
-
-    private void RestartScaleRoutine(Vector3 punchScale)
-    {
-        if(_scaleRoutine != null)
-            StopCoroutine(_scaleRoutine);
-
-        _scaleRoutine = StartCoroutine(SquashStretchRoutine(punchScale));
-    }
-
     public void TriggerAnimation(CharacterStateType oldState, CharacterStateType newState)
     {
-        if (_stateMachine == null)
-            return;
+        if (_stateMachine == null || _animator == null) return;
         
-        if (oldState == CharacterStateType.Attack && newState != CharacterStateType.Attack)
-            ResetAnimatorSpeed();
+        if (oldState == CharacterStateType.Attack && newState != CharacterStateType.Attack) ResetAttackState();
 
         switch (newState)
         {
             case CharacterStateType.Roll:
-                PlayAnimation(_rollHash, 0.2f);
-                break;
+                PlayAnimation(_rollHash, 0.08f); break;
             case CharacterStateType.Hit:
-                PlayAnimation(_hitHash, 0.2f);
-                break;
+                PlayAnimation(_hitHash, 0.05f); break;
             case CharacterStateType.Dead:
-                PlayAnimation(_deadHash, 0.2f);
-                break;
+                PlayAnimation(_deadHash, 0.1f); break;
             case CharacterStateType.Interact:
-                PlayAnimation(_interactHash, 0.2f);
-                break;
+                PlayAnimation(_interactHash, 0.15f); break;
+            case CharacterStateType.Locomotion:
+                PlayAnimation(_locomotionStateHash, 0.15f); break;
         }
     }
 
     public void UpdateAnimation()
     {
+        if(_stateMachine == null) return;
+        
         switch (_stateMachine.CurrentState)
         {
             case CharacterStateType.Locomotion:
-                LocomotionProcess();
-                break;
+                LocomotionProcess(); break;
             case CharacterStateType.Attack:
-                AttackProcess();
-                break;
+                AttackProcess(); break;
         }
     }
 
-    // Call in PlayerController
     private void LocomotionProcess()
     {
         if (_stateMachine.CurrentState != CharacterStateType.Locomotion) return;
 
         var currentSpeed = _movement.NormalizedSpeed;
-        _animator.SetFloat(_locomotionHash, currentSpeed);
+        _animator.SetFloat(_speedParamHash, currentSpeed);
 
         if (runDust != null && runDust.isPlaying)
         {
@@ -178,26 +154,18 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         }
 
         AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
-
-        if (!state.IsTag("Attack"))
-            return;
+        if (!state.IsTag("Attack")) return;
 
         var time = state.normalizedTime;
-        combat.CmdActiveComboWindow(time is >= 0.7f and <= 0.95f);
-        if (state.IsTag("Attack") && time >= 1f)
-        {
-            EndAttackingProcess();
-        }
-    }
-
-    public void CmdAttackTrigger(int attackCount)
-    {
-        _animator.SetTrigger(_attackHash);
-        AttackCount = attackCount;
+        if(combat != null) combat.CmdActiveComboWindow(time is >= 0.7f and <= 0.95f);
+        
+        if (state.IsTag("Attack") && time >= 1f) EndAttackingProcess();
     }
 
     private void ApplyAttackSpeed()
     {
+        if (_animator == null) return;
+        
         if (runtime == null || baseAnimationAttackSpeed <= 0f)
         {
             _animator.speed = 1f;
@@ -208,50 +176,54 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         float multiplier = currentAttackSpeed / baseAnimationAttackSpeed;
         _animator.speed = Mathf.Max(minAnimatorSpeed, multiplier);
     }
-    
-    private void ResetAnimatorSpeed() => _animator.speed = 1f;
 
-    private int AttackCount
+    public float GetAnimationLength(string clipName)
     {
-        get => _animator.GetInteger(_attackCountHash);
-        set => _animator.SetInteger(_attackCountHash, value);
+        return _clipLengthCache.TryGetValue(clipName, out var length) ? length : 0.4f;
+    }
+    
+    private void ResetAttackState()
+    {
+        _requestAttacking = false;
+        if (_animator != null)
+        {
+            _animator.ResetTrigger(_attackHash);
+            _animator.speed = 1f;
+        }
+    }
+    
+    public void CmdAttackTrigger(int attackCount)
+    {
+        if(_animator == null) return;
+        
+        _currentHash = _attackHash;
+        _animator.SetTrigger(_attackHash);
+        AttackCount = attackCount;
     }
 
     public void CmdSetAttackSpeed(EquipmentType type) => _currentWeaponType = type;
     public void CmdRequestAttacking() => _requestAttacking = true;
 
-    // === ATTACK ANIMATION EVENT
+
+    #region Animation Event Function
+
     public void DealDamage() => combat.CmdDealDamage();
     public void SpawnProjectile() => combat.CmdSpawnProjectile();
     public void EndAttackingProcess() => combat.CmdEndAttackingProcess();
+    
+    #endregion
 
-    private void PlayAnimation(int hash, float time)
+    private void PlayAnimation(int hash, float fixedTime)
     {
-        if (_currentHash == hash)
-            return;
-
-        _animator.CrossFade(hash, time);
+        if(!_animator) return;
+        
+        _animator.ResetTrigger(_attackHash);
+        _animator.CrossFadeInFixedTime(hash, fixedTime);
         _currentHash = hash;
     }
 
-    private IEnumerator SquashStretchRoutine(Vector3 punchScale)
-    {
-        if(rootTransform != null) rootTransform.localScale = punchScale;
-        else Debug.LogError($"Model transform have missed!");
-
-        float elapsed = 0f;
-        while (elapsed < squashStretchDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / squashStretchDuration);
-            float eased = 1f - Mathf.Pow(1f - t, 3f); // ease-out cubic
-            rootTransform.localScale = Vector3.Lerp(punchScale, Vector3.one, eased);
-            yield return null;
-        }
-
-        rootTransform.localScale = Vector3.one;
-        _scaleRoutine = null;
-    }
+    private void OnMoveStart(Vector3 destination) => PlayDustInFoot();
+    private void OnMoveStop() => StopDustInFoot();
 
     private void PlayDustInFoot()
     {
