@@ -375,6 +375,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   mainCamera: {fileID: 0}
   clickEffect: {fileID: 5028353888405606245, guid: 36c1964b5ef5b78419b5a20c09c27200, type: 3}
+  clickEffectCooldown: 2
   invoker: {fileID: 6772811288144300525}
   groundLayer:
     serializedVersion: 2
@@ -543,6 +544,17 @@ MonoBehaviour:
   acceleration: 60
   angularAcceleration: 1080
   stopSpeedThreshold: 0.05
+  jumpHeight: 1.8
+  jumpDuration: 0.45
+  jumpForwardSpeed: 6
+  autoJumpCheckDistance: 1.2
+  autoJumpCooldown: 0.6
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &743074079644308432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -567,10 +579,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f498270950e811244bd04055e407806e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterTrail
-  activeTime: 2
+  activeTime: 0.4
   character: {fileID: 8973249790145409378}
-  meshRefreshRate: 0.1
-  delay: 3
+  meshRefreshRate: 0.05
+  delay: 2
   trailMat: {fileID: 2100000, guid: be24942d2787e124ea4ecdf1ea1706bf, type: 2}
   alphaRef: _Alpha
   alphaRate: 0.1
@@ -707,6 +719,9 @@ PrefabInstance:
       addedObject: {fileID: 1925368644849440086}
     - targetCorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 7127505495264422784}
+    - targetCorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 3527156759941933987}
   m_SourcePrefab: {fileID: 100100000, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
 --- !u!1 &699886415659282422 stripped
@@ -732,10 +747,193 @@ MonoBehaviour:
   rootTransform: {fileID: 7612427732099748046}
   runDust: {fileID: 0}
   squashStretchDuration: 0.15
-  startStretchScale: {x: 0.85, y: 1.15, z: 0.85}
-  stopSquashScale: {x: 1.15, y: 0.85, z: 1.15}
   baseAnimationAttackSpeed: 1
   minAnimatorSpeed: 0.1
+--- !u!114 &7127505495264422784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699886415659282422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbe80126baae4cf0ba8194133e415a29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp-firstpass::AnimationEventReceiver
+  animationEvents:
+  - eventName: OnRoll
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6241995475581806153}
+          m_TargetAssemblyTypeName: CharacterTrail, Assembly-CSharp
+          m_MethodName: ActivateTrail
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnRollEnd
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: ShowMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnRangedStarted
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: ShowRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnSpawnProjectile
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2759596504568213360}
+          m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
+          m_MethodName: CmdSpawnProjectile
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnRangedEnded
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: ShowMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnDealDamage
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2759596504568213360}
+          m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
+          m_MethodName: CmdDealDamage
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnEndAttack
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2759596504568213360}
+          m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
+          m_MethodName: CmdEndAttackingProcess
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &3527156759941933987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,7 +946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4ef38f4f4fd6a784db482513fb24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
-  autoSync: 0
+  autoSync: 1
   meleeSocket: {fileID: 5594313983555539030}
   rangedSocket: {fileID: 8723449264484825119}
 --- !u!4 &1131708700260700962 stripped

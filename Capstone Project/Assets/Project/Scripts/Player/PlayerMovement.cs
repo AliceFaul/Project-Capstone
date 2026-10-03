@@ -15,6 +15,15 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float angularAcceleration = 1080f;
     [SerializeField] private float stopSpeedThreshold = 0.05f;
     
+    [Header("Jump & Auto-Jump Configuration")]
+    [SerializeField] private float jumpHeight = 1.8f;
+    [SerializeField] private float jumpDuration = 0.45f;
+    [SerializeField] private float jumpForwardSpeed = 7f;
+    [SerializeField] private float autoJumpCheckDistance = 1.2f;
+    [SerializeField] private float autoJumpCooldown = 0.6f;
+    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private LayerMask groundLayer;
+    
     private NavMeshAgent _agent;
     private PlayerRuntime _runtime;
     
@@ -25,9 +34,15 @@ public class PlayerMovement : MonoBehaviour
     private bool _isMoving = false;
     private bool _destinationReached = false;
     
+    private bool _isJumping = false;
+    public bool IsJumping => _isJumping;
+    
+    private float _lastJumpTime;
+    
     public event Action OnDestinationReached;
     public event Action<Vector3> OnMoveStart;
     public event Action OnMoveStop;
+    public event Action OnJumpStart;
 
     private void Awake() {
         _agent = GetComponent<NavMeshAgent>();
@@ -46,14 +61,22 @@ public class PlayerMovement : MonoBehaviour
     {
         UpdateRotation();
         UpdateMovement();
+        UpdateAutoJump();
     }
 
     private void UpdateMovement()
     {
-        if(!_isMoving || _destinationReached) return;
+        if(!_isMoving || _destinationReached || _isJumping) return;
+        if(!_agent.enabled || !_agent.isOnNavMesh) return;
         if(_agent.pathPending) return;
-        if(!(_agent.remainingDistance <= _agent.stoppingDistance)) return;
         
+        if (_agent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            Stop();
+            return;
+        }
+        
+        if(!(_agent.remainingDistance <= _agent.stoppingDistance)) return;
         if (!_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f) CompleteMovement();
     }
 
@@ -61,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
     {
         _isMoving = false;
         _destinationReached = false;
+        _agent.isStopped = true;
         _agent.ResetPath();
         _agent.velocity = Vector3.zero;
         
@@ -68,27 +92,30 @@ public class PlayerMovement : MonoBehaviour
         OnDestinationReached?.Invoke();
     }
 
-    // Moves the player to the specified destination using NavMeshAgent
-    public void MoveTo(Vector3 destination)
-        => StartMoving(destination, 0f);
-    
-    // Move the player to enemy position into attack range
-    public void MoveToTarget(Transform target, float stoppingDistance)
-       => StartMoving(target.position, stoppingDistance);
+    public void MoveTo(Vector3 destination) => StartMoving(destination, 0f);
+    public void MoveToTarget(Transform target, float stoppingDistance) => StartMoving(target.position, stoppingDistance);
 
-    // Stops the player's movement by resetting the NavMeshAgent's path
-    public void Stop() 
+    public void Stop()
     { 
         if(!_isMoving) return;
-        
         _isMoving = false;
-        _agent.ResetPath();
-        _agent.velocity = Vector3.zero;
+
+        if (_agent.enabled)
+        {
+            _agent.isStopped = true;
+            if (_agent.isOnNavMesh)
+            {
+                _agent.ResetPath();
+                _agent.velocity = Vector3.zero;
+            }
+        }
+        
         OnMoveStop?.Invoke();
     }
 
     private void StartMoving(Vector3 destination, float stoppingDistance)
     {
+        if(!_agent.enabled || !_agent.isOnNavMesh) return;
         bool wasIdle = !_isMoving;
         
         _agent.isStopped = false;
@@ -101,6 +128,64 @@ public class PlayerMovement : MonoBehaviour
         
         // Use for VFX/SFX
         if (wasIdle) OnMoveStart?.Invoke(destination);
+    }
+
+    public void CmdJump()
+    {
+        if (_isJumping || Time.time < _lastJumpTime + autoJumpCooldown) return;
+        StartCoroutine(JumpRoutine(jumpHeight, jumpDuration));
+    }
+
+    private void UpdateAutoJump()
+    {
+        if(_isJumping || !_isMoving || Time.time < _lastJumpTime + autoJumpCooldown) return;
+        if(_agent.velocity.sqrMagnitude < 0.5f) return;
+
+        float dynamicCheckDistance = Mathf.Clamp(_agent.velocity.magnitude * 0.3f, 0.5f, autoJumpCheckDistance);
+        
+        Vector3 origin = transform.position + Vector3.up * 0.2f;
+        Vector3 forward = transform.forward;
+
+        bool low = Physics.Raycast(origin, forward, dynamicCheckDistance, obstacleLayer);
+        bool high = Physics.Raycast(origin + Vector3.up * 1.5f, forward, dynamicCheckDistance, obstacleLayer);
+
+        if (low)
+        {
+            if (!high) CmdJump();
+            return;
+        }
+        
+        Vector3 gapCheck = transform.position + forward * dynamicCheckDistance + Vector3.up * 0.5f;
+        bool hasGroundAhead = Physics.Raycast(gapCheck, Vector3.down, 3f, groundLayer);
+        
+        if(!hasGroundAhead) CmdJump();
+    }
+
+    private IEnumerator JumpRoutine(float height, float duration)
+    {
+        _isJumping = true;
+        _lastJumpTime = Time.time;
+        OnJumpStart?.Invoke();
+        
+        float elapsed = 0f;
+        float originalOffset = _agent.baseOffset;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            // Parabol equation: 4 * h * t * (1 - t)
+            float currentHeight = 4f * height * t * (1f - t);
+            _agent.baseOffset = originalOffset + currentHeight;
+            
+            if(_agent.enabled) _agent.Move(transform.forward * (jumpForwardSpeed * Time.deltaTime));
+            else transform.position += transform.forward * (jumpForwardSpeed * Time.deltaTime);
+            yield return null;
+        }
+        
+        _agent.baseOffset = originalOffset;
+        _isJumping = false;
     }
 
     public IEnumerator PerformRoll(Vector3 direction, float speed, float duration)
@@ -146,5 +231,27 @@ public class PlayerMovement : MonoBehaviour
         if (direction.sqrMagnitude < 0.001f) return;
         
         transform.rotation = Quaternion.LookRotation(direction);
+    }
+    
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying) return;
+
+        float dynamicCheckDistance = Mathf.Clamp(_agent.velocity.magnitude * 0.3f, 0.5f, autoJumpCheckDistance);
+        Vector3 origin = transform.position + Vector3.up * 0.2f;
+        Vector3 forward = transform.forward;
+
+        // Vẽ tia check bậc thấp (Xanh lá)
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(origin, forward * dynamicCheckDistance);
+
+        // Vẽ tia check bậc cao (Xanh lam)
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(origin + Vector3.up * 1.5f, forward * dynamicCheckDistance);
+
+        // Vẽ tia check vực (Đỏ)
+        Vector3 gapCheck = transform.position + forward * dynamicCheckDistance + Vector3.up * 0.5f;
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(gapCheck, Vector3.down * 3.0f);
     }
 }
