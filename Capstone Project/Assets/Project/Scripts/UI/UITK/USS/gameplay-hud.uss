@@ -1,0 +1,235 @@
+.gameplay-hud {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__action-bar {
+    position: absolute;
+    left: 900px;
+    bottom: 50px;
+    width: 750px;
+    height: 60px;
+    margin-left: -320px;
+    padding-left: 14px;
+    padding-right: 14px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(33, 25, 20, 0.96);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 3px;
+    border-left-width: 2px;
+    border-top-color: rgb(129, 82, 50);
+    border-right-color: rgb(84, 52, 35);
+    border-bottom-color: rgb(46, 29, 22);
+    border-left-color: rgb(104, 67, 44);
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    border-bottom-left-radius: 9px;
+    picking-mode: Position;
+    top: auto;
+    right: 900px;
+}
+
+.gameplay-hud__inner-frame {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-color: rgba(173, 111, 67, 0.55);
+    border-right-color: rgba(101, 64, 43, 0.55);
+    border-bottom-color: rgba(22, 14, 11, 0.75);
+    border-left-color: rgba(112, 71, 47, 0.55);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__highlight {
+    position: absolute;
+    top: 5px;
+    left: 34px;
+    right: 34px;
+    height: 2px;
+    background-color: rgba(224, 159, 86, 0.75);
+    border-radius: 1px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__cluster {
+    flex-direction: row;
+    align-items: center;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__left-cluster {
+    margin-right: 8px;
+}
+
+.gameplay-hud__right-cluster {
+    margin-left: 8px;
+}
+
+.gameplay-hud__slot {
+    width: 58px;
+    height: 58px;
+    margin-top: 0;
+    margin-right: 3px;
+    margin-bottom: 0;
+    margin-left: 3px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.gameplay-hud__weapon-slot {
+    width: 62px;
+    height: 62px;
+    margin-left: 2px;
+    margin-right: 6px;
+}
+
+.gameplay-hud__artifact-group {
+    flex-direction: row;
+    align-items: center;
+    padding-left: 2px;
+    padding-right: 2px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__artifact-slot {
+    width: 54px;
+    height: 54px;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
+.gameplay-hud__potion-slot {
+    width: 60px;
+    height: 60px;
+    margin-left: 6px;
+    margin-right: 2px;
+}
+
+.gameplay-hud__health-group {
+    width: 150px;
+    min-width: 150px;
+    margin-left: 10px;
+    margin-right: 10px;
+    align-items: center;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__health-row {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__heart-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 7px;
+    background-color: rgb(190, 51, 50);
+    border-radius: 4px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__health-info {
+    width: 108px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__health-text {
+    color: rgb(245, 237, 224);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+    margin-bottom: 3px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__health-bar-track {
+    width: 110px;
+    height: 110px;
+    background-color: rgb(67, 44, 31);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-color: rgb(29, 20, 15);
+    border-right-color: rgb(29, 20, 15);
+    border-bottom-color: rgb(113, 71, 45);
+    border-left-color: rgb(29, 20, 15);
+    border-radius: 4px;
+    overflow: hidden;
+    picking-mode: Ignore;
+    align-items: stretch;
+}
+
+.gameplay-hud__health-bar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(210, 54, 51);
+    border-radius: 3px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__level-text {
+    color: rgb(221, 173, 101);
+    font-size: 10px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-top: 4px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__controller-prompts {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 7px;
+    picking-mode: Ignore;
+}
+
+.gameplay-hud__prompt {
+    width: 24px;
+    height: 24px;
+    margin-left: 2px;
+    margin-right: 2px;
+    background-color: rgb(48, 34, 27);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 2px;
+    border-left-width: 1px;
+    border-top-color: rgb(128, 84, 54);
+    border-right-color: rgb(83, 54, 38);
+    border-bottom-color: rgb(27, 18, 14);
+    border-left-color: rgb(102, 68, 46);
+    border-radius: 4px;
+    color: rgb(224, 210, 192);
+    font-size: 9px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    picking-mode: Ignore;
+}

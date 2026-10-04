@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/theme.uss?fileID=7433441132597879392&amp;guid=bb15ad5c429032040bbfc746a270548c&amp;type=3#theme"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/item-slot.uss?fileID=7433441132597879392&amp;guid=dfb791b80be04ed4a8498e8fb12a3e5f&amp;type=3#item-slot"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/icon-label.uss?fileID=7433441132597879392&amp;guid=073030101e7c0254dbffed9e7e8b51db&amp;type=3#icon-label"/>
+    <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/gameplay-hud.uss?fileID=7433441132597879392&amp;guid=adec82e1c390d9945811d7d9ab97fd2e&amp;type=3#gameplay-hud"/>
+    <ui:VisualElement name="gameplay-hud" class="gameplay-hud" style="top: 2px; bottom: -1px; right: 0; left: 2px;">
+        <ui:VisualElement name="action-bar" class="gameplay-hud__action-bar" style="left: 900px; flex-direction: row; opacity: 1; width: 800px; height: 70px;">
+            <ui:VisualElement name="action-bar-inner-frame" class="gameplay-hud__inner-frame" style="align-items: center; display: none;"/>
+            <ui:VisualElement name="action-bar-highlight" class="gameplay-hud__highlight" style="display: none;"/>
+            <ui:VisualElement name="left-cluster" class="gameplay-hud__cluster gameplay-hud__right-cluster" style="align-items: auto;">
+                <ItemSlotElement name="potion-slot" class="gameplay-hud__slot gameplay-hud__potion-slot" style="width: 55px; height: 55px; translate: -126px 1px; align-items: center; flex-direction: column;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="health-group" class="gameplay-hud__health-group" style="translate: -93px -21px;">
+                <ui:VisualElement name="health-bar-track" class="gameplay-hud__health-bar-track" style="width: 130px; height: 130px;">
+                    <ui:VisualElement name="health-bar-fill" class="gameplay-hud__health-bar-fill" style="width: 120px; height: 120px; align-items: auto; justify-content: flex-start; position: relative;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="level-text" text="Lv 1" class="gameplay-hud__level-text"/>
+            <ui:VisualElement name="artifact-slots" class="gameplay-hud__artifact-group">
+                <ItemSlotElement name="artifact-slot-0" class="gameplay-hud__slot gameplay-hud__artifact-slot"/>
+                <ItemSlotElement name="artifact-slot-1" class="gameplay-hud__slot gameplay-hud__artifact-slot"/>
+                <ItemSlotElement name="artifact-slot-2" class="gameplay-hud__slot gameplay-hud__artifact-slot"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="controller-prompts" class="gameplay-hud__controller-prompts">
+                <ui:Label text="L1" class="gameplay-hud__prompt"/>
+                <ui:Label text="R1" class="gameplay-hud__prompt"/>
+                <ui:Label text="R2" class="gameplay-hud__prompt"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
