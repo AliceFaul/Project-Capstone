@@ -170,6 +170,10 @@ public class PlayerMovement : MonoBehaviour
         float elapsed = 0f;
         float originalOffset = _agent.baseOffset;
 
+        Vector3 jumpDirection = transform.forward;
+        jumpDirection.y = 0;
+        jumpDirection.Normalize();
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
@@ -179,8 +183,8 @@ public class PlayerMovement : MonoBehaviour
             float currentHeight = 4f * height * t * (1f - t);
             _agent.baseOffset = originalOffset + currentHeight;
             
-            if(_agent.enabled) _agent.Move(transform.forward * (jumpForwardSpeed * Time.deltaTime));
-            else transform.position += transform.forward * (jumpForwardSpeed * Time.deltaTime);
+            if(_agent.enabled) _agent.Move(jumpDirection * (jumpForwardSpeed * Time.deltaTime));
+            else transform.position += jumpDirection * (jumpForwardSpeed * Time.deltaTime);
             yield return null;
         }
         
@@ -214,6 +218,8 @@ public class PlayerMovement : MonoBehaviour
     // Rotate the character at high speed in the desired direction.
     private void UpdateRotation()
     {
+        if(_isJumping) return;
+        
         Vector3 desiredDirection = _agent.desiredVelocity;
         desiredDirection.y = 0f;
 
