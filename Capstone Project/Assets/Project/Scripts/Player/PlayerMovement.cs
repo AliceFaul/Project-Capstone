@@ -36,6 +36,9 @@ public class PlayerMovement : MonoBehaviour
     
     private bool _isJumping = false;
     public bool IsJumping => _isJumping;
+
+    private Vector3 _jumpDestination;
+    private bool _hasJumpDestination;
     
     private float _lastJumpTime;
     
@@ -133,7 +136,25 @@ public class PlayerMovement : MonoBehaviour
     public void CmdJump()
     {
         if (_isJumping || Time.time < _lastJumpTime + autoJumpCooldown) return;
-        StartCoroutine(JumpRoutine(jumpHeight, jumpDuration));
+
+        Vector3 targetJumpDir = transform.forward;
+        
+        if (_agent.enabled && _agent.isOnNavMesh && _isMoving && _agent.hasPath)
+        {
+            _jumpDestination = _agent.destination;
+            _hasJumpDestination = true;
+
+            if (_agent.desiredVelocity.sqrMagnitude > 0.01f)
+            {
+                targetJumpDir = _agent.desiredVelocity;
+                targetJumpDir.y = 0f;
+                targetJumpDir.Normalize();
+            }
+            
+            _agent.ResetPath();
+        }
+        
+        StartCoroutine(JumpRoutine(targetJumpDir, jumpHeight, jumpDuration));
     }
 
     private void UpdateAutoJump()
@@ -161,18 +182,16 @@ public class PlayerMovement : MonoBehaviour
         if(!hasGroundAhead) CmdJump();
     }
 
-    private IEnumerator JumpRoutine(float height, float duration)
+    private IEnumerator JumpRoutine(Vector3 jumpDirection, float height, float duration)
     {
         _isJumping = true;
         _lastJumpTime = Time.time;
         OnJumpStart?.Invoke();
         
+        if(jumpDirection.sqrMagnitude > 0.001f) transform.rotation = Quaternion.LookRotation(jumpDirection);
+        
         float elapsed = 0f;
         float originalOffset = _agent.baseOffset;
-
-        Vector3 jumpDirection = transform.forward;
-        jumpDirection.y = 0;
-        jumpDirection.Normalize();
 
         while (elapsed < duration)
         {
@@ -189,7 +208,15 @@ public class PlayerMovement : MonoBehaviour
         }
         
         _agent.baseOffset = originalOffset;
+
+        if (_hasJumpDestination && _agent.enabled && _agent.isOnNavMesh)
+        {
+            _agent.isStopped = false;
+            _agent.SetDestination(_jumpDestination);
+        }
+
         _isJumping = false;
+        _hasJumpDestination = false;
     }
 
     public IEnumerator PerformRoll(Vector3 direction, float speed, float duration)
