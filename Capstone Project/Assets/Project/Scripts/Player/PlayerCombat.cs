@@ -26,8 +26,8 @@ public class PlayerCombat : MonoBehaviour {
     private Coroutine _hitStopRoutine;
     
     // === CURRENT WEAPON ===
-    private EquipmentData _currentMeleeWeapon;
-    private EquipmentData _currentRangedWeapon;
+    private Weapon _currentMeleeWeapon;
+    private Weapon _currentRangedWeapon;
     
     private Transform _currentTarget;
     public Transform CurrentTarget => _currentTarget;
@@ -69,8 +69,8 @@ public class PlayerCombat : MonoBehaviour {
         if(_equipmentManager == null)
             return;
 
-        _currentMeleeWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon);
-        _currentRangedWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon);
+        _currentMeleeWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon) as Weapon;
+        _currentRangedWeapon = _equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon) as Weapon;
         UpdateAttackRange();
 
         _equipmentManager.OnEquipmentChanged += UpdateWeapon;
@@ -126,7 +126,7 @@ public class PlayerCombat : MonoBehaviour {
         
         RotateToTarget();
         
-        _controller.AnimationHandler.CmdSetAttackSpeed(_currentMeleeWeapon.equipmentType);
+        _controller.AnimationHandler.CmdSetAttackSpeed(_currentMeleeWeapon.WeaponDefinition.equipmentType);
         _controller.AnimationHandler.CmdRequestAttacking();
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
@@ -151,7 +151,7 @@ public class PlayerCombat : MonoBehaviour {
             IAttackable attackable = enemy.GetComponent<IAttackable>();
             if(attackable != null)
             {
-                var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon);
+                var result = DamageCalculator.Calculate(_runtime, _currentMeleeWeapon.WeaponDefinition);
                 attackable.TakeDamage(result.Damage, _runtime);
                 
                 if (effects.Length > 0)
@@ -195,7 +195,7 @@ public class PlayerCombat : MonoBehaviour {
         _shootPosition = mousePosition;
         
         _controller.CmdCombatLocked(true);
-        _controller.AnimationHandler.CmdSetAttackSpeed(_currentRangedWeapon.equipmentType);
+        _controller.AnimationHandler.CmdSetAttackSpeed(_currentRangedWeapon.WeaponDefinition.equipmentType);
         _controller.AnimationHandler.CmdAttackTrigger(1);
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
@@ -205,7 +205,7 @@ public class PlayerCombat : MonoBehaviour {
         Vector3 direction = _shootPosition - firePoint.position;
         direction.y = 0f;
         
-        var result = DamageCalculator.Calculate(_runtime, _currentRangedWeapon);
+        var result = DamageCalculator.Calculate(_runtime, _currentRangedWeapon.WeaponDefinition);
         
         var  projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
         projectile.GetComponent<Projectile>().Initialize(direction, result.Damage);
@@ -272,11 +272,11 @@ public class PlayerCombat : MonoBehaviour {
         switch (args.EquipmentType)
         {
             case EquipmentType.MeleeWeapon:
-                _currentMeleeWeapon = args.NewEquipmentData;
+                _currentMeleeWeapon = args.NewItem as Weapon;
                 UpdateAttackRange();
                 break;
             case EquipmentType.RangedWeapon:
-                _currentRangedWeapon = args.NewEquipmentData;
+                _currentRangedWeapon = args.NewItem as Weapon;
                 break;
         }
     }
@@ -286,7 +286,7 @@ public class PlayerCombat : MonoBehaviour {
         if (_currentMeleeWeapon == null)
             return;
 
-        AttackRange = _currentMeleeWeapon.attributes.attackRange + _currentMeleeWeapon.attackRangeModifier;
+        AttackRange = _currentMeleeWeapon.WeaponDefinition.attributes.attackRange + _currentMeleeWeapon.WeaponDefinition.attackRangeModifier;
     }
 
     private void AdjustAmmo(int amount = 1)

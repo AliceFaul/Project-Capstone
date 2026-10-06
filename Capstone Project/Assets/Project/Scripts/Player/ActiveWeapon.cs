@@ -76,10 +76,10 @@ public class ActiveWeapon : MonoBehaviour
             switch (args.EquipmentType)
             {
                 case EquipmentType.MeleeWeapon:
-                    await UpdateMeleeWeapon(args.NewEquipmentData);
+                    await UpdateMeleeWeapon(args.NewItem as Weapon);
                     break;
                 case EquipmentType.RangedWeapon:
-                    await UpdateRangedWeapon(args.NewEquipmentData);
+                    await UpdateRangedWeapon(args.NewItem as Weapon);
                     break;
             }
         }
@@ -89,16 +89,16 @@ public class ActiveWeapon : MonoBehaviour
         }
     }
 
-    private async Task UpdateMeleeWeapon(EquipmentData equipment)
+    private async Task UpdateMeleeWeapon(Weapon weapon)
     {
-        if (equipment == null || equipment.equipmentType != EquipmentType.MeleeWeapon)
+        if (weapon == null || weapon.WeaponDefinition.equipmentType != EquipmentType.MeleeWeapon)
         {
             WeaponFactory.DestroyInstance(_currentMeleeVisual);
             return;
         }
         
         int requestId = ++_meleeRequestId;
-        GameObject newWeapon = await WeaponFactory.Create(equipment, meleeSocket);
+        GameObject newWeapon = await WeaponFactory.Create(weapon, meleeSocket);
 
         if (requestId != _meleeRequestId)
         {
@@ -109,19 +109,19 @@ public class ActiveWeapon : MonoBehaviour
         WeaponFactory.DestroyInstance(_currentMeleeVisual);
         _currentMeleeVisual = newWeapon;
 
-        Debug.Log($"Change melee weapon: {equipment.itemName}");
+        Debug.Log($"Change melee weapon: {weapon.Definition.itemName}");
     }
 
-    private async Task UpdateRangedWeapon(EquipmentData equipment)
+    private async Task UpdateRangedWeapon(Weapon weapon)
     {
-        if (equipment == null || equipment.equipmentType != EquipmentType.RangedWeapon)
+        if (weapon == null || weapon.WeaponDefinition.equipmentType != EquipmentType.RangedWeapon)
         {
             WeaponFactory.DestroyInstance(_currentRangedVisual);
             return;
         }
         
         int requestId = ++_rangedRequestId;
-        GameObject newWeapon = await WeaponFactory.Create(equipment, rangedSocket);
+        GameObject newWeapon = await WeaponFactory.Create(weapon, rangedSocket);
 
         if (requestId != _rangedRequestId)
         {
@@ -132,7 +132,7 @@ public class ActiveWeapon : MonoBehaviour
         WeaponFactory.DestroyInstance(_currentRangedVisual);
         _currentRangedVisual = newWeapon;
         
-        Debug.Log($"Change ranged weapon: {equipment.itemName}");
+        Debug.Log($"Change ranged weapon: {weapon.Definition.itemName}");
     }
     
     // === HELPER SHOW AND HIDE WEAPON

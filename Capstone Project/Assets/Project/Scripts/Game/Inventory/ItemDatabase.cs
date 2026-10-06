@@ -24,7 +24,22 @@ public class ItemDatabase : ScriptableObject
     private void Initialize()
     {
         _itemCache = new Dictionary<string, ItemData>();
-        foreach (var item in items) _itemCache[item.id] = item;
+        foreach (var item in items)
+        {
+            if(item == null) continue;
+
+            if (string.IsNullOrWhiteSpace(item.id))
+            {
+                Debug.LogWarning($"[ItemDatabase] Item {item.name} has an empty ID", item);
+                continue;
+            }
+
+            if (!_itemCache.TryAdd(item.id, item))
+            {
+                Debug.LogError($"[ItemDatabase] Duplicate Item {item.name} ID {item.id}", item);
+                continue;
+            }
+        }
     }
     
     public ItemData Get(string itemId)
@@ -33,5 +48,15 @@ public class ItemDatabase : ScriptableObject
         if (_itemCache == null) Initialize(); // Fallback lazy initialization
         
         return _itemCache.GetValueOrDefault(itemId);
+    }
+
+    public bool TryGet(string itemId, out ItemData item)
+    {
+        item = null;
+
+        if(string.IsNullOrEmpty(itemId)) return false;
+        if(_itemCache == null) Initialize();
+        
+        return _itemCache != null && _itemCache.TryGetValue(itemId, out item);
     }
 }

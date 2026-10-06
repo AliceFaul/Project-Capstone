@@ -240,7 +240,7 @@ public class InventoryScreenController : MonoBehaviour
         var manager = EquipmentManager.Instance;
         if(manager == null)
             return;
-        
+        /*
         SetEquipSlot(_slotMelee, manager.Melee);
         SetEquipSlot(_slotArmor, manager.Armor);
         SetEquipSlot(_slotRanged, manager.Ranged);
@@ -250,6 +250,7 @@ public class InventoryScreenController : MonoBehaviour
             var artifact = i < manager.Artifacts.Length ? manager.Artifacts[i] : null;
             SetEquipSlot(_artifactSlots[i], artifact);
         }
+        */
     }
 
     private void SetEquipSlot(ItemSlotElement slot, EquipmentData equipment)

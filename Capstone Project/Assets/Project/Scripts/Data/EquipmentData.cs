@@ -62,16 +62,15 @@ public class EquipmentData : ItemData
     public override void Use()
     {
         base.Use();
-        EquipmentManager.Instance.Equip(this);
-        RemoveFromInventory();
+        
     }
 }
 
 public static class WeaponFactory
 {
-    public static async Task<GameObject> Create(EquipmentData equipment, Transform socket)
+    public static async Task<GameObject> Create(Weapon weapon, Transform socket)
     {
-        if (equipment == null)
+        if (weapon == null)
         {
             Debug.LogError($"[WeaponFactory] Equipment data is null, can't create weapon");
             return null;
@@ -85,21 +84,21 @@ public static class WeaponFactory
 
         GameObject prefab = null;
 
-        if (!string.IsNullOrEmpty(equipment.EquipmentPrefabKey) &&
+        if (!string.IsNullOrEmpty(weapon.WeaponDefinition.EquipmentPrefabKey) &&
             ResourceManager.Instance != null &&
-            ResourceManager.Instance.IsLoaded(equipment.EquipmentPrefabKey))
+            ResourceManager.Instance.IsLoaded(weapon.WeaponDefinition.EquipmentPrefabKey))
         {
-            prefab = ResourceManager.Instance.GetAsset<GameObject>(equipment.EquipmentPrefabKey);
+            prefab = ResourceManager.Instance.GetAsset<GameObject>(weapon.WeaponDefinition.EquipmentPrefabKey);
         }
         else
         {
-            Debug.LogError($"[WeaponFactory] {equipment.itemName} haven't preload in ResourceManager, " +
+            Debug.LogError($"[WeaponFactory] {weapon.Definition.itemName} haven't preload in ResourceManager, " +
                            $"doing fallback load directly (slow). " +
                            $"Needed call Preload in ResourceManager");
             
 #if UNITY_EDITOR 
             
-            var tempRef = equipment.EquipmentPrefabRef;
+            var tempRef = weapon.WeaponDefinition.EquipmentPrefabRef;
             if (tempRef != null)
             {
                 var handle = tempRef.LoadAssetAsync<GameObject>();
@@ -115,14 +114,14 @@ public static class WeaponFactory
 
         if (prefab == null)
         {
-            Debug.LogError($"[WeaponFactory] Not found prefab in '{equipment.itemName}' (key: {equipment.EquipmentPrefabKey}).");
+            Debug.LogError($"[WeaponFactory] Not found prefab in '{weapon.Definition.itemName}' (key: {weapon.WeaponDefinition.EquipmentPrefabRef}).");
             return null;
         }
         
         GameObject instance = Object.Instantiate(prefab, socket);
         instance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         instance.transform.localScale = Vector3.one;
-        instance.name = $"{equipment.itemName}_Visual";
+        instance.name = $"{weapon.Definition.itemName}_Visual";
         return instance;
     }
     

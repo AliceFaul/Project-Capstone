@@ -217,7 +217,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             CurrencyBalances = this.currencyBalances,
             UnlockedCosmeticIds = this.unlockedCosmeticIds,
             EquippedCosmeticId = this.equippedCosmeticId,
-            InventorySlots = _inventory is { IsValueCreated: true } ? _inventory.Value.ToData() : new List<InventorySlotData>()
+            //InventorySlots = _inventory is { IsValueCreated: true } ? _inventory.Value.ToData() : new List<InventorySlotData>()
         };
     }
 
@@ -242,11 +242,11 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             }
         }
 
-        // Sync inventory data
+        /* Sync inventory data
         if (gameData.InventorySlots != null)
         {
             Inventory.ApplyData(gameData.InventorySlots, itemId => itemDatabase != null ? itemDatabase.Get(itemId) : null);
-        }
+        } */
         
         OnDataApplied?.Invoke();
     }

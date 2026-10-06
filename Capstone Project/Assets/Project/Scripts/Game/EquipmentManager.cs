@@ -1,19 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public class EquipmentChangedEventArgs : EventArgs
 {
     public EquipmentType EquipmentType { get; }
-    public EquipmentData OldEquipmentData { get; }
-    public EquipmentData NewEquipmentData { get; }
+    public Item OldItem { get; }
+    public Item NewItem { get; }
 
-    public EquipmentChangedEventArgs(EquipmentType equipmentType, EquipmentData oldEquipmentData,
-        EquipmentData newEquipmentData)
+    public EquipmentChangedEventArgs(EquipmentType equipmentType, Item oldItem, Item newItem)
     {
         EquipmentType = equipmentType;
-        OldEquipmentData = oldEquipmentData;
-        NewEquipmentData = newEquipmentData;
+        OldItem = oldItem;
+        NewItem = newItem;
     }
 }
 
@@ -22,12 +22,12 @@ public class EquipmentManager : MonoBehaviour, IManager
     public static EquipmentManager Instance { get; private set; }
     
     [Header("Current Equipment")]
-    public EquipmentData Melee;
-    public EquipmentData Ranged;
-    public EquipmentData Armor;
-    public EquipmentData[] Artifacts =  new EquipmentData[3];
+    public Weapon Melee { get; private set; }
+    public Weapon Ranged { get; private set; }
+    public Armor Armor { get; private set; }
+
+    [SerializeField] private int artifactSlotCount = 3;
     
-    public PlayerInventory inventory;
     public event Action<EquipmentChangedEventArgs> OnEquipmentChanged;
 
     public async Task<bool> Initialize()
@@ -48,162 +48,126 @@ public class EquipmentManager : MonoBehaviour, IManager
         }
 
         Instance = this;
-        inventory = PlayerInventory.Instance;
+
+        artifactSlotCount = Mathf.Max(1, artifactSlotCount);
     }
 
-    public EquipmentData GetCurrentEquipment(EquipmentType equipmentType)
+    public Item GetCurrentEquipment(EquipmentType equipmentType)
     {
-        switch (equipmentType)
+        return equipmentType switch
         {
-            case EquipmentType.MeleeWeapon:
-                return Melee;
-            case EquipmentType.RangedWeapon:
-                return Ranged;
-            case EquipmentType.Armor:
-                return Armor;
+            EquipmentType.MeleeWeapon => Melee,
+            EquipmentType.RangedWeapon => Ranged,
+            EquipmentType.Armor => Armor,
+            _ => null
+        };
+    }
+
+    public void Equip(Item item)
+    {
+        if(item == null) return;
+        
+        switch (item)
+        {
+            case Weapon weapon:
+                EquipWeapon(weapon);
+                break;
+            case Armor armor:
+                EquipArmor(armor);
+                break;
             default:
-                return null;
+                Debug.LogWarning($"[EquipmentManager] Unsupported item type: {item.GetType().Name}.");
+                break;
         }
     }
 
-    public void Equip(ItemData item)
+    private void EquipWeapon(Weapon weapon)
     {
-        if(item.itemType != ItemType.Equipment)
-            return;
-        
-        EquipmentData equipment = item as EquipmentData;
-        
-        if(equipment == null)
-            return;
-
-        switch (equipment.equipmentType)
+        switch (weapon.WeaponDefinition.equipmentType)
         {
             case EquipmentType.MeleeWeapon:
-                EquipmentData oldMelee = Melee;
-                
-                if(oldMelee != null)
-                    inventory?.AddItem(oldMelee, 1);
-                
-                Melee = equipment;
-                Debug.Log($"Invoke Event : {oldMelee?.itemName} -> {Melee?.itemName}");
-                
-                OnEquipmentChanged?.Invoke(
-                    new EquipmentChangedEventArgs(
-                        EquipmentType.MeleeWeapon,
-                        oldMelee,
-                        Melee));
+                Weapon oldMelee = Melee;
+                Melee = weapon;
+                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(EquipmentType.MeleeWeapon, oldMelee, weapon));
                 break;
             case EquipmentType.RangedWeapon:
-                EquipmentData oldRanged = Ranged;
-                
-                if(oldRanged != null)
-                    inventory?.AddItem(oldRanged, 1);
-                
-                Ranged = equipment;
-                Debug.Log($"Invoke Event : {oldRanged?.itemName} -> {Ranged?.itemName}");
-                
-                OnEquipmentChanged?.Invoke(
-                    new EquipmentChangedEventArgs(
-                        EquipmentType.RangedWeapon,
-                        oldRanged,
-                        Ranged));
+                Weapon oldRanged = Ranged;
+                Ranged = weapon;
+                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(EquipmentType.RangedWeapon, oldRanged, weapon));
                 break;
-            case EquipmentType.Armor:
-                EquipmentData oldArmor = Armor;
-                
-                if(oldArmor != null)
-                    inventory?.AddItem(oldArmor, 1);
-                
-                Armor = equipment;
-                Debug.Log($"Invoke Event : {oldArmor?.itemName} -> {Armor?.itemName}");
-                
-                OnEquipmentChanged?.Invoke(
-                    new EquipmentChangedEventArgs(
-                        EquipmentType.Armor,
-                        oldArmor,
-                        Armor));
-                break;
-            case EquipmentType.Artifact:
-                int emptySlot = -1;
-                for(int i = 0; i < Artifacts.Length; i++)
-                {
-                    if(Artifacts[i] == null)
-                    {
-                        emptySlot = i;
-                        break;
-                    }
-                }
-
-                EquipmentData oldArtifact = null;
-                int targetSlot = emptySlot;
-
-                if (targetSlot < 0)
-                {
-                    targetSlot = 0;
-                    oldArtifact = Artifacts[0];
-                    if(oldArtifact != null) inventory?.AddItem(oldArtifact, 1);
-                }
-                
-                Artifacts[targetSlot] = equipment;
-                
-                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(
-                    EquipmentType.Artifact,
-                    oldArtifact,
-                    equipment));
+            default:
+                Debug.LogWarning($"[EquipmentManager] Weapon '{weapon.Definition.itemName}' has invalid type: {weapon.WeaponDefinition.equipmentType}");
                 break;
         }
+    }
+
+    private void EquipArmor(Armor armor)
+    {
+        Armor oldArmor = Armor;
+        Armor = armor;
+        OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(EquipmentType.Armor, oldArmor, armor));
     }
 
     public void Unequip(EquipmentType type)
     {
-        EquipmentData removed = null;
-
         switch (type)
         {
             case EquipmentType.MeleeWeapon:
-                removed = Melee;
+            {
+                if (Melee == null) return;
+
+                Weapon old = Melee;
                 Melee = null;
+                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(EquipmentType.MeleeWeapon, old, null));
                 break;
+            }
+
             case EquipmentType.RangedWeapon:
-                removed = Ranged;
+            {
+                if (Ranged == null) return;
+
+                Weapon old = Ranged;
                 Ranged = null;
+                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(EquipmentType.RangedWeapon, old, null));
                 break;
+            }
+
             case EquipmentType.Armor:
-                removed = Armor;
+            {
+                if (Armor == null) return;
+
+                Armor old = Armor;
                 Armor = null;
+                OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(EquipmentType.Armor, old, null));
                 break;
-            case EquipmentType.Artifact:
-                for (int i = Artifacts.Length - 1; i >= 0; i--)
-                {
-                    if (Artifacts[i] != null)
-                    {
-                        removed = Artifacts[i];
-                        Artifacts[i] = null;
-                        break;
-                    }
-                }
-                break;
+            }
         }
-        
-        if(removed == null)
-            return;
-        
-        inventory?.AddItem(removed, 1);
-        
-        OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(
-            type,
-            removed,
-            null));
     }
 
-    public void Unequip(ItemData item)
+    public void Unequip(Item item)
     {
-        if(item.itemType != ItemType.Equipment)
-            return;
-        
-        if(item is not EquipmentData equipment)
-            return;
-        
-        Unequip(equipment.equipmentType);
+        if(item == null) return;
+
+        switch (item)
+        {
+            case Weapon weapon:
+                UnequipWeapon(weapon);
+                break;
+            case Armor armor:
+                if(Armor?.InstanceId == armor.InstanceId) Unequip(armor);
+                break;
+        }
+    }
+
+    private void UnequipWeapon(Weapon weapon)
+    {
+        if (weapon.WeaponDefinition.equipmentType == EquipmentType.MeleeWeapon && Melee?.InstanceId == weapon.InstanceId)
+        {
+            Unequip(EquipmentType.MeleeWeapon);
+        }
+        else if (weapon.WeaponDefinition.equipmentType == EquipmentType.RangedWeapon && Ranged?.InstanceId == weapon.InstanceId)
+        {
+            Unequip(EquipmentType.RangedWeapon);
+        }
     }
 }

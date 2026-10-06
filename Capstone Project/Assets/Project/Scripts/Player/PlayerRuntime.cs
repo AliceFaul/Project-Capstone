@@ -147,7 +147,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         /*
         ApplyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon));
         ApplyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon));
-        */
+        
         
         var armor = _equipmentManager.Armor;
         if (armor != null)
@@ -155,7 +155,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
             ApplyBonusStat(BonusStat.Defense, armor.armorModifier);
             ApplyBonusStat(BonusStat.MoveSpeed, armor.speedModifier);
         }
-
+        */
         OnStatsChanged?.Invoke();
     }
 
@@ -173,7 +173,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     public float GetCurrentAttackSpeed(EquipmentType type)
     {
         var equipment = _equipmentManager.GetCurrentEquipment(type);
-        float speed = equipment != null ? equipment.attackSpeedModifier : 0f;
+        float speed = equipment != null ? 1f : 0f;
 
         float baseAttackSpeed = CharacterData != null ? CharacterData.baseAttackSpeed : 1f;
         return baseAttackSpeed + speed + bonusAttackSpeed;

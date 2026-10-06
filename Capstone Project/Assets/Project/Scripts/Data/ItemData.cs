@@ -45,7 +45,7 @@ public class Item
     
     public virtual bool CanStack => Definition != null && Definition.isStackable;
 
-    protected Item(ItemData definition)
+    public Item(ItemData definition)
     {
         if(definition == null) throw new System.ArgumentNullException(nameof(definition));
         InstanceId = System.Guid.NewGuid().ToString("N");

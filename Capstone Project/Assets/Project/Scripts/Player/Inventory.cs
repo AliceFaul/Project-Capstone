@@ -15,11 +15,11 @@ namespace Project.Capstone.Inventory
     [System.Serializable]
     public class InventorySlot
     {
-        public ItemData item;
+        public Item item;
         public int quantity;
-        public bool IsEmpty => item == null || quantity == 0;
+        public bool IsEmpty => item == null || quantity <= 0;
 
-        public InventorySlot(ItemData item, int quantity = 1)
+        public InventorySlot(Item item, int quantity = 1)
         {
             this.item = item;
             this.quantity = quantity;
@@ -52,48 +52,71 @@ namespace Project.Capstone.Inventory
             }
         }
 
-        public bool AddItem(ItemData item, int quantity = 1)
+        public bool AddItem(Item item, int quantity = 1)
         {
-            if (item == null)
+            if (item == null || quantity <= 0)
             {
                 Debug.LogWarning($"[Inventory] Attempted to add a invalid Item or Quantity!");
                 return false;
             }
-            
-            int remaining = quantity;
-            int maxStack = item.isStackable ? Mathf.Max(1, item.maxStackSize) : 1;
-            
-            // Add to slots have an item
-            if (item.isStackable)
-            {
-                foreach (var slot in slots)
-                {
-                    if (!slot.IsEmpty && slot.item.id == item.id && slot.quantity < maxStack)
-                    {
-                        int roomLeft = maxStack - slot.quantity;
-                        int amountToAdd = Mathf.Min(remaining, roomLeft);
 
-                        slot.quantity += amountToAdd;
-                        remaining -= amountToAdd;
-                        
-                        if(remaining <= 0) break;
-                    }
-                }
+            if (!item.CanStack && quantity != 1)
+            {
+                Debug.LogWarning($"[Inventory] Non-stackable item '{item.Definition.itemName}' must be added with quantity = 1.");
+                return false;
             }
             
-            // Add to empty slots
+            int remaining = quantity;
+
+            // ===== STACKABLE ITEM =====
+            if (item.CanStack)
+            {
+                int maxStack = Mathf.Max(1, item.Definition.maxStackSize);
+
+                foreach (var slot in slots)
+                {
+                    if (slot.IsEmpty) continue;
+                    if (!slot.item.CanStack) continue;
+                    if (slot.item.Definition.id != item.Definition.id) continue;
+                    if (slot.quantity >= maxStack) continue;
+                    
+                    int roomLeft = maxStack - slot.quantity;
+                    int amountToAdd = Mathf.Min(remaining, roomLeft);
+                    
+                    slot.quantity += amountToAdd;
+                    remaining -= amountToAdd;
+                    
+                    if(remaining <= 0) break;
+                }
+            }
+
+            // ===== ADD TO EMPTY SLOT =====
             if (remaining > 0)
             {
                 foreach (var slot in slots)
                 {
                     if (!slot.IsEmpty) continue;
 
-                    int amountToAdd = Mathf.Min(remaining, maxStack);
+                    if (item.CanStack)
+                    {
+                        int maxStack = Mathf.Max(1, item.Definition.maxStackSize);
 
-                    slot.item = item;
-                    slot.quantity = amountToAdd;
-                    remaining -= amountToAdd;
-                    
+                        int amountToAdd = Mathf.Min(remaining, maxStack);
+
+                        slot.item = item;
+                        slot.quantity = amountToAdd;
+
+                        remaining -= amountToAdd;
+                    }
+                    else
+                    {
+                        // Unique item, e.g. WeaponInstance.
+                        slot.item = item;
+                        slot.quantity = 1;
+
+                        remaining = 0;
+                    }
+
                     if (remaining <= 0) break;
                 }
             }
@@ -103,7 +126,7 @@ namespace Project.Capstone.Inventory
             if (hasAdded)
             {
                 OnInventoryChanged?.Invoke(slots);
-                Debug.Log($"[Inventory] Added {item.itemName} ({quantity}) to slots!");
+                Debug.Log($"[Inventory] Added {quantity - remaining} x {item.Definition.itemName}!");
             }
             
             if(remaining > 0) Debug.LogWarning($"[Inventory] Inventory full! Leftover quantity: {remaining}");
@@ -111,43 +134,66 @@ namespace Project.Capstone.Inventory
             return remaining <= 0;
         }
 
-        public bool RemoveItem(ItemData item, int quantity = 1)
+        public bool RemoveItem(Item item, int quantity = 1)
         {
             if(item == null || quantity <= 0) return false;
-            int totalAmount = slots.Where(slot => !slot.IsEmpty && slot.item.id == item.id).Sum(slot => slot.quantity);
+
+            if (!item.CanStack)
+            {
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    var slot = slots[i];
+                    if(slot.IsEmpty) continue;
+                    if(slot.item.InstanceId != item.InstanceId) continue;
+                    
+                    slot.Clear();
+                    OnInventoryChanged?.Invoke(slots);
+                    Debug.Log($"[Inventory] Removed {item.Definition.itemName} {item.InstanceId}!");
+                    return true;
+                }
+                
+                Debug.LogWarning($"[Inventory] Instance {item.InstanceId} not found in Inventory!");
+                return false;
+            }
+            
+            int totalAmount = slots.Where(slot => !slot.IsEmpty && slot.item.CanStack && slot.item.Definition.id == item.Definition.id).Sum(slot => slot.quantity);
 
             if (totalAmount < quantity)
             {
-                Debug.Log($"[Inventory] {item.itemName} does not have enough {quantity} items left!");
+                Debug.Log($"[Inventory] {item.Definition.itemName} does not have enough {quantity} items left!");
                 return false;
             }
 
             int remaining = quantity;
-            
+
             for (int i = slots.Count - 1; i >= 0; i--)
             {
-                if (!slots[i].IsEmpty && slots[i].item.id == item.id)
+                var slot = slots[i];
+
+                if(slot.IsEmpty) continue;
+                if(!slot.item.CanStack) continue;
+                if(slot.item.Definition.id != item.Definition.id) continue;
+
+                if (slot.quantity > remaining)
                 {
-                    if (slots[i].quantity > remaining)
-                    {
-                        slots[i].quantity -= remaining;
-                        remaining = 0;
-                    }
-                    else
-                    {
-                        remaining -= slots[i].quantity;
-                        slots[i].Clear();
-                    }
-
-                    if (remaining <= 0) break;
+                    slot.quantity -= remaining;
+                    remaining = 0;
                 }
+                else
+                {
+                    remaining -= slot.quantity;
+                    slot.Clear();
+                }
+                
+                if(remaining <= 0) break;
             }
-
-            Debug.Log($"[Inventory] Successfully removed {quantity} x {item.itemName} from inventory!");
+            
             OnInventoryChanged?.Invoke(slots);
+            Debug.Log($"[Inventory] Successfully removed {quantity} x {item.Definition.itemName} from inventory!");
             return true;
         }
 
+        /*
         public List<InventorySlotData> ToData()
         {
             var data = new List<InventorySlotData>();
@@ -156,7 +202,7 @@ namespace Project.Capstone.Inventory
             {
                 data.Add(new InventorySlotData
                 {
-                    itemId = slot.IsEmpty ? string.Empty : slot.item.id,
+                    itemId = slot.IsEmpty ? string.Empty : slot.item.InstanceId,
                     quantity = slot.quantity
                 });
             }
@@ -184,5 +230,6 @@ namespace Project.Capstone.Inventory
             
             OnInventoryChanged?.Invoke(slots);
         }
+        */
     }
 }

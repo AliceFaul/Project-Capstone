@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 public class TierTable
 {
     [Tooltip("Index 0 = Tier 1, Index 1 = Tier 2, Index 2 = Tier 3, Index 3 = Tier 4")]
-    public float[] values = new float[5];
+    public float[] values = new float[4];
     public int TierCount => values?.Length ?? 0;
 
     public int Roll()
@@ -49,6 +49,25 @@ public class WeaponDefinition : EquipmentData
     
 }
 
+[CreateAssetMenu(fileName = "New Armor Definition", menuName = "Inventory/Armor Definition")]
+public class ArmorDefinition : EquipmentData
+{
+    [Header("Armor Stat Roll Configuration")]
+    [SerializeField] private TierTable defenseTiers = new();
+    
+    public TierTable DefenseTiers => defenseTiers;
+    
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (equipmentType != EquipmentType.Armor)
+        {
+            Debug.LogWarning($"[ArmorDefinition] {name} must use Armor as Equipment Type.", this);
+        }            
+    }
+#endif
+}
+
 public interface IWeapon
 {
     string Name { get; }
@@ -71,6 +90,16 @@ public interface IWeapon
     WeaponDefinition WeaponDefinition { get; }
 }
 
+public interface IArmor
+{
+    string Name { get; }
+    int Level { get; }
+    
+    int DefenseTier { get; }
+    int Defense { get; }
+    ArmorDefinition ArmorDefinition { get; }
+}
+
 public class Weapon : Item, IWeapon
 {
     private const int MaxLevel = 10;
@@ -85,7 +114,8 @@ public class Weapon : Item, IWeapon
     private int _critDamageTier;
     
     public string Name => Definition.itemName;
-    
+    public override bool CanStack => false;
+
     public int Level => _level;
     
     public int DamageTier => _damageTier;
@@ -121,7 +151,6 @@ public class Weapon : Item, IWeapon
     {
         _definition = definition;
         if (_definition == null) throw new ArgumentNullException(nameof(definition));
-        
         _level = Mathf.Clamp(level, 1, MaxLevel);
         RollStats();
     }
@@ -140,5 +169,38 @@ public class Weapon : Item, IWeapon
     public override string ToString()
     {
         return $"{_definition.itemName} [Lv.{_level}] Damage T{_damageTier}, AttackSpeed T{_attackSpeedTier}, Range T{_attackRangeTier}, CritChance T{_critChanceTier}, CritDamage T{_critDamageTier}";
+    }
+}
+
+public class Armor : Item, IArmor
+{
+    private const int MaxLevel = 10;
+    private readonly ArmorDefinition _definition;
+
+    private int _level;
+    private readonly int _defenseTier;
+    
+    public string Name => Definition.itemName;
+    public override bool CanStack => false;
+    public int Level => _level;
+    
+    public ArmorDefinition ArmorDefinition => _definition;
+    
+    public int DefenseTier => _defenseTier;
+    public int Defense => Mathf.RoundToInt(_definition.DefenseTiers.GetValue(_defenseTier));
+    
+    public Armor(ArmorDefinition definition, int level = 1) : base(definition)
+    {
+        _definition = definition;
+        if(_definition == null) throw new ArgumentException(nameof(_definition));
+        _level = Mathf.Clamp(level, 1, MaxLevel);
+        _defenseTier = _definition.DefenseTiers.Roll();
+    }
+    
+    public void SetLevel(int level) => _level = Mathf.Clamp(level, 1, MaxLevel);
+
+    public override string ToString()
+    {
+        return $"{_definition.itemName} Defense T{_defenseTier}";
     }
 }

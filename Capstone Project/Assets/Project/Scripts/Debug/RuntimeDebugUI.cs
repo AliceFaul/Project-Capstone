@@ -50,7 +50,7 @@ public class RuntimeDebugUI : MonoBehaviour
     private void UpdateUI()
     {
         string target = combat.CurrentTarget != null ? combat.CurrentTarget.name : "None";
-        
+        /*
         string infoText =
             $"===== PLAYER ===== \n\n" +
             $"State: {_stateMachine.CurrentState} \n" +
@@ -72,6 +72,6 @@ public class RuntimeDebugUI : MonoBehaviour
             $"===== TARGET ===== \n" +
             $"Current Target: " + target;
         
-        playerInfoText.text = infoText;
+        playerInfoText.text = infoText;*/
     }
 }
