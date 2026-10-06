@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f649fb8d0d5b491fb22f9cf16dc78242, type: 3}
+  m_Name: Inferno Sword Definition
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinition
+  id: Mhieu Inferno Sword
+  itemName: Inferno Sword
+  itemDescription: 
+  itemType: 1
+  rarity: 3
+  icon: {fileID: 0}
+  isStackable: 0
+  maxStackSize: 64
+  equipmentPrefabKey: 
+  equipmentType: 0
+  weaponType: 0
+  level: 1
+  attributes:
+    damage: 0
+    attackSpeed: 0
+    attackRange: 0
+    critChance: 0
+    critDamage: 0
+  damageModifier: 0
+  armorModifier: 0
+  speedModifier: 0
+  attackSpeedModifier: 0
+  attackRangeModifier: 0
+  critChanceModifier: 0
+  critDamageModifier: 0
+  equipmentPrefabRef:
+    m_AssetGUID: 97d88fb9a3565d84daf5fff081fcbb91
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  damageTiers:
+    values:
+    - 12.4
+    - 15.6
+    - 19
+    - 21
+  attackSpeedTiers:
+    values:
+    - 1
+    - 2
+    - 3
+    - 4
+  attackRangeTiers:
+    values:
+    - 2
+    - 2.1
+    - 2.5
+    - 3
+    - 3.2
+  critChanceTiers:
+    values:
+    - 3.6
+    - 7.2
+    - 12.1
+    - 15.6
+  critDamageTiers:
+    values:
+    - 12.6
+    - 13.2
+    - 18.6
+    - 21

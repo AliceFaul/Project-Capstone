@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
+[Serializable]
 public enum ItemType { QuestItem, Equipment, ConsumeItem }
-
+[Serializable]
 public enum Rarity { Common, Uncommon, Rare, Legendary }
 
 // Tạo đường dẫn trong menu chuột phải của Unity để tạo file data mới
@@ -32,5 +34,26 @@ public class ItemData : ScriptableObject
     {
         PlayerInventory.Instance.RemoveItem(this, 1);
         Debug.Log($"Removing {itemName}");
+    }
+}
+
+[System.Serializable]
+public class Item
+{
+    public string InstanceId { get; }
+    public ItemData Definition { get; }
+    
+    public virtual bool CanStack => Definition != null && Definition.isStackable;
+
+    protected Item(ItemData definition)
+    {
+        if(definition == null) throw new System.ArgumentNullException(nameof(definition));
+        InstanceId = System.Guid.NewGuid().ToString("N");
+        Definition = definition;
+    }
+    
+    public override string ToString()
+    {
+        return $"{Definition.itemName} [{InstanceId}]";
     }
 }

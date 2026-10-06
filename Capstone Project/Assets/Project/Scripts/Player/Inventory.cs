@@ -94,7 +94,7 @@ namespace Project.Capstone.Inventory
                     slot.quantity = amountToAdd;
                     remaining -= amountToAdd;
                     
-                    if (quantity <= 0) break;
+                    if (remaining <= 0) break;
                 }
             }
 
