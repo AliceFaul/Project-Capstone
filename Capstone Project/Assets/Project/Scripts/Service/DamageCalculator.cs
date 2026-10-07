@@ -3,7 +3,7 @@ using Random = UnityEngine.Random;
 
 public struct DamageResult
 {
-    public int Damage;
+    public readonly int Damage;
     public bool IsCritical;
 
     public DamageResult(int damage, bool isCritical)
@@ -15,28 +15,36 @@ public struct DamageResult
 
 public static class DamageCalculator
 {
-    public static DamageResult Calculate(PlayerRuntime runtime, EquipmentData equipment)
+    public static DamageResult Calculate(PlayerRuntime runtime, EquipmentInstance weapon, EquipmentData definition, EquipmentProgressConfig config)
     {
-        var damage = runtime.TotalDamage;
-
-        bool isCritical = false;
-
-        var critChance = runtime.TotalCritChance;
-        var critDamage = runtime.TotalCritDamage;
-
-        if (equipment != null)
+        if (runtime == null)
         {
-            damage += equipment.attributes.damage + equipment.damageModifier;
-            critChance += equipment.attributes.critChance + equipment.critChanceModifier;
-            critDamage += equipment.attributes.critDamage + equipment.critDamageModifier;
+            Debug.LogError($"[DamageCalculator] PlayerRuntime is null.]");
+            return new DamageResult(0, false);
         }
 
-        if (Random.value <= critChance / 100f)
+        if (weapon == null)
         {
-            damage = Mathf.RoundToInt(damage * (critDamage / 100f));
-            isCritical = true;
+            Debug.LogWarning($"[DamageCalculator] Weapon isntance is null.");
+            return new DamageResult(0, false);
         }
+
+        if (definition == null)
+        {
+            Debug.LogError($"[DamageCalculator] Definition is null for weapon instance '{weapon.InstanceId}'.");
+            return new DamageResult(0, false);
+        }
+
+        var weaponDamage = StatResolver.GetStat(weapon, definition, BonusStat.Damage, config);
+        var damage = runtime.TotalDamage + weaponDamage;
         
-        return new DamageResult(damage, isCritical);
+        var critChance = StatResolver.GetStat(weapon, definition, BonusStat.CritChance, config);
+        var critDamage = StatResolver.GetStat(weapon, definition, BonusStat.CritDamage, config);
+        
+        bool isCritical = Random.value <= critChance / 100f;
+
+        if (isCritical) damage *= critDamage / 100f;
+        
+        return new DamageResult(Mathf.RoundToInt(damage), isCritical);
     }
 }

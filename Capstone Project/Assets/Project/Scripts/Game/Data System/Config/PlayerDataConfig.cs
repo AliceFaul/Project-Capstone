@@ -36,11 +36,6 @@ public interface ICosmetics
     void EquipCosmetic(CosmeticData cosmetic);
 }
 
-public interface IInventory
-{
-    Inventory Inventory { get; }
-}
-
 public class GameData
 {
     public string PlayerDisplayName;
@@ -48,7 +43,6 @@ public class GameData
     public float CurrentExp;
     public float ExpToNextLevel;
     public List<CurrencyAmount> CurrencyBalances;
-    public List<InventorySlotData> InventorySlots;
     public List<string> UnlockedCosmeticIds;
     public string EquippedCosmeticId;
 }
@@ -56,7 +50,7 @@ public class GameData
 // Replaced the data fields in Player Runtime;
 // data is now loaded during the Config step to provide an instance available for use throughout the application.
 [CreateAssetMenu(fileName = "PlayerDataConfig", menuName = "Config/Progress")]
-public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IProgression, ICurrency, ICosmetics, IInventory
+public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IProgression, ICurrency, ICosmetics
 {
     [Header("Identity")]
     // 'Unknown' name = Call popup service create set name popup when first time play game
@@ -66,6 +60,10 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
     [SerializeField] private int level = 1;
     [SerializeField] private float currentExp = 0f;
     [SerializeField] private float expToNextLevel = 100f;
+    
+    [Header("Starting Equipment")]
+    [SerializeField] private string startingMeleeWeaponId;
+    [SerializeField] private string startingRangedWeaponId;
 
     [Header("Currency")]
     [SerializeField] private List<CurrencyAmount> currencyBalances = new List<CurrencyAmount>
@@ -78,16 +76,24 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
     [SerializeField] private List<string> unlockedCosmeticIds = new List<string>();
     [SerializeField] private string equippedCosmeticId = "";
 
-    [Header("Inventory")]
-    [SerializeField] private int inventoryMaxSlots = 25;
+    [Header("Item Database")]
+    [SerializeField] private InventoryConfig inventoryConfig;
     [SerializeField] private ItemDatabase itemDatabase;
+
+    private Loadout _loadout;
+    private Inventory _inventory;
     
     public string DisplayName => displayName;
     public int Level => level;
     public float CurrentExp => currentExp;
     public float ExpToNextLevel => expToNextLevel;
+    public string StartingMeleeWeaponId => startingMeleeWeaponId;
+    public string StartingRangedWeaponId => startingRangedWeaponId;
     public IReadOnlyList<string> UnlockedCosmeticIds => unlockedCosmeticIds;
     public string EquippedCosmeticId => equippedCosmeticId;
+    public Loadout Loadout => _loadout;
+    public Inventory Inventory => _inventory;
+    public ItemDatabase ItemDatabase => itemDatabase;
 
     public event Action<int> OnLevelUp;
     public event Action<float, float> OnExpChanged;
@@ -97,10 +103,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
 
     // Use the lazy pattern to defer initialization until the object is used.
     private Lazy<Currency> _currency;
-    private Lazy<Inventory> _inventory;
-    
     public Currency Currency => _currency.Value;
-    public Inventory Inventory => _inventory.Value;
     
     private void OnEnable()
     {
@@ -115,11 +118,8 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             return instance;
         }, LazyThreadSafetyMode.None);
 
-        _inventory = new Lazy<Inventory>(() =>
-        {
-            var instance = new Inventory(inventoryMaxSlots);
-            return instance;
-        }, LazyThreadSafetyMode.None);
+        _inventory = new Inventory(inventoryConfig.Categories);
+        _loadout = new Loadout(_inventory);
     }
 
     // unsubscribe to avoid memory leak
@@ -217,7 +217,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             CurrencyBalances = this.currencyBalances,
             UnlockedCosmeticIds = this.unlockedCosmeticIds,
             EquippedCosmeticId = this.equippedCosmeticId,
-            //InventorySlots = _inventory is { IsValueCreated: true } ? _inventory.Value.ToData() : new List<InventorySlotData>()
+            // TODO: Inventory save will be implemented later.
         };
     }
 
@@ -242,11 +242,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             }
         }
 
-        /* Sync inventory data
-        if (gameData.InventorySlots != null)
-        {
-            Inventory.ApplyData(gameData.InventorySlots, itemId => itemDatabase != null ? itemDatabase.Get(itemId) : null);
-        } */
+        // TODO: Inventory save/load will be implemented later.
         
         OnDataApplied?.Invoke();
     }

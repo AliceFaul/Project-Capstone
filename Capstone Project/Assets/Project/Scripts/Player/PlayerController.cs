@@ -56,6 +56,17 @@ public class PlayerController : MonoBehaviour {
         }
         set => _combat = value;
     }
+
+    private PlayerRuntime _playerRuntime;
+    public PlayerRuntime PlayerRuntime
+    {
+        get
+        {
+            if(_playerRuntime == null) _playerRuntime = GetComponent<PlayerRuntime>();
+            return _playerRuntime;
+        }
+        set => _playerRuntime = value;
+    }
     
     private PlayerStateMachine _stateMachine;
     public PlayerStateMachine StateMachine

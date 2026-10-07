@@ -22,38 +22,4 @@ public class ItemData : ScriptableObject
     public Sprite icon;             // Ảnh đại diện của vật phẩm trên UI (NẾU CÓ)
     public bool isStackable = true; // Bật tắt tính năng cộng dồn vật phẩm
     public int maxStackSize = 64;   // Số lượng tối đa cho phép trong một ô
-
-    public virtual void Use()
-    {
-        // Use Item
-        
-        Debug.Log($"Using {itemName}");
-    }
-
-    protected void RemoveFromInventory()
-    {
-        PlayerInventory.Instance.RemoveItem(this, 1);
-        Debug.Log($"Removing {itemName}");
-    }
-}
-
-[System.Serializable]
-public class Item
-{
-    public string InstanceId { get; }
-    public ItemData Definition { get; }
-    
-    public virtual bool CanStack => Definition != null && Definition.isStackable;
-
-    public Item(ItemData definition)
-    {
-        if(definition == null) throw new System.ArgumentNullException(nameof(definition));
-        InstanceId = System.Guid.NewGuid().ToString("N");
-        Definition = definition;
-    }
-    
-    public override string ToString()
-    {
-        return $"{Definition.itemName} [{InstanceId}]";
-    }
 }

@@ -12,30 +12,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
   m_Name: Inferno Sword
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
-  id: Mhieu_Sword_Id_1
+  id: inferno_sword
   itemName: Inferno Sword
-  itemType: 1
-  rarity: 3
-  icon: {fileID: 21300000, guid: fac5a081943222b4ab3b8bcc324d1044, type: 3}
+  itemDescription: 
+  itemType: 0
+  rarity: 0
+  icon: {fileID: 695775810, guid: 080cb6d98b00c2645b2c41df5f69bc78, type: 3}
   isStackable: 0
   maxStackSize: 64
   equipmentPrefabKey: Inferno_Sword
   equipmentType: 1
   weaponType: 0
-  level: 100
-  attributes:
-    damage: 1000
-    attackSpeed: 2
-    attackRange: 3
-    critChance: 36
-    critDamage: 150
-  damageModifier: 0
-  armorModifier: 0
-  speedModifier: 2
-  attackSpeedModifier: -0.2
-  attackRangeModifier: 0
-  critChanceModifier: 0
-  critDamageModifier: 0
+  stats:
+  - Stat: 2
+    Tiered: 1
+    TierValues:
+    - 5
+    - 8
+    - 12
+    - 16
+  - Stat: 3
+    Tiered: 0
+    TierValues:
+    - 2
+    - 2
+    - 2
+    - 2
+  - Stat: 4
+    Tiered: 1
+    TierValues:
+    - 0.5
+    - 0.7
+    - 0.9
+    - 1.1
+  - Stat: 6
+    Tiered: 1
+    TierValues:
+    - 3
+    - 5
+    - 7
+    - 10
+  - Stat: 7
+    Tiered: 1
+    TierValues:
+    - 12
+    - 15
+    - 18
+    - 21
   equipmentPrefabRef:
     m_AssetGUID: 97d88fb9a3565d84daf5fff081fcbb91
     m_SubObjectName: 

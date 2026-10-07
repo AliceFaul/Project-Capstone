@@ -1,235 +1,197 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
-using System;
 using System.Linq;
+using UnityEngine;
 
 namespace Project.Capstone.Inventory
 {
-    [Serializable]
-    public class InventorySlotData
-    {
-        public string itemId;
-        public int quantity;
-    }
-    
-    [System.Serializable]
-    public class InventorySlot
-    {
-        public Item item;
-        public int quantity;
-        public bool IsEmpty => item == null || quantity <= 0;
+    // Moi loai co tui rieng. Them loai moi = them 1 gia tri enum nay + 1 dong trong InventoryConfig
+    // (khong sua logic). Chi them 1 LOAI VAT PHAM moi (khac EquipmentInstance/RuneInstance/
+    // ArtifactInstance) moi can them code luu/doc trong PlayerDataConfig.
+    public enum InventoryCategory { Melee, Ranged, Armor, Rune, Artifact }
 
-        public InventorySlot(Item item, int quantity = 1)
-        {
-            this.item = item;
-            this.quantity = quantity;
-        }
-        
-        public void Clear()
-        {
-            item = null;
-            quantity = 0;
-        }
+    public interface IInventoryItem
+    {
+        string InstanceId { get; }
+        InventoryCategory Category { get; }
     }
-    
-    [System.Serializable]
+
+    [Serializable]
+    public class CategoryCapacity
+    {
+        public InventoryCategory category;
+        public int slotCount = 25;
+    }
+
+    // Bo cuc 1 tui de luu: thu tu o -> instanceId ("" = o trong).
+    [Serializable]
+    public class BagLayout
+    {
+        public InventoryCategory category;
+        public List<string> slotInstanceIds = new List<string>();
+    }
+
     public class Inventory
     {
-        public List<InventorySlot> slots;
-        public int maxSlots;
-        
-        public event Action<List<InventorySlot>> OnInventoryChanged;
+        private readonly Dictionary<InventoryCategory, IInventoryItem[]> _bags = new Dictionary<InventoryCategory, IInventoryItem[]>();
 
-        public Inventory(int slotCount = 25)
+        public event Action<InventoryCategory> OnBagChanged;
+
+        public Inventory(IEnumerable<CategoryCapacity> capacities)
         {
-            maxSlots = slotCount;
-            slots = new List<InventorySlot>(maxSlots);
-            slots.Clear();
-
-            for (int i = 0; i < maxSlots; i++)
+            foreach (var capacity in capacities)
             {
-                slots.Add(new InventorySlot(null, 0));
+                _bags[capacity.category] = new IInventoryItem[Mathf.Max(0, capacity.slotCount)];
             }
         }
 
-        public bool AddItem(Item item, int quantity = 1)
+        public bool HasCategory(InventoryCategory category) => _bags.ContainsKey(category);
+
+        public int GetCapacity(InventoryCategory category) => _bags.TryGetValue(category, out var bag) ? bag.Length : 0;
+
+        // Danh sach o (phan tu null = o trong) - UI chi doc, khong sua truc tiep.
+        public IReadOnlyList<IInventoryItem> GetSlots(InventoryCategory category)
         {
-            if (item == null || quantity <= 0)
-            {
-                Debug.LogWarning($"[Inventory] Attempted to add a invalid Item or Quantity!");
-                return false;
-            }
-
-            if (!item.CanStack && quantity != 1)
-            {
-                Debug.LogWarning($"[Inventory] Non-stackable item '{item.Definition.itemName}' must be added with quantity = 1.");
-                return false;
-            }
-            
-            int remaining = quantity;
-
-            // ===== STACKABLE ITEM =====
-            if (item.CanStack)
-            {
-                int maxStack = Mathf.Max(1, item.Definition.maxStackSize);
-
-                foreach (var slot in slots)
-                {
-                    if (slot.IsEmpty) continue;
-                    if (!slot.item.CanStack) continue;
-                    if (slot.item.Definition.id != item.Definition.id) continue;
-                    if (slot.quantity >= maxStack) continue;
-                    
-                    int roomLeft = maxStack - slot.quantity;
-                    int amountToAdd = Mathf.Min(remaining, roomLeft);
-                    
-                    slot.quantity += amountToAdd;
-                    remaining -= amountToAdd;
-                    
-                    if(remaining <= 0) break;
-                }
-            }
-
-            // ===== ADD TO EMPTY SLOT =====
-            if (remaining > 0)
-            {
-                foreach (var slot in slots)
-                {
-                    if (!slot.IsEmpty) continue;
-
-                    if (item.CanStack)
-                    {
-                        int maxStack = Mathf.Max(1, item.Definition.maxStackSize);
-
-                        int amountToAdd = Mathf.Min(remaining, maxStack);
-
-                        slot.item = item;
-                        slot.quantity = amountToAdd;
-
-                        remaining -= amountToAdd;
-                    }
-                    else
-                    {
-                        // Unique item, e.g. WeaponInstance.
-                        slot.item = item;
-                        slot.quantity = 1;
-
-                        remaining = 0;
-                    }
-
-                    if (remaining <= 0) break;
-                }
-            }
-
-            bool hasAdded = remaining < quantity;
-
-            if (hasAdded)
-            {
-                OnInventoryChanged?.Invoke(slots);
-                Debug.Log($"[Inventory] Added {quantity - remaining} x {item.Definition.itemName}!");
-            }
-            
-            if(remaining > 0) Debug.LogWarning($"[Inventory] Inventory full! Leftover quantity: {remaining}");
-            
-            return remaining <= 0;
+            return _bags.TryGetValue(category, out var bag) ? bag : Array.Empty<IInventoryItem>();
         }
 
-        public bool RemoveItem(Item item, int quantity = 1)
+        public int GetFreeSlots(InventoryCategory category)
         {
-            if(item == null || quantity <= 0) return false;
-
-            if (!item.CanStack)
+            if (!_bags.TryGetValue(category, out var bag)) return 0;
+            int free = 0;
+            foreach (var slot in bag)
             {
-                for (int i = 0; i < slots.Count; i++)
-                {
-                    var slot = slots[i];
-                    if(slot.IsEmpty) continue;
-                    if(slot.item.InstanceId != item.InstanceId) continue;
-                    
-                    slot.Clear();
-                    OnInventoryChanged?.Invoke(slots);
-                    Debug.Log($"[Inventory] Removed {item.Definition.itemName} {item.InstanceId}!");
-                    return true;
-                }
-                
-                Debug.LogWarning($"[Inventory] Instance {item.InstanceId} not found in Inventory!");
-                return false;
+                if (slot == null) free++;
             }
-            
-            int totalAmount = slots.Where(slot => !slot.IsEmpty && slot.item.CanStack && slot.item.Definition.id == item.Definition.id).Sum(slot => slot.quantity);
+            return free;
+        }
 
-            if (totalAmount < quantity)
+        // Kiem tra TRUOC khi them nhieu mon (vi du gacha x10): dem so o can THEO TUNG LOAI, khong
+        // phai tong so o trong - 10 kiem can 10 o trong rieng o tui Melee.
+        public bool CanFit(IEnumerable<IInventoryItem> items)
+        {
+            foreach (var group in items.GroupBy(i => i.Category))
             {
-                Debug.Log($"[Inventory] {item.Definition.itemName} does not have enough {quantity} items left!");
-                return false;
+                if (GetFreeSlots(group.Key) < group.Count()) return false;
             }
-
-            int remaining = quantity;
-
-            for (int i = slots.Count - 1; i >= 0; i--)
-            {
-                var slot = slots[i];
-
-                if(slot.IsEmpty) continue;
-                if(!slot.item.CanStack) continue;
-                if(slot.item.Definition.id != item.Definition.id) continue;
-
-                if (slot.quantity > remaining)
-                {
-                    slot.quantity -= remaining;
-                    remaining = 0;
-                }
-                else
-                {
-                    remaining -= slot.quantity;
-                    slot.Clear();
-                }
-                
-                if(remaining <= 0) break;
-            }
-            
-            OnInventoryChanged?.Invoke(slots);
-            Debug.Log($"[Inventory] Successfully removed {quantity} x {item.Definition.itemName} from inventory!");
             return true;
         }
 
-        /*
-        public List<InventorySlotData> ToData()
+        public bool TryAdd(IInventoryItem item)
         {
-            var data = new List<InventorySlotData>();
+            if (item == null) return false;
 
-            foreach (var slot in slots)
+            if (!_bags.TryGetValue(item.Category, out var bag))
             {
-                data.Add(new InventorySlotData
-                {
-                    itemId = slot.IsEmpty ? string.Empty : slot.item.InstanceId,
-                    quantity = slot.quantity
-                });
+                Debug.LogWarning($"[Inventory] Chua cau hinh tui cho loai {item.Category}.");
+                return false;
             }
-            
-            return data;
+
+            for (int i = 0; i < bag.Length; i++)
+            {
+                if (bag[i] != null) continue;
+                bag[i] = item;
+                OnBagChanged?.Invoke(item.Category);
+                return true;
+            }
+
+            return false;
         }
 
-        public void ApplyData(List<InventorySlotData> data, Func<string, ItemData> itemLookup)
+        // Tat ca hoac khong: neu khong du cho cho TOAN BO thi khong them mon nao.
+        public bool TryAddRange(IReadOnlyCollection<IInventoryItem> items)
         {
-            if(data == null) return;
+            if (!CanFit(items)) return false;
+            foreach (var item in items) TryAdd(item);
+            return true;
+        }
 
-            for (int i = 0; i < maxSlots; i++)
+        public bool TryRemove(string instanceId, out IInventoryItem removed)
+        {
+            removed = null;
+            if (string.IsNullOrEmpty(instanceId)) return false;
+
+            foreach (var pair in _bags)
             {
-                if (i < data.Count && !string.IsNullOrEmpty(data[i].itemId))
+                var bag = pair.Value;
+                for (int i = 0; i < bag.Length; i++)
                 {
-                    ItemData loadedItem = itemLookup?.Invoke(data[i].itemId);
-                    slots[i].item = loadedItem;
-                    slots[i].quantity = loadedItem != null ? data[i].quantity : 0;
-                }
-                else
-                {
-                    slots[i].Clear();
+                    if (bag[i] == null || bag[i].InstanceId != instanceId) continue;
+                    removed = bag[i];
+                    bag[i] = null;
+                    OnBagChanged?.Invoke(pair.Key);
+                    return true;
                 }
             }
-            
-            OnInventoryChanged?.Invoke(slots);
+
+            return false;
         }
-        */
+
+        public IInventoryItem Find(string instanceId)
+        {
+            if (string.IsNullOrEmpty(instanceId)) return null;
+            return AllItems().FirstOrDefault(i => i.InstanceId == instanceId);
+        }
+
+        public T Find<T>(string instanceId) where T : class, IInventoryItem => Find(instanceId) as T;
+
+        public IEnumerable<IInventoryItem> AllItems()
+        {
+            foreach (var bag in _bags.Values)
+            {
+                foreach (var slot in bag)
+                {
+                    if (slot != null) yield return slot;
+                }
+            }
+        }
+
+        public List<BagLayout> ToLayouts()
+        {
+            var layouts = new List<BagLayout>();
+            foreach (var pair in _bags)
+            {
+                var layout = new BagLayout { category = pair.Key };
+                foreach (var slot in pair.Value) layout.slotInstanceIds.Add(slot != null ? slot.InstanceId : string.Empty);
+                layouts.Add(layout);
+            }
+            return layouts;
+        }
+
+        // Day du lieu da luu vao CHINH instance Inventory nay (khong tao moi) de cac noi da dang ky
+        // OnBagChanged khong bi mat ket noi. 'resolve' tra ve item theo instanceId (null neu khong co).
+        public void ApplyLayouts(IEnumerable<BagLayout> layouts, Func<string, IInventoryItem> resolve)
+        {
+            foreach (var bag in _bags.Values) Array.Clear(bag, 0, bag.Length);
+
+            var overflow = new List<IInventoryItem>();
+
+            if (layouts != null)
+            {
+                foreach (var layout in layouts)
+                {
+                    if (!_bags.TryGetValue(layout.category, out var bag)) continue;
+
+                    for (int i = 0; i < layout.slotInstanceIds.Count; i++)
+                    {
+                        string id = layout.slotInstanceIds[i];
+                        if (string.IsNullOrEmpty(id)) continue;
+
+                        var item = resolve(id);
+                        if (item == null || item.Category != layout.category) continue;
+
+                        if (i < bag.Length) bag[i] = item;
+                        else overflow.Add(item); // config da bi giam so o so voi luc luu
+                    }
+                }
+            }
+
+            foreach (var item in overflow)
+            {
+                if (!TryAdd(item)) Debug.LogWarning($"[Inventory] Het cho, mat item {item.InstanceId} sau khi giam so o.");
+            }
+
+            foreach (var category in _bags.Keys) OnBagChanged?.Invoke(category);
+        }
     }
 }

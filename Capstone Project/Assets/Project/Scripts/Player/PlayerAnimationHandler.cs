@@ -20,7 +20,6 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     [Header("Attack Speed")]
     [SerializeField] private float baseAnimationAttackSpeed = 1f;
     [SerializeField] private float minAnimatorSpeed = 0.1f;
-    private EquipmentType _currentWeaponType = EquipmentType.MeleeWeapon;
 
     private bool _requestAttacking;
     private ParticleSystem.EmissionModule _dustEmission;
@@ -166,13 +165,19 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     {
         if (_animator == null) return;
         
-        if (runtime == null || baseAnimationAttackSpeed <= 0f)
+        if (combat == null || baseAnimationAttackSpeed <= 0f)
         {
             _animator.speed = 1f;
             return;
         }
 
-        float currentAttackSpeed = runtime.GetCurrentAttackSpeed(_currentWeaponType);
+        float currentAttackSpeed = combat != null ? combat.CurrentAttackSpeed : baseAnimationAttackSpeed;
+        if (currentAttackSpeed <= 0f)
+        {
+            _animator.speed = 1f;
+            return;
+        }
+        
         float multiplier = currentAttackSpeed / baseAnimationAttackSpeed;
         _animator.speed = Mathf.Max(minAnimatorSpeed, multiplier);
     }
@@ -201,7 +206,6 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         AttackCount = attackCount;
     }
 
-    public void CmdSetAttackSpeed(EquipmentType type) => _currentWeaponType = type;
     public void CmdRequestAttacking() => _requestAttacking = true;
 
 

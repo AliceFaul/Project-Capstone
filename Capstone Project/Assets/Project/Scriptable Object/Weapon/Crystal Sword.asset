@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
   m_Name: Crystal Sword
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
-  id: Mhieu_Sword_Id_2
+  id: crystal_sword
   itemName: Crystal Sword
+  itemDescription: 
   itemType: 1
   rarity: 3
   icon: {fileID: 21300000, guid: 193bf5ce06d0c964da2635b288c3421f, type: 3}
@@ -22,23 +23,45 @@ MonoBehaviour:
   equipmentPrefabKey: Crystal_Sword
   equipmentType: 1
   weaponType: 0
-  level: 100
-  attributes:
-    damage: 970
-    attackSpeed: 2
-    attackRange: 1.5
-    critChance: 25
-    critDamage: 136
-  damageModifier: 0
-  armorModifier: 0
-  speedModifier: 3
-  attackSpeedModifier: 0.6
-  attackRangeModifier: 0
-  critChanceModifier: 0
-  critDamageModifier: 0
+  stats:
+  - Stat: 2
+    Tiered: 1
+    TierValues:
+    - 5
+    - 8
+    - 12
+    - 17
+  - Stat: 3
+    Tiered: 1
+    TierValues:
+    - 1
+    - 1.2
+    - 2
+    - 3.2
+  - Stat: 4
+    Tiered: 1
+    TierValues:
+    - 1
+    - 1.2
+    - 2
+    - 3.2
+  - Stat: 6
+    Tiered: 1
+    TierValues:
+    - 3
+    - 5
+    - 8
+    - 10
+  - Stat: 7
+    Tiered: 1
+    TierValues:
+    - 12
+    - 16
+    - 19
+    - 21
   equipmentPrefabRef:
     m_AssetGUID: 6590e99a522921647ac15769767472cd
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
+    m_EditorAssetChanged: 1
