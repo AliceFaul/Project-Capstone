@@ -4004,6 +4004,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 647898101}
+  - component: {fileID: 647898102}
   m_Layer: 5
   m_Name: Sign In
   m_TagString: Untagged
@@ -4033,6 +4034,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &647898102
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647898100}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &672729200
 GameObject:
   m_ObjectHideFlags: 0

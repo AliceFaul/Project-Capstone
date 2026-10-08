@@ -14,11 +14,20 @@ public class HealAbility : Ability
         if (playerRuntime == null || playerRuntime.IsMaxHealth) return;
         playerRuntime.Heal(healAmount);
         
-        if (VFXPool == null) return;
-        var fx = VFXPool.Get();
-        fx.transform.position = parent.transform.position;
-        fx.transform.SetParent(parent.transform);
-        parent.GetComponent<MonoBehaviour>().StartCoroutine(ReleaseFX(fx, vfxDuration));
+        GameObject instanceFx = null;
+        if (VFXPool != null)
+        {
+            instanceFx = VFXPool.Get();
+            instanceFx.transform.position = parent.transform.position;
+            instanceFx.transform.rotation = parent.transform.rotation;
+            instanceFx.transform.SetParent(parent.transform);
+        }
+        else
+        {
+            Debug.LogWarning($"[Roll Ability] Not implement VFX prefab to this ability!");
+        }
+        
+        parent.GetComponent<MonoBehaviour>().StartCoroutine(ReleaseFX(instanceFx, vfxDuration));
     }
 
     public override IEnumerator ActivateCoroutine(GameObject parent)

@@ -17,8 +17,8 @@ public class RollAbility : Ability
         var controller = parent.GetComponent<PlayerController>();
         if(controller == null || controller.Movement == null || controller.StateMachine == null) yield break;
 
-        controller.StateMachine.ChangeState(CharacterStateType.Roll);
         controller.CmdCombatLocked(true);
+        controller.StateMachine.ChangeState(CharacterStateType.Roll);
 
         var animHandler = controller.AnimationHandler;
         float duration = animHandler != null ? animHandler.GetAnimationLength("Roll") : rollDuration;

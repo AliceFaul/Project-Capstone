@@ -174,6 +174,8 @@ public class PlayerController : MonoBehaviour {
         int hitLayer = hit.collider.gameObject.layer;
 
         if(((1 << hitLayer) & groundLayer) != 0) {
+            if(!PlayerModifier.CanMove) return;
+            
             // Move to the clicked position on the ground
             _isHoldingMove = true;
             ExecuteMovement(hit.point);
@@ -211,7 +213,10 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteMovement(Vector3 destination) {
-        if(invoker != null) { 
+        if(!PlayerModifier.CanMove) return;
+        
+        if(invoker != null) 
+        { 
             invoker.ExecuteCommand(_moveCommand, destination);
             currentCommand = CommandType.Move;
         }
@@ -219,6 +224,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteAttack(Transform target) {
+        if(!PlayerModifier.CanAttack) return;
+        
         Movement?.SnapFaceTowards(target.position);
 
         if (invoker == null) 

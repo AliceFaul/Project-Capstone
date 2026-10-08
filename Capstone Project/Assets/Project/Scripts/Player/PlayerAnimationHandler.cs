@@ -39,6 +39,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     // === ANIMATOR STATE HASHES (Zero GC Alloc) ===
     private readonly int _locomotionStateHash = Animator.StringToHash("Locomotion");
     private readonly int _rollHash = Animator.StringToHash("Roll");
+    private readonly int _jumpHash = Animator.StringToHash("Jump");
     private readonly int _hitHash = Animator.StringToHash("Hit");
     private readonly int _deadHash = Animator.StringToHash("Dead");
     private readonly int _interactHash = Animator.StringToHash("Interact");
@@ -102,6 +103,8 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
 
         switch (newState)
         {
+            case CharacterStateType.Jump:
+                PlayAnimation(_jumpHash, 0.08f); break;
             case CharacterStateType.Roll:
                 PlayAnimation(_rollHash, 0.08f); break;
             case CharacterStateType.Hit:

@@ -25,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     
     private NavMeshAgent _agent;
+    private PlayerController _controller;
     private PlayerRuntime _runtime;
     
     public float NormalizedSpeed => _runtime != null && _runtime.TotalSpeed > 0f ? 
@@ -49,7 +50,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake() {
         _agent = GetComponent<NavMeshAgent>();
-        _runtime = GetComponent<PlayerRuntime>();
+        _controller = GetComponent<PlayerController>();
+        _runtime = _controller != null ? _controller.PlayerRuntime : GetComponent<PlayerRuntime>();
 
         if (_agent != null)
         {
@@ -189,6 +191,7 @@ public class PlayerMovement : MonoBehaviour
         OnJumpStart?.Invoke();
         
         if(jumpDirection.sqrMagnitude > 0.001f) transform.rotation = Quaternion.LookRotation(jumpDirection);
+        _controller.StateMachine.ChangeState(CharacterStateType.Jump);
         
         float elapsed = 0f;
         float originalOffset = _agent.baseOffset;
@@ -217,6 +220,10 @@ public class PlayerMovement : MonoBehaviour
 
         _isJumping = false;
         _hasJumpDestination = false;
+        if (_controller.StateMachine != null && _controller.StateMachine.IsCurrentState(CharacterStateType.Jump))
+        {
+            _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
+        }
     }
 
     public IEnumerator PerformRoll(Vector3 direction, float speed, float duration)
