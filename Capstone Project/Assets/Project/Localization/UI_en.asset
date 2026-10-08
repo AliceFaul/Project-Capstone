@@ -38,6 +38,102 @@ MonoBehaviour:
     m_Localized: ERROR
     m_Metadata:
       m_Items: []
+  - m_Id: 575997936017408
+    m_Localized: Tap to Start.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 585364450189312
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612590688280576
+    m_Localized: Can't find managers.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612720728481792
+    m_Localized: Failed preload Assets.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 620669442072576
+    m_Localized: Running startup...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630245382037504
+    m_Localized: Tap to continue.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630485623382016
+    m_Localized: Can't find Resource Manager.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630930177662976
+    m_Localized: Incorrect manager type.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1467084305211392
+    m_Localized: Can't find configure file.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9656482171592704
+    m_Localized: Please enter your display name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Localized: Name too long.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Localized: Name can't be empty.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Localized: Name invalid.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11074257574305792
+    m_Localized: Enter new name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817063121035264
+    m_Localized: Enter username
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Localized: Enter email
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Localized: Enter password
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Localized: Confirm password
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Localized: Register
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Localized: Enter email/username
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Localized: Register now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Localized: Forgot password?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Localized: Log in
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

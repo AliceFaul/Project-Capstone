@@ -46,7 +46,16 @@ public class StartupErrorController
                 localized = new LocalizedString(TableName, dynamicKey);
             }
         }
-
-        UIManager.Instance?.GetPopupService().Create("ErrorPopup", errorId, localized);
+        
+        UIManager.Instance?.GetPopupService().Create("ErrorPopup", errorId, localized, () =>
+        {
+            OnClose(errorId);
+            return true;
+        });
+    }
+    
+    private static void OnClose(string errorId)
+    {
+        UIManager.Instance?.GetPopupService()?.Destroy(errorId);
     }
 }

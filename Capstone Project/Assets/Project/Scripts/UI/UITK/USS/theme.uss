@@ -14,7 +14,7 @@
     --color-selected: rgb(87, 200, 77);
     --color-rarity-common: rgb(207, 199, 184);
     --color-rarity-uncommon: rgb(87, 200, 77);
-    --color-rarity-rare: rgb(27 81 229);
+    --color-rarity-rare: rgb(27, 81, 229);
     --color-rarity-legendary: rgb(224, 138, 44);
     --font-size-small: 12px;
     --font-size-base: 15px;

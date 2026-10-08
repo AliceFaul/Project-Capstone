@@ -11,6 +11,11 @@ public class ServiceRegistry : IServiceRegistry
         _services.Add(typeof(TService), service);
     }
 
+    public void Register(Type serviceType, object service)
+    {
+        _services[serviceType] = service;
+    }
+
     public TService Get<TService>()
     {
         if (_services.TryGetValue(typeof(TService), out var service))

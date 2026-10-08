@@ -8,7 +8,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 {
     [Header("Character Attributes")] 
     [SerializeField] protected int level;
-    public int Level => level;
+    public virtual int Level => level;
     
     [Header("Character Bonus Stats")] 
     private int bonusHealth = 0;
@@ -34,6 +34,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     protected int Hp;
     public int Health => Hp;
+    public bool IsMaxHealth => Hp >= totalHealth;
     public event Action<int> OnHpChanged;
     public event Action OnHit;
 
@@ -137,6 +138,13 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
         _damageFlash.Trigger();
         var floatingText = UIManager.Instance.GetFloatingTextService();
         floatingText.Create("DamageText", $"dmg{Time.time}_{UnityEngine.Random.Range(0, 99999)}", damage.ToString("F1"), transform.position + Vector3.up * 0.8f);
+    }
+
+    public void Heal(float amount)
+    {
+        Hp = (int)Mathf.Min(Hp + amount, totalHealth);
+        OnHpChanged?.Invoke(Hp);
+        Debug.Log($"{gameObject} has been healed {amount}%!");
     }
 
     public void Revive()

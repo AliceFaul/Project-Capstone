@@ -4,164 +4,79 @@ using UnityEngine.Localization;
 
 public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
 {
+    private PlayerDataConfig _config;
+    
     [Header("Experience")]
-    [SerializeField] protected float currentExp = 0;
-    [SerializeField] protected float expToNextLevel = 100;
-    public float CurrentExp => currentExp;
-    public float ExpToNextLevel => expToNextLevel;
+    public override int Level => _config != null ? _config.Level : base.Level;
+    public float CurrentExp => _config != null ? _config.CurrentExp : 0f;
+    public float ExpToNextLevel => _config != null ? _config.ExpToNextLevel : 100f;
     public event Action<int> OnLevelUp;
     public event Action<float, float> OnExpChanged;
     
-    [Header("Player Bonus Stats")]
-    protected float bonusAttackSpeed = 0f;
-    protected float bonusAttackRange = 0f;
-    protected float bonusCritChance = 0f;
-    protected float bonusCritDamage = 0f;
+    public Currency Currency => _config?.Currency;
+    public PlayerDataConfig Config => _config;
     
-    public float BonusAttackSpeed => bonusAttackSpeed;
-    public float BonusAttackRange => bonusAttackRange;
-    public float BonusCritChance => bonusCritChance;
-    public float BonusCritDamage => bonusCritDamage;
-
-    [Header("Player Total Stats")] 
-    protected float totalAttackSpeed => CharacterData.baseAttackSpeed + bonusAttackSpeed;
-    protected float totalAttackRange => CharacterData.baseAttackRange + bonusAttackRange;
-    protected float totalCritChance => CharacterData.baseCritChance + bonusCritChance;
-    protected float totalCritDamage => CharacterData.baseCritDamage + bonusCritDamage;
-
-    public float TotalAttackSpeed => totalAttackSpeed;
-    public float TotalAttackRange => totalAttackRange;
-    public float TotalCritChance => totalCritChance;
-    public float TotalCritDamage => totalCritDamage;
-
-    private Currency _currency;
-    public Currency Currency => _currency;
-
-    private EquipmentManager _equipmentManager;
-
     public PlayerArchive playerArchive;
-    public event Action OnStatsChanged; // On Stats Changed event
+    
+    public event Action OnStatsChanged;
     
     private void Awake()
     {
         Init();
-        RefreshStats();
     }
     
-    private void Start()
-    {
-        Debug.Log($"Damage = {TotalDamage}");
-        Debug.Log($"Range = {TotalAttackRange}");
-        Debug.Log($"Speed = {TotalSpeed}");
-    }
-
     public override void Init()
     {
         base.Init();
-        _equipmentManager = EquipmentManager.Instance;
-        _equipmentManager.OnEquipmentChanged += HandleEquipmentChanged;
         
-        _currency = new Currency();
-        _currency.OnCurrencyGained += OnGoldObtained;
-        
-        if(playerArchive == null)
-            playerArchive = GetComponent<PlayerArchive>();
-    }
-    
-    public void GainExp(float amount)
-    {
-        if(amount <= 0)
-            return;
-        
-        currentExp += amount;
-        OnExpChanged?.Invoke(currentExp, expToNextLevel);
+        var configManager = StartupProcessor.Instance?.GetService<ConfigManager>();
+        _config = configManager != null && configManager.GetConfig(out PlayerDataConfig config) ? config : null;
 
-        while (currentExp >= expToNextLevel)
+        if (_config != null)
         {
-            currentExp -= expToNextLevel;
-            LevelUp();
+            _config.OnLevelUp += LevelUp;
+            _config.OnExpChanged += ExpChanged;
+            _config.Currency.OnCurrencyGained += OnGoldObtained;
+        }
+        else
+        {
+            Debug.LogError($"[PlayerRuntime] Not found Player data config - please check config step in startup progress.");
+        }
+        
+        if(playerArchive == null) playerArchive = GetComponent<PlayerArchive>();
+    }
+
+    private void OnDestroy()
+    {
+        if (_config != null)
+        {
+            _config.OnLevelUp -= LevelUp;
+            _config.OnExpChanged -= ExpChanged;
+            if(_config.Currency != null) _config.Currency.OnCurrencyGained -= OnGoldObtained;
         }
     }
 
-    private readonly LocalizedString _localizedText = new LocalizedString("UI", "LevelUp");
-    protected virtual void LevelUp()
-    {
-        level++;
-        OnLevelUp?.Invoke(level);
+    public void GainExp(float amount) => _config?.GainExp(amount);
 
-        expToNextLevel = Mathf.Round(expToNextLevel * 1.25f);
+    private void ExpChanged(float exp, float toNext) => OnExpChanged?.Invoke(exp, toNext);
+    
+    private readonly LocalizedString _localizedText = new LocalizedString("UI", "LevelUp");
+    protected virtual void LevelUp(int newLevel)
+    {
+        OnLevelUp?.Invoke(newLevel); // This event use for ui driven
 
         Hp = TotalHealth;
         HpChanged(Hp);
 
         var floatingText = UIManager.Instance?.GetFloatingTextService();
         floatingText?.Create("LevelUpText", Guid.NewGuid().ToString(), _localizedText, transform.position + Vector3.up * 1.1f);
-        Debug.Log($"[PlayerRuntime] {gameObject.name} level up to level {level}!");
-    }
-
-    protected override void ApplyBonusStat(BonusStat bonusStat, float amount)
-    {
-        base.ApplyBonusStat(bonusStat, amount);
-
-        switch (bonusStat)
-        {
-            case BonusStat.AttackRange:
-                bonusAttackRange += amount; break;
-            case BonusStat.AttackSpeed:
-                bonusAttackSpeed += amount; break;
-            case BonusStat.CritChance:
-                bonusCritChance += amount; break;
-            case BonusStat.CritDamage:
-                bonusCritDamage += amount; break;
-        }
-    }
-    
-    protected override void ResetBonusStats()
-    {
-        base.ResetBonusStats();
-        bonusAttackSpeed = 0f;
-        bonusAttackRange = 0f;
-        bonusCritChance = 0f;
-        bonusCritDamage = 0f;
-    }
-
-    private void RefreshStats()
-    {
-        if (_equipmentManager == null)
-        {
-            _equipmentManager = EquipmentManager.Instance;
-        }
-        
-        ResetBonusStats();
-
-        AppyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.MeleeWeapon));
-        AppyAttributes(_equipmentManager.GetCurrentEquipment(EquipmentType.RangedWeapon));
-        
-        var armor = _equipmentManager.Armor;
-        if (armor != null)
-        {
-            ApplyBonusStat(BonusStat.Defense, armor.armorModifier);
-            ApplyBonusStat(BonusStat.MoveSpeed, armor.speedModifier);
-        }
-
-        OnStatsChanged?.Invoke();
-    }
-
-    public void AppyAttributes(EquipmentData equipment)
-    {
-        if(equipment == null)
-            return;
-        
-        ApplyBonusStat(BonusStat.AttackSpeed, equipment.attackSpeedModifier);
-    }
-
-    private void HandleEquipmentChanged(EquipmentChangedEventArgs args)
-    {
-        RefreshStats();
+        Debug.Log($"[PlayerRuntime] {gameObject.name} level up to level {newLevel}!");
     }
 
     private void OnGoldObtained(CurrencyType type, int amount)
     {
+        if(playerArchive == null) return;
+        
         switch (type)
         {
             case CurrencyType.Gold:
@@ -172,4 +87,6 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
                 break;
         }
     }
+    
+    public void NotifyStatsChanged() => OnStatsChanged?.Invoke();
 }

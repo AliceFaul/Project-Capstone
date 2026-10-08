@@ -4,24 +4,34 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class StartupProcessor : MonoBehaviour
 {
     public static StartupProcessor Instance { get; private set; }
-
+    
     [SerializeField] private float timeout = 10f;
     [SerializeField] private MonoBehaviour loadingScreen;
+    [SerializeField] private Volume globalVolume;
+    [SerializeField][Range(0f, 1f)] private float blurFadeDuration = 0.6f;
     
     private StartupList _startupList;
     private IServiceRegistry _serviceRegistry;
     private ILoading _loading;
+    private DepthOfField _depthOfField;
+    
+    private readonly LocalizedString _clickToStartLocale = new LocalizedString("UI", "CLICK_TO_START");
+    private readonly LocalizedString _clickToContinueLocale = new LocalizedString("UI", "CLICK_TO_CONTINUE");
+    private readonly LocalizedString _runningStartupLocale = new LocalizedString("UI", "RUNNING_STARTUP");
+    private readonly LocalizedString _stepFailedLocale = new LocalizedString("UI", "UI_STEP_FAILED");
+    private readonly LocalizedString _stepTimeoutLocale = new LocalizedString("UI", "UI_STEP_TIMEOUT");
 
     private CancellationTokenSource _cts;
-
     private InputSystem_Actions _input;
-    private bool _offlineMode = false;
-
+    private readonly bool _offlineMode = false;
     private TaskCompletionSource<bool> _clickTcs;
 
     private async void Awake()
@@ -36,20 +46,43 @@ public class StartupProcessor : MonoBehaviour
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
-        
-            _input = new InputSystem_Actions();
+
+            if (globalVolume != null || globalVolume.profile != null)
+            {
+                if (globalVolume.profile.TryGet(out _depthOfField))
+                {
+                    _depthOfField.active = true;
+                    switch (_depthOfField.mode.value)
+                    {
+                        case DepthOfFieldMode.Gaussian:
+                            _depthOfField.gaussianStart.value = 0f;
+                            _depthOfField.gaussianEnd.value = 10f;
+                            break;
+                        case DepthOfFieldMode.Bokeh:
+                            _depthOfField.focalLength.value = 50f;
+                            break;
+                    }
+                }
+            }
+            
+            _input ??= new InputSystem_Actions();
             _input.UI.Enable();
             _input.UI.Click.performed += OnClickPerformed;
         
-            if(loadingScreen == null)
-                loadingScreen = GameObject.FindWithTag("LoadingScreen").GetComponent<MonoBehaviour>();
+            if(loadingScreen == null) loadingScreen = GameObject.FindWithTag("LoadingScreen").GetComponent<MonoBehaviour>();
             _loading = loadingScreen as ILoading;
             
             Debug.Log($"[StartupProcessor] Waiting clicked...");
-            _loading?.SetMessage($"Click to start!");
+            if (_loading != null)
+            {
+                await _loading.HideProgressBar();
+                _loading.SetMessage(_clickToStartLocale);
+            }
+
             await WaitForClicked();
-            _loading?.Show();
-        
+
+            if(_loading != null) await _loading.ShowProgressBar();
+
             AsyncOperationHandle<StartupList> handle = Addressables.LoadAssetAsync<StartupList>("StartupList");
             _startupList = await handle.Task;
         
@@ -57,11 +90,30 @@ public class StartupProcessor : MonoBehaviour
             _cts = new CancellationTokenSource();
         
             var pipelineResult = await RunAllSteps(_cts.Token);
+            
             if (pipelineResult.IsSuccess)
             {
+                _loading?.SetProgress(1f, _clickToContinueLocale);
+                await Task.Delay(300);
+                if(_loading != null) await _loading.HideProgressBar();
+                
+                if (AuthUIHandler.Instance != null)
+                {
+                    bool result = await AuthUIHandler.Instance.TryLogin();
+                    if (!result)
+                    {
+                        Debug.LogError($"[StartupProcessor] Authentication failed or cancelled.");
+                        var authErrorHandler = new StartupErrorController();
+                        authErrorHandler.ThrowError("AUTH_FAILED");
+                        return;
+                    }
+                }
+                
                 Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
                 await WaitForClicked();
-                OpenMainMenu();
+                await FadeBlur(enable: false, blurFadeDuration);
+                if (_loading != null) await _loading.Hide();
+                await OpenMainMenu();
             }
             else
             {
@@ -78,8 +130,9 @@ public class StartupProcessor : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(_input != null)
-            _input.UI.Click.performed -= OnClickPerformed;
+        if (_input == null) return;
+        _input.Disable();
+        _input.Dispose();
     }
 
     private struct StartupPipeline
@@ -101,7 +154,7 @@ public class StartupProcessor : MonoBehaviour
         }
 
         int index = 0;
-        _loading?.SetProgress(0f, "Running startup system...");
+        _loading?.SetProgress(0f, _runningStartupLocale);
         
         while (index < _startupList.steps.Count)
         {
@@ -128,9 +181,8 @@ public class StartupProcessor : MonoBehaviour
                     if (!result.IsSuccess)
                     {
                         Debug.LogWarning($"[StartupProcessor] Step failed: {stepName}, error id: {result.ErrorId}, message: {result.Message}");
-                        _loading?.SetProgress(1f, "Step failed");
-                        return StartupPipeline.Failure(result.ErrorId ?? "STEP_FAILED",
-                            $"Step {stepName} failed: {result.Message}");
+                        _loading?.SetProgress(1f, _stepFailedLocale);
+                        return StartupPipeline.Failure(result.ErrorId ?? "STEP_FAILED", $"Step {stepName} failed: {result.Message}");
                     }
                     else
                     {
@@ -140,7 +192,7 @@ public class StartupProcessor : MonoBehaviour
                 catch (OperationCanceledException)
                 {
                     Debug.LogWarning($"[StartupProcessor] Step timeout or cancelled: {stepName}");
-                    _loading?.SetProgress(1f, "Step timeout error");
+                    _loading?.SetProgress(1f, _stepTimeoutLocale);
                     return StartupPipeline.Failure("STEP_TIMEOUT", $"Step {stepName} timed out");
                 }
                 catch (Exception e)
@@ -177,15 +229,60 @@ public class StartupProcessor : MonoBehaviour
         return _clickTcs.Task;
     }
 
-    private void OnClickPerformed(InputAction.CallbackContext context)
-    {
-        _clickTcs?.TrySetResult(true);
-    }
+    private void OnClickPerformed(InputAction.CallbackContext context) => _clickTcs?.TrySetResult(true);
 
-    private void OpenMainMenu()
+    private async Task FadeBlur(bool enable, float duration)
+    {
+        if(globalVolume == null || globalVolume.profile == null) return;
+        if(_depthOfField == null && !globalVolume.profile.TryGet(out _depthOfField)) return;
+
+        if (!enable)
+        {
+            switch (_depthOfField.mode.value)
+            {
+                case DepthOfFieldMode.Gaussian:
+                {
+                    float startVal = _depthOfField.gaussianEnd.value;
+                    float targetVal = 50f;
+                    float elapsed = 0f;
+
+                    while (elapsed < duration)
+                    {
+                        elapsed += Time.deltaTime;
+                        _depthOfField.gaussianEnd.value = Mathf.Lerp(startVal, targetVal, elapsed / duration);
+                        await Task.Yield();
+                    }
+
+                    break;
+                }
+                case DepthOfFieldMode.Bokeh:
+                {
+                    float startFocal = _depthOfField.focalLength.value;
+                    float elapsed = 0f;
+
+                    while (elapsed < duration)
+                    {
+                        elapsed += Time.deltaTime;
+                        _depthOfField.focalLength.value = Mathf.Lerp(startFocal, 1f, elapsed / duration);
+                        await Task.Yield();
+                    }
+
+                    break;
+                }
+            }
+
+            _depthOfField.active = false;
+        }
+    }
+    
+    private async Task OpenMainMenu()
     {
         _input.UI.Disable();
-        // TODO: Connect to Main Menu Screen Controller
+        Debug.Log($"[StartupProcessor] Opening main menu");
+        
+        var mainMenu = FindFirstObjectByType<MainMenu>();
+        if(mainMenu != null) await mainMenu.OpenMainMenu();
+        else Debug.LogError($"[StartupProcessor] No main menu component found!");
     }
 
     public TService GetService<TService>()

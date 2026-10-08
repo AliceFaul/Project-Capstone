@@ -36,7 +36,7 @@ public class SceneLoader : MonoBehaviour
 
     private void OnEnable()
     {
-        SceneManager.sceneLoaded -= OnLoadScene; 
+        SceneManager.sceneLoaded -= OnLoadScene;
         SceneManager.sceneLoaded += OnLoadScene;
     }
     
