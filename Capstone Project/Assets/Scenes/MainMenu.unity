@@ -806,6 +806,7 @@ GameObject:
   - component: {fileID: 110204911}
   - component: {fileID: 110204910}
   - component: {fileID: 110204912}
+  - component: {fileID: 110204913}
   m_Layer: 0
   m_Name: Script
   m_TagString: Untagged
@@ -852,6 +853,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a0759f33ac4a189a10c2cc95aabcc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventManager
+--- !u!114 &110204913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110204909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b732eca9b174b3196b77de9cbb13dcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentManager
 --- !u!1 &133056278
 GameObject:
   m_ObjectHideFlags: 0

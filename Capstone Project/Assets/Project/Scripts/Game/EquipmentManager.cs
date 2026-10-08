@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Threading.Tasks;
 using Project.Capstone.Inventory;
 
 public class EquipmentChangedEventArgs : EventArgs
@@ -18,7 +19,7 @@ public class EquipmentChangedEventArgs : EventArgs
     }
 }
 
-public class EquipmentManager : MonoBehaviour
+public class EquipmentManager : MonoBehaviour, IManager
 {
     public static EquipmentManager Instance { get; private set; }
     
@@ -29,6 +30,12 @@ public class EquipmentManager : MonoBehaviour
     private EquipmentProgressConfig _progressConfig;
     private bool _bound;
 
+    public async Task<bool> Initialize()
+    {
+        await Task.CompletedTask;
+        return EnsureBound();
+    }
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)

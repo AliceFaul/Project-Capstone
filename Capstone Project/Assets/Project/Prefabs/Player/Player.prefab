@@ -255,7 +255,6 @@ GameObject:
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 6983588896542028798}
   - component: {fileID: 4069758127545282674}
-  - component: {fileID: 1594350380156625181}
   - component: {fileID: 2410836123975081364}
   - component: {fileID: 1396825416686326437}
   - component: {fileID: 6772811288144300525}
@@ -415,7 +414,6 @@ MonoBehaviour:
     m_Bits: 128
   hitStopDuration: 0.05
   hitStopTimeScale: 0.02
-  AttackRange: 0
   references:
     version: 2
     RefIds:
@@ -472,21 +470,6 @@ MonoBehaviour:
   enemyDefeated: 0
   totalDamageDealt: 0
   totalDamageReceived: 0
---- !u!114 &1594350380156625181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9033850277288197346}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a04cfa56a0511804ab8ae11da33d27a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  slots: []
-  maxSlots: 50
-  itemPickupPrefab: {fileID: 0}
 --- !u!114 &2410836123975081364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -695,6 +678,16 @@ PrefabInstance:
     - target: {fileID: 6821405183143806323, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'Armature'\n\tTransform 'Hips'\n\tTransform
+        'Spine1'\n\tTransform 'RightForeArm'\n\tTransform 'LeftLeg'\n\tTransform
+        'LeftArm'\n\tTransform 'RightShoulder'\n\tTransform 'LeftShoulder'\n\tTransform
+        'RightArm'\n\tTransform 'Armature'\n\tand more ...\n\tFrom animation clip
+        'jump'"
       objectReference: {fileID: 0}
     - target: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -946,7 +939,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4ef38f4f4fd6a784db482513fb24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
-  autoSync: 1
   meleeSocket: {fileID: 5594313983555539030}
   rangedSocket: {fileID: 8723449264484825119}
 --- !u!4 &1131708700260700962 stripped

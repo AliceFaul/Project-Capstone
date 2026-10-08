@@ -81,6 +81,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         {
             _movement.OnMoveStart += OnMoveStart;
             _movement.OnMoveStop += OnMoveStop;
+            _movement.OnJumpStart += StopDustInFoot;
         }
     }
 
@@ -92,6 +93,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         {
             _movement.OnMoveStart -= OnMoveStart;
             _movement.OnMoveStop -= OnMoveStop;
+            _movement.OnJumpStart -= StopDustInFoot;
         }
     }
 

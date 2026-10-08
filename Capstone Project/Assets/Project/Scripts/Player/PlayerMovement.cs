@@ -191,38 +191,44 @@ public class PlayerMovement : MonoBehaviour
         OnJumpStart?.Invoke();
         
         if(jumpDirection.sqrMagnitude > 0.001f) transform.rotation = Quaternion.LookRotation(jumpDirection);
-        _controller.StateMachine.ChangeState(CharacterStateType.Jump);
+        _controller?.StateMachine?.ChangeState(CharacterStateType.Jump);
         
         float elapsed = 0f;
         float originalOffset = _agent.baseOffset;
 
-        while (elapsed < duration)
+        try
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
 
-            // Parabol equation: 4 * h * t * (1 - t)
-            float currentHeight = 4f * height * t * (1f - t);
-            _agent.baseOffset = originalOffset + currentHeight;
+                // Parabol equation: 4 * h * t * (1 - t)
+                float currentHeight = 4f * height * t * (1f - t);
+                _agent.baseOffset = originalOffset + currentHeight;
+
+                if (_agent.enabled) _agent.Move(jumpDirection * (jumpForwardSpeed * Time.deltaTime));
+                else transform.position += jumpDirection * (jumpForwardSpeed * Time.deltaTime);
+                yield return null;
+            }
+        }
+        finally
+        {
+            if(_agent != null) _agent.baseOffset = originalOffset;
+            _isJumping = false;
+
+            if (_hasJumpDestination && _agent.enabled && _agent.isOnNavMesh)
+            {
+                _agent.isStopped = false;
+                _agent.SetDestination(_jumpDestination);
+            }
+
+            _hasJumpDestination = false;
             
-            if(_agent.enabled) _agent.Move(jumpDirection * (jumpForwardSpeed * Time.deltaTime));
-            else transform.position += jumpDirection * (jumpForwardSpeed * Time.deltaTime);
-            yield return null;
-        }
-        
-        _agent.baseOffset = originalOffset;
-
-        if (_hasJumpDestination && _agent.enabled && _agent.isOnNavMesh)
-        {
-            _agent.isStopped = false;
-            _agent.SetDestination(_jumpDestination);
-        }
-
-        _isJumping = false;
-        _hasJumpDestination = false;
-        if (_controller.StateMachine != null && _controller.StateMachine.IsCurrentState(CharacterStateType.Jump))
-        {
-            _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
+            if (_controller?.StateMachine != null && _controller.StateMachine.IsCurrentState(CharacterStateType.Jump))
+            {
+                _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
+            }   
         }
     }
 
