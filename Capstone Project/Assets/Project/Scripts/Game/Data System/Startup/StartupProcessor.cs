@@ -1,0 +1,200 @@
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
+using UnityEngine.ResourceManagement.AsyncOperations;
+
+public class StartupProcessor : MonoBehaviour
+{
+    public static StartupProcessor Instance { get; private set; }
+
+    [SerializeField] private float timeout = 10f;
+    [SerializeField] private MonoBehaviour loadingScreen;
+    
+    private StartupList _startupList;
+    private IServiceRegistry _serviceRegistry;
+    private ILoading _loading;
+
+    private CancellationTokenSource _cts;
+
+    private InputSystem_Actions _input;
+    private bool _offlineMode = false;
+
+    private TaskCompletionSource<bool> _clickTcs;
+
+    private async void Awake()
+    {
+        try
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        
+            _input = new InputSystem_Actions();
+            _input.UI.Enable();
+            _input.UI.Click.performed += OnClickPerformed;
+        
+            if(loadingScreen == null)
+                loadingScreen = GameObject.FindWithTag("LoadingScreen").GetComponent<MonoBehaviour>();
+            _loading = loadingScreen as ILoading;
+            
+            Debug.Log($"[StartupProcessor] Waiting clicked...");
+            _loading?.SetMessage($"Click to start!");
+            await WaitForClicked();
+            _loading?.Show();
+        
+            AsyncOperationHandle<StartupList> handle = Addressables.LoadAssetAsync<StartupList>("StartupList");
+            _startupList = await handle.Task;
+        
+            _serviceRegistry = new ServiceRegistry();
+            _cts = new CancellationTokenSource();
+        
+            var pipelineResult = await RunAllSteps(_cts.Token);
+            if (pipelineResult.IsSuccess)
+            {
+                Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
+                await WaitForClicked();
+                OpenMainMenu();
+            }
+            else
+            {
+                Debug.LogWarning($"[StartupProcessor] Startup Failed, Error id = {pipelineResult.ErrorId}");
+                var errorHandler = new StartupErrorController();
+                errorHandler.ThrowError(pipelineResult.ErrorId);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if(_input != null)
+            _input.UI.Click.performed -= OnClickPerformed;
+    }
+
+    private struct StartupPipeline
+    {
+        public bool IsSuccess;
+        public string ErrorId;
+        public string Message;
+        
+        public static StartupPipeline Success() => new StartupPipeline { IsSuccess = true };
+        public static StartupPipeline Failure(string errorId, string message) => new StartupPipeline { IsSuccess = false,  ErrorId = errorId, Message = message };
+    }
+
+    private async Task<StartupPipeline> RunAllSteps(CancellationToken ct)
+    {
+        if (_startupList.steps.Count == 0)
+        {
+            Debug.LogWarning($"[StartupProcessor] No steps to run!");
+            return StartupPipeline.Failure("NO_STEPS", "No steps configured!");
+        }
+
+        int index = 0;
+        _loading?.SetProgress(0f, "Running startup system...");
+        
+        while (index < _startupList.steps.Count)
+        {
+            var step = _startupList.steps[index];
+            string stepName = step.GetType().Name;
+
+            if (_offlineMode && step.RequiresNetwork)
+            {
+                Debug.Log($"[StartupProcessor] Skipping network step in offline mode {stepName}");
+                index++;
+                continue;
+            }
+            
+            Debug.Log($"[StartupProcessor] Running step {stepName}");
+
+            using (var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct))
+            {
+                timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeout));
+                try
+                {
+                    CancellationToken effectiveCt = step.HasTimeout ? timeoutCts.Token : CancellationToken.None;
+                    var result = await step.RunTasks(_serviceRegistry, effectiveCt);
+
+                    if (!result.IsSuccess)
+                    {
+                        Debug.LogWarning($"[StartupProcessor] Step failed: {stepName}, error id: {result.ErrorId}, message: {result.Message}");
+                        _loading?.SetProgress(1f, "Step failed");
+                        return StartupPipeline.Failure(result.ErrorId ?? "STEP_FAILED",
+                            $"Step {stepName} failed: {result.Message}");
+                    }
+                    else
+                    {
+                        Debug.Log($"[StartupProcessor] Step succeeded: {stepName}");
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Debug.LogWarning($"[StartupProcessor] Step timeout or cancelled: {stepName}");
+                    _loading?.SetProgress(1f, "Step timeout error");
+                    return StartupPipeline.Failure("STEP_TIMEOUT", $"Step {stepName} timed out");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    return StartupPipeline.Failure("EXCEPTION_" + e.GetType().Name, e.Message);
+                }
+            }
+
+            index++;
+            _loading?.SetProgress((float)index / _startupList.steps.Count);
+        }
+        
+        return StartupPipeline.Success();
+    }
+
+    private bool _isRetryClicked = false;
+    private bool _isContinueClicked = false;
+
+    private void OnNetworkRetryClicked() => _isRetryClicked = true;
+    private void OnContinueClicked() => _isContinueClicked = true;
+
+    private async Task WaitForNetwork()
+    {
+        while (!_isRetryClicked && !_isContinueClicked)
+        {
+            await Task.Yield();
+        }
+    }
+
+    private Task WaitForClicked()
+    {
+        _clickTcs = new TaskCompletionSource<bool>();
+        return _clickTcs.Task;
+    }
+
+    private void OnClickPerformed(InputAction.CallbackContext context)
+    {
+        _clickTcs?.TrySetResult(true);
+    }
+
+    private void OpenMainMenu()
+    {
+        _input.UI.Disable();
+        // TODO: Connect to Main Menu Screen Controller
+    }
+
+    public TService GetService<TService>()
+    {
+        return _serviceRegistry.Get<TService>();
+    }
+
+    public bool GetService<TService>(out TService service)
+    {
+        return _serviceRegistry.TryGet<TService>(out service);
+    }
+}

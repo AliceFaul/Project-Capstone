@@ -1,0 +1,103 @@
+.item-slot {
+    width: 120px;
+    height: 120px;
+    background-color: var(--color-panel-alt);
+    border-width: 3px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-s);
+    margin: var(--spacing-xs);
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.item-slot:hover {
+    border-color: var(--color-accent);
+}
+
+.item-slot--selected {
+    border-color: var(--color-selected);
+    border-width: 3px;
+}
+
+.item-slot__icon {
+    width: 68px;
+    height: 68px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.item-slot__type-label {
+    color: var(--color-text-dim);
+    font-size: var(--font-size-small);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    width: 100%;
+}
+
+.item-slot__quantity {
+    position: absolute;
+    right: 3px;
+    bottom: 1px;
+    color: var(--color-text);
+    font-size: var(--font-size-small);
+    -unity-font-style: bold;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.item-slot__equipped-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-accent);
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: var(--color-panel);
+}
+
+.item-slot__rarity-ribbon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-width: 16px;
+    border-color: transparent;
+}
+
+.item-slot--rarity-common {
+    border-color: var(--color-rarity-common);
+}
+
+.item-slot--rarity-uncommon {
+    border-color: var(--color-rarity-uncommon);
+}
+
+.item-slot--rarity-rare {
+    border-color: var(--color-rarity-rare);
+}
+
+.item-slot--rarity-legendary {
+    border-color: var(--color-rarity-legendary);
+}
+
+.item-slot--rarity-common-ribbon {
+    border-top-color: var(--color-rarity-common);
+    border-left-color: var(--color-rarity-common);
+}
+
+.item-slot--rarity-uncommon-ribbon {
+    border-top-color: var(--color-rarity-uncommon);
+    border-left-color: var(--color-rarity-uncommon);
+}
+
+.item-slot--rarity-rare-ribbon {
+    border-top-color: var(--color-rarity-rare);
+    border-left-color: var(--color-rarity-rare);
+}
+
+.item-slot--rarity-legendary-ribbon {
+    border-top-color: var(--color-rarity-legendary);
+    border-left-color: var(--color-rarity-legendary);
+}

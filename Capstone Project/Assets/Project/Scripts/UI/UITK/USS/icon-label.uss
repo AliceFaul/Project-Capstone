@@ -1,0 +1,51 @@
+.icon-label {
+    flex-direction: row;
+    align-items: center;
+    width: 461px;
+    height: auto;
+    translate: 93px 0;
+}
+
+.icon-label__icon {
+    width: 40px;
+    height: 40px;
+    margin-right: var(--spacing-xs);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.icon-label__text {
+    color: var(--color-text);
+    font-size: 25px;
+    -unity-font-style: bold;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.icon-label--pill {
+    background-color: var(--color-panel);
+    border-width: 2px;
+    border-color: var(--color-border);
+    border-radius: 20px;
+    padding: 2px var(--spacing-s) 2px 2px;
+}
+
+.icon-label--pill .icon-label__icon {
+    border-radius: 13px;
+    background-color: var(--color-panel-alt);
+    border-width: 1px;
+    border-color: var(--color-border-light);
+}
+
+.icon-gold {
+    background-color: rgb(214, 161, 61);
+    border-radius: 13px;
+}
+
+.icon-gem {
+    background-color: rgb(77, 214, 138);
+    border-radius: 4px;
+}
+
+.icon-level {
+    background-color: rgb(180, 99, 224);
+    border-radius: 13px;
+}

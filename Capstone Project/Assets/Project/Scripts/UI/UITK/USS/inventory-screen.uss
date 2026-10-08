@@ -1,0 +1,270 @@
+.inventory-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.inventory-screen__top-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-m);
+}
+
+.inventory-screen__currency-group {
+    flex-direction: row;
+}
+
+.inventory-screen__currency-group > .icon-label {
+    margin-right: var(--spacing-s);
+}
+
+.inventory-screen__close-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    -unity-text-align: middle-center;
+    font-size: 30px;
+    -unity-font-style: bold;
+    border-top-color: rgb(255, 255, 255);
+    border-top-left-radius: 18px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.inventory-screen__body {
+    flex-grow: 1;
+    flex-direction: row;
+    padding: 0 var(--spacing-l) var(--spacing-l) var(--spacing-l);
+    padding-right: 0;
+    margin-right: 0;
+}
+
+.inventory-screen__left-panel {
+    width: 0;
+    align-items: center;
+    margin-right: 0;
+    translate: 56px -27px;
+    scale: 1 1;
+    height: 0;
+    justify-content: flex-end;
+    opacity: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-right: 0;
+    flex-direction: column;
+}
+
+.inventory-screen__equip-row {
+    flex-direction: row;
+    margin-bottom: var(--spacing-m);
+    padding-right: 0;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    justify-content: space-between;
+    align-items: stretch;
+    align-self: center;
+    align-content: auto;
+    height: auto;
+}
+
+.inventory-screen__model-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-m);
+    transform-origin: center;
+    width: auto;
+}
+
+.inventory-screen__level-progress {
+    width: 130px;
+    height: 130px;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-s);
+    translate: -92px 0;
+}
+
+.inventory-screen__level-progress .label {
+    color: var(--color-text);
+    font-size: 30px;
+    -unity-font-style: bold;
+}
+
+.inventory-screen__model-viewport {
+    width: 200px;
+    height: 300px;
+    background-color: var(--color-panel-alt);
+    translate: -33px -56px;
+}
+
+.inventory-screen__artifact-row {
+    flex-direction: row;
+    width: 500px;
+    align-items: flex-end;
+    justify-content: space-between;
+    align-self: center;
+    translate: 135px 0;
+    top: auto;
+    scale: 1 1;
+    padding-right: 0;
+    left: 40px;
+}
+
+.inventory-screen__center-panel {
+    width: auto;
+    margin: 0 var(--spacing-m);
+    padding: var(--spacing-s);
+    height: auto;
+    margin-top: 0;
+    right: auto;
+    padding-left: 0;
+    margin-right: 0;
+    background-color: rgb(0, 0, 0);
+    translate: 101px 0;
+    border-top-color: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    left: auto;
+    top: auto;
+    bottom: auto;
+    aspect-ratio: auto;
+    padding-right: 0;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    align-self: center;
+}
+
+.inventory-screen__grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.inventory-screen__detail-panel {
+    width: 300px;
+    padding: var(--spacing-m);
+    position: relative;
+    left: 0;
+    translate: 1340px -572px;
+    border-top-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    background-size: 100% 100%;
+    background-color: rgb(0, 0, 0);
+    height: auto;
+    align-items: center;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 1;
+    min-width: auto;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    scale: 1 1;
+    flex-grow: 0;
+}
+
+.detail-panel__rarity {
+    color: var(--color-bg);
+    background-color: var(--color-rarity-common);
+    font-size: var(--font-size-small);
+    -unity-font-style: bold;
+    align-self: flex-start;
+    padding: 2px var(--spacing-s);
+    border-radius: 10px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.detail-panel__rarity.item-slot--rarity-uncommon {
+    background-color: var(--color-rarity-uncommon);
+    color: var(--color-text);
+}
+
+.detail-panel__rarity.item-slot--rarity-rare {
+    background-color: var(--color-rarity-rare);
+    color: var(--color-text);
+}
+
+.detail-panel__rarity.item-slot--rarity-legendary {
+    background-color: var(--color-rarity-legendary);
+    color: var(--color-bg);
+}
+
+.detail-panel__name {
+    color: var(--color-text-title);
+    font-size: var(--font-size-title);
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    margin-bottom: var(--spacing-s);
+}
+
+.detail-panel__icon {
+    width: 120px;
+    height: 120px;
+    align-self: center;
+    background-color: var(--color-panel-alt);
+    border-width: 2px;
+    border-color: var(--color-border);
+    border-radius: var(--radius-s);
+    -unity-background-scale-mode: scale-to-fit;
+    margin-bottom: var(--spacing-m);
+}
+
+.detail-panel__description {
+    color: var(--color-text-dim);
+    font-size: var(--font-size-base);
+    white-space: normal;
+    margin-bottom: var(--spacing-m);
+}
+
+.detail-panel__stats {
+    margin-bottom: var(--spacing-m);
+}
+
+.detail-panel__stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xs);
+}
+
+.detail-panel__stat-row .label {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+}
+
+.detail-panel__rune-title {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: var(--spacing-s);
+}
+
+.detail-panel__rune-row {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.detail-panel__rune-row .item-slot {
+    width: 64px;
+    height: 64px;
+}
+
+.detail-panel__empty-hint {
+    color: var(--color-text-dim);
+    font-size: var(--font-size-base);
+    -unity-text-align: middle-center;
+    margin-top: var(--spacing-l);
+}
