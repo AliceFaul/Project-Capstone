@@ -55,9 +55,8 @@ public class EmailRegisterHandler : MonoBehaviour
                 bool success = await authService.EmailRegister(email, password, username);
                 if (success)
                 {
+                    CryptoUtils.SaveCredentials(email, password);
                     PlayerPrefs.SetString("SAVED_USERNAME", username);
-                    PlayerPrefs.SetString("SAVED_EMAIL", email);
-                    PlayerPrefs.SetString("SAVED_PASSWORD", password);
                     PlayerPrefs.Save();
                     AuthUIHandler.Instance.OnAuthSuccess();
                 }

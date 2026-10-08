@@ -47,7 +47,7 @@ public class StartupProcessor : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            if (globalVolume != null || globalVolume.profile != null)
+            if (globalVolume != null && globalVolume.profile != null)
             {
                 if (globalVolume.profile.TryGet(out _depthOfField))
                 {
@@ -130,9 +130,15 @@ public class StartupProcessor : MonoBehaviour
 
     private void OnDestroy()
     {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        
         if (_input == null) return;
+        _input.UI.Click.performed -= OnClickPerformed;
         _input.Disable();
         _input.Dispose();
+
+        if (Instance == this) Instance = null;
     }
 
     private struct StartupPipeline
@@ -175,7 +181,7 @@ public class StartupProcessor : MonoBehaviour
                 timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeout));
                 try
                 {
-                    CancellationToken effectiveCt = step.HasTimeout ? timeoutCts.Token : CancellationToken.None;
+                    CancellationToken effectiveCt = step.HasTimeout ? timeoutCts.Token : ct;
                     var result = await step.RunTasks(_serviceRegistry, effectiveCt);
 
                     if (!result.IsSuccess)
@@ -225,7 +231,7 @@ public class StartupProcessor : MonoBehaviour
 
     private Task WaitForClicked()
     {
-        _clickTcs = new TaskCompletionSource<bool>();
+        _clickTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         return _clickTcs.Task;
     }
 

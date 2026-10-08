@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System.IO;
 using System;
-using System.Security.Cryptography;
-using System.Text;
 
 public class JsonReader
 {
@@ -26,7 +24,7 @@ public class JsonReader
         try
         {
             byte[] encrypted = File.ReadAllBytes(path);
-            string decrypted = DecryptStringFromBytes_Aes(encrypted, EncryptionConfig.SecretKey, EncryptionConfig.SecretIv);
+            string decrypted = CryptoUtils.DecryptStringFromBytes_Aes(encrypted);
             return decrypted;
         }
         catch (Exception e)
@@ -34,24 +32,5 @@ public class JsonReader
             Debug.LogError($"[JsonReader] Decrypt file failed: {e.Message}");
             return null;
         }
-    }
-
-    private string DecryptStringFromBytes_Aes(byte[] cipherText, string keyStr, string ivStr)
-    {
-        if(cipherText is not { Length: > 0 }) return  null;
-        byte[] key = Encoding.UTF8.GetBytes(keyStr);
-        byte[] iv = Encoding.UTF8.GetBytes(ivStr);
-
-        using Aes aesAlg = Aes.Create();
-        aesAlg.Key = key;
-        aesAlg.IV = iv;
-        ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-        
-        using MemoryStream msDecrypt = new MemoryStream(cipherText);
-        using CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-        using StreamReader srDecrypt = new StreamReader(csDecrypt);
-        
-        string plainText = srDecrypt.ReadToEnd();
-        return plainText;
     }
 }

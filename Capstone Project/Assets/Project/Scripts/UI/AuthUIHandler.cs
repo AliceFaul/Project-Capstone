@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -13,13 +14,22 @@ public class AuthUIHandler : MonoBehaviour
     [SerializeField] private GameObject loadingOverlay;
 
     private TaskCompletionSource<bool> _tcs;
+    private CancellationTokenSource _cts;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        
         if(authPanel != null) authPanel.SetActive(false);
         SetLoadingState(false);
+    }
+
+    private void OnDestroy()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _tcs?.TrySetResult(false);
     }
 
     /// <summary>
@@ -27,9 +37,12 @@ public class AuthUIHandler : MonoBehaviour
     /// </summary>
     public async Task<bool> TryLogin()
     {
-        _tcs = new TaskCompletionSource<bool>();
+        _tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        
         SetLoadingState(true);
-        bool autoLogin = await TryAutoLogin();
+        bool autoLogin = await TryAutoLogin(_cts.Token);
 
         if (autoLogin)
         {
@@ -48,22 +61,20 @@ public class AuthUIHandler : MonoBehaviour
     {
         SetLoadingState(false);
         if(authPanel != null) authPanel.SetActive(false);
-        EventManager.Instance.Trigger("ON_AUTH_SUCCESS");
-        _tcs.TrySetResult(true);
+        EventManager.Instance?.Trigger("ON_AUTH_SUCCESS");
+        _tcs?.TrySetResult(true);
     }
 
-    private async Task<bool> TryAutoLogin()
+    private async Task<bool> TryAutoLogin(CancellationToken ct)
     {
-        if (PlayerPrefs.HasKey("SAVED_EMAIL") && PlayerPrefs.HasKey("SAVED_PASSWORD"))
+        if (CryptoUtils.TryLoadCredentials(out string email, out string password))
         {
-            string email = PlayerPrefs.GetString("SAVED_EMAIL");
-            string password = PlayerPrefs.GetString("SAVED_PASSWORD");
             Debug.Log($"[AuthUIHandler] Found saved credentials: {email}, {password}. Attempting to login...");
 
             try
             {
                 return await StartupProcessor.Instance.GetService<PlayFabServiceManager>()
-                    .GetService<PlayFabAuthentication>().EmailLogin(email, password);
+                    .GetService<PlayFabAuthentication>().EmailLogin(email, password, ct);
             }
             catch (Exception e)
             {

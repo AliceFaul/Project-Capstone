@@ -16,12 +16,12 @@ public class PlayFabAuthentication : PlayFabService
 
     public async Task<bool> DefaultIdLogin(CancellationToken ct = default)
     {
-        var task = new TaskCompletionSource<bool>();
+        var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var request = new LoginWithCustomIDRequest
         {
-            CustomId = SystemInfo.deviceUniqueIdentifier,
-            CreateAccount = true
+            CustomId = "70844766C918E6C2",
+            CreateAccount = false
         };
         
         PlayFabClientAPI.LoginWithCustomID(request, result =>
@@ -40,7 +40,7 @@ public class PlayFabAuthentication : PlayFabService
 
     public async Task<bool> GoogleLogin(string token, CancellationToken ct = default)
     {
-        var task = new TaskCompletionSource<bool>();
+        var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var request = new LoginWithGoogleAccountRequest
         {
@@ -65,7 +65,7 @@ public class PlayFabAuthentication : PlayFabService
 
     public async Task<bool> FacebookLogin(string token, CancellationToken ct = default)
     {
-        var task = new TaskCompletionSource<bool>();
+        var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var request = new LoginWithFacebookRequest
         {
@@ -90,7 +90,7 @@ public class PlayFabAuthentication : PlayFabService
 
     public async Task<bool> EmailRegister(string email, string password, string userName, CancellationToken ct = default)
     {
-        var task = new TaskCompletionSource<bool>();
+        var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var request = new RegisterPlayFabUserRequest
         {
@@ -116,7 +116,7 @@ public class PlayFabAuthentication : PlayFabService
 
     public async Task<bool> EmailLogin(string email, string password, CancellationToken ct = default)
     {
-        var task = new TaskCompletionSource<bool>();
+        var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var request = new LoginWithEmailAddressRequest
         {
@@ -140,7 +140,7 @@ public class PlayFabAuthentication : PlayFabService
 
     public async Task<bool> RecoveryPassword(string email, CancellationToken ct = default)
     {
-        var task = new TaskCompletionSource<bool>();
+        var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var request = new SendAccountRecoveryEmailRequest
         {

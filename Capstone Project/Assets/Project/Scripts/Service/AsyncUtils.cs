@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 public static class AsyncUtils
@@ -22,15 +23,14 @@ public static class AsyncUtils
 
     public static async Task<T> WaitWithCancellation<T>(Task<T> task, CancellationToken ct)
     {
-        if (!ct.CanBeCanceled) 
-            return await task;
-        
-        var cancelTask = Task.Delay(Timeout.Infinite, ct);
-        var completed = await Task.WhenAny(task, cancelTask);
-        
-        if(completed == cancelTask)
-            ct.ThrowIfCancellationRequested();
-        
-        return await task;
+        if (ct.IsCancellationRequested) throw new OperationCanceledException(ct);
+        var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        using (ct.Register(() => tcs.TrySetCanceled(ct)))
+        {
+            Task completedTask = await Task.WhenAny(task, tcs.Task);
+            if(completedTask == task) return await task;
+            throw new OperationCanceledException(ct);
+        }
     }
 }

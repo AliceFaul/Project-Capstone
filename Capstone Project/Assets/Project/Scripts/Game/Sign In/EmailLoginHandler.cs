@@ -43,9 +43,7 @@ public class EmailLoginHandler : MonoBehaviour
                 bool success = await authService.EmailLogin(email, password);
                 if (success)
                 {
-                    PlayerPrefs.SetString("SAVED_EMAIL", email);
-                    PlayerPrefs.SetString("SAVED_PASSWORD", password);
-                    PlayerPrefs.Save();
+                    CryptoUtils.SaveCredentials(email, password);
                     AuthUIHandler.Instance.OnAuthSuccess();
                 }
                 else

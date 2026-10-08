@@ -52,6 +52,9 @@ public class PlayFabStep : StartupStep
         }
 
         var playFabManager = new PlayFabServiceManager(sr);
+        var playFabAuth = playFabManager.GetService<PlayFabAuthentication>();
+
+        await playFabAuth.DefaultIdLogin(ct);
         await playFabManager.Initialize(serviceRegistry, ct);
 
         return StartupStepResult.Success();
