@@ -6,12 +6,25 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
 {
     private PlayerDataConfig _config;
     
-    [Header("Experience")]
-    public override int Level => _config != null ? _config.Level : base.Level;
+    [Header("Experience")] 
+    protected override int Level => _config != null ? _config.Level : base.Level;
     public float CurrentExp => _config != null ? _config.CurrentExp : 0f;
     public float ExpToNextLevel => _config != null ? _config.ExpToNextLevel : 100f;
     public event Action<int> OnLevelUp;
     public event Action<float, float> OnExpChanged;
+    
+    [Header("Player Bonus Stats")]
+    private int bonusCritChance = 0;
+    private int bonusCritDamage = 0;
+    public int BonusCritChance => bonusCritChance;
+    public int BonusCritDamage => bonusCritDamage;
+    
+    [Header("Player Total Stats")]
+    private int totalCritChance => Mathf.RoundToInt(CharacterData.baseCritChance + bonusCritChance);
+    private int totalCritDamage => Mathf.RoundToInt(CharacterData.baseCritDamage + bonusCritDamage);
+
+    public float TotalCritChance => totalCritChance;
+    public float TotalCritDamage => totalCritDamage;
     
     public Currency Currency => _config?.Currency;
     public PlayerDataConfig Config => _config;
@@ -57,7 +70,6 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     }
 
     public void GainExp(float amount) => _config?.GainExp(amount);
-
     private void ExpChanged(float exp, float toNext) => OnExpChanged?.Invoke(exp, toNext);
     
     private readonly LocalizedString _localizedText = new LocalizedString("UI", "LevelUp");
@@ -71,6 +83,19 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         var floatingText = UIManager.Instance?.GetFloatingTextService();
         floatingText?.Create("LevelUpText", Guid.NewGuid().ToString(), _localizedText, transform.position + Vector3.up * 1.1f);
         Debug.Log($"[PlayerRuntime] {gameObject.name} level up to level {newLevel}!");
+    }
+
+    protected override void ApplyBonusStat(BonusStat bonusStat, float amount)
+    {
+        base.ApplyBonusStat(bonusStat, amount);
+        
+        switch (bonusStat)
+        {
+            case BonusStat.CritChance:
+                bonusCritChance += Mathf.RoundToInt(amount); break;
+            case BonusStat.CritDamage:
+                bonusCritDamage += Mathf.RoundToInt(amount); break;
+        }
     }
 
     private void OnGoldObtained(CurrencyType type, int amount)

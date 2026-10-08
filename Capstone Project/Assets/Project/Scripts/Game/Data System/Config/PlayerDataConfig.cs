@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using Project.Capstone.Inventory;
@@ -36,8 +37,18 @@ public interface ICosmetics
     void EquipCosmetic(CosmeticData cosmetic);
 }
 
+public interface IInventory
+{
+    Inventory Inventory { get; }
+    Loadout Loadout { get; }
+}
+
+[Serializable]
 public class GameData
 {
+    public const int CurrentSchemaVersion = 2;
+    public int SchemaVersion;
+    
     public string PlayerDisplayName;
     public int Level;
     public float CurrentExp;
@@ -45,12 +56,18 @@ public class GameData
     public List<CurrencyAmount> CurrencyBalances;
     public List<string> UnlockedCosmeticIds;
     public string EquippedCosmeticId;
+    
+    public List<EquipmentInstance> EquipmentInstances;
+    public List<RuneInstance> RuneInstances;
+    public List<ArtifactInstance> ArtifactInstances;
+    public List<BagLayout> BagLayouts;
+    public LoadoutData Loadout;
 }
 
 // Replaced the data fields in Player Runtime;
 // data is now loaded during the Config step to provide an instance available for use throughout the application.
 [CreateAssetMenu(fileName = "PlayerDataConfig", menuName = "Config/Progress")]
-public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IProgression, ICurrency, ICosmetics
+public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IProgression, ICurrency, ICosmetics, IInventory
 {
     [Header("Identity")]
     // 'Unknown' name = Call popup service create set name popup when first time play game
@@ -76,13 +93,10 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
     [SerializeField] private List<string> unlockedCosmeticIds = new List<string>();
     [SerializeField] private string equippedCosmeticId = "";
 
-    [Header("Item Database")]
+    [Header("Inventory")]
     [SerializeField] private InventoryConfig inventoryConfig;
     [SerializeField] private ItemDatabase itemDatabase;
 
-    private Loadout _loadout;
-    private Inventory _inventory;
-    
     public string DisplayName => displayName;
     public int Level => level;
     public float CurrentExp => currentExp;
@@ -91,8 +105,6 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
     public string StartingRangedWeaponId => startingRangedWeaponId;
     public IReadOnlyList<string> UnlockedCosmeticIds => unlockedCosmeticIds;
     public string EquippedCosmeticId => equippedCosmeticId;
-    public Loadout Loadout => _loadout;
-    public Inventory Inventory => _inventory;
     public ItemDatabase ItemDatabase => itemDatabase;
 
     public event Action<int> OnLevelUp;
@@ -103,7 +115,12 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
 
     // Use the lazy pattern to defer initialization until the object is used.
     private Lazy<Currency> _currency;
+    private Lazy<Inventory> _inventory;
+    private Lazy<Loadout> _loadout;
+    
     public Currency Currency => _currency.Value;
+    public Inventory Inventory => _inventory.Value;
+    public Loadout Loadout => _loadout.Value;
     
     private void OnEnable()
     {
@@ -118,8 +135,13 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             return instance;
         }, LazyThreadSafetyMode.None);
 
-        _inventory = new Inventory(inventoryConfig.Categories);
-        _loadout = new Loadout(_inventory);
+        _inventory = new Lazy<Inventory>(() =>
+        {
+            var capacities = inventoryConfig != null ? inventoryConfig.Categories : InventoryConfig.DefaultCategories();
+            return new Inventory(capacities);
+        }, LazyThreadSafetyMode.None);
+        
+        _loadout = new Lazy<Loadout>(() => new Loadout(_inventory.Value), LazyThreadSafetyMode.None);
     }
 
     // unsubscribe to avoid memory leak
@@ -133,6 +155,11 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
         var entry = currencyBalances.Find(x => x.type == type);
         if (entry != null) entry.amount = amount;
         else currencyBalances.Add(new CurrencyAmount { type = type, amount = amount });
+    }
+
+    public T GetDefinition<T>(string id) where T : ItemData
+    {
+        return itemDatabase != null ? itemDatabase.Get(id) as T : null;
     }
 
     public void GainExp(float amount)
@@ -208,8 +235,12 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
 
     public GameData ToGameData()
     {
+        var owned = this.Inventory.AllItems().Concat(this.Loadout.EquippedItems()).ToList();
+        
         return new GameData
         {
+            SchemaVersion = GameData.CurrentSchemaVersion,
+            
             PlayerDisplayName = this.displayName,
             Level = this.level,
             CurrentExp = this.currentExp,
@@ -217,7 +248,13 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             CurrencyBalances = this.currencyBalances,
             UnlockedCosmeticIds = this.unlockedCosmeticIds,
             EquippedCosmeticId = this.equippedCosmeticId,
-            // TODO: Inventory save will be implemented later.
+            
+            EquipmentInstances = owned.OfType<EquipmentInstance>().ToList(),
+            RuneInstances = owned.OfType<RuneInstance>().ToList(),
+            ArtifactInstances = owned.OfType<ArtifactInstance>().ToList(),
+            
+            BagLayouts = this.Inventory.ToLayouts(),
+            Loadout = this.Loadout.ToData()
         };
     }
 
@@ -242,8 +279,40 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             }
         }
 
-        // TODO: Inventory save/load will be implemented later.
-        
+        ApplyInventory(gameData);
         OnDataApplied?.Invoke();
+    }
+
+    private void ApplyInventory(GameData gameData)
+    {
+        bool hasInventoryData = gameData.BagLayouts != null ||
+                                gameData.Loadout != null ||
+                                gameData.EquipmentInstances != null ||
+                                gameData.RuneInstances != null ||
+                                gameData.ArtifactInstances != null;
+        
+        if(!hasInventoryData) return;
+
+        var lookup = new Dictionary<string, IInventoryItem>();
+        IndexItems(lookup, gameData.EquipmentInstances);
+        IndexItems(lookup, gameData.RuneInstances);
+        IndexItems(lookup, gameData.ArtifactInstances);
+
+        Func<string, IInventoryItem> resolve = id => lookup.TryGetValue(id, out var item) ? item : null;
+        this.Inventory.ApplyLayouts(gameData.BagLayouts, resolve);
+        this.Loadout.Apply(gameData.Loadout, resolve);
+    }
+
+    private static void IndexItems<T>(Dictionary<string, IInventoryItem> lookup, List<T> source)
+        where T : class, IInventoryItem
+    {
+        if(source == null) return;
+
+        foreach (var item in source)
+        {
+            if(item == null || string.IsNullOrEmpty(item.InstanceId)) continue;
+            if(item is EquipmentInstance equipment) equipment.EnsureSockets();
+            lookup[item.InstanceId] = item;
+        }
     }
 }

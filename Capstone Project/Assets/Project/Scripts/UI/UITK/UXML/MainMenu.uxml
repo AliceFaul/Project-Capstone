@@ -5,9 +5,9 @@
     <Style src="project://database/Assets/Project/Scripts/UI/UITK/USS/main-menu.uss?fileID=7433441132597879392&amp;guid=5f6c4ff6bfd745a418ec5c25c9ebbd81&amp;type=3#main-menu"/>
     <ui:VisualElement name="main-menu-screen" class="main-menu-screen" style="border-top-color: rgba(0, 0, 0, 0); top: 1px; bottom: 2px; right: 3px; left: 1px; text-shadow: 0 0 0 rgba(0, 0, 0, 0);">
         <ui:VisualElement name="character-block" class="main-menu__character-block" style="top: 451px; left: 869px; display: flex;">
-            <ui:VisualElement name="stats-column" class="main-menu__stats-column" style="top: -75px; left: 147px; translate: -22px -25px;">
+            <ui:VisualElement name="stats-column" class="main-menu__stats-column" style="top: -75px; left: 147px; translate: -22px -25px; padding-left: 0; margin-top: 0; height: 196px;">
                 <IconLabelElement name="level-display" icon-class="icon-level" text="Lv. 1"/>
-                <IconLabelElement name="gold-display" icon-class="icon-gold" text="0"/>
+                <IconLabelElement name="gold-display" icon-class="icon-gold" text="0" style="background-image: none;"/>
                 <IconLabelElement name="gem-display" icon-class="icon-gem" text="0"/>
             </ui:VisualElement>
             <ui:VisualElement name="info-container" style="flex-grow: 1; translate: -84px 0; height: 110px; width: 332px; align-items: center; background-color: rgba(51, 51, 51, 0.9); position: absolute; top: 189px; left: 13px; border-top-color: rgba(109, 109, 109, 0.9); border-left-color: rgba(41, 41, 41, 0.9); border-right-color: rgba(41, 41, 41, 0.9); border-bottom-color: rgba(30, 30, 30, 0.9); border-top-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-right-width: 5px; border-top-right-radius: 10px; border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">

@@ -38,8 +38,8 @@ public static class DamageCalculator
         var weaponDamage = StatResolver.GetStat(weapon, definition, BonusStat.Damage, config);
         var damage = runtime.TotalDamage + weaponDamage;
         
-        var critChance = StatResolver.GetStat(weapon, definition, BonusStat.CritChance, config);
-        var critDamage = StatResolver.GetStat(weapon, definition, BonusStat.CritDamage, config);
+        var critChance = runtime.TotalCritChance + StatResolver.GetStat(weapon, definition, BonusStat.CritChance, config);
+        var critDamage = runtime.TotalCritDamage + StatResolver.GetStat(weapon, definition, BonusStat.CritDamage, config);
         
         bool isCritical = Random.value <= critChance / 100f;
 

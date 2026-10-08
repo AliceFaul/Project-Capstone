@@ -1,8 +1,13 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 
 public interface IPlayerRuntime : ICharacterRuntime
 {
+    int BonusCritChance { get; }
+    int BonusCritDamage { get; }
+    
+    float TotalCritChance { get; }
+    float TotalCritDamage { get; }
+    
     Currency Currency { get; }
 
     public event Action<int> OnLevelUp;

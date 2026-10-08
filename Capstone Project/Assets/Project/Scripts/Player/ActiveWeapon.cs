@@ -13,14 +13,12 @@ public class ActiveWeapon : MonoBehaviour
     [Tooltip("Socket to hold current prefab ranged weapon")]
     [SerializeField] private Transform rangedSocket;
 
+    private EquipmentManager _equipmentManager;
+    
     private GameObject _currentMeleeVisual;
     private GameObject _currentRangedVisual;
     private int _meleeRequestId = 0;
     private int _rangedRequestId = 0;
-
-    private PlayerDataConfig _config;
-    private Loadout _loadout;
-    private ItemDatabase _itemDatabase;
     
     private async void Start()
     {
@@ -44,37 +42,27 @@ public class ActiveWeapon : MonoBehaviour
 
     private async Task Initialize()
     {
-        _config = StartupProcessor.Instance?.GetService<ConfigManager>().GetConfig<PlayerDataConfig>();
+        while(EquipmentManager.Instance == null) await Task.Yield();
+        _equipmentManager = EquipmentManager.Instance;
+        
+        _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
+        _equipmentManager.OnLoadoutReloaded += OnLoadoutReloaded;
 
-        if (_config == null)
-        {
-            Debug.LogWarning($"[ActiveWeapon] PlayerDataConfig not found.");
-            return;
-        }
-        
-        _loadout = _config.Loadout;
-        _itemDatabase = _config.ItemDatabase;
-        
-        if(_loadout == null || _itemDatabase == null) return;
-        
-        _loadout.OnChanged += OnLoadoutChanged;
-        _loadout.OnReloaded += OnLoadoutReloaded;
-
-        await UpdateMeleeWeapon(_loadout.Melee);
-        await UpdateRangedWeapon(_loadout.Ranged);
+        await UpdateMeleeWeapon(_equipmentManager.GetEquipped(EquipSlot.Melee));
+        await UpdateRangedWeapon(_equipmentManager.GetEquipped(EquipSlot.Ranged));
     }
 
-    private async void OnLoadoutChanged(EquipSlot slot, int index, IInventoryItem oldItem, IInventoryItem newItem)
+    private async void OnEquipmentChanged(EquipmentChangedEventArgs args)
     {
         try
         {
-            switch (slot)
+            switch (args.Slot)
             {
                 case EquipSlot.Melee:
-                    await UpdateMeleeWeapon(newItem as EquipmentInstance);
+                    await UpdateMeleeWeapon(args.NewItem as EquipmentInstance);
                     break;
                 case EquipSlot.Ranged:
-                    await UpdateRangedWeapon(newItem as EquipmentInstance);
+                    await UpdateRangedWeapon(args.NewItem as EquipmentInstance);
                     break;
             }
         }
@@ -88,8 +76,8 @@ public class ActiveWeapon : MonoBehaviour
     {
         try
         {
-            await UpdateMeleeWeapon(_loadout.Melee);
-            await UpdateRangedWeapon(_loadout.Ranged);
+            await UpdateMeleeWeapon(_equipmentManager.GetEquipped(EquipSlot.Melee));
+            await UpdateRangedWeapon(_equipmentManager.GetEquipped(EquipSlot.Ranged));
         }
         catch (Exception e)
         {
@@ -97,16 +85,15 @@ public class ActiveWeapon : MonoBehaviour
         }
     }
 
-    private async Task UpdateMeleeWeapon(EquipmentInstance weapon)
+    private async Task UpdateMeleeWeapon(EquipmentInstance instance)
     {
         int requestId = ++_meleeRequestId;
-
-        if (!TryGetDefinition(weapon, EquipmentType.MeleeWeapon, out var definition))
-        {
-            DestroyVisual(ref _currentMeleeVisual);
-            return;
-        }
+        DestroyVisual(ref _currentMeleeVisual);
         
+        if(instance == null) return;
+        EquipmentData definition = _equipmentManager.GetDefinition(instance);
+        
+        if(definition == null) return;
         GameObject newWeapon = await WeaponFactory.Create(definition, meleeSocket);
 
         if (requestId != _meleeRequestId)
@@ -127,16 +114,15 @@ public class ActiveWeapon : MonoBehaviour
         Debug.Log($"Change melee weapon: {definition.itemName}");
     }
 
-    private async Task UpdateRangedWeapon(EquipmentInstance weapon)
+    private async Task UpdateRangedWeapon(EquipmentInstance instance)
     {
         int requestId = ++_rangedRequestId;
-
-        if (!TryGetDefinition(weapon, EquipmentType.RangedWeapon, out var definition))
-        {
-            DestroyVisual(ref _currentRangedVisual);
-            return;
-        }
+        DestroyVisual(ref _currentRangedVisual);
         
+        if(instance == null) return;
+        EquipmentData definition = _equipmentManager.GetDefinition(instance);
+        
+        if(definition == null) return;
         GameObject newWeapon = await WeaponFactory.Create(definition, rangedSocket);
 
         if (requestId != _rangedRequestId)
@@ -155,37 +141,6 @@ public class ActiveWeapon : MonoBehaviour
         _currentRangedVisual = newWeapon;
         
         Debug.Log($"Change ranged weapon: {definition.itemName}");
-    }
-
-    private bool TryGetDefinition(EquipmentInstance instance, EquipmentType type, out EquipmentData definition)
-    {
-        definition = null;
-        
-        if(instance == null) return false;
-        if(_itemDatabase == null) return false;
-
-        if (!_itemDatabase.TryGet(instance.definitionId, out var item))
-        {
-            Debug.LogWarning($"[ActiveWeapon] Definition not found: {instance.definitionId}");
-            return false;
-        }
-        
-        definition = item as EquipmentData;
-
-        if (definition == null)
-        {
-            Debug.LogWarning($"[ActiveWeapon] Item '{instance.definitionId}' is not EquipmentData.'");
-            return false;
-        }
-
-        if (definition.equipmentType != type)
-        {
-            Debug.LogWarning($"[ActiveWeapon] Invalid equipment type. Expected: {type}, Actual: {definition.equipmentType}.");
-            definition = null;
-            return false;
-        }
-        
-        return true;
     }
 
     private static void DestroyVisual(ref GameObject visual)

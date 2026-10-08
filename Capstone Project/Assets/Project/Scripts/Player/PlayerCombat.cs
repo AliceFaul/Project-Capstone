@@ -1,19 +1,13 @@
-using System;
 using System.Collections;
 using Project.Capstone.Inventory;
 using TMPro;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PlayerCombat : MonoBehaviour {
     [Header("Combat Setting")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
-    
-    [Header("Equipment")]
-    [SerializeField] private ItemDatabase itemDatabase;
-    [SerializeField] private EquipmentProgressConfig equipmentConfig;
     
     [Header("Status Effects (Test)")]
     public StatusEffect[] effects;
@@ -31,10 +25,10 @@ public class PlayerCombat : MonoBehaviour {
     private Coroutine _hitStopRoutine;
     
     // === CURRENT WEAPON ===
+    private EquipmentManager _equipmentManager;
     private EquipmentInstance _currentMeleeWeapon;
     private EquipmentInstance _currentRangedWeapon;
 
-    private Loadout _loadout;
     private PlayerController _controller;
     
     private Transform _currentTarget;
@@ -66,28 +60,27 @@ public class PlayerCombat : MonoBehaviour {
     {
         _currentAmmo = maxAmmo;
         if (ammoText != null) ammoText.text = _currentAmmo.ToString();
+
+        _equipmentManager = EquipmentManager.Instance;
         
-        _loadout = GetLoadout();
+        if (_equipmentManager == null)
+        {
+            Debug.LogError($"[PlayerCombat] Equipment Manager not found.");
+            return;
+        }
         
-        if(_loadout == null)
-        {
-            Debug.LogError($"[PlayerCombat] Loadout was not found.");
-        }
-        else
-        {
-            _loadout.OnChanged += OnLoadoutChanged;
-            _loadout.OnReloaded += OnLoadoutReloaded;
-        }
+        _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
+        _equipmentManager.OnLoadoutReloaded += OnLoadoutReloaded;
         
         UpdateWeapons();
     }
 
     private void OnDestroy()
     {
-        if (_loadout != null)
+        if (_equipmentManager != null)
         {
-            _loadout.OnChanged -= OnLoadoutChanged;
-            _loadout.OnReloaded -= OnLoadoutReloaded;
+            _equipmentManager.OnEquipmentChanged -= OnEquipmentChanged;
+            _equipmentManager.OnLoadoutReloaded -= OnLoadoutReloaded;
         }
         
         foreach (var statusEffect in effects)
@@ -101,16 +94,6 @@ public class PlayerCombat : MonoBehaviour {
     {
         _currentTarget = target;
         Debug.Log(target != null ? $"[PlayerCombat] Target: {target.name}" : $"[PlayerCombat] Target cleared.");
-    }
-
-    private Loadout GetLoadout()
-    {
-        // TODO: Need to initialize Loadout in PlayerDataConfig configuration.
-        
-        var playerData = StartupProcessor.Instance?.GetService<ConfigManager>().GetConfig<PlayerDataConfig>();
-        if(playerData == null) return null;
-        
-        return playerData.Loadout;
     }
 
     private void HandleStatusApplied(IAttackable target, IStatusEffect statusEffect)
@@ -139,7 +122,7 @@ public class PlayerCombat : MonoBehaviour {
         _controller.CmdCombatLocked(true);
         RotateToTarget();
 
-        CurrentAttackSpeed = GetStat(_currentMeleeWeapon, BonusStat.AttackSpeed);
+        CurrentAttackSpeed = _equipmentManager.GetStat(EquipSlot.Melee, BonusStat.AttackSpeed);
         _controller.AnimationHandler.CmdRequestAttacking();
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
@@ -166,8 +149,8 @@ public class PlayerCombat : MonoBehaviour {
             IAttackable attackable = enemy.GetComponent<IAttackable>();
             if(attackable != null)
             {
-                if(!TryGetDefinition(_currentMeleeWeapon, out var definition)) return;
-                var result = DamageCalculator.Calculate(_controller.PlayerRuntime, _currentMeleeWeapon, definition, equipmentConfig);
+                var definition = _equipmentManager.GetDefinition(_currentMeleeWeapon);
+                var result = DamageCalculator.Calculate(_controller.PlayerRuntime, _currentMeleeWeapon, definition, _equipmentManager.ProgressConfig);
                 attackable.TakeDamage(result.Damage, _controller.PlayerRuntime);
                 
                 if (effects != null)
@@ -195,7 +178,7 @@ public class PlayerCombat : MonoBehaviour {
         if(_currentAmmo <= 0) return;
         if(_currentRangedWeapon == null) return;
         
-        float attackSpeed = GetStat(_currentRangedWeapon, BonusStat.AttackSpeed);
+        float attackSpeed = _equipmentManager.GetStat(EquipSlot.Ranged, BonusStat.AttackSpeed);
         float cooldown = attackSpeed > 0f ? 1f / attackSpeed : float.MaxValue;
         
         if(Time.time - _lastShootTime < cooldown) return;
@@ -222,8 +205,8 @@ public class PlayerCombat : MonoBehaviour {
         
         if(direction.sqrMagnitude < 0.001f) return;
 
-        if(!TryGetDefinition(_currentRangedWeapon, out var definition)) return;
-        var result = DamageCalculator.Calculate(_controller.PlayerRuntime, _currentRangedWeapon, definition, equipmentConfig);
+        var definition = _equipmentManager.GetDefinition(_currentRangedWeapon);
+        var result = DamageCalculator.Calculate(_controller.PlayerRuntime, _currentRangedWeapon, definition, _equipmentManager.ProgressConfig);
         
         var projectile =  Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(direction));
         var component = projectile.GetComponent<Projectile>();
@@ -240,66 +223,30 @@ public class PlayerCombat : MonoBehaviour {
 
     private void UpdateWeapons()
     {
-        _currentMeleeWeapon = _loadout?.Melee;
-        _currentRangedWeapon = _loadout?.Ranged;
+        _currentMeleeWeapon = _equipmentManager.GetEquipped(EquipSlot.Melee);
+        _currentRangedWeapon = _equipmentManager.GetEquipped(EquipSlot.Ranged);
         UpdateAttackRange();
         Debug.Log($"[PlayerCombat] Update weapons. Melee={_currentMeleeWeapon?.instanceId}, Ranged={_currentRangedWeapon?.instanceId}");
     }
 
     private void OnLoadoutReloaded() => UpdateWeapons();
 
-    private void OnLoadoutChanged(EquipSlot slot, int index, IInventoryItem oldItem, IInventoryItem newItem)
+    private void OnEquipmentChanged(EquipmentChangedEventArgs args)
     {
-        switch (slot)
+        switch (args.Slot)
         {
             case EquipSlot.Melee:
-                _currentMeleeWeapon = newItem as EquipmentInstance;
+                _currentMeleeWeapon = args.NewItem as EquipmentInstance;
                 UpdateAttackRange();
                 break;
             case EquipSlot.Ranged:
-                _currentRangedWeapon = newItem as EquipmentInstance;
+                _currentRangedWeapon = args.NewItem as EquipmentInstance;
                 break;
         }
     }
 
-    private bool TryGetDefinition(EquipmentInstance instance, out EquipmentData definition)
-    {
-        definition = null;
-        
-        if(instance == null) return false;
-        if(!itemDatabase.TryGet(instance.definitionId, out var item)) return false;
-        
-        definition = item as EquipmentData;
-        return definition != null;
-    }
-
-    private void UpdateAttackRange() => AttackRange = _currentMeleeWeapon == null ? 0f : GetStat(_currentMeleeWeapon, BonusStat.AttackRange);
+    private void UpdateAttackRange() => AttackRange = _currentMeleeWeapon == null ? 0f : _equipmentManager.GetStat(EquipSlot.Melee, BonusStat.AttackRange);
     
-    private float GetStat(EquipmentInstance instance, BonusStat stat)
-    {
-        if (instance == null) return 0f;
-
-        if (itemDatabase == null)
-        {
-            Debug.LogError($"[PlayerCombat] ItemDatabase is not assigned.");
-            return 0f;
-        }
-
-        if (!itemDatabase.TryGet(instance.definitionId, out var item))
-        {
-            Debug.LogError($"[PlayerCombat] Definition '{instance.definitionId}' does not exist.");
-            return 0f;
-        }
-
-        if (item is not EquipmentData equipmentData)
-        {
-            Debug.LogError($"[PlayerCombat] Definition '{instance.definitionId}' is not EquipmentData.");
-            return 0f;
-        }
-        
-        return StatResolver.GetStat(instance, equipmentData, stat, equipmentConfig);
-    }
-
     private void Cast(StatusEffect effect, IAttackable target)
     {
         effect.Apply(target);

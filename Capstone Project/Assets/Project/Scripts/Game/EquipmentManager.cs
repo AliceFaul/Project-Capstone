@@ -81,16 +81,16 @@ public class EquipmentManager : MonoBehaviour
     
     private void OnReloaded() => OnLoadoutReloaded?.Invoke();
     
-    public EquipmentProgressConfig GetProgressConfig => EnsureBound() ? _progressConfig : null;
+    public EquipmentProgressConfig ProgressConfig => EnsureBound() ? _progressConfig : null;
 
     public bool Equip(IInventoryItem item, int artifactIndex = -1)
     {
         return EnsureBound() && _data.Loadout.TryEquip(item, artifactIndex);
     }
 
-    public bool Unequip(EquipSlot item, int artifactIndex = -1)
+    public bool Unequip(EquipSlot slot, int index = 0)
     {
-        return EnsureBound() && _data.Loadout.TryUnequip(item, artifactIndex);
+        return EnsureBound() && _data.Loadout.TryUnequip(slot, index);
     }
 
     public EquipmentInstance GetEquipped(EquipSlot slot)
@@ -111,5 +111,16 @@ public class EquipmentManager : MonoBehaviour
         return EnsureBound() ? _data.Loadout.GetArtifact(index) : null;
     }
 
-    
+    public EquipmentData GetDefinition(EquipmentInstance instance)
+    {
+        if(instance == null || !EnsureBound()) return null;
+        return _data.GetDefinition<EquipmentData>(instance.definitionId);
+    }
+
+    public float GetStat(EquipSlot slot, BonusStat stat)
+    {
+        var instance = GetEquipped(slot);
+        var definition = GetDefinition(instance);
+        return StatResolver.GetStat(instance, definition, stat, _progressConfig);
+    }
 }
