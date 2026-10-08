@@ -5,6 +5,7 @@ using UnityEngine.Localization;
 public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
 {
     private PlayerDataConfig _config;
+    private PlayerController _controller;
     
     [Header("Experience")] 
     protected override int Level => _config != null ? _config.Level : base.Level;
@@ -22,7 +23,6 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     [Header("Player Total Stats")]
     private int totalCritChance => Mathf.RoundToInt(CharacterData.baseCritChance + bonusCritChance);
     private int totalCritDamage => Mathf.RoundToInt(CharacterData.baseCritDamage + bonusCritDamage);
-
     public float TotalCritChance => totalCritChance;
     public float TotalCritDamage => totalCritDamage;
     
@@ -42,6 +42,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     {
         base.Init();
         
+       _controller = GetComponent<PlayerController>(); 
         var configManager = StartupProcessor.Instance?.GetService<ConfigManager>();
         _config = configManager != null && configManager.GetConfig(out PlayerDataConfig config) ? config : null;
 
@@ -83,6 +84,17 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         var floatingText = UIManager.Instance?.GetFloatingTextService();
         floatingText?.Create("LevelUpText", Guid.NewGuid().ToString(), _localizedText, transform.position + Vector3.up * 1.1f);
         Debug.Log($"[PlayerRuntime] {gameObject.name} level up to level {newLevel}!");
+    }
+
+    public override void TakeDamage(float damage, ICharacterRuntime runtime)
+    {
+        if (_controller != null && _controller.PlayerModifier.IsInvincible)
+        {
+            Debug.Log($"[PlayerRuntime] {gameObject.name} in I-FRAMES (Roll)! Block {damage} damage.");
+            return;
+        }
+        
+        base.TakeDamage(damage, runtime);
     }
 
     protected override void ApplyBonusStat(BonusStat bonusStat, float amount)

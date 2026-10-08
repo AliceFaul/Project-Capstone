@@ -16,9 +16,11 @@ public class RollAbility : Ability
         
         var controller = parent.GetComponent<PlayerController>();
         if(controller == null || controller.Movement == null || controller.StateMachine == null) yield break;
-
-        controller.CmdCombatLocked(true);
+        
         controller.StateMachine.ChangeState(CharacterStateType.Roll);
+        controller.CmdCombatLocked(true);
+        
+        controller.PlayerModifier?.SetInvincible(true); // Active I-FRAMES
 
         var animHandler = controller.AnimationHandler;
         float duration = animHandler != null ? animHandler.GetAnimationLength("Roll") : rollDuration;
@@ -40,6 +42,7 @@ public class RollAbility : Ability
         var rollDirection = parent.transform.forward;
         yield return controller.Movement.PerformRoll(rollDirection, rollSpeed, duration);
 
+        controller.PlayerModifier?.SetInvincible(false);
         controller.CmdCombatLocked(false);
 
         if (controller.StateMachine != null && controller.StateMachine.IsCurrentState(CharacterStateType.Roll))

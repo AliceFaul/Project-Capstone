@@ -7,40 +7,43 @@ public class HealAbility : Ability
     [SerializeField] private float healAmount = 50f;
     [SerializeField] private float vfxDuration = 2f;
     
-    public override void Activate(GameObject parent)
-    {
-        var playerRuntime = parent.GetComponent<PlayerRuntime>();
+    public override void Activate(GameObject parent) { }
 
-        if (playerRuntime == null || playerRuntime.IsMaxHealth) return;
-        playerRuntime.Heal(healAmount);
+    public override IEnumerator ActivateCoroutine(GameObject parent)
+    {
+        if(parent == null) yield break;
+        
+        var playerRuntime = parent.GetComponent<PlayerRuntime>();
+        if(playerRuntime == null) yield break;
+
+        if (playerRuntime.IsMaxHealth) Debug.Log($"[Heal Ability] Player is already at Max health!");
+        else playerRuntime.Heal(healAmount);   
         
         GameObject instanceFx = null;
         if (VFXPool != null)
         {
             instanceFx = VFXPool.Get();
-            instanceFx.transform.position = parent.transform.position;
-            instanceFx.transform.rotation = parent.transform.rotation;
-            instanceFx.transform.SetParent(parent.transform);
+            
+            if (instanceFx != null)
+            {
+                instanceFx.transform.position = parent.transform.position + Vector3.up;
+                instanceFx.transform.rotation = parent.transform.rotation;
+                instanceFx.transform.SetParent(parent.transform);
+            }
         }
         else
         {
-            Debug.LogWarning($"[Roll Ability] Not implement VFX prefab to this ability!");
+            Debug.LogWarning($"[Heal Ability] VFX Prefab is missing on this ability asset!");
         }
-        
-        parent.GetComponent<MonoBehaviour>().StartCoroutine(ReleaseFX(instanceFx, vfxDuration));
-    }
 
-    public override IEnumerator ActivateCoroutine(GameObject parent)
-    {
-        Activate(parent);
-        yield return null;
-    }
-
-    private IEnumerator ReleaseFX(GameObject fx, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (fx == null || VFXPool == null) yield break;
-        fx.transform.SetParent(null);
-        VFXPool.Release(fx);
+        if (instanceFx != null)
+        {
+            yield return new WaitForSeconds(vfxDuration);
+            if (instanceFx != null && VFXPool != null)
+            {
+                instanceFx.transform.SetParent(null);
+                VFXPool.Release(instanceFx);
+            }
+        }
     }
 }
