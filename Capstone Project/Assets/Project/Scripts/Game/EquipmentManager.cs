@@ -45,6 +45,7 @@ public class EquipmentManager : MonoBehaviour, IManager
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void OnDestroy()

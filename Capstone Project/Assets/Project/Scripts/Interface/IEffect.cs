@@ -65,7 +65,6 @@ public class DamageEffect : IEffect<IAttackable>
     {
         target.TakeDamage(damageAmount);
         OnCompleted?.Invoke(this);
-        
     }
 
     public void Cancel()

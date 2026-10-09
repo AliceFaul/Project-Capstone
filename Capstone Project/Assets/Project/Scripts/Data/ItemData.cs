@@ -10,6 +10,7 @@ public enum Rarity { Common, Uncommon, Rare, Legendary }
 [CreateAssetMenu(fileName = "New Item Data", menuName = "Inventory/Item Data")]
 public class ItemData : ScriptableObject
 {
+    [Header("Item Main Configuration")]
     public string id;               // ID dùng để quản lý mã vật phẩm
     public string itemName;         // Tên hiển thị của vật phẩm trong game
     

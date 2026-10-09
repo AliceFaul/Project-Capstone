@@ -134,6 +134,14 @@ MonoBehaviour:
     m_Localized: Log in
     m_Metadata:
       m_Items: []
+  - m_Id: 13971300923875328
+    m_Localized: Server connection lost.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Localized: Your version is outdated. Please download the latest update.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

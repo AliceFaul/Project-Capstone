@@ -15,9 +15,9 @@ MonoBehaviour:
   id: inferno_sword
   itemName: Inferno Sword
   itemDescription: 
-  itemType: 0
-  rarity: 0
-  icon: {fileID: 695775810, guid: 080cb6d98b00c2645b2c41df5f69bc78, type: 3}
+  itemType: 1
+  rarity: 3
+  icon: {fileID: 21300000, guid: 1258ac417dd158a48b05eeedb739c469, type: 3}
   isStackable: 0
   maxStackSize: 64
   equipmentPrefabKey: Inferno_Sword

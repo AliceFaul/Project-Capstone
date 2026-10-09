@@ -20,6 +20,11 @@ public class EquipmentProgressConfig : ScriptableObject, IConfig
  
     [Header("Roll tier (trong so, khong can cong dung 100)")]
     public float[] tierWeights = { 25f, 25f, 25f, 25f };
+    
+    [Header("Tra cuu Rune")]
+    [Tooltip("Keo CUNG asset ItemDatabase da gan trong PlayerDataConfig. StatResolver can de doc RuneData theo id.")]
+    [SerializeField] private ItemDatabase itemDatabase;
+    [System.NonSerialized] private bool _warnedMissingDatabase;
  
     public float GetExpToNextLevel(int level) => Mathf.Max(1f, expToNextLevel.Evaluate(level));
  
@@ -31,6 +36,21 @@ public class EquipmentProgressConfig : ScriptableObject, IConfig
             case BonusStat.Defense: return defenseMultiplier.Evaluate(level);
             default: return 1f;
         }
+    }
+
+    public RuneData GetRune(string runeId)
+    {
+        if (itemDatabase == null)
+        {
+            if (!_warnedMissingDatabase)
+            {
+                Debug.LogError($"[EquipmentProgressConfig] Chua gan ItemDatabase - rune se KHONG co tac dung.");
+                _warnedMissingDatabase = true;
+            }
+            return null;
+        }
+
+        return itemDatabase.Get(runeId) as RuneData;
     }
  
     public bool IsSocketUnlocked(int level, int socketIndex)

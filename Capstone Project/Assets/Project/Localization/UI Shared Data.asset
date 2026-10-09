@@ -131,6 +131,14 @@ MonoBehaviour:
     m_Key: LOG_IN
     m_Metadata:
       m_Items: []
+  - m_Id: 13971300923875328
+    m_Key: UI_NETWORK_ERROR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Key: UI_GAME_OUTDATED
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

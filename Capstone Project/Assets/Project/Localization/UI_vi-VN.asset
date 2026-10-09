@@ -134,6 +134,15 @@ MonoBehaviour:
     m_Localized: "\u0110\u0103ng nh\u1EADp"
     m_Metadata:
       m_Items: []
+  - m_Id: 13971300923875328
+    m_Localized: "M\u1EA5t k\u1EBFt n\u1ED1i server."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Localized: "Phi\xEAn b\u1EA3n c\u1EE7a b\u1EA1n th\u1EA5p. Xin h\xE3y t\u1EA3i
+      b\u1EA3n c\u1EADp nh\u1EADt m\u1EDBi"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
