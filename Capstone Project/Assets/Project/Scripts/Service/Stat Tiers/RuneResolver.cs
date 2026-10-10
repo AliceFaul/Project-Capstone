@@ -32,8 +32,8 @@ public readonly struct RuneEffect
     }
 }
 
-// Doc rune dang gan tren 1 vu khi: loc trung nhom, cong chi so, lay hieu ung.
-// 'lookup' tra cuu RuneData theo id (thuong la EquipmentProgressConfig.GetRune)
+// Reads runes equipped on a weapon: filters same-group duplicates, calculates stat bonuses, and retrieves status effects.
+// 'lookup' retrieves RuneData by id (usually EquipmentProgressConfig.GetRune).
 public static class RuneResolver
 {
     public static bool TryGetRoll(RuneInstance instance, string id, out float value)
@@ -50,8 +50,8 @@ public static class RuneResolver
         return false;
     }
 
-    // Diem chat luong 0..1 = trung binh vi tri roll cua tat ca cac dong trong khoang cua chung
-    // Dung de so "manh hon" khi 2 rune cung nhom
+    // Quality score 0..1 = average position of all roll lines within their respective min-max ranges.
+    // Used to compare which rune is "stronger" when two runes belong to the same group.
     public static float GetQuality(RuneInstance instance, RuneData data)
     {
         float sum = 0f;
@@ -83,7 +83,7 @@ public static class RuneResolver
         }
     }
 
-    // Rune co hieu luc: trong moi nhom chi giu vien co quality cao nhat (bang diem -> socket thap hon thang)
+    // Active runes: within each group, only the rune with the highest quality is kept (in case of a tie, the lower socket index wins).
     public static List<ActiveRune> GetActiveRunes(EquipmentInstance weapon, Func<string, RuneData> lookup)
     {
         var result = new List<ActiveRune>();
@@ -114,7 +114,7 @@ public static class RuneResolver
         return result;
     }
 
-    // Tong gia tri cac dong 'stat' cua rune chi so dang co hieu luc
+    // Total value of 'stat' lines from all currently active stat runes.
     public static float GetStatBonus(EquipmentInstance weapon, BonusStat stat, Func<string, RuneData> lookup)
     {
         float total = 0f;
@@ -150,6 +150,8 @@ public static class RuneResolver
     }
 }
 
+// Uses existing StatusEffect and DamageOverTime: each hit creates a NEW instance 
+// (no shared state timers). VFX are retrieved from RuneData. PlayerCombat.Cast() handles applying it to targets.
 public static class RuneEffectFactory
 {
     public static StatusEffect Create(RuneEffect effect)

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Project.Capstone.Inventory;
 
@@ -25,9 +26,26 @@ public class EquipmentManager : MonoBehaviour, IManager
     
     public event Action<EquipmentChangedEventArgs> OnEquipmentChanged;
     public event Action OnLoadoutReloaded;
+    public event Action<EquipSlot> OnEquipmentStatsChanged;
 
     private PlayerDataConfig _data;
     private EquipmentProgressConfig _progressConfig;
+    
+    private SocketService _sockets;
+    public SocketService Sockets
+    {
+        get
+        {
+            if (_sockets == null && EnsureBound())
+            {
+                _sockets = new SocketService(_data, _progressConfig);
+                _sockets.OnSocketChanged += (weapon, _) => NotifyStatsChanged(weapon);
+            }
+            return _sockets;
+        }
+        set => _sockets = value;
+    }
+    
     private bool _bound;
 
     public async Task<bool> Initialize()
@@ -86,11 +104,19 @@ public class EquipmentManager : MonoBehaviour, IManager
     {
         OnEquipmentChanged?.Invoke(new EquipmentChangedEventArgs(slot, index, oldItem, newItem));
     }
-    
     private void OnReloaded() => OnLoadoutReloaded?.Invoke();
-    
     public EquipmentProgressConfig ProgressConfig => EnsureBound() ? _progressConfig : null;
-
+    
+    // Goi khi level/socket cua 1 mon thay doi. Chi bao neu mon do dang duoc mac.
+    public void NotifyStatsChanged(EquipmentInstance item)
+    {
+        if(item == null || !EnsureBound()) return;
+        
+        if(item == _data.Loadout.Melee) OnEquipmentStatsChanged?.Invoke(EquipSlot.Melee);
+        else if(item == _data.Loadout.Ranged) OnEquipmentStatsChanged?.Invoke(EquipSlot.Ranged);
+        else if(item == _data.Loadout.Armor) OnEquipmentStatsChanged?.Invoke(EquipSlot.Armor);
+    }
+    
     public bool Equip(IInventoryItem item, int artifactIndex = -1)
     {
         return EnsureBound() && _data.Loadout.TryEquip(item, artifactIndex);
@@ -125,10 +151,19 @@ public class EquipmentManager : MonoBehaviour, IManager
         return _data.GetDefinition<EquipmentData>(instance.definitionId);
     }
 
+    // Chi so hieu dung (da tinh tier x level) cua mon dang mac o 'slot'. Khong mac gi -> 0.
     public float GetStat(EquipSlot slot, BonusStat stat)
     {
         var instance = GetEquipped(slot);
         var definition = GetDefinition(instance);
         return StatResolver.GetStat(instance, definition, stat, _progressConfig);
+    }
+
+    // Hieu ung sat thuong tu rune dang co hieu luc tren vu khi o 'slot' (da loc trung nhom).
+    public List<RuneEffect> GetRuneEffects(EquipSlot slot)
+    {
+        var weapon = GetEquipped(slot);
+        if (weapon == null || _progressConfig == null) return new List<RuneEffect>();
+        return RuneResolver.GetEffects(weapon, _progressConfig.GetRune);
     }
 }
