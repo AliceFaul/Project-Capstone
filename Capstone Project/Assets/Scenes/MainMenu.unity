@@ -838,7 +838,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 99
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!224 &133056282
 RectTransform:
@@ -920,6 +920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3b0e6035fb400397245bee3b17228c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AuthUIHandler
+  mainMenu: {fileID: 0}
   authPanel: {fileID: 647898100}
   loginPanel: {fileID: 338321998}
   registerPanel: {fileID: 603183184}
@@ -5974,11 +5975,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7539286505454239565, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
       propertyPath: m_Range
-      value: 8.60418
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7539286505454239565, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
       propertyPath: m_Intensity
-      value: 16.904175
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7539286505454239565, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
       propertyPath: m_Lightmapping

@@ -138,6 +138,12 @@ public class PlayFabAuthentication : PlayFabService
         return await AsyncUtils.WaitWithCancellation(task.Task, ct);
     }
 
+    public void Logout()
+    {
+        PlayFabClientAPI.ForgetAllCredentials();
+        Debug.Log($"[PlayFabAuthentication] Logged out successfully.");
+    }
+    
     public async Task<bool> RecoveryPassword(string email, CancellationToken ct = default)
     {
         var task = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);

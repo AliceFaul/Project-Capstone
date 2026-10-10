@@ -82,6 +82,17 @@ public class MainMenu : MonoBehaviour
             Debug.LogException(e);
         }
     }
+
+    public void ReturnToSignIn()
+    {
+        screen.CleanupOnLogout();
+        SetPriority(overviewCamera, ActivePriority);
+        
+        SetPriority(playerFocusCamera, InactivePriority);
+        SetPriority(changeSkinCamera, InactivePriority);
+        
+        Debug.Log($"[MainMenu] Returning to Sign-In!");
+    }
     
     private IEnumerator FocusToPlayer()
     {

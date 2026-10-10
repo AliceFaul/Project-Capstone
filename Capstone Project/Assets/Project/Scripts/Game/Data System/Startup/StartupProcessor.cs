@@ -108,12 +108,8 @@ public class StartupProcessor : MonoBehaviour
                         return;
                     }
                 }
-                
-                Debug.Log("[StartupProcessor] Startup Completed - click to activate Main Menu!");
-                await WaitForClicked();
-                await FadeBlur(enable: false, blurFadeDuration);
-                if (_loading != null) await _loading.Hide();
-                await OpenMainMenu();
+
+                await StartWorkflowAfterAuth();
             }
             else
             {
@@ -242,7 +238,42 @@ public class StartupProcessor : MonoBehaviour
         if(globalVolume == null || globalVolume.profile == null) return;
         if(_depthOfField == null && !globalVolume.profile.TryGet(out _depthOfField)) return;
 
-        if (!enable)
+        if (enable)
+        {
+            _depthOfField.active = true;
+            switch (_depthOfField.mode.value)
+            {
+                case DepthOfFieldMode.Gaussian:
+                {
+                    float startVal = _depthOfField.gaussianEnd.value;
+                    float targetVal = 10f;
+                    float elapsed = 0f;
+
+                    while (elapsed < duration)
+                    {
+                        elapsed += Time.deltaTime;
+                        _depthOfField.gaussianEnd.value = Mathf.Lerp(startVal, targetVal, elapsed / duration);
+                        await Task.Yield();
+                    }
+                    break;
+                }
+                case DepthOfFieldMode.Bokeh:
+                {
+                    float startFocal = _depthOfField.focalLength.value;
+                    float targetFocal = 50f;
+                    float elapsed = 0f;
+
+                    while (elapsed < duration)
+                    {
+                        elapsed += Time.deltaTime;
+                        _depthOfField.focalLength.value = Mathf.Lerp(startFocal, targetFocal, elapsed / duration);
+                        await Task.Yield();
+                    }
+                    break;
+                }
+            }
+        }
+        else
         {
             switch (_depthOfField.mode.value)
             {
@@ -258,7 +289,6 @@ public class StartupProcessor : MonoBehaviour
                         _depthOfField.gaussianEnd.value = Mathf.Lerp(startVal, targetVal, elapsed / duration);
                         await Task.Yield();
                     }
-
                     break;
                 }
                 case DepthOfFieldMode.Bokeh:
@@ -272,13 +302,25 @@ public class StartupProcessor : MonoBehaviour
                         _depthOfField.focalLength.value = Mathf.Lerp(startFocal, 1f, elapsed / duration);
                         await Task.Yield();
                     }
-
                     break;
                 }
             }
 
             _depthOfField.active = false;
         }
+    }
+
+    public async Task StartWorkflowAfterAuth()
+    {
+        _input?.UI.Enable();
+        if (_loading != null) _loading?.SetProgress(1f, _clickToContinueLocale);
+        
+        Debug.Log("[StartupProcessor] Authenticated - waiting for 'Click to Continue' to Main Menu!");
+        await WaitForClicked();
+
+        await FadeBlur(enable: false, blurFadeDuration);
+        if (_loading != null) await _loading.Hide();
+        await OpenMainMenu();
     }
     
     private async Task OpenMainMenu()
@@ -290,6 +332,9 @@ public class StartupProcessor : MonoBehaviour
         if(mainMenu != null) await mainMenu.OpenMainMenu();
         else Debug.LogError($"[StartupProcessor] No main menu component found!");
     }
+
+    public async Task ResetBlur() => await FadeBlur(enable: true, blurFadeDuration);
+    public void EnableUIInput() => _input?.UI.Enable();
 
     public TService GetService<TService>()
     {

@@ -192,11 +192,17 @@ public class MainMenuScreen : MonoBehaviour
 
     public void Show()
     {
-        if(!_config) BindData();
+        if(_config == null) BindData();
         _root.style.display = DisplayStyle.Flex;
     }
     
     public void Hide() => _root.style.display = DisplayStyle.None;
+
+    public void CleanupOnLogout()
+    {
+        UnbindData();
+        _root.style.display = DisplayStyle.None;
+    }
 
     public void ShowChangeCosmeticPanel()
     {

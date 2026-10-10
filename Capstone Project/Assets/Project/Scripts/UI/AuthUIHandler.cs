@@ -7,7 +7,11 @@ public class AuthUIHandler : MonoBehaviour
 {
     public static AuthUIHandler Instance { get; private set; }
     
+    [Header("Main Menu Controller")]
+    [SerializeField] private MainMenu mainMenu;
+    
     [Header("Sign in UI Provider")]
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private GameObject authPanel;
     [SerializeField] private GameObject loginPanel;
     [SerializeField] private GameObject registerPanel;
@@ -23,6 +27,12 @@ public class AuthUIHandler : MonoBehaviour
         
         if(authPanel != null) authPanel.SetActive(false);
         SetLoadingState(false);
+    }
+
+    private void Start()
+    {
+        if(mainMenu == null) mainMenu = FindFirstObjectByType<MainMenu>();
+        if(canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
     }
 
     private void OnDestroy()
@@ -62,7 +72,9 @@ public class AuthUIHandler : MonoBehaviour
         SetLoadingState(false);
         if(authPanel != null) authPanel.SetActive(false);
         EventManager.Instance?.Trigger("ON_AUTH_SUCCESS");
-        _tcs?.TrySetResult(true);
+
+        if (_tcs != null && !_tcs.Task.IsCompleted) _tcs.TrySetResult(true);
+        else _ = StartupProcessor.Instance?.StartWorkflowAfterAuth();
     }
 
     private async Task<bool> TryAutoLogin(CancellationToken ct)
@@ -86,8 +98,48 @@ public class AuthUIHandler : MonoBehaviour
         return false;
     }
 
+    [ContextMenu("Log out")]
+    public void OnUserLogout()
+    {
+        try
+        {
+            StartupProcessor.Instance?.EnableUIInput();
+            _ = StartupProcessor.Instance?.ResetBlur();
+            StartupProcessor.Instance?.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>().Logout();
+
+            if (authPanel != null) authPanel.SetActive(true);
+            if (loginPanel != null) loginPanel.SetActive(true);
+            if (registerPanel != null) registerPanel.SetActive(false);
+
+            SetLoadingState(false);
+            Debug.Log("[AuthUIHandler] Logout completed.");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[AuthUIHandler] Logout failed: {e.Message}");
+        }
+        
+        CryptoUtils.ClearCredentials();
+        if(mainMenu == null) mainMenu = FindFirstObjectByType<MainMenu>();
+        
+        if(mainMenu != null) mainMenu.ReturnToSignIn();
+        else Debug.LogWarning("[AuthUIHandler] Main Menu Not Found.");
+        
+        SetLoadingState(false);
+        ShowAuthPanel();
+        
+        Debug.Log("[AuthUIHandler] Returned to login screen.");
+    }
+
     private void ShowAuthPanel()
     {
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+        }
+        
         if(authPanel != null) authPanel.SetActive(true);
         if(loginPanel != null) loginPanel.SetActive(true);
         if(registerPanel != null) registerPanel.SetActive(false);
