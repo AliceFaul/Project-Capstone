@@ -34,6 +34,12 @@ public class ActiveWeapon : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_equipmentManager != null)
+        {
+            _equipmentManager.OnEquipmentChanged -= OnEquipmentChanged;
+            _equipmentManager.OnLoadoutReloaded -= OnLoadoutReloaded;
+        }
+        
         _meleeRequestId++;
         _rangedRequestId++;
         DestroyVisual(ref _currentMeleeVisual);
@@ -43,8 +49,9 @@ public class ActiveWeapon : MonoBehaviour
     private async Task Initialize()
     {
         while(EquipmentManager.Instance == null) await Task.Yield();
-        _equipmentManager = EquipmentManager.Instance;
+        if(this == null) return;
         
+        _equipmentManager = EquipmentManager.Instance;
         _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
         _equipmentManager.OnLoadoutReloaded += OnLoadoutReloaded;
 

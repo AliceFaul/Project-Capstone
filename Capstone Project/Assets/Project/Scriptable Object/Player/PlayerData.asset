@@ -24,4 +24,4 @@ MonoBehaviour:
   baseAttackSpeed: 1
   baseAttackRange: 0
   baseCritChance: 5
-  baseCritDamage: 50
+  baseCritDamage: 150

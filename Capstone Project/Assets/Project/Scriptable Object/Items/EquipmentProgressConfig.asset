@@ -92,3 +92,4 @@ MonoBehaviour:
   - 25
   - 25
   - 25
+  itemDatabase: {fileID: 11400000, guid: 8ed9becd88a2cc646a4d109fd6f222ee, type: 2}

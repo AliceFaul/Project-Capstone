@@ -9,9 +9,6 @@ public class PlayerCombat : MonoBehaviour {
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     
-    [Header("Status Effects (Test)")]
-    public StatusEffect[] effects;
-    
     [Header("Ammo Setting")]
     [SerializeField] private int maxAmmo = 15;
     [SerializeField] private TMP_Text ammoText;
@@ -48,12 +45,6 @@ public class PlayerCombat : MonoBehaviour {
     private void Awake()
     {
         _controller = GetComponent<PlayerController>();
-
-        foreach (var statusEffect in effects)
-        {
-            if(statusEffect == null) continue;
-            statusEffect.OnStatusApplied += HandleStatusApplied;
-        }
     }
 
     private void Start()
@@ -71,6 +62,7 @@ public class PlayerCombat : MonoBehaviour {
         
         _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
         _equipmentManager.OnLoadoutReloaded += OnLoadoutReloaded;
+        _equipmentManager.OnEquipmentStatsChanged += OnEquipmentStatsChanged;
         
         UpdateWeapons();
     }
@@ -81,12 +73,7 @@ public class PlayerCombat : MonoBehaviour {
         {
             _equipmentManager.OnEquipmentChanged -= OnEquipmentChanged;
             _equipmentManager.OnLoadoutReloaded -= OnLoadoutReloaded;
-        }
-        
-        foreach (var statusEffect in effects)
-        {
-            if(statusEffect == null) continue;
-            statusEffect.OnStatusApplied -= HandleStatusApplied;
+            _equipmentManager.OnEquipmentStatsChanged -= OnEquipmentStatsChanged;
         }
     }
 
@@ -122,7 +109,7 @@ public class PlayerCombat : MonoBehaviour {
         _controller.CmdCombatLocked(true);
         RotateToTarget();
 
-        CurrentAttackSpeed = _equipmentManager.GetStat(EquipSlot.Melee, BonusStat.AttackSpeed);
+        CurrentAttackSpeed = Mathf.Max(0.1f, _equipmentManager.GetStat(EquipSlot.Melee, BonusStat.AttackSpeed));
         _controller.AnimationHandler.CmdRequestAttacking();
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
@@ -144,26 +131,22 @@ public class PlayerCombat : MonoBehaviour {
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         bool didHitAnything = false;
         
-        foreach(Collider enemy in hitEnemies) {
+        foreach(Collider enemy in hitEnemies) 
+        {
             // Check if the enemy has an IAttackable component and call TakeDamage
             IAttackable attackable = enemy.GetComponent<IAttackable>();
+            
             if(attackable != null)
             {
                 var definition = _equipmentManager.GetDefinition(_currentMeleeWeapon);
                 var result = DamageCalculator.Calculate(_controller.PlayerRuntime, _currentMeleeWeapon, definition, _equipmentManager.ProgressConfig);
                 attackable.TakeDamage(result.Damage, _controller.PlayerRuntime);
-                
-                if (effects != null)
-                {
-                    foreach (var t in effects)
-                    {
-                        if(t != null) Cast(t, attackable);
-                    }
-                }
-                
+                ApplyRuneEffects(EquipSlot.Melee, attackable);
                 didHitAnything = true;
                 Debug.Log($"[PlayerCombat] Attacked {enemy.name} for {result.Damage} damage.");
-            } else {
+            } 
+            else 
+            {
                 Debug.LogWarning($"[PlayerCombat] Enemy {enemy.name} does not implement IAttackable.");
             }
         }
@@ -177,8 +160,8 @@ public class PlayerCombat : MonoBehaviour {
     {
         if(_currentAmmo <= 0) return;
         if(_currentRangedWeapon == null) return;
-        
-        float attackSpeed = _equipmentManager.GetStat(EquipSlot.Ranged, BonusStat.AttackSpeed);
+
+        float attackSpeed = Mathf.Max(0.1f, _equipmentManager.GetStat(EquipSlot.Ranged, BonusStat.AttackSpeed));
         float cooldown = attackSpeed > 0f ? 1f / attackSpeed : float.MaxValue;
         
         if(Time.time - _lastShootTime < cooldown) return;
@@ -231,6 +214,11 @@ public class PlayerCombat : MonoBehaviour {
 
     private void OnLoadoutReloaded() => UpdateWeapons();
 
+    private void OnEquipmentStatsChanged(EquipSlot slot)
+    {
+        if(slot == EquipSlot.Melee) UpdateAttackRange();
+    }
+
     private void OnEquipmentChanged(EquipmentChangedEventArgs args)
     {
         switch (args.Slot)
@@ -252,8 +240,7 @@ public class PlayerCombat : MonoBehaviour {
         effect.Apply(target);
         var mb = target as MonoBehaviour;
 
-        if (effect.castVfx && mb)
-            Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
+        if (effect.castVfx && mb) Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
 
         if (effect.runningVfx && mb)
         {
@@ -262,6 +249,17 @@ public class PlayerCombat : MonoBehaviour {
         }
         
         // TODO: Add audio service
+    }
+
+    private void ApplyRuneEffects(EquipSlot slot, IAttackable target)
+    {
+        foreach (var runeEffect in _equipmentManager.GetRuneEffects(slot))
+        {
+            if(Random.value > runeEffect.Data.proChance) continue;
+            var status = RuneEffectFactory.Create(runeEffect);
+            status.OnStatusApplied += HandleStatusApplied; // StatusEffectUI enable icon
+            Cast(status, target);
+        }
     }
 
     private void Impact()

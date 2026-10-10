@@ -80,26 +80,22 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     private static readonly DamageReduceCal DamageReduceCal = new DamageReduceCal();
     public virtual void TakeDamage(float damage, ICharacterRuntime runtime)
     {
-        if(this == null)
-            return;
+        if(this == null) return;
         
         if (_stateType != CharacterStateType.Dead)
         {
-            if(this == null)
-                return;
-            
+            if(this == null) return;
             float finalDamage = DamageReduceCal.Calculate(damage, TotalArmor);
-            
             OnTakeDamage((int)finalDamage);
 
             Hp -= (int)finalDamage;
             Hp = Mathf.Clamp(Hp, 0, totalHealth);
 
             if (runtime is PlayerRuntime player && player.playerArchive != null)
-                player.playerArchive.totalDamageDealt += (int)finalDamage;
+                player.playerArchive.totalDamageDealt += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
             
             if(this is PlayerRuntime selfPlayer && selfPlayer.playerArchive != null)
-                selfPlayer.playerArchive.totalDamageReceived += (int)finalDamage;
+                selfPlayer.playerArchive.totalDamageReceived += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
             
             OnHpChanged?.Invoke(Hp);
             OnHit?.Invoke();
@@ -109,8 +105,8 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
                 Die();
                 if (runtime is IPlayerRuntime playerRuntime)
                 {
-                    playerRuntime.GainExp(CharacterData.expOnKill);
-                    playerRuntime.Currency?.Add(CurrencyType.Gold, (int)CharacterData.goldOnKill);
+                    playerRuntime.GainExp(Mathf.Max(1, CharacterData.expOnKill));
+                    playerRuntime.Currency?.Add(CurrencyType.Gold, Mathf.Max(1, Mathf.RoundToInt(CharacterData.goldOnKill)));
                     if (playerRuntime is PlayerRuntime playerRuntime2 && playerRuntime2.playerArchive != null)
                     {
                         playerRuntime2.playerArchive.enemyDefeated++;
@@ -122,10 +118,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
         }
     }
 
-    public virtual void TakeDamage(float damage)
-    {
-        TakeDamage(damage, null);
-    }
+    public virtual void TakeDamage(float damage) => TakeDamage(damage, null);
 
     protected virtual void OnTakeDamage(float damage)
     {

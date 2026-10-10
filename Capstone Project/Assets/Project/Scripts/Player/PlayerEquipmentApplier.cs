@@ -36,7 +36,9 @@ public class PlayerEquipmentApplier : MonoBehaviour
         
         _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
         _equipmentManager.OnLoadoutReloaded += Rebuild;
+        _equipmentManager.OnEquipmentStatsChanged += OnStatsChanged;
         
+        Rebuild();
     }
 
     private void OnDestroy()
@@ -45,6 +47,7 @@ public class PlayerEquipmentApplier : MonoBehaviour
         
         _equipmentManager.OnEquipmentChanged -= OnEquipmentChanged;
         _equipmentManager.OnLoadoutReloaded -= Rebuild;
+        _equipmentManager.OnEquipmentStatsChanged -= OnStatsChanged;
     }
 
     private void OnEquipmentChanged(EquipmentChangedEventArgs args) => Rebuild();

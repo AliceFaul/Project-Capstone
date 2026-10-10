@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 using UnityEngine.Localization;
 
 public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
@@ -30,6 +31,8 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     public PlayerDataConfig Config => _config;
     
     public PlayerArchive playerArchive;
+
+    private readonly Dictionary<string, List<StatModifier>> _modifierSources = new();
     
     public event Action OnStatsChanged;
     
@@ -86,6 +89,17 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         Debug.Log($"[PlayerRuntime] {gameObject.name} level up to level {newLevel}!");
     }
 
+    public void SetModifierSource(string sourceId, IEnumerable<StatModifier> modifiers)
+    {
+        _modifierSources[sourceId] = new List<StatModifier>(modifiers);
+        RebuildModifiers();
+    }
+
+    public void RemoveModifierSource(string sourceId)
+    {
+        if(_modifierSources.Remove(sourceId)) RebuildModifiers();
+    }
+
     public override void TakeDamage(float damage, ICharacterRuntime runtime)
     {
         if (_controller != null && _controller.PlayerModifier.IsInvincible)
@@ -108,6 +122,29 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
             case BonusStat.CritDamage:
                 bonusCritDamage += Mathf.RoundToInt(amount); break;
         }
+    }
+
+    protected override void ResetBonusStats()
+    {
+        base.ResetBonusStats();
+        bonusCritChance = 0;
+        bonusCritDamage = 0;
+    }
+
+    private void RebuildModifiers()
+    {
+        ResetBonusStats();
+
+        foreach (var source in _modifierSources.Values)
+        {
+            foreach(var modifier in source)
+                ApplyBonusStat(modifier.Stat, modifier.Value);
+        }
+        
+        if(Hp > TotalHealth) Hp = TotalHealth;
+        HpChanged(Hp);
+        
+        OnStatsChanged?.Invoke();
     }
 
     private void OnGoldObtained(CurrencyType type, int amount)
