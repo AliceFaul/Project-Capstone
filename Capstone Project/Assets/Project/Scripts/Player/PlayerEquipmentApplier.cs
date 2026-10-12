@@ -53,7 +53,10 @@ public class PlayerEquipmentApplier : MonoBehaviour
     private void OnEquipmentChanged(EquipmentChangedEventArgs args) => Rebuild();
     private void OnStatsChanged(EquipSlot slot) => Rebuild();
 
-    private void Rebuild()
+    /// <summary>
+    /// Recalculate all stats from current equipment and set in PlayerRuntime
+    /// </summary>
+    public void Rebuild()
     {
         var config = _equipmentManager.ProgressConfig;
         var modifiers = new List<StatModifier>();
@@ -71,6 +74,14 @@ public class PlayerEquipmentApplier : MonoBehaviour
         
         AddRuneModifiers(EquipSlot.Melee, config, modifiers);
         AddRuneModifiers(EquipSlot.Ranged, config, modifiers);
+        
+        _runtime.SetModifierSource(SourceId, modifiers);
+    }
+
+    public void RemoveModifiers()
+    {
+        if(_runtime == null) return;
+        _runtime.RemoveModifierSource(SourceId);
     }
 
     private void AddRuneModifiers(EquipSlot slot, EquipmentProgressConfig config, List<StatModifier> modifiers)

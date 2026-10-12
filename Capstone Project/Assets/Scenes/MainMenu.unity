@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 238244957}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -921,6 +921,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AuthUIHandler
   mainMenu: {fileID: 0}
+  canvasGroup: {fileID: 0}
   authPanel: {fileID: 647898100}
   loginPanel: {fileID: 338321998}
   registerPanel: {fileID: 603183184}
