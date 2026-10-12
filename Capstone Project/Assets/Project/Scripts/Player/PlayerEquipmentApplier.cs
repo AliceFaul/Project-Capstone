@@ -80,8 +80,11 @@ public class PlayerEquipmentApplier : MonoBehaviour
 
         foreach (var stat in PlayerScopedRuneStats)
         {
-            float value = RuneResolver.GetStatBonus(weapon, stat, config.GetRune);
-            if(value != 0f) modifiers.Add(new StatModifier(stat, value));
+            float flat = RuneResolver.GetStatBonus(weapon, stat, config.GetRune, StatMode.Flat);
+            float percent = RuneResolver.GetStatBonus(weapon, stat, config.GetRune, StatMode.Percent);
+            
+            if(flat != 0f) modifiers.Add(new StatModifier(stat, flat, StatMode.Flat));
+            if(percent != 0f) modifiers.Add(new StatModifier(stat, percent, StatMode.Percent));
         }
     }
 }

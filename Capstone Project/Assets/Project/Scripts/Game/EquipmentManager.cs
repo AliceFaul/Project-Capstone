@@ -151,6 +151,12 @@ public class EquipmentManager : MonoBehaviour, IManager
         return _data.GetDefinition<EquipmentData>(instance.definitionId);
     }
 
+    public ArtifactData GetArtifactDefinition(ArtifactInstance instance)
+    {
+        if(instance == null || !EnsureBound()) return null;
+        return _data.GetDefinition<ArtifactData>(instance.definitionId);
+    }
+
     // Chi so hieu dung (da tinh tier x level) cua mon dang mac o 'slot'. Khong mac gi -> 0.
     public float GetStat(EquipSlot slot, BonusStat stat)
     {

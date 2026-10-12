@@ -1,19 +1,29 @@
 ﻿using System.Collections.Generic;
 
+// Chi so hieu dung cua 1 mon trang bi:
+// (gia tri tier x he so level + rune Flat) x (1 + rune Percent / 100)
 public static class StatResolver
 {
     public static float GetStat(EquipmentInstance instance, EquipmentData def, BonusStat stat, EquipmentProgressConfig config)
     {
         if (instance == null || def == null) return 0f;
  
+        float baseValue = 0f;
         var table = def.GetStatTable(stat);
-        if (table == null) return 0f;
+
+        if (table != null)
+        {
+            baseValue = table.GetValue(instance.GetTier(stat));
+            if (config != null) baseValue *= config.GetLevelMultiplier(stat, instance.level);
+        }
+        
+        if(config == null) return baseValue;
  
-        float value = table.GetValue(instance.GetTier(stat));
-        if (config != null) value *= config.GetLevelMultiplier(stat, instance.level);
- 
-        // TODO Phase B: cong them cac dong chi so cua rune da gan trong socket.
-        return value;
+        // Rune: ke ca khi vu khi khong co dong goc cho chi so nay van duoc cong.
+        float flat = RuneResolver.GetStatBonus(instance, stat, config.GetRune, StatMode.Flat);
+        float percent = RuneResolver.GetStatBonus(instance, stat, config.GetRune, StatMode.Percent);
+
+        return (baseValue + flat) * (1f + percent / 100f);
     }
  
     public static IEnumerable<KeyValuePair<BonusStat, float>> GetAllStats(EquipmentInstance instance, EquipmentData def, EquipmentProgressConfig config)

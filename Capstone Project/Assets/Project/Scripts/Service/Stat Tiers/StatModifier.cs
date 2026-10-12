@@ -5,11 +5,15 @@
 public readonly struct StatModifier
 {
     public readonly BonusStat Stat;
+    public readonly StatMode Mode;
     public readonly float Value;
 
-    public StatModifier(BonusStat stat, float value)
+    public StatModifier(BonusStat stat, float value, StatMode mode = StatMode.Flat)
     {
         Stat = stat;
         Value = value;
+        Mode = mode;
     }
 }
+
+public enum StatMode { Flat, Percent }

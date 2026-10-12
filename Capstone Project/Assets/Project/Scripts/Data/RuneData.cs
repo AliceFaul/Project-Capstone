@@ -30,6 +30,8 @@ public class RuneStatLine
     [Tooltip("ID dong, duy nhat trong 1 rune. De trong = lay ten chi so.")]
     public string id;
     public BonusStat stat;
+    [Tooltip("Flat: Cong phang. Percent: nhap 10 = +10%, nhan sau khi cong Flat (goc + Flat) x (1 + %)")]
+    public StatMode mode = StatMode.Flat;
     public RollRange range = new RollRange();
     
     public string Id => string.IsNullOrEmpty(id) ? stat.ToString() : id;

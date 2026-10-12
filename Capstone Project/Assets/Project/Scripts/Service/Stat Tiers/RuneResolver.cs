@@ -114,8 +114,8 @@ public static class RuneResolver
         return result;
     }
 
-    // Total value of 'stat' lines from all currently active stat runes.
-    public static float GetStatBonus(EquipmentInstance weapon, BonusStat stat, Func<string, RuneData> lookup)
+    // Total value of 'stat' lines from all currently active stat runes (SAME MODE).
+    public static float GetStatBonus(EquipmentInstance weapon, BonusStat stat, Func<string, RuneData> lookup, StatMode mode)
     {
         float total = 0f;
 
@@ -125,7 +125,7 @@ public static class RuneResolver
 
             foreach (var line in active.Data.statLines)
             {
-                if(line.stat == stat && TryGetRoll(active.Instance, line.Id, out float value))
+                if(line.stat == stat && line.mode == mode && TryGetRoll(active.Instance, line.Id, out float value))
                     total += value;
             }
         }
