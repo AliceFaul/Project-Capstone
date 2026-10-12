@@ -5,6 +5,9 @@ using System.Collections.Generic;
 public enum ArtifactGroup { Damage, Mobility, Defense, Arrow }
 public enum ArtifactTargeting { Seft, Point, Direction }
 
+// DEFINITION cua artifact. Artifact khong co level/nang cap/socket nen khong co 'tier'
+// chi luu id trong ArtifactInstance. Hanh vi = danh sach action ghep lai.
+// Ke thua ItemData de ItemDatabase tra cuu theo id.
 [CreateAssetMenu(fileName = "New Artifact Data", menuName = "Inventory/Artifact Data")]
 public class ArtifactData : ItemData
 {
@@ -34,8 +37,27 @@ public class ArtifactData : ItemData
     private void OnValidate()
     {
         executeTime = Mathf.Clamp(executeTime, 0f, castTime);
-        
-        
+
+        foreach (var action in actions)
+        {
+            if(action == null) continue;
+
+            foreach (var stat in action.BuffStats)
+            {
+                if(!IsBuffStatAllowed(stat)) 
+                    Debug.LogWarning($"[ArtifactData] {name}: Group {group} shouldn't buff stat {stat}.", this);
+            }
+        }
+    }
+
+    private bool IsBuffStatAllowed(BonusStat stat)
+    {
+        switch (group)
+        {
+            case ArtifactGroup.Mobility: return stat is BonusStat.AttackSpeed or BonusStat.MoveSpeed;
+            case ArtifactGroup.Defense: return stat is BonusStat.Defense;
+            default: return true;
+        }
     }
 #endif
 }
