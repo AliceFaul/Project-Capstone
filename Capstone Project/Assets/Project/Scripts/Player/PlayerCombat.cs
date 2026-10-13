@@ -109,7 +109,7 @@ public class PlayerCombat : MonoBehaviour {
         _controller.CmdCombatLocked(true);
         RotateToTarget();
 
-        CurrentAttackSpeed = Mathf.Max(0.1f, _equipmentManager.GetStat(EquipSlot.Melee, BonusStat.AttackSpeed));
+        CurrentAttackSpeed = GetAttackSpeed(EquipSlot.Melee);
         _controller.AnimationHandler.CmdRequestAttacking();
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
@@ -161,7 +161,7 @@ public class PlayerCombat : MonoBehaviour {
         if(_currentAmmo <= 0) return;
         if(_currentRangedWeapon == null) return;
 
-        float attackSpeed = Mathf.Max(0.1f, _equipmentManager.GetStat(EquipSlot.Ranged, BonusStat.AttackSpeed));
+        float attackSpeed = GetAttackSpeed(EquipSlot.Ranged);
         float cooldown = attackSpeed > 0f ? 1f / attackSpeed : float.MaxValue;
         
         if(Time.time - _lastShootTime < cooldown) return;
@@ -234,6 +234,13 @@ public class PlayerCombat : MonoBehaviour {
     }
 
     private void UpdateAttackRange() => AttackRange = _currentMeleeWeapon == null ? 0f : _equipmentManager.GetStat(EquipSlot.Melee, BonusStat.AttackRange);
+    
+    private float GetAttackSpeed(EquipSlot slot)
+    {
+        float weaponSpeed = _equipmentManager.GetStat(slot, BonusStat.AttackSpeed);
+        float speed = _controller.PlayerRuntime.ModifyStat(BonusStat.AttackSpeed, weaponSpeed);
+        return Mathf.Max(0.1f, speed);   // chan duoi: vu khi thieu dong AttackSpeed khong lam dong bang anim / khong ban duoc
+    }
     
     private void Cast(StatusEffect effect, IAttackable target)
     {

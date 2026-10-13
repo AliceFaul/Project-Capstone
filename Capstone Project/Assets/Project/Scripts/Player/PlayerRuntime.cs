@@ -22,8 +22,8 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     public int BonusCritDamage => bonusCritDamage;
     
     [Header("Player Total Stats")]
-    private int totalCritChance => Mathf.RoundToInt(CharacterData.baseCritChance + bonusCritChance);
-    private int totalCritDamage => Mathf.RoundToInt(CharacterData.baseCritDamage + bonusCritDamage);
+    private int totalCritChance => Mathf.RoundToInt((CharacterData.baseCritChance + bonusCritChance) * (1f + GetPercentBonus(BonusStat.CritChance)));
+    private int totalCritDamage => Mathf.RoundToInt((CharacterData.baseCritDamage + bonusCritDamage) * (1f + GetPercentBonus(BonusStat.CritDamage)));
     public float TotalCritChance => totalCritChance;
     public float TotalCritDamage => totalCritDamage;
     
@@ -32,7 +32,11 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     
     public PlayerArchive playerArchive;
 
-    private readonly Dictionary<string, List<StatModifier>> _modifierSources = new();
+    private static readonly int StatCount = Enum.GetValues(typeof(BonusStat)).Length;
+    private readonly Dictionary<string, List<StatModifier>> _modifierSources = new Dictionary<string, List<StatModifier>>();
+    private readonly float[] _flatBonus = new float[StatCount];
+    private readonly float[] _percentBonus = new float[StatCount];
+
     
     public event Action OnStatsChanged;
     
@@ -100,6 +104,13 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         if(_modifierSources.Remove(sourceId)) RebuildModifiers();
     }
 
+    protected override float GetPercentBonus(BonusStat stat) => _percentBonus[(int)stat] / 100f;
+    
+    // Dung cho chi so ting o NOI KHAC ma CharacterRuntime khong quan ly (AttackSpeed cua vu khi...)
+    // KHONG dung cho Health/Damage/Defense/MoveSpeed/Crit - nhung chi so do da nam trong Total*.
+    public float ModifyStat(BonusStat stat, float baseValue)
+        => (baseValue + _flatBonus[(int)stat]) * (1f + _percentBonus[(int)stat] / 100f);
+
     public override void TakeDamage(float damage, ICharacterRuntime runtime)
     {
         if (_controller != null && _controller.PlayerModifier.IsInvincible)
@@ -134,16 +145,27 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     private void RebuildModifiers()
     {
         ResetBonusStats();
+        Array.Clear(_flatBonus, 0, _flatBonus.Length);
+        Array.Clear(_percentBonus, 0, _percentBonus.Length);
 
         foreach (var source in _modifierSources.Values)
         {
-            foreach(var modifier in source)
-                ApplyBonusStat(modifier.Stat, modifier.Value);
+            foreach (var modifier in source)
+            {
+                if (modifier.Mode == StatMode.Flat)
+                {
+                    _flatBonus[(int)modifier.Stat] += modifier.Value;
+                    ApplyBonusStat(modifier.Stat, modifier.Value);
+                }
+                else
+                {
+                    _percentBonus[(int)modifier.Stat] += modifier.Value;
+                }
+            }
         }
-        
-        if(Hp > TotalHealth) Hp = TotalHealth;
+
+        if (Hp > TotalHealth) Hp = TotalHealth;
         HpChanged(Hp);
-        
         OnStatsChanged?.Invoke();
     }
 

@@ -20,12 +20,14 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     public int BonusDamage => bonusDamage;
     public int BonusArmor => bonusArmor;
     public float BonusSpeed => bonusSpeed;
+    
+    protected virtual float GetPercentBonus(BonusStat stat) => 0f; // 0.3 = +30%.
 
-    [Header("Character Total Stats")] 
-    private int totalHealth => CharacterData.baseHealth + bonusHealth;
-    private int totalDamage => CharacterData.baseDamage + bonusDamage;
-    protected int totalDefense => CharacterData.baseDefense + bonusArmor;
-    protected float totalSpeed => CharacterData.baseSpeed + bonusSpeed;
+    [Header("Character Total Stats")]
+    private int totalHealth => Mathf.RoundToInt((CharacterData.baseHealth + bonusHealth) * (1f + GetPercentBonus(BonusStat.Health)));
+    private int totalDamage => Mathf.RoundToInt((CharacterData.baseDamage + bonusDamage) * (1f + GetPercentBonus(BonusStat.Damage)));
+    protected int totalDefense => Mathf.RoundToInt((CharacterData.baseDefense + bonusArmor) * (1f + GetPercentBonus(BonusStat.Defense)));
+    protected float totalSpeed => (CharacterData.baseSpeed + bonusSpeed) * (1f + GetPercentBonus(BonusStat.MoveSpeed));
 
     public int TotalHealth => totalHealth;
     public int TotalDamage => totalDamage;
