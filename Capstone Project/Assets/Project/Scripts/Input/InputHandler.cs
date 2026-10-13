@@ -11,6 +11,9 @@ public class InputHandler : MonoBehaviour {
     public event Action OnLeftClick;
     public event Action OnRightClick;
     // TODO: Add more events for other input actions as needed
+    public event Action OnArtifact1;
+    public event Action OnArtifact2;
+    public event Action OnArtifact3;
     public event Action OnToggleInventory;
 
     private void Awake() {
@@ -22,6 +25,9 @@ public class InputHandler : MonoBehaviour {
 
         _actions.Player.LeftClick.performed += LeftClickPerformed;
         _actions.Player.RightClick.performed += RightClickPerformed;
+        _actions.Player.Artifact1.performed += ctx => OnArtifact1?.Invoke();
+        _actions.Player.Artifact2.performed += ctx => OnArtifact2?.Invoke();
+        _actions.Player.Artifact3.performed += ctx => OnArtifact3?.Invoke();
         _actions.Player.ToggleInventory.performed += ToggleInventoryPerformed;
     }
 
@@ -30,6 +36,9 @@ public class InputHandler : MonoBehaviour {
 
         _actions.Player.LeftClick.performed -= LeftClickPerformed;
         _actions.Player.RightClick.performed -= RightClickPerformed;
+        _actions.Player.Artifact1.performed -= ctx => OnArtifact1?.Invoke();
+        _actions.Player.Artifact2.performed -= ctx => OnArtifact2?.Invoke();
+        _actions.Player.Artifact3.performed -= ctx => OnArtifact3?.Invoke();
         _actions.Player.ToggleInventory.performed -= ToggleInventoryPerformed;
     }
 

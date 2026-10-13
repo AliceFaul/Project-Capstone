@@ -30,7 +30,7 @@ public class ArtifactController : MonoBehaviour
     
      private readonly Dictionary<string, Cooldown> _cooldowns = new Dictionary<string, Cooldown>();
 
-     private InputSystem_Actions _input;
+     private InputHandler _inputHandler;
      private EquipmentManager _equipment;
      private PlayerRuntime _player;
      private PlayerBuffs _buffs;
@@ -43,14 +43,21 @@ public class ArtifactController : MonoBehaviour
 
      private void Awake()
      {
-         _input = new InputSystem_Actions();
-         
          if(controller == null) controller = GetComponent<PlayerController>();
          if(animator == null) animator = GetComponentInChildren<Animator>();
          if(mainCamera == null) mainCamera = Camera.main;
 
-         _player = controller.PlayerRuntime;
-         _buffs = controller.PlayerBuffs;
+         if (controller != null)
+         {
+             _player = controller.PlayerRuntime;
+             _buffs = controller.PlayerBuffs;
+             _inputHandler = controller.InputHandler;
+         }
+         
+         // Fallback if controller isn't assigned.
+         _player ??= GetComponent<PlayerRuntime>();
+         _buffs ??= GetComponent<PlayerBuffs>();
+         _inputHandler ??= GetComponent<InputHandler>();
      }
      
      private void Start()
@@ -61,23 +68,30 @@ public class ArtifactController : MonoBehaviour
      
      private void OnEnable()
      {
-         _input.Player.Enable();
-         _input.Player.Artifact1.performed += OnArtifact1;
-         _input.Player.Artifact2.performed += OnArtifact2;
-         _input.Player.Artifact3.performed += OnArtifact3;
+         if (_inputHandler != null)
+         {
+             _inputHandler.OnArtifact1 += OnArtifact1;
+             _inputHandler.OnArtifact2 += OnArtifact2;
+             _inputHandler.OnArtifact3 += OnArtifact3;
+         }
      }
 
      private void OnDisable()
      {
-         _input.Player.Artifact1.performed -= OnArtifact1;
-         _input.Player.Artifact2.performed -= OnArtifact2;
-         _input.Player.Artifact3.performed -= OnArtifact3;
-         _input.Player.Disable();
+         if (_inputHandler != null)
+         {
+             _inputHandler.OnArtifact1 -= OnArtifact1;
+             _inputHandler.OnArtifact2 -= OnArtifact2;
+             _inputHandler.OnArtifact3 -= OnArtifact3;
+         }
+        
+         if(controller != null) controller.CmdCombatLocked(false);
+         _isCasting = false;
      }
 
-     private void OnArtifact1(InputAction.CallbackContext ctx) => TryActivate(0);
-     private void OnArtifact2(InputAction.CallbackContext ctx) => TryActivate(1);
-     private void OnArtifact3(InputAction.CallbackContext ctx) => TryActivate(2);
+     private void OnArtifact1() => TryActivate(0);
+     private void OnArtifact2() => TryActivate(1);
+     private void OnArtifact3() => TryActivate(2);
 
      public float GetCooldownRemaining(ArtifactInstance instance)
      {

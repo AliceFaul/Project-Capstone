@@ -251,6 +251,7 @@ GameObject:
   - component: {fileID: 4700997332176549194}
   - component: {fileID: 4952277985007304938}
   - component: {fileID: 2854524255848535839}
+  - component: {fileID: 6685664560470726905}
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 6983588896542028798}
@@ -263,6 +264,7 @@ GameObject:
   - component: {fileID: 743074079644308432}
   - component: {fileID: 6241995475581806153}
   - component: {fileID: 9006754850781956550}
+  - component: {fileID: 888270505598952987}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -387,6 +389,31 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   currentCommand: 0
+--- !u!114 &6685664560470726905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37d4192fc33e41fe8ba965fbfe8875a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArtifactController
+  controller: {fileID: 2854524255848535839}
+  mainCamera: {fileID: 0}
+  animator: {fileID: 720708734723406063}
+  castOrigin: {fileID: 8082828905780165329}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &2759596504568213360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,6 +607,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterInstall
   characterData: {fileID: 11400000, guid: 3c70fe4f4e387f44384285eeed2f3d63, type: 2}
+--- !u!114 &888270505598952987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc16f70612349c5b01ad9065bc647b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBuffs
 --- !u!1001 &7117115669241743004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -942,6 +981,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
   meleeSocket: {fileID: 5594313983555539030}
   rangedSocket: {fileID: 8723449264484825119}
+--- !u!95 &720708734723406063 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+  m_PrefabInstance: {fileID: 7117115669241743004}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1131708700260700962 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7886280063208347070, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}

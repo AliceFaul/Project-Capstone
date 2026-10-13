@@ -69,6 +69,24 @@ public class PlayerMovement : MonoBehaviour
         UpdateAutoJump();
     }
 
+    private void OnEnable()
+    {
+        if(_runtime == null) return;
+        _runtime.OnStatsChanged += OnStatsChanged;
+    }
+
+    private void OnDisable()
+    {
+        if(_runtime == null) return;
+        _runtime.OnStatsChanged -= OnStatsChanged;
+    }
+
+    private void OnStatsChanged()
+    {
+        if(_agent != null && _runtime != null)
+            _agent.speed = _runtime.TotalSpeed;
+    }
+
     private void UpdateMovement()
     {
         if(!_isMoving || _destinationReached || _isJumping) return;
