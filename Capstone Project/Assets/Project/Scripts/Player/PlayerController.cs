@@ -103,6 +103,17 @@ public class PlayerController : MonoBehaviour {
         }
         set => _abilityHolder = value;
     }
+
+    private ArtifactController _artifactController;
+    public ArtifactController ArtifactController
+    {
+        get
+        {
+            if(_artifactController == null) _artifactController = GetComponent<ArtifactController>();
+            return _artifactController;
+        }
+        set => _artifactController = value;
+    }
     
     private InputHandler _inputHandler;
     public InputHandler InputHandler

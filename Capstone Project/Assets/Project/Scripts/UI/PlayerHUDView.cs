@@ -64,6 +64,11 @@ public class PlayerHUDView : MonoBehaviour
         expSlider.value = required > 0f ? Mathf.Clamp01(current / required) : 0f;
     }
 
+    public void SetArtifactIcon(int slot, Sprite icon) => SetIcon(artifactSlots, slot, icon);
+    public void SetAbilityIcon(int slot, Sprite icon) => SetIcon(abilitySlots, slot, icon);
+    public void SetArtifactCooldown(int slot, float normalized) => SetCooldown(artifactSlots, slot, normalized);
+    public void SetAbilityCooldown(int slot, float normalized) => SetCooldown(abilitySlots, slot, normalized);
+
     private static void SetIcon(SlotView[] slots, int index, Sprite icon)
     {
         if(slots == null || index < 0 || index >= slots.Length || slots[index] == null) return;
