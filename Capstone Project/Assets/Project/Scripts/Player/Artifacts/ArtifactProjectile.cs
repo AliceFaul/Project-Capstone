@@ -41,6 +41,8 @@ public class ArtifactProjectile : MonoBehaviour
 
         transform.rotation = Quaternion.LookRotation(_launch.Direction);
 
+        // SphereCast khong phat hien collider ma diem bat dau da nam trong -
+        // xu ly quai dang chong len diem sinh ra bang OverlapSphere.
         foreach (var coll in Physics.OverlapSphere(transform.position, radius, _launch.EnemyLayer))
         {
             if (HandleEnemy(coll)) continue;
@@ -56,10 +58,11 @@ public class ArtifactProjectile : MonoBehaviour
         float step = _launch.Speed * Time.deltaTime;
         LayerMask mask = _launch.EnemyLayer | _launch.ObstacleLayer;
 
+        // SphereCastAll de khong bo sot quai nao nam trong khoang bay cua 1 frame khi xuyen.
         var hits = Physics.SphereCastAll(transform.position, radius, _launch.Direction, step, mask, QueryTriggerInteraction.Ignore);
         if (hits.Length > 0)
         {
-            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
             foreach (var hit in hits)
             {
                 bool isEnemy = (_launch.EnemyLayer.value & (1 << hit.collider.gameObject.layer)) != 0;
@@ -113,7 +116,7 @@ public class ArtifactProjectile : MonoBehaviour
         if (hitVfx)
         {
             var vfx = Instantiate(hitVfx, point, Quaternion.identity);
-            Destroy(hitVfx, hitVfxLifetime);
+            Destroy(vfx, hitVfxLifetime);
         }
         
         Destroy(gameObject);
