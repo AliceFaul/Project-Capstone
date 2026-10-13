@@ -367,8 +367,8 @@ AnimatorStateTransition:
   m_IsExit: 0
   serializedVersion: 3
   m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 1
+  m_TransitionOffset: 0.01069577
+  m_ExitTime: 0.6617053
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -395,7 +395,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: b7cc15c8c344f8f438e4d7a9e80f82e1, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: b8d3e9a402ce55c4a98e36feaf463279, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -707,7 +707,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Roll
-  m_Speed: 1.2
+  m_Speed: 2.5
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -3018066718992792710}
@@ -722,7 +722,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: b8d3e9a402ce55c4a98e36feaf463279, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: c4ccef19a7fd33a40a2b0513b8540fa1, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

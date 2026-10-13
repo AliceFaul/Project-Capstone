@@ -87,14 +87,100 @@ public class AreaStrikeAction : ArtifactAction
     }
 }
 
-// Ban 1 hoac nhieu projectile theo huong chuot: luong nang luong, luoi dao, mui ten (+ hieu ung/vu no)
+// Ban 1 hoac nhieu projectile theo huong chuot:
+// luong nang luong, luoi dao, mui ten (+ hieu ung/vu no)
 [Serializable]
 public class ProjectileAction : ArtifactAction
 {
-    
+    public ArtifactProjectile prefab;
+    public int count = 1;
+    [Tooltip("Tong goc quat (do) khi count > 1.")]
+    public float spreadAngle = 0f;
+    public float speed = 18f;
+    public float lifetime = 2f;
+    [Tooltip("So quai co the xuyen qua them (0 = dung o quai dau tien).")]
+    public int pierce = 0;
+    public DamageSpec damage = new DamageSpec();
+    public DotEffectSpec effect = new DotEffectSpec();
+    public ExplosionSpec explosion = new ExplosionSpec();
     
     public override void Execute(ArtifactContext context)
     {
+        if (prefab == null)
+        {
+            Debug.LogError($"[ProjectileAction] {context.Data.name}: Missing prefab ArtifactProjectile.");
+            return;
+        }
         
+        int amount = damage.Compute(context.Caster.TotalDamage);
+        int total = Mathf.Max(1, count);
+
+        for (int i = 0; i < total; i++)
+        {
+            float angle = total > 1 ? Mathf.Lerp(-spreadAngle * 0.5f, spreadAngle * 0.5f, (float)i / (total - 1)) : 0f;
+            Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * context.AimDirection;
+
+            var projectile = Object.Instantiate(prefab, context.Origin, Quaternion.LookRotation(direction));
+            projectile.Launch(new ProjectileLaunch
+            {
+                Direction = direction,
+                Speed = speed,
+                Lifetime = lifetime,
+                Damage = amount,
+                Pierce = pierce,
+                Caster = context.Caster,
+                Effect = effect,
+                Explosion = explosion,
+                EnemyLayer = context.EnemyLayer,
+                ObstacleLayer = context.ObstacleLayer
+            });
+        }
+    }
+}
+
+// Vung hoi mau/ buff chi so, CHI anh huong nguoi choi.
+[Serializable]
+public class ZoneAction : ArtifactAction
+{
+    [Tooltip("Prefab co ArtifactZone (de gan VFX). De trong = tao vung khong hinh anh.")]
+    public ArtifactZone prefab;
+
+    [Tooltip("Bat: vung xuat hien tai vi tri chuot. Tat: tai cho nguoi choi dung.")]
+    public bool atAimPoint;
+    public float radius = 4f;
+    public float duration = 6f;
+    public float tickInterval = 1f;
+    public float healFlat;
+    [Tooltip("Phan tram mau toi da hoi moi tick.")]
+    public float healPercentOfMax;
+    public List<StatBuffEntry> entries = new();
+
+    public override IEnumerable<BonusStat> BuffStats
+    {
+        get
+        {
+            foreach (var entry in entries) yield return entry.stat;
+        }
+    }
+
+    public override void Execute(ArtifactContext context)
+    {
+        Vector3 position = atAimPoint ? context.AimPoint : context.CasterTransform.position;
+
+        var zone = prefab != null
+            ? Object.Instantiate(prefab, position, Quaternion.identity)
+            : new GameObject("Artifact_Zone").AddComponent<ArtifactZone>();
+        zone.transform.position = position;
+        
+        zone.Initialize(new ArtifactZoneSettings
+        {
+            buffId = "zone:" + context.Data.id,
+            radius = radius,
+            duration = duration,
+            tickInterval = tickInterval,
+            healFlat = healFlat,
+            healPercentOfMax = healPercentOfMax,
+            entries = entries
+        }, context.Caster, context.Buffs);
     }
 }

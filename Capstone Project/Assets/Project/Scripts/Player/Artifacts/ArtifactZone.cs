@@ -25,7 +25,6 @@ public class ArtifactZone : MonoBehaviour
     private PlayerRuntime _player;
     private PlayerBuffs _buffs;
     private List<StatModifier> _modifiers;
-    private float _elapsed;
     private IntervalTimer _timer;
     private bool _initialized;
 
@@ -48,8 +47,6 @@ public class ArtifactZone : MonoBehaviour
             indicator.localScale = new Vector3(diameter, indicator.localScale.y, diameter);
         }
 
-        _elapsed = 0f;
-        
         _timer = new IntervalTimer(_settings.duration, _settings.tickInterval);
         _timer.OnInterval = OnInterval;
         _timer.OnTimerStop = OnStop;
@@ -68,15 +65,14 @@ public class ArtifactZone : MonoBehaviour
             }
             catch
             {
-                // Bắt ngoại lệ phòng hờ PlayerRuntime/PlayerBuffs đã bị hủy trước
+                Debug.LogWarning($"[ArtifactZone] PlayerRuntime or PlayerBuffs are missing.");
             }
         }
     }
 
     private void OnInterval()
     {
-        if(!_initialized) return;
-        if(_player == null) return;
+        if(!_initialized || _player == null) return;
         
         Vector3 offset = _player.transform.position - transform.position;
         offset.y = 0f;
@@ -87,7 +83,6 @@ public class ArtifactZone : MonoBehaviour
         if(heal > 0f) _player.Heal(heal);
         
         if(_buffs != null && _modifiers.Count > 0) _buffs.Apply(_settings.buffId, _modifiers, _settings.tickInterval * 1.5f);
-        _elapsed += _settings.tickInterval;
     }
 
     private void OnStop()

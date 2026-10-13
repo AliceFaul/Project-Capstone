@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: c14b0f6d339b941459b7e1838ef60fe6
+AssetOrigin:
+  serializedVersion: 1
+  productId: 370804
+  packageName: GanzSe FREE Camping - Fantasy Low Poly Props
+  packageVersion: 1.02
+  assetPath: Assets/URP GanzSe Free Camping Props/Models/Original 1.0/FCP_Tent_Type1_Color1.fbx
+  uploadId: 955530
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -46,7 +53,7 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
@@ -108,10 +115,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 370804
-  packageName: GanzSe FREE Camping - Fantasy Low Poly Props
-  packageVersion: 1.02
-  assetPath: Assets/URP GanzSe Free Camping Props/Models/Original 1.0/FCP_Tent_Type1_Color1.fbx
-  uploadId: 955530

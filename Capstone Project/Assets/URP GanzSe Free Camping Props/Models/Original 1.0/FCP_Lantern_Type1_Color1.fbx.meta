@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: b5de5f26563413d49b958a6532a2941a
+AssetOrigin:
+  serializedVersion: 1
+  productId: 370804
+  packageName: GanzSe FREE Camping - Fantasy Low Poly Props
+  packageVersion: 1.02
+  assetPath: Assets/URP GanzSe Free Camping Props/Models/Original 1.0/FCP_Lantern_Type1_Color1.fbx
+  uploadId: 955530
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -46,7 +53,7 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
@@ -108,10 +115,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 370804
-  packageName: GanzSe FREE Camping - Fantasy Low Poly Props
-  packageVersion: 1.02
-  assetPath: Assets/URP GanzSe Free Camping Props/Models/Original 1.0/FCP_Lantern_Type1_Color1.fbx
-  uploadId: 955530
