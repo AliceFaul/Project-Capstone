@@ -67,6 +67,17 @@ public class PlayerController : MonoBehaviour {
         }
         set => _playerRuntime = value;
     }
+
+    private PlayerBuffs _playerBuffs;
+    public PlayerBuffs PlayerBuffs
+    {
+        get
+        {
+            if(_playerBuffs == null) _playerBuffs = GetComponent<PlayerBuffs>();
+            return _playerBuffs;
+        }
+        set => _playerBuffs = value;
+    }
     
     private PlayerStateMachine _stateMachine;
     public PlayerStateMachine StateMachine

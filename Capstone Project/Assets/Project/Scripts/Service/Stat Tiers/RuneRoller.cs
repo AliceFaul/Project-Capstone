@@ -1,4 +1,6 @@
-﻿public static class RuneRoller
+﻿public enum RuneBias { Random, Min, Max }
+
+public static class RuneRoller
 {
     public static RuneInstance Roll(RuneData def, System.Random rng = null)
     {
