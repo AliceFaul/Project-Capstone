@@ -10,6 +10,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     [SerializeField] private PlayerController controller;
     [SerializeField] private PlayerRuntime runtime;
     [SerializeField] private PlayerCombat combat;
+    [SerializeField] private float attackSafetyTimeout = 3f;
 
     [Header("Improve movement")]
     [SerializeField] private Transform rootTransform;
@@ -22,6 +23,9 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     [SerializeField] private float minAnimatorSpeed = 0.1f;
 
     private bool _requestAttacking;
+    private bool _enteredAttackAnim;
+    private float _attackStartTime;
+    
     private ParticleSystem.EmissionModule _dustEmission;
     private int _currentHash;
     
@@ -102,6 +106,12 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
         if (_stateMachine == null || _animator == null) return;
         
         if (oldState == CharacterStateType.Attack && newState != CharacterStateType.Attack) ResetAttackState();
+        
+        if (newState == CharacterStateType.Attack && oldState != CharacterStateType.Attack)
+        {
+            _enteredAttackAnim = false;
+            _attackStartTime = Time.unscaledTime;
+        }
 
         switch (newState)
         {
@@ -150,20 +160,40 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private void AttackProcess()
     {
         ApplyAttackSpeed();
-        
+
         if (_requestAttacking)
         {
             _requestAttacking = false;
             CmdAttackTrigger(0);
         }
 
-        AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
-        if (!state.IsTag("Attack")) return;
+        if (_animator.IsInTransition(0))
+        {
+            if (combat != null) combat.CmdActiveComboWindow(false);
 
-        var time = state.normalizedTime;
-        if(combat != null) combat.CmdActiveComboWindow(time is >= 0.7f and <= 0.95f);
-        
-        if (state.IsTag("Attack") && time >= 1f) EndAttackingProcess();
+            if (_animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack") ||
+                _animator.GetNextAnimatorStateInfo(0).IsTag("Attack"))
+                _enteredAttackAnim = true;
+            return;
+        }
+
+        AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
+
+        if (state.IsTag("Attack"))
+        {
+            _enteredAttackAnim = true;
+
+            float time = state.normalizedTime;
+            if (combat != null) combat.CmdActiveComboWindow(time >= 0.5f && time <= 0.95f);
+
+            if (time >= 1f) EndAttackingProcess();
+            return;
+        }
+
+        if (combat != null) combat.CmdActiveComboWindow(false);
+
+        if (_enteredAttackAnim || Time.unscaledTime - _attackStartTime > attackSafetyTimeout)
+            EndAttackingProcess();
     }
 
     private void ApplyAttackSpeed()
@@ -195,6 +225,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private void ResetAttackState()
     {
         _requestAttacking = false;
+        _enteredAttackAnim = false;
         if (_animator != null)
         {
             _animator.ResetTrigger(_attackHash);

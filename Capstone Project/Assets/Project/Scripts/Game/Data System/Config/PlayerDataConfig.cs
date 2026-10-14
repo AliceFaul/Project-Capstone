@@ -137,7 +137,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
 
         _inventory = new Lazy<Inventory>(() =>
         {
-            var capacities = inventoryConfig != null ? inventoryConfig.Categories : InventoryConfig.DefaultCategories();
+            var capacities = inventoryConfig != null ? inventoryConfig.categories : InventoryConfig.DefaultCategories();
             return new Inventory(capacities);
         }, LazyThreadSafetyMode.None);
         

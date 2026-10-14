@@ -5,8 +5,7 @@ using Project.Capstone.Inventory;
 [CreateAssetMenu(fileName = "Inventory Config", menuName = "Config/Inventory")]
 public class InventoryConfig : ScriptableObject
 {
-    [SerializeField] private List<CategoryCapacity> categories = DefaultCategories();
-    public IReadOnlyList<CategoryCapacity> Categories => categories;
+    public List<CategoryCapacity> categories = DefaultCategories();
  
     public static List<CategoryCapacity> DefaultCategories()
     {

@@ -777,6 +777,7 @@ MonoBehaviour:
   controller: {fileID: 2854524255848535839}
   runtime: {fileID: 6254586106571862876}
   combat: {fileID: 2759596504568213360}
+  attackSafetyTimeout: 3
   rootTransform: {fileID: 7612427732099748046}
   runDust: {fileID: 0}
   squashStretchDuration: 0.15
@@ -895,9 +896,9 @@ MonoBehaviour:
     OnAnimationEvent:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 2759596504568213360}
-          m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
-          m_MethodName: CmdSpawnProjectile
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: SpawnProjectile
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -913,7 +914,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 3527156759941933987}
           m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
-          m_MethodName: HideRanged
+          m_MethodName: ShowMelee
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -925,7 +926,19 @@ MonoBehaviour:
           m_CallState: 2
         - m_Target: {fileID: 3527156759941933987}
           m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
-          m_MethodName: ShowMelee
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: EndAttackingProcess
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -939,9 +952,9 @@ MonoBehaviour:
     OnAnimationEvent:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 2759596504568213360}
-          m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
-          m_MethodName: CmdDealDamage
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: DealDamage
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -955,9 +968,9 @@ MonoBehaviour:
     OnAnimationEvent:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 2759596504568213360}
-          m_TargetAssemblyTypeName: PlayerCombat, Assembly-CSharp
-          m_MethodName: CmdEndAttackingProcess
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: EndAttackingProcess
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

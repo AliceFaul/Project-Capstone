@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb3c471613694083b8057b64c2472aa9, type: 3}
-  m_Name: InventoryConfig
+  m_Name: Inventory Config
   m_EditorClassIdentifier: Assembly-CSharp::InventoryConfig
   categories:
   - category: 0

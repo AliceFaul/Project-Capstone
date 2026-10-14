@@ -1253,8 +1253,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHUDView
   heartFill: {fileID: 8118877146420709894}
+  healthLerpSpeed: 10
   levelText: {fileID: 3830573427397809660}
   expSlider: {fileID: 5174043106618459768}
+  expLerpSpeed: 8
   artifactSlots:
   - icon: {fileID: 6795965902263762213}
     cooldownOverlay: {fileID: 1307138804584263262}
@@ -1280,6 +1282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHUDController
   view: {fileID: 2349691521959372595}
+  currencyUI: {fileID: 0}
   controller: {fileID: 0}
   cooldownChannel: {fileID: 11400000, guid: 86bba598dd7bd3f4da02a4aa6934c274, type: 2}
 --- !u!1 &2677106957908678119
@@ -2264,7 +2267,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 389.0709, y: 7.595}
+  m_SizeDelta: {x: 389.0709, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5174043106618459768
 MonoBehaviour:

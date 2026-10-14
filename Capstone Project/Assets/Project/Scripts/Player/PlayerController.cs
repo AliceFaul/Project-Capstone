@@ -246,13 +246,18 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteAttack(Transform target) {
-        if(!PlayerModifier.CanAttack) return;
+        if (Combat.IsAttacking)
+        {
+            Combat.SetTarget(target);
+            Movement?.SnapFaceTowards(target.position);
+            Combat.CmdAttack();
+            return;
+        }
         
+        if(!PlayerModifier.CanAttack) return;
         Movement?.SnapFaceTowards(target.position);
 
-        if (invoker == null) 
-            return;
-        
+        if (invoker == null) return;
         invoker.ExecuteCommand(_attackCommand, target);
         currentCommand = CommandType.Attack;
     }

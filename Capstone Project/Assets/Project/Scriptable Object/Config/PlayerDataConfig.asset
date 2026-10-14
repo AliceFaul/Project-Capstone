@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc0a5b87110d4d8b97d91b7bf6b429ff, type: 3}
   m_Name: PlayerDataConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDataConfig
-  displayName: 
+  displayName: Gg
   level: 1
   currentExp: 0
   expToNextLevel: 100
-  startingMeleeWeaponId: inferno_sword
-  startingRangedWeaponId: rune_ancient_bow
+  startingMeleeWeaponId: 
+  startingRangedWeaponId: 
   currencyBalances:
   - type: 0
     amount: 0
@@ -25,5 +25,5 @@ MonoBehaviour:
     amount: 0
   unlockedCosmeticIds: []
   equippedCosmeticId: Black
-  inventoryConfig: {fileID: 11400000, guid: f123edafdd1264b4faa744941d91fe9f, type: 2}
+  inventoryConfig: {fileID: 11400000, guid: 7ed41f1da927b344d9c2dc0d689d6fde, type: 2}
   itemDatabase: {fileID: 11400000, guid: 8ed9becd88a2cc646a4d109fd6f222ee, type: 2}

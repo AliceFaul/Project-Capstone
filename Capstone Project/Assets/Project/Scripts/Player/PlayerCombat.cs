@@ -29,6 +29,7 @@ public class PlayerCombat : MonoBehaviour {
     private PlayerController _controller;
     
     private Transform _currentTarget;
+    private bool _comboQueued;
     private bool _activeCombatWindow;
     private int _currentAmmo;
     private Vector3 _shootPosition;
@@ -38,6 +39,7 @@ public class PlayerCombat : MonoBehaviour {
     
     public Transform CurrentTarget => _currentTarget;
     public int CurrentAmmo => _currentAmmo;
+    public bool IsAttacking => _controller.StateMachine.CurrentState == CharacterStateType.Attack;
 
     public float AttackRange { get; private set; }
     public float CurrentAttackSpeed { get; private set; }
@@ -94,16 +96,23 @@ public class PlayerCombat : MonoBehaviour {
     // This method will check if the player can attack and then perform the attack
     // TODO: You can add an animation trigger here if you have an attack animation
     public void CmdAttack() {
-        if(_currentTarget == null) return;
-        if(_currentMeleeWeapon == null) return;
+        if(_currentTarget == null || _currentMeleeWeapon == null) return;
 
-        if (_activeCombatWindow)
+        if (IsAttacking)
         {
-            RotateToTarget();
-            _controller.AnimationHandler.CmdRequestAttacking();
+            if (_activeCombatWindow)
+            {
+                RotateToTarget();
+                _controller.AnimationHandler.CmdRequestAttacking();
+            }
+            else
+            {
+                _comboQueued = true;
+            }
             return;
         }
-        
+
+
         if(!_controller.PlayerModifier.CanAttack) return;
         
         _controller.CmdCombatLocked(true);
@@ -114,10 +123,22 @@ public class PlayerCombat : MonoBehaviour {
         _controller.StateMachine.ChangeState(CharacterStateType.Attack);
     }
 
-    public void CmdActiveComboWindow(bool value) => _activeCombatWindow = value;
+    public void CmdActiveComboWindow(bool value)
+    {
+        _activeCombatWindow = value;
+
+        if (value && _comboQueued)
+        {
+            _comboQueued = false;
+            if (_currentTarget != null) RotateToTarget();
+            _controller.AnimationHandler.CmdRequestAttacking();
+        }
+    }
     
     public void CmdEndAttackingProcess()
     {
+        _comboQueued = false;
+        _activeCombatWindow = false;
         _controller.CmdCombatLocked(false);
         _currentTarget = null;
         _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
@@ -199,7 +220,7 @@ public class PlayerCombat : MonoBehaviour {
             return;
         }
         
-        component.Initialize(direction, result.Damage);
+        component.Initialize(direction, result.Damage, gameObject);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
     }
