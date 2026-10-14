@@ -8,6 +8,7 @@ public class PlayerHUDController : MonoBehaviour
     
     [Header("HUD View")]
     [SerializeField] private PlayerHUDView view;
+    [SerializeField] private CurrencyUI currencyUI;
     
     [Header("Player")]
     [SerializeField] private PlayerController controller;
@@ -112,6 +113,8 @@ public class PlayerHUDController : MonoBehaviour
             _equipment.OnEquipmentChanged += OnEquipmentChanged;
             _equipment.OnLoadoutReloaded += RefreshArtifacts;
         }
+        
+        if(currencyUI != null && _runtime != null) currencyUI.Initialize(_runtime);
         
         _isBound = true;
         RefreshAll();
