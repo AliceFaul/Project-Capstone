@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5cdf1ac831646004288735c99ac51e4a
+    m_Address: W_Sword
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6590e99a522921647ac15769767472cd
     m_Address: Crystal_Sword
     m_ReadOnly: 0

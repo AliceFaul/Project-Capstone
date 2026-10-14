@@ -590,7 +590,7 @@ MonoBehaviour:
   character: {fileID: 8973249790145409378}
   meshRefreshRate: 0.05
   delay: 2
-  trailMat: {fileID: 2100000, guid: be24942d2787e124ea4ecdf1ea1706bf, type: 2}
+  trailMat: {fileID: 2100000, guid: 85d738633eed82d4393e6a29cc2c142e, type: 2}
   alphaRef: _Alpha
   alphaRate: 0.1
   alphaRefreshRate: 0.05

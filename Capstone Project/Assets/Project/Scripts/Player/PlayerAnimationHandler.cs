@@ -133,6 +133,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     public void UpdateAnimation()
     {
         if(_stateMachine == null) return;
+        if(_stateMachine.CurrentState == CharacterStateType.Jump) return;
         
         switch (_stateMachine.CurrentState)
         {
