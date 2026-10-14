@@ -35,6 +35,6 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
-  vfxPrefab: {fileID: 8771972552311404799, guid: bbf9e36a48d6c5648a13889afab076fd, type: 3}
+  vfxPrefab: {fileID: 4779347976742958982, guid: 685d8056add6b3240a60dcc01d2f41f8, type: 3}
   healAmount: 50
   vfxDuration: 2

@@ -26,7 +26,7 @@ public class HealAbility : Ability
             
             if (instanceFx != null)
             {
-                instanceFx.transform.position = parent.transform.position + Vector3.up;
+                instanceFx.transform.position = parent.transform.position;
                 instanceFx.transform.rotation = parent.transform.rotation;
                 instanceFx.transform.SetParent(parent.transform);
             }
