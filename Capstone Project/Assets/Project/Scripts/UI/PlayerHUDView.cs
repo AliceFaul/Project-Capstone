@@ -29,10 +29,14 @@ public class PlayerHUDView : MonoBehaviour
     
     [Header("Health")]
     [SerializeField] private Image heartFill;
+    [Tooltip("Tốc độ chạy mượt của thanh máu.")]
+    [SerializeField] private float healthLerpSpeed = 10f;
     
     [Header("Level / Experience")]
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private Slider expSlider;
+    [Tooltip("Tốc độ chạy mượt của thanh kinh nghiệm.")]
+    [SerializeField] private float expLerpSpeed = 8f;
     
     [Header("Artifact Slots")]
     [SerializeField] private SlotView[] artifactSlots = new SlotView[3];
@@ -40,16 +44,25 @@ public class PlayerHUDView : MonoBehaviour
     [Header("Ability Slots")]
     [SerializeField] private SlotView[] abilitySlots = new SlotView[2];
 
+    private float _targetHealthFill = 1f;
+    private float _targetExpValue = 0f;
+    
     private void Awake()
     {
         ClearCooldownOverlays(artifactSlots);
         ClearCooldownOverlays(abilitySlots);
     }
 
+    private void Update()
+    {
+        if(heartFill != null) heartFill.fillAmount = Mathf.Lerp(heartFill.fillAmount, _targetHealthFill, healthLerpSpeed * Time.deltaTime);
+        if(expSlider != null) expSlider.value = Mathf.Lerp(expSlider.value, _targetExpValue, expLerpSpeed * Time.deltaTime);
+    }
+
     public void SetHealth(float current, float maximum)
     {
         if(heartFill == null) return;
-        heartFill.fillAmount = maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f;
+        _targetHealthFill = maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f;
     }
 
     public void SetLevel(int level)
@@ -61,7 +74,21 @@ public class PlayerHUDView : MonoBehaviour
     public void SetExperience(float current, float required)
     {
         if(expSlider == null) return;
-        expSlider.value = required > 0f ? Mathf.Clamp01(current / required) : 0f;
+        _targetExpValue = required > 0f ? Mathf.Clamp01(current / required) : 0f;
+    }
+
+    public void SnapHealth(float current, float maximum)
+    {
+        if(heartFill == null) return;
+        _targetHealthFill = maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f;
+        heartFill.fillAmount = _targetHealthFill;
+    }
+
+    public void SnapExperience(float current, float required)
+    {
+        if(expSlider == null) return;
+        _targetExpValue = required > 0f ? Mathf.Clamp01(current / required) : 0f;
+        expSlider.value = _targetExpValue;
     }
 
     public void SetArtifactIcon(int slot, Sprite icon) => SetIcon(artifactSlots, slot, icon);

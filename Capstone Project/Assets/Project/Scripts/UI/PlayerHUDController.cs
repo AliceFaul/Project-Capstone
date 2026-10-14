@@ -172,7 +172,7 @@ public class PlayerHUDController : MonoBehaviour
     private void RefreshHealth()
     {
         if(_runtime == null || view == null) return;
-        view.SetHealth(_runtime.Health, _runtime.TotalHealth);
+        view.SnapHealth(_runtime.Health, _runtime.TotalHealth);
     }
 
     private void RefreshProgression()
@@ -181,7 +181,7 @@ public class PlayerHUDController : MonoBehaviour
 
         int level = _runtime.Config != null ? _runtime.Config.Level : 1;
         view.SetLevel(level);
-        view.SetExperience(_runtime.CurrentExp, _runtime.ExpToNextLevel);
+        view.SnapExperience(_runtime.CurrentExp, _runtime.ExpToNextLevel);
     }
     
     private void RefreshAbilities()
