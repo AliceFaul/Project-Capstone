@@ -1,0 +1,14 @@
+{
+    "name": "Mhieu.AI.BT",
+    "rootNamespace": "Mhieu.AI.BT",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
