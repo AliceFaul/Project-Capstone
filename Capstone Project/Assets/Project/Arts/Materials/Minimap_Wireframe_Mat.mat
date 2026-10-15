@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Minimap_Wireframe_Mat
-  m_Shader: {fileID: -6465566751694194690, guid: 8012d5ddea2012241904cc2f4197c477, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 01e5a58d855ec7a4e814f97c6c7c715e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -24,6 +24,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_DC5ACD0D:
+        m_Texture: {fileID: 2800000, guid: faa6ed5ac5e131e42a696ddf359a240c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -86,6 +90,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - Vector1_358B06FE: 2.6
+    - Vector1_594F5B51: 0.0124
+    - Vector1_ADB7A14C: -0.33
+    - Vector1_BD822A74: -0.07
+    - Vector1_E8FA2435: 5.6
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
@@ -122,6 +131,8 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 0
     m_Colors:
+    - Color_5F697878: {r: 0.41542888, g: 1, b: 0, a: 1}
+    - White: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 0, g: 0.66994905, b: 1, a: 1}
     - _Color: {r: 0, g: 0.66994905, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

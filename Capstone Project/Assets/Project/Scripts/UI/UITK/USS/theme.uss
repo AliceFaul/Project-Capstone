@@ -1,4 +1,5 @@
 :root {
+    --color-hover: rgb(255, 255, 255);
     --color-bg: rgb(21, 12, 10);
     --color-panel: rgba(37, 22, 18, 0.94);
     --color-panel-alt: rgb(46, 28, 22);

@@ -299,16 +299,16 @@
 }
 
 .button-base:hover {
-    translate: 0 -2px;
-    border-color: var(--color-accent);
-    background-color: var(--color-panel-highlight);
+    border-color: var(--color-hover);
 }
 
+/*
 .button-base:active {
     translate: 0 2px;
     scale: 0.97 0.97;
     background-color: var(--color-border-dark);
 }
+*/
 
 .button-base:disabled {
     opacity: 0.45;
