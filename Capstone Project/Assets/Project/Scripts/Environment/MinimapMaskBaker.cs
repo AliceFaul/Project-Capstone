@@ -36,6 +36,16 @@ public class MinimapMaskBaker : MonoBehaviour
 
     public event Action Baked;
 
+    private void Start()
+    {
+        if(bakeOnStart) Bake();
+    }
+
+    private void OnDestroy()
+    {
+        if(WalkableMask != null) SafeDestroy(WalkableMask);
+    }
+
     [ContextMenu("Bake")]
     public void Bake()
     {
@@ -90,7 +100,7 @@ public class MinimapMaskBaker : MonoBehaviour
         }
         
         // 4. Upload
-        if(WalkableMask != null) Destroy(WalkableMask);
+        if(WalkableMask != null) SafeDestroy(WalkableMask);
 
         WalkableMask = new Texture2D(width, height, TextureFormat.R8, false, true)
         {
@@ -168,6 +178,12 @@ public class MinimapMaskBaker : MonoBehaviour
                 if(w0 >= -eps && w1 >= -eps && w2 >= -eps) data[y * width + x] = 255;
             }
         }
+    }
+
+    private static void SafeDestroy(UnityEngine.Object obj)
+    {
+        if(Application.isPlaying) Destroy(obj);
+        else DestroyImmediate(obj);
     }
     
     private void OnDrawGizmosSelected()
