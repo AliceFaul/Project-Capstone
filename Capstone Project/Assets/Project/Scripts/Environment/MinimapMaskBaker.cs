@@ -114,6 +114,7 @@ public class MinimapMaskBaker : MonoBehaviour
         // 5. Publish to shaders
         Shader.SetGlobalTexture(WalkableMaskId, WalkableMask);
         Shader.SetGlobalVector(WorldRectId, new Vector4(WorldOrigin.x, WorldOrigin.y, WorldSize.x, WorldSize.y));
+        Shader.SetGlobalVector(Shader.PropertyToID("_MinimapMaskTexel"), new Vector4(1f / width, 1f / height, width, height));
         
         if(debugPreview != null) debugPreview.texture = WalkableMask;
         
