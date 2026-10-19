@@ -102,7 +102,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeFade: 0.07
+    - _EdgeFade: 0.03
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -112,8 +112,8 @@ Material:
     - _Metallic: 0
     - _MinUpDot: 0
     - _OcclusionStrength: 1
-    - _OutlineStrength: 1
-    - _OutlineWidth: 0.04
+    - _OutlineStrength: 3
+    - _OutlineWidth: 0.18
     - _Parallax: 0.005
     - _PatternScale: 5.6
     - _QueueOffset: 0
@@ -131,7 +131,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FillColor: {r: 1, g: 1, b: 0.9, a: 0.4509804}
+    - _FillColor: {r: 1, g: 1, b: 0.9, a: 0.12156863}
     - _IconColor: {r: 1, g: 0.85, b: 0.25, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _PatternSpeed: {r: -0.07, g: -0.33, b: 0, a: 0}

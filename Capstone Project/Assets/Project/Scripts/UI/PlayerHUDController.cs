@@ -258,12 +258,14 @@ public class PlayerHUDController : MonoBehaviour
     {
         if(slot is < 0 or >= ArtifactSlotCount) return;
 
+        string instanceId = null;
         Sprite icon = null;
         float cooldown = 0f;
 
         if (_equipment != null)
         {
             var instance = _equipment.GetArtifact(slot);
+            instanceId = instance?.instanceId;
             var definition = _equipment.GetArtifactDefinition(instance);
             
             if(definition != null) icon = definition.icon;
@@ -275,6 +277,11 @@ public class PlayerHUDController : MonoBehaviour
         
         view.SetArtifactIcon(slot, icon);
         view.SetArtifactCooldown(slot, cooldown);
+        
+        Debug.Log(
+            $"[PlayerHUDController] Slot={slot}, " +
+            $"InstanceId={instanceId ?? "null"}, " +
+            $"Cooldown={cooldown:F2}");
     }
 
     private void OnArtifactUsed(int slot, ArtifactData data)
