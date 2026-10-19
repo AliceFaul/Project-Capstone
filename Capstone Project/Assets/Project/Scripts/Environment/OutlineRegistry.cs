@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using Object = System.Object;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// List of the OutlineTargets that currently have an outline (hovered, locked or still fading out).
@@ -43,7 +42,7 @@ public static class OutlineRegistry
         for (int i = targets.Count - 1; i >= 0; i--)
         {
             OutlineTarget target = targets[i];
-            
+            if(target == null || !target.Tick(dt)) targets.RemoveAt(i);
         }
     }
 
@@ -52,7 +51,7 @@ public static class OutlineRegistry
         if(runner != null) return;
 
         var obj = new GameObject("[OutlineRunner]") { hideFlags = HideFlags.HideAndDontSave };
-        UnityEngine.Object.DontDestroyOnLoad(obj);
+        Object.DontDestroyOnLoad(obj);
         runner = obj.AddComponent<OutlineRunner>();
     }
 }
@@ -61,6 +60,6 @@ internal sealed class OutlineRunner : MonoBehaviour
 {
     private void Update()
     {
-        
+        OutlineRegistry.Tick(Time.unscaledDeltaTime);
     }
 }
