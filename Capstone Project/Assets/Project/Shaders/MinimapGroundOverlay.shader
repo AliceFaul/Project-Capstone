@@ -1,43 +1,49 @@
 Shader "Mhieu/Minimap/GroundOverlay"
 {
-    // Occlusion: the pass has no depth test. Instead the scene depth is compared with the depth of the
-    // map fragment. When something is clearly in front of the map (a tent, a tree...), the map is still
-    // drawn there, but brighter / more opaque ("x-ray"). Small things (grass) are ignored by
-    // _OcclusionMinGap. Needs "Depth Texture" enabled in the URP Asset.
+    // Every pixel of the quad has a world position wp. Its offset from the player, d = wp.xz - playerXZ,
+    // is measured in "screen meters". The REAL world point that pixel represents is
+    //     p = playerXZ + d / mapScale
+    // so the miniature slides under the player and the icon (drawn at d = 0) always stays at the feet.
+    //
+    // Occlusion: no depth test. The scene depth is compared with the quad depth; when something is clearly
+    // in front of the quad (a tent, a tree...) the map is still drawn but brighter / more opaque.
+    // Needs "Depth Texture" enabled in the URP Asset.
     //
     // Global inputs:
     //   _MinimapVisibleMask : R8, 255 = visible map cell (MinimapExploredMask)
     //   _MinimapVisibleInfo : (cellSizeMeters, width, height, 0)
     //   _MinimapWorldRect   : (originX, originZ, sizeX, sizeZ) (MinimapMaskBaker) - only the origin is used
     //   _MinimapPlayerPos   : x,y = player world X,Z; z,w = facing X,Z (MinimapOverlayRenderer)
+    //   _MinimapMiniParams  : x = mapScale, y = visibleRadius (MinimapOverlayRenderer)
+    //
+    // Width/size properties below are in SCREEN meters (quad meters), not real meters.
     Properties
     {
-        _FillColor ("Fill Color", Color) = (0.9, 0.95, 0.8, 0.28)
+        _FillColor ("Fill Color", Color) = (0.85, 0.92, 0.8, 0.4)
         [HDR] _OutlineColor ("Outline Color", Color) = (1, 1, 1, 1)
-        _OutlineWidth ("Outline Width (m)", Range(0.01, 0.5)) = 0.04
+        _OutlineWidth ("Outline Width (screen m)", Range(0.005, 0.2)) = 0.03
         _OutlineStrength ("Outline Strength", Range(0, 5)) = 1
 
         _Pattern ("Pattern", 2D) = "white" {}
         _PatternScale ("Pattern Scale", Float) = 5.6
         _PatternSpeed ("Pattern Speed (XY)", Vector) = (-0.07, -0.33, 0, 0)
 
-        [Header(Range)]
-        _FadeStart ("Fade Start Distance From Player (m)", Float) = 20
-        _FadeEnd ("Fade End Distance From Player (m)", Float) = 32
+        [Header(Shape)]
+        _EdgeFade ("Edge Fade (fraction of radius)", Range(0.01, 1)) = 0.35
 
         [Header(Occlusion)]
-        _OccludedBrightness ("Occluded Brightness x", Range(1, 4)) = 1.6
-        _OccludedAlphaMul ("Occluded Opacity x", Range(1, 6)) = 2.5
+        _OccludedBrightness ("Occluded Brightness x", Range(1, 4)) = 1.5
+        _OccludedAlphaMul ("Occluded Opacity x", Range(1, 6)) = 2
         _OcclusionMinGap ("Occlusion Min Gap (m)", Range(0, 5)) = 1.25
         _OcclusionSoftness ("Occlusion Softness (m)", Range(0.05, 3)) = 0.75
 
         [Header(Debug)]
-        [Enum(Off,0,Mesh Coverage,1,Visible Cells,2,Occlusion,3)] _DebugView ("Debug View", Float) = 0
+        [Enum(Off,0,Quad Circle,1,Visible Cells,2,Occlusion,3)] _DebugView ("Debug View", Float) = 0
 
         [Header(Player Icon)]
         [HDR] _IconColor ("Icon Color", Color) = (1, 0.85, 0.25, 1)
-        _IconRadius ("Icon Ring Radius (m)", Range(0.1, 2)) = 0.45
-        _IconThickness ("Icon Ring Thickness (m)", Range(0.02, 0.5)) = 0.1
+        _IconRadius ("Icon Ring Radius (screen m)", Range(0.1, 2)) = 0.4
+        _IconThickness ("Icon Ring Thickness (screen m)", Range(0.02, 0.5)) = 0.1
 
         [Header(Stencil optional)]
         [Enum(UnityEngine.Rendering.CompareFunction)] _StencilComp ("Stencil Comp", Float) = 8
@@ -77,6 +83,7 @@ Shader "Mhieu/Minimap/GroundOverlay"
             float4 _MinimapVisibleInfo;  // cellSize, width, height, 0
             float4 _MinimapWorldRect;    // originX, originZ, sizeX, sizeZ
             float4 _MinimapPlayerPos;    // posX, posZ, dirX, dirZ
+            float4 _MinimapMiniParams;   // mapScale, visibleRadius, 0, 0
 
             // ----- material -----
             TEXTURE2D(_Pattern); SAMPLER(sampler_Pattern);
@@ -89,8 +96,7 @@ Shader "Mhieu/Minimap/GroundOverlay"
                 float4 _Pattern_ST;
                 float _PatternScale;
                 float4 _PatternSpeed;
-                float _FadeStart;
-                float _FadeEnd;
+                float _EdgeFade;
                 float _OccludedBrightness;
                 float _OccludedAlphaMul;
                 float _OcclusionMinGap;
@@ -154,7 +160,7 @@ Shader "Mhieu/Minimap/GroundOverlay"
                 return LinearEyeDepth(raw, _ZBufferParams);
             }
 
-            // 0 = the map point is visible, 1 = something clearly in front of it hides it
+            // 0 = the quad point is visible, 1 = something clearly in front of it hides it
             float Occlusion(float4 positionCS, float3 positionWS)
             {
                 float2 screenUV = positionCS.xy / _ScaledScreenParams.xy;
@@ -166,33 +172,40 @@ Shader "Mhieu/Minimap/GroundOverlay"
             half4 Frag(Varyings IN) : SV_Target
             {
                 float3 wp = IN.positionWS;
-                float2 p = wp.xz;
+
+                // ---- miniature space ----
+                float2 playerXZ = _MinimapPlayerPos.xy;
+                float2 d = wp.xz - playerXZ;                       // offset from the player, screen meters
+                float scale = max(_MinimapMiniParams.x, 1e-4);
+                float radius = max(_MinimapMiniParams.y, 0.1);
+                float2 p = playerXZ + d / scale;                   // the REAL world point this pixel shows
 
                 // ---- anything needing derivatives is computed BEFORE any clip/discard ----
-                float fw = max(length(fwidth(p)), 1e-4);
-                float2 patUV = p * (_PatternScale * 0.1) + _PatternSpeed.xy * _Time.y;
+                float fwQ = max(length(fwidth(d)), 1e-5);          // screen meters per pixel
+                float2 patUV = d * (_PatternScale * 0.1) + _PatternSpeed.xy * _Time.y;
                 float2 patDx = ddx(patUV);
                 float2 patDy = ddy(patUV);
 
-                // debug 1: everything the surface mesh covers (magenta)
-                if (_DebugView > 0.5 && _DebugView < 1.5) return half4(1, 0, 1, 0.35);
+                // ---- circular edge fade ----
+                float distQ = length(d);
+                float rangeFade = 1.0 - smoothstep(radius * (1.0 - _EdgeFade), radius, distQ);
+                float inCircle = step(distQ, radius);
 
-                // debug 3: occlusion over the whole mesh, green = visible, red = hidden
+                // debug 1: the circle the quad draws in
+                if (_DebugView > 0.5 && _DebugView < 1.5) return half4(1, 0, 1, 0.4 * inCircle);
+
+                // debug 3: occlusion, green = visible, red = hidden
                 if (_DebugView > 2.5)
                 {
                     float o = Occlusion(IN.positionCS, wp);
-                    return half4(o, 1.0 - o, 0.0, 0.5);
+                    return half4(o, 1.0 - o, 0.0, 0.5 * inCircle);
                 }
 
-                // ---- distance fade around the player ----
-                float2 d = p - _MinimapPlayerPos.xy;
-                float rangeFade = 1.0 - smoothstep(_FadeStart, max(_FadeEnd, _FadeStart + 0.01), length(d));
-
-                // ---- player icon: ring + arrow pointing to the facing direction ----
+                // ---- player icon at d = 0: ring + arrow pointing to the facing direction ----
                 float2 dir = _MinimapPlayerPos.zw;
                 dir = (dot(dir, dir) > 1e-4) ? normalize(dir) : float2(0.0, 1.0);
                 float2 right = float2(dir.y, -dir.x);
-                float2 q = float2(dot(d, right), dot(d, dir));   // local space, +y = forward
+                float2 q = float2(dot(d, right), dot(d, dir));     // local space, +y = forward
 
                 float R = _IconRadius;
                 float ringSd = abs(length(q) - R) - _IconThickness * 0.5;
@@ -200,24 +213,25 @@ Shader "Mhieu/Minimap/GroundOverlay"
                                            float2(0.0, R * 2.3),
                                            float2(-R * 0.7, R * 1.45),
                                            float2( R * 0.7, R * 1.45));
-                float iconMask = saturate(0.5 - min(ringSd, arrowSd) / fw);
+                float iconMask = saturate(0.5 - min(ringSd, arrowSd) / fwQ);
 
-                // ---- map cell ----
-                float cell = max(_MinimapVisibleInfo.x, 1e-3);
+                // ---- map cell (real world) ----
+                float cell = max(_MinimapVisibleInfo.x, 1e-3);     // real meters
+                float cellQ = cell * scale;                        // the same cell, in screen meters
                 float2 g = (p - _MinimapWorldRect.xy) / cell;
                 float2 gf = floor(g);
                 int2 c = (int2)gf;
-                float2 local = g - gf;                       // 0..1 inside the cell
+                float2 local = g - gf;                             // 0..1 inside the cell
 
                 float visHere = Visible(c);
 
                 // debug 2: raw mask data, red = visible map cell, blue = not visible
-                if (_DebugView > 1.5) return half4(visHere, 0, 1.0 - visHere, 0.45);
+                if (_DebugView > 1.5) return half4(visHere, 0, 1.0 - visHere, 0.45 * inCircle);
 
                 // nothing to draw here (neither map nor icon)
                 clip(max(visHere * rangeFade, iconMask) - 0.01);
 
-                // ---- distance to the nearest NOT-visible neighbour cell (inner outline) ----
+                // ---- distance (screen meters) to the nearest NOT-visible neighbour cell: inner outline ----
                 float l  = Visible(c + int2(-1,  0));
                 float r  = Visible(c + int2( 1,  0));
                 float dn = Visible(c + int2( 0, -1));
@@ -228,18 +242,18 @@ Shader "Mhieu/Minimap/GroundOverlay"
                 float ru = Visible(c + int2( 1,  1));
 
                 float edgeDist = 1e5;
-                if (l  < 0.5) edgeDist = min(edgeDist, local.x * cell);
-                if (r  < 0.5) edgeDist = min(edgeDist, (1.0 - local.x) * cell);
-                if (dn < 0.5) edgeDist = min(edgeDist, local.y * cell);
-                if (u  < 0.5) edgeDist = min(edgeDist, (1.0 - local.y) * cell);
+                if (l  < 0.5) edgeDist = min(edgeDist, local.x * cellQ);
+                if (r  < 0.5) edgeDist = min(edgeDist, (1.0 - local.x) * cellQ);
+                if (dn < 0.5) edgeDist = min(edgeDist, local.y * cellQ);
+                if (u  < 0.5) edgeDist = min(edgeDist, (1.0 - local.y) * cellQ);
 
                 // concave corners (both neighbours visible, diagonal not)
-                if (ld < 0.5 && l > 0.5 && dn > 0.5) edgeDist = min(edgeDist, length(float2(local.x, local.y) * cell));
-                if (rd < 0.5 && r > 0.5 && dn > 0.5) edgeDist = min(edgeDist, length(float2(1.0 - local.x, local.y) * cell));
-                if (lu < 0.5 && l > 0.5 && u  > 0.5) edgeDist = min(edgeDist, length(float2(local.x, 1.0 - local.y) * cell));
-                if (ru < 0.5 && r > 0.5 && u  > 0.5) edgeDist = min(edgeDist, length(float2(1.0 - local.x, 1.0 - local.y) * cell));
+                if (ld < 0.5 && l > 0.5 && dn > 0.5) edgeDist = min(edgeDist, length(float2(local.x, local.y) * cellQ));
+                if (rd < 0.5 && r > 0.5 && dn > 0.5) edgeDist = min(edgeDist, length(float2(1.0 - local.x, local.y) * cellQ));
+                if (lu < 0.5 && l > 0.5 && u  > 0.5) edgeDist = min(edgeDist, length(float2(local.x, 1.0 - local.y) * cellQ));
+                if (ru < 0.5 && r > 0.5 && u  > 0.5) edgeDist = min(edgeDist, length(float2(1.0 - local.x, 1.0 - local.y) * cellQ));
 
-                float outlineMask = saturate((_OutlineWidth - edgeDist) / fw + 0.5);
+                float outlineMask = saturate((_OutlineWidth - edgeDist) / fwQ + 0.5);
 
                 // ---- map layer ----
                 half3 pattern = SAMPLE_TEXTURE2D_GRAD(_Pattern, sampler_Pattern, patUV, patDx, patDy).rgb;
@@ -252,7 +266,7 @@ Shader "Mhieu/Minimap/GroundOverlay"
                 mapRgb *= lerp(1.0, _OccludedBrightness, occ);
                 mapA = saturate(mapA * lerp(1.0, _OccludedAlphaMul, occ));
 
-                // ---- icon layer on top (never affected by occlusion or range fade) ----
+                // ---- icon layer on top (never affected by occlusion or edge fade) ----
                 half3 baseRgb = (visHere > 0.5) ? mapRgb : _IconColor.rgb;
                 half3 rgb = lerp(baseRgb, _IconColor.rgb, iconMask);
                 half a = lerp(mapA, _IconColor.a, iconMask);
