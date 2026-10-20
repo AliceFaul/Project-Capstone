@@ -2,13 +2,14 @@
 using UnityEngine.UI;
 
 /// <summary>
-///   Keeps the "visible map" the overlay shader draws.
+/// Fog of war for the minimap. Keeps the "visible map" the overlay shader draws.
 ///
-/// - Reveal = flood fill over the walkable mask (4-neighbor, limited by revealRadius), starting at the
-///   player. The revealed shape therefore follows corridors / rooms / holes and never leaks through
-///   non-walkable areas (no more disc that sees through walls).
-/// - The result is stored in a COARSE R8 texture (one texel = one map cell = cellFactor fine texels),
-///   so the shader needs only a few point loads and gets the stepped Minecraft-Dungeons look for free.
+/// Everything lives on ONE coarse grid (1 cell = cellFactor texels of the baker mask, e.g. 3 x 0.1 = 0.3 m):
+///   - walkCells : which cells are walkable (built once from the baker's walkable mask)
+///   - visible   : which cells the player already revealed (this is also the texture the shader reads)
+///
+/// Reveal = flood fill (4-neighbor) over walkable cells, starting at the player and limited by
+/// revealRadius, so the revealed shape follows corridors / rooms and never leaks through non-walkable areas.
 ///
 /// Shader globals:
 ///   _MinimapVisibleMask : Texture2D R8, 255 = visible map cell
@@ -30,28 +31,29 @@ public class MinimapExploredMask : MonoBehaviour
  
     [Header("Reveal Settings")]
     [Tooltip("Max distance (meters) revealed around the target, following walkable space.")]
-    [SerializeField, Min(0.5f)] private float revealRadius = 5f;
+    [SerializeField, Min(0.5f)] private float revealRadius = 14f;
  
     [Tooltip("Target must move at least this far (meters) before revealing again.")]
     [SerializeField, Min(0.1f)] private float updateDistance = 0.5f;
+ 
+    [Tooltip("The target may stand up to this far (meters) outside the walkable area and still reveal.")]
+    [SerializeField, Min(0.1f)] private float snapDistance = 1.5f;
  
     [Header("Map Look")]
     [Tooltip("Map cell size = this x metersPerTexel of the baker (3 x 0.1 = 0.3 m). Bigger = chunkier.")]
     [SerializeField, Range(1, 8)] private int cellFactor = 3;
  
+    [Tooltip("Fraction of a cell that must be walkable for the cell to count as map. " +
+             "1 = only cells fully inside the NavMesh (outline never sticks out of the NavMesh).")]
+    [SerializeField, Range(0.5f, 1f)] private float cellCoverage = 1f;
+ 
     [Header("Debug (optional)")]
     [SerializeField] private RawImage debugPreview;
  
-    // fine data (same size as the walkable mask)
-    private byte[] walk;
-    private byte[] explored;
-    private int width;
-    private int height;
- 
-    // coarse data (what the shader reads)
-    private byte[] coarse;
-    private int coarseW;
-    private int coarseH;
+    private byte[] walkCells;   // 1 = walkable cell
+    private byte[] visible;     // 255 = revealed cell (uploaded as is)
+    private int cellsW;
+    private int cellsH;
     private float cellSize;
     private Texture2D visibleMask;
  
@@ -87,28 +89,53 @@ public class MinimapExploredMask : MonoBehaviour
         Texture2D walkable = baker.WalkableMask;
         if (walkable == null) return;
  
-        width = walkable.width;
-        height = walkable.height;
+        int width = walkable.width;
+        int height = walkable.height;
+        var fine = walkable.GetRawTextureData<byte>();
  
-        walk = walkable.GetRawTextureData<byte>().ToArray();
-        explored = new byte[width * height];
- 
-        coarseW = Mathf.CeilToInt(width / (float)cellFactor);
-        coarseH = Mathf.CeilToInt(height / (float)cellFactor);
-        coarse = new byte[coarseW * coarseH];
+        cellsW = Mathf.CeilToInt(width / (float)cellFactor);
+        cellsH = Mathf.CeilToInt(height / (float)cellFactor);
         cellSize = cellFactor * baker.MetersPerTexel;
  
+        walkCells = new byte[cellsW * cellsH];
+        visible = new byte[cellsW * cellsH];
+ 
+        // a cell is walkable when enough of its texels are walkable
+        for (int cy = 0; cy < cellsH; cy++)
+        {
+            for (int cx = 0; cx < cellsW; cx++)
+            {
+                int fx0 = cx * cellFactor;
+                int fy0 = cy * cellFactor;
+                int fx1 = Mathf.Min(fx0 + cellFactor, width);
+                int fy1 = Mathf.Min(fy0 + cellFactor, height);
+ 
+                int total = (fx1 - fx0) * (fy1 - fy0);
+                int count = 0;
+                for (int fy = fy0; fy < fy1; fy++)
+                {
+                    int row = fy * width;
+                    for (int fx = fx0; fx < fx1; fx++)
+                    {
+                        if (fine[row + fx] != 0) count++;
+                    }
+                }
+ 
+                walkCells[cy * cellsW + cx] = count >= Mathf.CeilToInt(total * cellCoverage) ? (byte)1 : (byte)0;
+            }
+        }
+ 
         if (visibleMask != null) Destroy(visibleMask);
-        visibleMask = new Texture2D(coarseW, coarseH, TextureFormat.R8, false, true)
+        visibleMask = new Texture2D(cellsW, cellsH, TextureFormat.R8, false, true)
         {
             name = "MinimapVisibleMask",
             filterMode = FilterMode.Point,
             wrapMode = TextureWrapMode.Clamp
         };
-        UploadCoarse();
+        UploadVisible();
  
         Shader.SetGlobalTexture(VisibleMaskId, visibleMask);
-        Shader.SetGlobalVector(VisibleInfoId, new Vector4(cellSize, coarseW, coarseH, 0f));
+        Shader.SetGlobalVector(VisibleInfoId, new Vector4(cellSize, cellsW, cellsH, 0f));
         if (debugPreview != null) debugPreview.texture = visibleMask;
  
         seen = null;
@@ -140,14 +167,16 @@ public class MinimapExploredMask : MonoBehaviour
     {
         if (!IsReady) return;
  
-        Vector2Int start = baker.WorldToTexel(worldPos);
-        if (!FindWalkableNear(ref start, 6)) return;
- 
+        // remember the attempt even if it fails, so we don't retry every frame while standing off the NavMesh
         lastPos = worldPos;
         hasLast = true;
  
-        int rT = Mathf.Max(1, Mathf.CeilToInt(revealRadius / baker.MetersPerTexel));
-        int win = 2 * rT + 1;
+        Vector2Int start = WorldToCell(worldPos);
+        int snapR = Mathf.Max(1, Mathf.CeilToInt(snapDistance / cellSize));
+        if (!FindWalkableNear(ref start, snapR)) return;
+ 
+        int rC = Mathf.Max(1, Mathf.CeilToInt(revealRadius / cellSize));
+        int win = 2 * rC + 1;
         int winCount = win * win;
  
         if (seen == null || seen.Length != winCount)
@@ -160,30 +189,29 @@ public class MinimapExploredMask : MonoBehaviour
             System.Array.Clear(seen, 0, winCount);
         }
  
-        int wx0 = start.x - rT;
-        int wy0 = start.y - rT;
-        int r2 = rT * rT;
+        int wx0 = start.x - rC;
+        int wy0 = start.y - rC;
+        int r2 = rC * rC;
  
         int head = 0, tail = 0;
-        int startLocal = rT * win + rT;
+        int startLocal = rC * win + rC;
         seen[startLocal] = true;
         queue[tail++] = startLocal;
  
-        int minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
+        bool changed = false;
  
         while (head < tail)
         {
             int li = queue[head++];
             int lx = li % win;
             int ly = li / win;
-            int gx = wx0 + lx;
-            int gy = wy0 + ly;
  
-            explored[gy * width + gx] = 255;
-            if (gx < minX) minX = gx;
-            if (gx > maxX) maxX = gx;
-            if (gy < minY) minY = gy;
-            if (gy > maxY) maxY = gy;
+            int gi = (wy0 + ly) * cellsW + (wx0 + lx);
+            if (visible[gi] == 0)
+            {
+                visible[gi] = 255;
+                changed = true;
+            }
  
             for (int k = 0; k < 4; k++)
             {
@@ -191,98 +219,71 @@ public class MinimapExploredMask : MonoBehaviour
                 int nly = ly + DY[k];
                 if (nlx < 0 || nly < 0 || nlx >= win || nly >= win) continue;
  
-                int ddx = nlx - rT;
-                int ddy = nly - rT;
+                int ddx = nlx - rC;
+                int ddy = nly - rC;
                 if (ddx * ddx + ddy * ddy > r2) continue;
  
                 int ngx = wx0 + nlx;
                 int ngy = wy0 + nly;
-                if (ngx < 0 || ngy < 0 || ngx >= width || ngy >= height) continue;
+                if (ngx < 0 || ngy < 0 || ngx >= cellsW || ngy >= cellsH) continue;
  
                 int ni = nly * win + nlx;
                 if (seen[ni]) continue;
-                if (walk[ngy * width + ngx] == 0) continue;
+                if (walkCells[ngy * cellsW + ngx] == 0) continue;
  
                 seen[ni] = true;
                 queue[tail++] = ni;
             }
         }
  
-        UpdateCoarse(minX, minY, maxX, maxY);
-        UploadCoarse();
+        if (changed) UploadVisible();
     }
  
-    // ---------- Coarse map ----------
+    // ---------- Internals ----------
  
-    private void UpdateCoarse(int fineMinX, int fineMinY, int fineMaxX, int fineMaxY)
+    private Vector2Int WorldToCell(Vector3 worldPos)
     {
-        int cx0 = Mathf.Clamp(fineMinX / cellFactor, 0, coarseW - 1);
-        int cx1 = Mathf.Clamp(fineMaxX / cellFactor, 0, coarseW - 1);
-        int cy0 = Mathf.Clamp(fineMinY / cellFactor, 0, coarseH - 1);
-        int cy1 = Mathf.Clamp(fineMaxY / cellFactor, 0, coarseH - 1);
- 
-        for (int cy = cy0; cy <= cy1; cy++)
-        {
-            for (int cx = cx0; cx <= cx1; cx++)
-            {
-                int fx0 = cx * cellFactor;
-                int fy0 = cy * cellFactor;
-                int fx1 = Mathf.Min(fx0 + cellFactor, width);
-                int fy1 = Mathf.Min(fy0 + cellFactor, height);
- 
-                int total = (fx1 - fx0) * (fy1 - fy0);
-                int count = 0;
-                for (int fy = fy0; fy < fy1; fy++)
-                {
-                    int row = fy * width;
-                    for (int fx = fx0; fx < fx1; fx++)
-                    {
-                        if (explored[row + fx] != 0) count++;
-                    }
-                }
- 
-                // a cell is part of the map when at least half of it is explored walkable space
-                coarse[cy * coarseW + cx] = (count * 2 >= total) ? (byte)255 : (byte)0;
-            }
-        }
+        return new Vector2Int(
+            Mathf.FloorToInt((worldPos.x - baker.WorldOrigin.x) / cellSize),
+            Mathf.FloorToInt((worldPos.z - baker.WorldOrigin.y) / cellSize));
     }
  
-    private void UploadCoarse()
+    private bool FindWalkableNear(ref Vector2Int cell, int maxR)
     {
-        visibleMask.SetPixelData(coarse, 0);
-        visibleMask.Apply(false, false);
-    }
- 
-    private bool FindWalkableNear(ref Vector2Int texel, int maxR)
-    {
-        if (texel.x >= 0 && texel.y >= 0 && texel.x < width && texel.y < height &&
-            walk[texel.y * width + texel.x] != 0)
+        if (cell is { x: >= 0, y: >= 0 } && cell.x < cellsW && cell.y < cellsH &&
+            walkCells[cell.y * cellsW + cell.x] != 0)
             return true;
  
         int best = int.MaxValue;
-        Vector2Int bestTexel = texel;
+        Vector2Int bestCell = cell;
  
         for (int dy = -maxR; dy <= maxR; dy++)
         {
             for (int dx = -maxR; dx <= maxR; dx++)
             {
-                int x = texel.x + dx;
-                int y = texel.y + dy;
-                if (x < 0 || y < 0 || x >= width || y >= height) continue;
-                if (walk[y * width + x] == 0) continue;
+                int x = cell.x + dx;
+                int y = cell.y + dy;
+                if (x < 0 || y < 0 || x >= cellsW || y >= cellsH) continue;
+                if (walkCells[y * cellsW + x] == 0) continue;
  
                 int d2 = dx * dx + dy * dy;
                 if (d2 < best)
                 {
                     best = d2;
-                    bestTexel = new Vector2Int(x, y);
+                    bestCell = new Vector2Int(x, y);
                 }
             }
         }
  
         if (best == int.MaxValue) return false;
-        texel = bestTexel;
+        cell = bestCell;
         return true;
+    }
+ 
+    private void UploadVisible()
+    {
+        visibleMask.SetPixelData(visible, 0);
+        visibleMask.Apply(false, false);
     }
  
     // ---------- Utilities ----------
@@ -291,9 +292,8 @@ public class MinimapExploredMask : MonoBehaviour
     public void ClearAll()
     {
         if (!IsReady) return;
-        System.Array.Clear(explored, 0, explored.Length);
-        System.Array.Clear(coarse, 0, coarse.Length);
-        UploadCoarse();
+        System.Array.Clear(visible, 0, visible.Length);
+        UploadVisible();
         hasLast = false;
     }
  
@@ -301,32 +301,28 @@ public class MinimapExploredMask : MonoBehaviour
     public void RevealAll()
     {
         if (!IsReady) return;
-        System.Buffer.BlockCopy(walk, 0, explored, 0, walk.Length);
-        RebuildCoarse();
+        for (int i = 0; i < visible.Length; i++)
+            visible[i] = walkCells[i] != 0 ? (byte)255 : (byte)0;
+        UploadVisible();
     }
  
     /// <summary>
-    /// Copy of the explored data (fine resolution), for the save system.
+    /// Copy of the revealed cells, for the save system (coarse grid, ~9x smaller than before).
     /// </summary>
     public byte[] GetSaveData()
     {
-        return IsReady ? (byte[])explored.Clone() : null;
+        return IsReady ? (byte[])visible.Clone() : null;
     }
  
     /// <summary>
-    /// Restore explored data. Must have the same size as the current walkable mask.
+    /// Restore revealed cells. Must have the same size as the current cell grid
+    /// (same NavMesh, same baker settings, same cellFactor).
     /// </summary>
     public bool LoadSaveData(byte[] saved)
     {
-        if (!IsReady || saved == null || saved.Length != explored.Length) return false;
-        System.Buffer.BlockCopy(saved, 0, explored, 0, saved.Length);
-        RebuildCoarse();
+        if (!IsReady || saved == null || saved.Length != visible.Length) return false;
+        System.Buffer.BlockCopy(saved, 0, visible, 0, saved.Length);
+        UploadVisible();
         return true;
-    }
- 
-    private void RebuildCoarse()
-    {
-        UpdateCoarse(0, 0, width - 1, height - 1);
-        UploadCoarse();
     }
 }

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3287335792122785499}
   - component: {fileID: 7710343862213525257}
   - component: {fileID: 7038707341170194640}
-  - component: {fileID: 5531561471225813406}
   m_Layer: 0
   m_Name: Minimap Baker
   m_TagString: Untagged
@@ -46,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41befa788ac04dbbb4fc0b3870077d0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapMaskBaker
+  includedAreas: []
   metersPerTexel: 0.5
   padding: 2
   maxResolution: 2048
@@ -65,26 +65,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MinimapExploredMask
   baker: {fileID: 7710343862213525257}
   target: {fileID: 0}
-  revealRadius: 5
+  revealRadius: 12
   updateDistance: 1
-  cellFactor: 3
+  snapDistance: 1.5
+  cellFactor: 5
+  cellCoverage: 1
   debugPreview: {fileID: 0}
---- !u!114 &5531561471225813406
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5650030491440877458}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e3254971e6b45a197071614dff3bfee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MinimapOverlayToggle
-  controller: {fileID: 0}
-  overlayRenderer: {fileID: 0}
-  startVisible: 0
-  rememberChoice: 0
-  onVisibilityChanged:
-    m_PersistentCalls:
-      m_Calls: []
