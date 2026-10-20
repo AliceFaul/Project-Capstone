@@ -20,7 +20,7 @@ public enum OutlineOcclusion
 public class OutlineStyle : ScriptableObject
 {
     [Header("Look")]
-    [ColorUsage(false, true)] public Color color = Color.white;
+    [ColorUsage(false)] public Color color = Color.white; // LDR: the mask texture is 8 bit.
     
     [Header("Occlusion")]
     [Tooltip("What happens when the object is partly or fully hidden behind something.")]
