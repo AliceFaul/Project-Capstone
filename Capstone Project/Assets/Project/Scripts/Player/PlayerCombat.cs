@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Project.Capstone.Inventory;
 using TMPro;
 using UnityEngine;
@@ -151,6 +152,8 @@ public class PlayerCombat : MonoBehaviour {
         
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         bool didHitAnything = false;
+
+        HashSet<IAttackable> damagedEnemies = new();
         
         foreach(Collider enemy in hitEnemies) 
         {
@@ -159,10 +162,15 @@ public class PlayerCombat : MonoBehaviour {
             
             if(attackable != null)
             {
+                if(damagedEnemies.Contains(attackable)) continue;
+                
                 var definition = _equipmentManager.GetDefinition(_currentMeleeWeapon);
                 var result = DamageCalculator.Calculate(_controller.PlayerRuntime, _currentMeleeWeapon, definition, _equipmentManager.ProgressConfig);
+                
                 attackable.TakeDamage(result.Damage, _controller.PlayerRuntime);
                 ApplyRuneEffects(EquipSlot.Melee, attackable);
+                
+                damagedEnemies.Add(attackable);
                 didHitAnything = true;
                 Debug.Log($"[PlayerCombat] Attacked {enemy.name} for {result.Damage} damage.");
             } 

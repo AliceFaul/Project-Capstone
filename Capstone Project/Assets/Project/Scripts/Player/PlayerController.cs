@@ -192,7 +192,7 @@ public class PlayerController : MonoBehaviour {
         
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 
-        if(!Physics.Raycast(ray, out RaycastHit hit)) return;
+        if(!Physics.Raycast(ray, out RaycastHit hit, 200f, ~0, QueryTriggerInteraction.Ignore)) return;
         int hitLayer = hit.collider.gameObject.layer;
 
         if(((1 << hitLayer) & groundLayer) != 0) {
@@ -227,7 +227,7 @@ public class PlayerController : MonoBehaviour {
         if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
         
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer)) return;
+        if(!Physics.Raycast(ray, out RaycastHit hit, 100f, ~0, QueryTriggerInteraction.Ignore)) return;
 
         _isHoldingMove = false;
         Movement.Stop();
