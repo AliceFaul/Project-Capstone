@@ -114,7 +114,7 @@ Material:
     - _Metallic: 0
     - _MinUpDot: 0
     - _OccludedAlphaMul: 2
-    - _OccludedBrightness: 1.5
+    - _OccludedBrightness: 1.2
     - _OcclusionMinGap: 1.25
     - _OcclusionSoftness: 0.75
     - _OcclusionStrength: 1

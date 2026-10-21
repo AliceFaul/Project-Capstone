@@ -46,7 +46,7 @@ Shader "Mhieu/Characters/OccludedSilhouette"
             {
                 Ref [_SelfStencilRef]
                 Comp NotEqual
-                Pass Keep
+                Pass Replace
             }
 
             HLSLPROGRAM
