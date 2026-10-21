@@ -256,6 +256,7 @@ GameObject:
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 6983588896542028798}
   - component: {fileID: 4069758127545282674}
+  - component: {fileID: 1251153609131692245}
   - component: {fileID: 2410836123975081364}
   - component: {fileID: -7749587430658494063}
   - component: {fileID: 1396825416686326437}
@@ -482,6 +483,25 @@ MonoBehaviour:
   enemyDefeated: 0
   totalDamageDealt: 0
   totalDamageReceived: 0
+--- !u!114 &1251153609131692245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a0a96d1b686405eb3579c72d3764c00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HoverSelector
+  mainCamera: {fileID: 0}
+  controller: {fileID: 2854524255848535839}
+  hoverLayers:
+    serializedVersion: 2
+    m_Bits: 384
+  maxDistance: 200
+  logChanges: 1
 --- !u!114 &2410836123975081364
 MonoBehaviour:
   m_ObjectHideFlags: 0
