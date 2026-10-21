@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
@@ -23,14 +22,11 @@ public class MinimapOverlayRenderer : MonoBehaviour
     [Header("References")]
     [SerializeField] private MinimapMaskBaker baker;
     [SerializeField] private Transform target;
-    [SerializeField] private PlayerController controller;
-    
     [Tooltip("Optional. Transform whose forward is used for the icon arrow (e.g. the model child that rotates). " +
              "Falls back to the target.")]
     [SerializeField] private Transform facing;
-    
-    [Header("Settings")]
-    [SerializeField] private bool startVisible = true;
+    [Tooltip("Optional. Draws enemy / NPC / objective icons on the miniature.")]
+    [SerializeField] private MinimapIconLayer iconLayer;
 
     [Header("Miniature")]
     [Tooltip("Radius (meters, on the ground) of the circle the miniature occupies around the target.")]
@@ -46,14 +42,10 @@ public class MinimapOverlayRenderer : MonoBehaviour
     [Tooltip("Lift (meters) above the target's feet.")]
     [SerializeField, Min(0f)] private float heightOffset = 0.05f;
 
-    private InputHandler _inputHandler;
-    
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh quad;
     private Vector3 lastDir = Vector3.forward;
-
-    private bool _subscribed;
 
     public float CurrentScale { get; private set; }
     public bool IsVisible => meshRenderer != null && meshRenderer.enabled;
@@ -61,15 +53,13 @@ public class MinimapOverlayRenderer : MonoBehaviour
     public void SetVisible(bool visible)
     {
         if (meshRenderer != null) meshRenderer.enabled = visible;
+        if (iconLayer != null) iconLayer.SetVisible(visible);
     }
 
     public void Toggle() => SetVisible(!IsVisible);
 
     private void Awake()
     {
-        if(controller == null) controller = FindFirstObjectByType<PlayerController>();
-        if(_inputHandler == null) _inputHandler = controller != null ? controller.InputHandler : FindFirstObjectByType<InputHandler>();
-        
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
 
@@ -89,48 +79,24 @@ public class MinimapOverlayRenderer : MonoBehaviour
         meshFilter.sharedMesh = quad;
     }
 
-    private void Start()
-    {
-        if (!_subscribed)
-        {
-            if(_inputHandler == null) _inputHandler = FindFirstObjectByType<InputHandler>();
-            Subscribe();
-            if(!_subscribed) Debug.LogWarning("[MinimapOverlayRenderer] No InputHandler found, toggle key will not work.");
-        }
-        
-        SetVisible(startVisible);
-    }
-
-    private void OnEnable()
-    {
-        Subscribe();
-    }
-
     private void OnDestroy()
     {
-        if(!_subscribed || _inputHandler == null || quad == null) return;
-        _inputHandler.OnToggleMinimap -= Toggle;
-        Destroy(quad);
-        
-        _subscribed = false;
+        if (quad != null) Destroy(quad);
     }
 
     private static Mesh BuildQuad()
     {
         // 1 x 1 flat quad on the XZ plane, centered on the origin
-        var m = new Mesh
+        var m = new Mesh { name = "MinimapMiniQuad" };
+        m.vertices = new[]
         {
-            name = "MinimapMiniQuad",
-            vertices = new[]
-            {
-                new Vector3(-0.5f, 0f, -0.5f),
-                new Vector3(-0.5f, 0f,  0.5f),
-                new Vector3( 0.5f, 0f,  0.5f),
-                new Vector3( 0.5f, 0f, -0.5f)
-            },
-            triangles = new[] { 0, 1, 2, 0, 2, 3 },
-            bounds = new Bounds(Vector3.zero, new Vector3(1f, 0.1f, 1f))
+            new Vector3(-0.5f, 0f, -0.5f),
+            new Vector3(-0.5f, 0f,  0.5f),
+            new Vector3( 0.5f, 0f,  0.5f),
+            new Vector3( 0.5f, 0f, -0.5f)
         };
+        m.triangles = new[] { 0, 1, 2, 0, 2, 3 };
+        m.bounds = new Bounds(Vector3.zero, new Vector3(1f, 0.1f, 1f));
         return m;
     }
 
@@ -142,13 +108,6 @@ public class MinimapOverlayRenderer : MonoBehaviour
             if (diagonal > 0.01f) return visibleRadius / diagonal;
         }
         return mapScale;
-    }
-
-    private void Subscribe()
-    {
-        if(_subscribed || _inputHandler == null) return;
-        _inputHandler.OnToggleMinimap += Toggle;
-        _subscribed = true;
     }
 
     private void LateUpdate()
@@ -167,5 +126,8 @@ public class MinimapOverlayRenderer : MonoBehaviour
 
         Shader.SetGlobalVector(PlayerPosId, new Vector4(p.x, p.z, lastDir.x, lastDir.z));
         Shader.SetGlobalVector(MiniParamsId, new Vector4(CurrentScale, visibleRadius, 0f, 0f));
+
+        // after the quad moved, so icons and map never lag one frame behind each other
+        if (iconLayer != null) iconLayer.Refresh(transform.position, CurrentScale, visibleRadius);
     }
 }

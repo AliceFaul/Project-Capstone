@@ -8,7 +8,7 @@ using UnityEngine.UI;
 ///   - walkCells : which cells are walkable (built once from the baker's walkable mask)
 ///   - visible   : which cells the player already revealed (this is also the texture the shader reads)
 ///
-/// Reveal = flood fill (4-neighbour) over walkable cells, starting at the player and limited by
+/// Reveal = flood fill (4-neighbor) over walkable cells, starting at the player and limited by
 /// revealRadius, so the revealed shape follows corridors / rooms and never leaks through non-walkable areas.
 ///
 /// Shader globals:
@@ -239,6 +239,18 @@ public class MinimapExploredMask : MonoBehaviour
         }
 
         if (changed) UploadVisible();
+    }
+
+    /// <summary>
+    /// True when the map cell under a world position has been revealed (used by minimap icons).
+    /// </summary>
+    public bool IsRevealed(Vector3 worldPos)
+    {
+        if (!IsReady) return false;
+
+        Vector2Int c = WorldToCell(worldPos);
+        if (c.x < 0 || c.y < 0 || c.x >= cellsW || c.y >= cellsH) return false;
+        return visible[c.y * cellsW + c.x] != 0;
     }
 
     // ---------- Internals ----------
