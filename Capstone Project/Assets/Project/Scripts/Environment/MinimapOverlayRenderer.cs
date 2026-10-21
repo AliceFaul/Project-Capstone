@@ -2,12 +2,15 @@
 using UnityEngine.Rendering;
 
 /// <summary>
-/// Miniature minimap lying flat at the target's feet (no more ground-hugging).
+/// Miniature minimap lying flat at the target's feet.
 ///
 /// The whole map (MinimapExploredMask) is shrunk by "mapScale" and drawn on a flat quad that follows the
 /// target and is centered on it. The shader maps every point of the quad back to the real world position
 /// it represents, so the miniature "slides" under the target as it moves and the player icon always sits
 /// at the target's feet, on top of the spot of the map where the player really is.
+///
+/// Lives on the "Overlay" child of the MinimapSystem prefab. Baker, target and icon layer are found through
+/// MinimapSystem, so there is nothing to assign here.
 ///
 /// Publishes two shader globals:
 ///   _MinimapPlayerPos  : (x, y = world X, Z of the target; z, w = facing X, Z)
@@ -18,15 +21,6 @@ public class MinimapOverlayRenderer : MonoBehaviour
 {
     private static readonly int PlayerPosId = Shader.PropertyToID("_MinimapPlayerPos");
     private static readonly int MiniParamsId = Shader.PropertyToID("_MinimapMiniParams");
-
-    [Header("References")]
-    [SerializeField] private MinimapMaskBaker baker;
-    [SerializeField] private Transform target;
-    [Tooltip("Optional. Transform whose forward is used for the icon arrow (e.g. the model child that rotates). " +
-             "Falls back to the target.")]
-    [SerializeField] private Transform facing;
-    [Tooltip("Optional. Draws enemy / NPC / objective icons on the miniature.")]
-    [SerializeField] private MinimapIconLayer iconLayer;
 
     [Header("Miniature")]
     [Tooltip("Radius (meters, on the ground) of the circle the miniature occupies around the target.")]
@@ -42,38 +36,38 @@ public class MinimapOverlayRenderer : MonoBehaviour
     [Tooltip("Lift (meters) above the target's feet.")]
     [SerializeField, Min(0f)] private float heightOffset = 0.05f;
 
+    private MinimapController _controller;
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh quad;
     private Vector3 lastDir = Vector3.forward;
+    private bool userVisible = true;
 
     public float CurrentScale { get; private set; }
-    public bool IsVisible => meshRenderer != null && meshRenderer.enabled;
+    public bool IsVisible => userVisible;
 
     public void SetVisible(bool visible)
     {
-        if (meshRenderer != null) meshRenderer.enabled = visible;
-        if (iconLayer != null) iconLayer.SetVisible(visible);
+        userVisible = visible;
     }
 
-    public void Toggle() => SetVisible(!IsVisible);
+    public void Toggle() => SetVisible(!userVisible);
 
     private void Awake()
     {
+        _controller = GetComponentInParent<MinimapController>(true);
+        if(_controller == null) Debug.LogError("[MinimapOverlayRenderer] Needs a MinimapSystem on a parent object.", this);
+
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
 
         // a collider on the overlay would break click-to-move / raycasts
-        if (TryGetComponent(out Collider col)) Destroy(col);
+        if(TryGetComponent(out Collider col)) Destroy(col);
 
         meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
         meshRenderer.receiveShadows = false;
         meshRenderer.lightProbeUsage = LightProbeUsage.Off;
         meshRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
-
-        // position / scale are driven in world space every frame
-        if (transform.parent != null) transform.SetParent(null);
-        transform.rotation = Quaternion.identity;
 
         quad = BuildQuad();
         meshFilter.sharedMesh = quad;
@@ -81,7 +75,7 @@ public class MinimapOverlayRenderer : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (quad != null) Destroy(quad);
+        if(quad != null) Destroy(quad);
     }
 
     private static Mesh BuildQuad()
@@ -102,6 +96,7 @@ public class MinimapOverlayRenderer : MonoBehaviour
 
     private float ComputeScale()
     {
+        MinimapMaskBaker baker = _controller.Baker;
         if (fitWholeLevel && baker != null && baker.IsBaked)
         {
             float diagonal = baker.WorldSize.magnitude;
@@ -110,17 +105,39 @@ public class MinimapOverlayRenderer : MonoBehaviour
         return mapScale;
     }
 
+    // the quad is driven in WORLD space, so a scaled parent must not change its size
+    private void SetWorldDiameter(float diameter)
+    {
+        Vector3 ps = transform.parent != null ? transform.parent.lossyScale : Vector3.one;
+        transform.localScale = new Vector3(
+            diameter / Mathf.Max(ps.x, 1e-4f),
+            1f,
+            diameter / Mathf.Max(ps.z, 1e-4f));
+    }
+
     private void LateUpdate()
     {
+        if (_controller == null) return;
+
+        Transform target = _controller.Target;
+        bool show = userVisible && target != null;
+
+        if (meshRenderer.enabled != show) meshRenderer.enabled = show;
+
+        MinimapIconLayer icons = _controller.Icons;
+        if (icons != null) icons.SetVisible(show);
+
         if (target == null) return;
 
         Vector3 p = target.position;
         CurrentScale = ComputeScale();
 
+        transform.rotation = Quaternion.identity;
         transform.position = new Vector3(p.x, p.y + heightOffset, p.z);
-        transform.localScale = new Vector3(visibleRadius * 2f, 1f, visibleRadius * 2f);
+        SetWorldDiameter(visibleRadius * 2f);
 
-        Vector3 f = (facing != null ? facing : target).forward;
+        Transform facingTransform = _controller.Facing != null ? _controller.Facing : target;
+        Vector3 f = facingTransform.forward;
         f.y = 0f;
         if (f.sqrMagnitude > 1e-4f) lastDir = f.normalized;
 
@@ -128,6 +145,6 @@ public class MinimapOverlayRenderer : MonoBehaviour
         Shader.SetGlobalVector(MiniParamsId, new Vector4(CurrentScale, visibleRadius, 0f, 0f));
 
         // after the quad moved, so icons and map never lag one frame behind each other
-        if (iconLayer != null) iconLayer.Refresh(transform.position, CurrentScale, visibleRadius);
+        if (show && icons != null) icons.Refresh(transform.position, CurrentScale, visibleRadius);
     }
 }

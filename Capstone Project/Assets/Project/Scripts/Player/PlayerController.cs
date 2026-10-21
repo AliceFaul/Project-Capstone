@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -173,6 +172,7 @@ public class PlayerController : MonoBehaviour {
     private void OnEnable() {
         InputHandler.OnLeftClick += HandleLeftClick;
         InputHandler.OnRightClick += HandleRightClick;
+        InputHandler.OnToggleMinimap += HandleToggleMinimap;
         Movement.OnDestinationReached += OnDestinationReached;
         Movement.OnMoveStart += OnMoveStart;
         Movement.OnMoveStop += OnMoveStop;
@@ -181,6 +181,7 @@ public class PlayerController : MonoBehaviour {
     private void OnDisable() {
         InputHandler.OnLeftClick -= HandleLeftClick;
         InputHandler.OnRightClick -= HandleRightClick;
+        InputHandler.OnToggleMinimap -= HandleToggleMinimap;
         Movement.OnDestinationReached -= OnDestinationReached;
         Movement.OnMoveStart -= OnMoveStart;
         Movement.OnMoveStop -= OnMoveStop;
@@ -233,6 +234,8 @@ public class PlayerController : MonoBehaviour {
         Movement.Stop();
         Combat.CmdShoot(hit.point);
     }
+
+    private void HandleToggleMinimap() => MinimapController.Instance?.Toggle();
 
     private void ExecuteMovement(Vector3 destination) {
         if(!PlayerModifier.CanMove) return;

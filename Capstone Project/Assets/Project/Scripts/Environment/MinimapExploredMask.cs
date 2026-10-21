@@ -24,10 +24,10 @@ public class MinimapExploredMask : MonoBehaviour
     private static readonly int[] DX = { -1, 1, 0, 0 };
     private static readonly int[] DY = { 0, 0, -1, 1 };
 
-    [Header("References")]
-    [SerializeField] private MinimapMaskBaker baker;
-    [Tooltip("Usually the Player transform.")]
-    [SerializeField] private Transform target;
+    // resolved automatically through the MinimapSystem this component lives under (nothing to drag)
+    private MinimapController _controller;
+    private MinimapMaskBaker _baker;
+    private Transform Target => _controller != null ? _controller.Target : null;
 
     [Header("Reveal Settings")]
     [Tooltip("Max distance (meters) revealed around the target, following walkable space.")]
@@ -69,16 +69,24 @@ public class MinimapExploredMask : MonoBehaviour
     public Texture2D VisibleMask => visibleMask;
     public bool IsReady => visibleMask != null;
 
+    private void Awake()
+    {
+        _controller = GetComponentInParent<MinimapController>(true);
+        if (_controller != null) _baker = _controller.Baker;
+        if (_baker == null)
+            Debug.LogError("[MinimapExploredMask] Needs a MinimapSystem (with a MinimapMaskBaker) on this object or a parent.", this);
+    }
+
     private void OnEnable()
     {
-        if (baker == null) return;
-        baker.Baked += Init;
-        if (baker.IsBaked) Init();
+        if (_baker == null) return;
+        _baker.Baked += Init;
+        if (_baker.IsBaked) Init();
     }
 
     private void OnDisable()
     {
-        if (baker != null) baker.Baked -= Init;
+        if (_baker != null) _baker.Baked -= Init;
     }
 
     private void OnDestroy()
@@ -88,7 +96,7 @@ public class MinimapExploredMask : MonoBehaviour
 
     private void Init()
     {
-        Texture2D walkable = baker.WalkableMask;
+        Texture2D walkable = _baker.WalkableMask;
         if (walkable == null) return;
 
         int width = walkable.width;
@@ -97,7 +105,7 @@ public class MinimapExploredMask : MonoBehaviour
 
         cellsW = Mathf.CeilToInt(width / (float)cellFactor);
         cellsH = Mathf.CeilToInt(height / (float)cellFactor);
-        cellSize = cellFactor * baker.MetersPerTexel;
+        cellSize = cellFactor * _baker.MetersPerTexel;
 
         walkCells = new byte[cellsW * cellsH];
         visible = new byte[cellsW * cellsH];
@@ -144,14 +152,16 @@ public class MinimapExploredMask : MonoBehaviour
         queue = null;
         hasLast = false;
 
-        if (target != null) Reveal(target.position);
+        Transform t = Target;
+        if (t != null) Reveal(t.position);
     }
 
     private void Update()
     {
-        if (!IsReady || target == null) return;
+        Transform t = Target;
+        if (!IsReady || t == null) return;
 
-        Vector3 p = target.position;
+        Vector3 p = t.position;
         if (hasLast)
         {
             float dx = p.x - lastPos.x;
@@ -258,8 +268,8 @@ public class MinimapExploredMask : MonoBehaviour
     private Vector2Int WorldToCell(Vector3 worldPos)
     {
         return new Vector2Int(
-            Mathf.FloorToInt((worldPos.x - baker.WorldOrigin.x) / cellSize),
-            Mathf.FloorToInt((worldPos.z - baker.WorldOrigin.y) / cellSize));
+            Mathf.FloorToInt((worldPos.x - _baker.WorldOrigin.x) / cellSize),
+            Mathf.FloorToInt((worldPos.z - _baker.WorldOrigin.y) / cellSize));
     }
 
     private bool FindWalkableNear(ref Vector2Int cell, int maxR)
