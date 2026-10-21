@@ -19,6 +19,16 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
+  - m_AssetGUID: c069734916fdb914b84445516131031e
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: d0c32318984847e428ac1bce4ea19377
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 1
   - m_AssetGUID: 6590e99a522921647ac15769767472cd
     m_SubObjectName: 
     m_SubObjectType: 
@@ -34,12 +44,8 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 1
-  - m_AssetGUID: d0c32318984847e428ac1bce4ea19377
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 1
   labels:
+  - m_LabelString: 
   - m_LabelString: 
   - m_LabelString: 
   - m_LabelString: 

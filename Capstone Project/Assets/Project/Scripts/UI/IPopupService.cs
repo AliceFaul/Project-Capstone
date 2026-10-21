@@ -1,17 +1,25 @@
 ﻿using UnityEngine.Localization;
 using System;
-using UnityEditor;
+using UnityEngine;
 
-public interface IPopupService : IUIService
+public interface IPopupService
 {
-    void Create(string prefabId, 
+    GameObject Create(string prefabId, 
                 string instanceId, 
                 LocalizedString content, 
-                Action onClick1, 
-                Action onClick2);
+                Func<bool> onClick1, 
+                Func<bool> onClick2);
     
-    void Create(string prefabId, 
+    GameObject Create(string prefabId, 
                 string instanceId, 
                 LocalizedString content, 
-                Action onClick1);
+                Func<bool> onClick1);
+
+    GameObject Create(string prefabId, 
+                string instanceId, 
+                LocalizedString content);
+
+    void Show(string id);
+    void Hide(string id);
+    void Destroy(string id, float time = 0f);
 }

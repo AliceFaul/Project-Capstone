@@ -8,7 +8,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 {
     [Header("Character Attributes")] 
     [SerializeField] protected int level;
-    public virtual int Level => level;
+    protected virtual int Level => level;
     
     [Header("Character Bonus Stats")] 
     private int bonusHealth = 0;
@@ -20,12 +20,14 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     public int BonusDamage => bonusDamage;
     public int BonusArmor => bonusArmor;
     public float BonusSpeed => bonusSpeed;
+    
+    protected virtual float GetPercentBonus(BonusStat stat) => 0f; // 0.3 = +30%.
 
-    [Header("Character Total Stats")] 
-    private int totalHealth => CharacterData.baseHealth + bonusHealth;
-    private int totalDamage => CharacterData.baseDamage + bonusDamage;
-    protected int totalDefense => CharacterData.baseDefense + bonusArmor;
-    protected float totalSpeed => CharacterData.baseSpeed + bonusSpeed;
+    [Header("Character Total Stats")]
+    private int totalHealth => Mathf.RoundToInt((CharacterData.baseHealth + bonusHealth) * (1f + GetPercentBonus(BonusStat.Health)));
+    private int totalDamage => Mathf.RoundToInt((CharacterData.baseDamage + bonusDamage) * (1f + GetPercentBonus(BonusStat.Damage)));
+    protected int totalDefense => Mathf.RoundToInt((CharacterData.baseDefense + bonusArmor) * (1f + GetPercentBonus(BonusStat.Defense)));
+    protected float totalSpeed => (CharacterData.baseSpeed + bonusSpeed) * (1f + GetPercentBonus(BonusStat.MoveSpeed));
 
     public int TotalHealth => totalHealth;
     public int TotalDamage => totalDamage;
@@ -34,6 +36,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     protected int Hp;
     public int Health => Hp;
+    public bool IsMaxHealth => Hp >= totalHealth;
     public event Action<int> OnHpChanged;
     public event Action OnHit;
 
@@ -79,26 +82,22 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     private static readonly DamageReduceCal DamageReduceCal = new DamageReduceCal();
     public virtual void TakeDamage(float damage, ICharacterRuntime runtime)
     {
-        if(this == null)
-            return;
+        if(this == null) return;
         
         if (_stateType != CharacterStateType.Dead)
         {
-            if(this == null)
-                return;
-            
+            if(this == null) return;
             float finalDamage = DamageReduceCal.Calculate(damage, TotalArmor);
-            
             OnTakeDamage((int)finalDamage);
 
             Hp -= (int)finalDamage;
             Hp = Mathf.Clamp(Hp, 0, totalHealth);
 
             if (runtime is PlayerRuntime player && player.playerArchive != null)
-                player.playerArchive.totalDamageDealt += (int)finalDamage;
+                player.playerArchive.totalDamageDealt += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
             
             if(this is PlayerRuntime selfPlayer && selfPlayer.playerArchive != null)
-                selfPlayer.playerArchive.totalDamageReceived += (int)finalDamage;
+                selfPlayer.playerArchive.totalDamageReceived += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
             
             OnHpChanged?.Invoke(Hp);
             OnHit?.Invoke();
@@ -108,8 +107,8 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
                 Die();
                 if (runtime is IPlayerRuntime playerRuntime)
                 {
-                    playerRuntime.GainExp(CharacterData.expOnKill);
-                    playerRuntime.Currency?.Add(CurrencyType.Gold, (int)CharacterData.goldOnKill);
+                    playerRuntime.GainExp(Mathf.Max(1, CharacterData.expOnKill));
+                    playerRuntime.Currency?.Add(CurrencyType.Gold, Mathf.Max(1, Mathf.RoundToInt(CharacterData.goldOnKill)));
                     if (playerRuntime is PlayerRuntime playerRuntime2 && playerRuntime2.playerArchive != null)
                     {
                         playerRuntime2.playerArchive.enemyDefeated++;
@@ -121,10 +120,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
         }
     }
 
-    public virtual void TakeDamage(float damage)
-    {
-        TakeDamage(damage, null);
-    }
+    public virtual void TakeDamage(float damage) => TakeDamage(damage, null);
 
     protected virtual void OnTakeDamage(float damage)
     {
@@ -137,6 +133,13 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
         _damageFlash.Trigger();
         var floatingText = UIManager.Instance.GetFloatingTextService();
         floatingText.Create("DamageText", $"dmg{Time.time}_{UnityEngine.Random.Range(0, 99999)}", damage.ToString("F1"), transform.position + Vector3.up * 0.8f);
+    }
+
+    public void Heal(float amount)
+    {
+        Hp = (int)Mathf.Min(Hp + amount, totalHealth);
+        OnHpChanged?.Invoke(Hp);
+        Debug.Log($"{gameObject} has been healed {amount}%!");
     }
 
     public void Revive()

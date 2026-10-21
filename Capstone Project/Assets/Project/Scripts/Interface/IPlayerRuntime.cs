@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 
 public interface IPlayerRuntime : ICharacterRuntime
 {
-    float TotalAttackSpeed { get; }
-    float TotalAttackRange { get; }
+    int BonusCritChance { get; }
+    int BonusCritDamage { get; }
+    
     float TotalCritChance { get; }
     float TotalCritDamage { get; }
     
@@ -14,11 +14,5 @@ public interface IPlayerRuntime : ICharacterRuntime
     public event Action<float, float> OnExpChanged;
     public event Action OnStatsChanged;
     
-    float BonusAttackSpeed { get; }
-    float BonusAttackRange { get; }
-    float BonusCritChance { get; }
-    float BonusCritDamage { get; }
-    
     void GainExp(float amount);
-    void ApplyAttributes(EquipmentData equipment);
 }

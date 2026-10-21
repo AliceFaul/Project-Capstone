@@ -251,17 +251,22 @@ GameObject:
   - component: {fileID: 4700997332176549194}
   - component: {fileID: 4952277985007304938}
   - component: {fileID: 2854524255848535839}
+  - component: {fileID: 6685664560470726905}
   - component: {fileID: 2759596504568213360}
   - component: {fileID: 6254586106571862876}
   - component: {fileID: 6983588896542028798}
   - component: {fileID: 4069758127545282674}
-  - component: {fileID: 1594350380156625181}
+  - component: {fileID: 1251153609131692245}
+  - component: {fileID: 2410836123975081364}
+  - component: {fileID: -7749587430658494063}
   - component: {fileID: 1396825416686326437}
   - component: {fileID: 6772811288144300525}
   - component: {fileID: 2730355901274244533}
   - component: {fileID: 743074079644308432}
   - component: {fileID: 6241995475581806153}
   - component: {fileID: 9006754850781956550}
+  - component: {fileID: 888270505598952987}
+  - component: {fileID: 7735905665274845618}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -296,7 +301,7 @@ NavMeshAgent:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9033850277288197346}
   m_Enabled: 1
-  m_AgentTypeID: 0
+  m_AgentTypeID: -1372625422
   m_Radius: 0.5
   m_Speed: 5
   m_Acceleration: 20
@@ -374,6 +379,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   mainCamera: {fileID: 0}
   clickEffect: {fileID: 5028353888405606245, guid: 36c1964b5ef5b78419b5a20c09c27200, type: 3}
+  clickEffectCooldown: 2
   invoker: {fileID: 6772811288144300525}
   groundLayer:
     serializedVersion: 2
@@ -385,6 +391,31 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   currentCommand: 0
+--- !u!114 &6685664560470726905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37d4192fc33e41fe8ba965fbfe8875a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArtifactController
+  controller: {fileID: 2854524255848535839}
+  mainCamera: {fileID: 0}
+  animator: {fileID: 720708734723406063}
+  castOrigin: {fileID: 8082828905780165329}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &2759596504568213360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,12 +431,6 @@ MonoBehaviour:
   attackPoint: {fileID: 1992679372487895210}
   firePoint: {fileID: 8082828905780165329}
   projectilePrefab: {fileID: 3525247006018424799, guid: 005bd325fc5a95946838cf813e21d702, type: 3}
-  effects:
-  - castSound: {fileID: 0}
-    castVfx: {fileID: 1524533970525000399, guid: 1133dff0b5fda2e4295d301899b1582d, type: 3}
-    runningVfx: {fileID: 4425129568585013132, guid: bbeeb0ddc21369746aaaae5c5c1c09cf, type: 3}
-    effects:
-    - rid: 1412566157160874374
   maxAmmo: 100
   ammoText: {fileID: 0}
   enemyLayer:
@@ -413,17 +438,6 @@ MonoBehaviour:
     m_Bits: 128
   hitStopDuration: 0.05
   hitStopTimeScale: 0.02
-  AttackRange: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 1412566157160874374
-      type: {class: DamageOverTime, ns: , asm: Assembly-CSharp}
-      data:
-        statusType: 2
-        Duration: 5
-        TickInterval: 1
-        DamagePerTick: 10
 --- !u!114 &6254586106571862876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -470,7 +484,7 @@ MonoBehaviour:
   enemyDefeated: 0
   totalDamageDealt: 0
   totalDamageReceived: 0
---- !u!114 &1594350380156625181
+--- !u!114 &1251153609131692245
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -479,12 +493,44 @@ MonoBehaviour:
   m_GameObject: {fileID: 9033850277288197346}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a04cfa56a0511804ab8ae11da33d27a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 9a0a96d1b686405eb3579c72d3764c00, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  slots: []
-  maxSlots: 50
-  itemPickupPrefab: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::HoverSelector
+  mainCamera: {fileID: 0}
+  controller: {fileID: 2854524255848535839}
+  hoverLayers:
+    serializedVersion: 2
+    m_Bits: 384
+  maxDistance: 200
+  logChanges: 1
+--- !u!114 &2410836123975081364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5eb2651b9da407a82c821fc686fe57f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAbilityHolder
+  abilities:
+  - {fileID: 11400000, guid: 4e4642a6eaae2b542b72c642c8feec91, type: 2}
+  - {fileID: 11400000, guid: 6625ec6d7fc365248a57aa2f5973e7ba, type: 2}
+  cooldownChannel: {fileID: 11400000, guid: 86bba598dd7bd3f4da02a4aa6934c274, type: 2}
+--- !u!114 &-7749587430658494063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69e8093cd88f4e819fa6b4f2ca78b53d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerEquipmentApplier
 --- !u!114 &1396825416686326437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,6 +572,17 @@ MonoBehaviour:
   acceleration: 60
   angularAcceleration: 1080
   stopSpeedThreshold: 0.05
+  jumpHeight: 1.8
+  jumpDuration: 0.45
+  jumpForwardSpeed: 6
+  autoJumpCheckDistance: 1.2
+  autoJumpCooldown: 0.6
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &743074079644308432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -550,11 +607,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f498270950e811244bd04055e407806e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterTrail
-  activeTime: 2
+  activeTime: 0.4
   character: {fileID: 8973249790145409378}
-  meshRefreshRate: 0.1
-  delay: 3
-  trailMat: {fileID: 2100000, guid: be24942d2787e124ea4ecdf1ea1706bf, type: 2}
+  meshRefreshRate: 0.05
+  delay: 2
+  trailMat: {fileID: 2100000, guid: 85d738633eed82d4393e6a29cc2c142e, type: 2}
   alphaRef: _Alpha
   alphaRate: 0.1
   alphaRefreshRate: 0.05
@@ -571,6 +628,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterInstall
   characterData: {fileID: 11400000, guid: 3c70fe4f4e387f44384285eeed2f3d63, type: 2}
+--- !u!114 &888270505598952987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc16f70612349c5b01ad9065bc647b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBuffs
+--- !u!114 &7735905665274845618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea95f9f086a24ee2a60356cd1679dc96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapTarget
+  facing: {fileID: 0}
 --- !u!1001 &7117115669241743004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -668,6 +750,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      propertyPath: m_UpdateMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'Armature'\n\tTransform 'Hips'\n\tTransform
+        'Spine1'\n\tTransform 'RightForeArm'\n\tTransform 'LeftLeg'\n\tTransform
+        'LeftArm'\n\tTransform 'RightShoulder'\n\tTransform 'LeftShoulder'\n\tTransform
+        'RightArm'\n\tTransform 'Armature'\n\tand more ...\n\tFrom animation clip
+        'Jump'"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
@@ -688,6 +784,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1925368644849440086}
+    - targetCorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7127505495264422784}
     - targetCorrespondingSourceObject: {fileID: 7742650942893025642, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3527156759941933987}
@@ -712,13 +811,209 @@ MonoBehaviour:
   controller: {fileID: 2854524255848535839}
   runtime: {fileID: 6254586106571862876}
   combat: {fileID: 2759596504568213360}
+  attackSafetyTimeout: 3
   rootTransform: {fileID: 7612427732099748046}
   runDust: {fileID: 0}
   squashStretchDuration: 0.15
-  startStretchScale: {x: 0.85, y: 1.15, z: 0.85}
-  stopSquashScale: {x: 1.15, y: 0.85, z: 1.15}
   baseAnimationAttackSpeed: 1
   minAnimatorSpeed: 0.1
+--- !u!114 &7127505495264422784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699886415659282422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbe80126baae4cf0ba8194133e415a29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp-firstpass::AnimationEventReceiver
+  animationEvents:
+  - eventName: OnRoll
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6241995475581806153}
+          m_TargetAssemblyTypeName: CharacterTrail, Assembly-CSharp
+          m_MethodName: ActivateTrail
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnRollEnd
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: ShowMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnRangedStarted
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: ShowRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnSpawnProjectile
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: SpawnProjectile
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnRangedEnded
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: ShowMelee
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 3527156759941933987}
+          m_TargetAssemblyTypeName: ActiveWeapon, Assembly-CSharp
+          m_MethodName: HideRanged
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: EndAttackingProcess
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnDealDamage
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: DealDamage
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventName: OnEndAttack
+    OnAnimationEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1925368644849440086}
+          m_TargetAssemblyTypeName: PlayerAnimationHandler, Assembly-CSharp
+          m_MethodName: EndAttackingProcess
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &3527156759941933987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,6 +1028,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
   meleeSocket: {fileID: 5594313983555539030}
   rangedSocket: {fileID: 8723449264484825119}
+--- !u!95 &720708734723406063 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7549557142012886643, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}
+  m_PrefabInstance: {fileID: 7117115669241743004}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1131708700260700962 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7886280063208347070, guid: b508ace33888d604dbf39f6e9cc9413a, type: 3}

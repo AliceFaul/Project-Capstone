@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Project.Capstone.Inventory;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -33,8 +34,9 @@ public class QuestManager : MonoBehaviour
     private readonly TimeSpan resetInterval = TimeSpan.FromHours(4); // Reset sau 4 tiếng
 
     [Header("Cấu hình Scene")]
-    [SerializeField] private string lobbySceneName = "LobbyScene"; // Tên Scene Lobby trong project
+    [SerializeField] private string lobbySceneName = "Lobby"; // Tên Scene Lobby trong project
 
+    private Inventory _inventory;
     public static event Action OnQuestUpdated;
 
     private void Awake()
@@ -50,19 +52,35 @@ public class QuestManager : MonoBehaviour
 
     private void Start()
     {
+        var playerData = StartupProcessor.Instance?.GetService<ConfigManager>()?.GetConfig<PlayerDataConfig>();
+
+        if (playerData == null)
+        {
+            Debug.LogError("[QuestManager] PlayerDataConfig not found.");
+            return;
+        }
+
+        _inventory = playerData.Inventory;
+
+        if (_inventory == null)
+        {
+            Debug.LogError("[QuestManager] Inventory not initialized.");
+            return;
+        }
+
+        _inventory.OnBagChanged += OnInventoryChanged;
         CheckAndResetDailyQuests();
     }
 
     private void OnEnable()
     {
-        PlayerInventory.OnInventoryChanged += CheckCollectItemQuests;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        PlayerInventory.OnInventoryChanged -= CheckCollectItemQuests;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (_inventory != null) _inventory.OnBagChanged -= OnInventoryChanged;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -71,6 +89,11 @@ public class QuestManager : MonoBehaviour
         {
             ClearInRunQuests();
         }
+    }
+
+    private void OnInventoryChanged(InventoryCategory category)
+    {
+        CheckCollectItemQuests();
     }
 
     #region --- LOGIC IN-RUN QUEST ---
@@ -165,37 +188,45 @@ public class QuestManager : MonoBehaviour
     #region XỬ LÝ TIẾN ĐỘ: NHẶT ĐỒ
     private void CheckCollectItemQuests()
     {
-        PlayerInventory playerInv = FindAnyObjectByType<PlayerInventory>();
-        if (playerInv == null) return;
+        if (_inventory == null) return;
 
-        UpdateCollectItemProgress(activeLobbyQuests, playerInv);
-        UpdateCollectItemProgress(activeInRunQuests, playerInv);
+        UpdateCollectItemProgress(activeLobbyQuests);
+        UpdateCollectItemProgress(activeInRunQuests);
 
         OnQuestUpdated?.Invoke();
     }
 
-    private void UpdateCollectItemProgress(List<ActiveQuest> questList, PlayerInventory inv)
+    private void UpdateCollectItemProgress(List<ActiveQuest> questList)
     {
         foreach (var quest in questList)
         {
             if (quest.isCompleted || quest.data.goalType != QuestGoalType.CollectItem) continue;
-
-            int totalCount = 0;
-            foreach (var slot in inv.slots)
-            {
-                if (slot.itemData == quest.data.targetItem)
-                {
-                    totalCount += slot.stackSize;
-                }
-            }
-
-            quest.currentAmount = totalCount;
-
-            if (quest.currentAmount >= quest.data.requiredAmount)
-            {
-                CompleteQuest(quest);
-            }
+            quest.currentAmount = CountItem(quest.data.targetItem);
+            
+            if(quest.currentAmount >= quest.data.requiredAmount) CompleteQuest(quest);
         }
+    }
+
+    private int CountItem(ItemData targetItem)
+    {
+        if(targetItem == null) return 0;
+        int count = 0;
+
+        foreach (var item in _inventory.AllItems())
+        {
+            if(item == null) continue;
+            if(IsDefinitionMatch(item, targetItem)) count++;
+        }
+
+        return count;
+    }
+
+    private bool IsDefinitionMatch(IInventoryItem runtimeItem, ItemData targetDefinition)
+    {
+        if(runtimeItem == null || targetDefinition == null) return false;
+        if(runtimeItem is EquipmentInstance equipment) return equipment.definitionId == targetDefinition.id;
+        if(runtimeItem is ArtifactInstance artifact) return artifact.definitionId == targetDefinition.id;
+        return false;
     }
     #endregion
 

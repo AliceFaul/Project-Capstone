@@ -27,12 +27,9 @@ public class PopupService : IPopupService
         }
     }
     
-    public void Create(string prefabId, string instanceId, LocalizedString content, Action onClick1, Action onClick2)
+    public GameObject Create(string prefabId, string instanceId, LocalizedString content, Func<bool> onClick1, Func<bool> onClick2)
     {
-        if (_activePopups.ContainsKey(instanceId))
-        {
-            Destroy(instanceId, 0f);
-        }
+        if (_activePopups.ContainsKey(instanceId)) Destroy(instanceId, 0f);
 
         if (_canvas == null)
         {
@@ -40,28 +37,25 @@ public class PopupService : IPopupService
             _canvas = canvasCreator.Create(false);
         }
 
-        GameObject popupGo = GameObject.Instantiate(_popupsPrefab[prefabId], _canvas.transform);
-        Popup popup = popupGo.GetComponent<Popup>();
-
-        if (onClick1 == null && onClick2 == null)
+        if (!_popupsPrefab.TryGetValue(prefabId, out var prefab) || prefab == null)
         {
-            popup.Setup(instanceId, content);
-        }
-        else
-        {
-            if(onClick1 != null && onClick2 == null)
-                popup.Setup(instanceId, content, onClick1, null);
-            else 
-                popup.Setup(instanceId, content, onClick1, onClick2);
+            Debug.LogError($"[PopupService] Prefab with id '{prefabId}' not found!");
+            return null;
         }
 
-        _activePopups.Add(instanceId, popupGo);
+        GameObject popupGo = GameObject.Instantiate(prefab, _canvas.transform);
+
+        if (popupGo.TryGetComponent(out Popup popup)) popup.Setup(instanceId, content, onClick1, onClick2);
+        else Debug.LogError($"[PopupService] Prefab '{prefabId}' is missing the Popup component!");
+
+        _activePopups[instanceId] = popupGo;
+        return popupGo;
     }
 
-    public void Create(string prefabId, string instanceId, LocalizedString content, Action onClick1)
+    public GameObject Create(string prefabId, string instanceId, LocalizedString content, Func<bool> onClick1)
         => Create(prefabId, instanceId, content, onClick1, null);
 
-    public void Create(string prefabId, string instanceId, LocalizedString content)
+    public GameObject Create(string prefabId, string instanceId, LocalizedString content)
         => Create(prefabId, instanceId, content, null, null);
 
     public void Show(string id)
@@ -92,7 +86,7 @@ public class PopupService : IPopupService
     {
         if (_activePopups.TryGetValue(id, out var popupInstance))
         {
-            GameObject.Destroy(popupInstance.gameObject);
+            if(popupInstance != null) GameObject.Destroy(popupInstance.gameObject, time);
             _activePopups.Remove(id);
         }
         else

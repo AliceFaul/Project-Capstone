@@ -17,6 +17,12 @@ public class ConfigLoader : IConfigLoader
             return;
         }
 
+        if (config is PlayerDataConfig)
+        {
+            Debug.Log($"[ConfigLoader] Skip loading local json for {config.name}.");
+            return;
+        }
+
         string fileName = config.name + ".json";
         string json = _reader.Read(fileName);
 

@@ -1,30 +1,58 @@
-﻿using UnityEngine;
+﻿using Project.Capstone.Inventory;
+using UnityEngine;
 
 public class ItemPickup : MonoBehaviour
 {
     [Header("Cấu hình vật phẩm rơi")]
-    public ItemData itemData; // Chuyển sang hẳn public để PlayerInventory.cs truy cập được khi vứt đồ
-    public int amount = 1;    // Số lượng rơi trên đất
+    [SerializeField] private ItemData itemData;
+    [Min(1)] [SerializeField] private int amount = 1;
+    [SerializeField] private EquipmentProgressConfig config;
 
-    // Thay bằng OnTriggerStay để tối ưu va chạm cho NavMeshAgent, tránh bị hụt khi di chuyển quá nhanh
+    private bool _pickedUp;
+
     private void OnTriggerStay(Collider other)
     {
-        // Tìm component PlayerInventory trên vật thể va chạm hoặc cha của nó
-        PlayerInventory playerInventory = other.GetComponentInParent<PlayerInventory>();
+        if(_pickedUp) return;
 
-        // Nếu tìm thấy túi đồ (nghĩa là Player có va chạm)
-        if (playerInventory != null)
+        var runtime = other.GetComponentInParent<PlayerController>().PlayerRuntime;
+        if(runtime == null) return;
+
+        var playerData = runtime.Config;
+        if(playerData == null) return;
+        
+        var inventory = playerData.Inventory;
+        if(inventory == null) return;
+        
+        if(!TryCreateItem(out var item)) return;
+
+        if (!inventory.TryAdd(item))
         {
-            // Tiến hành thêm vật phẩm vào kho đồ
-            bool pickedUpSuccessfully = playerInventory.AddItem(itemData, amount);
-
-            // Nếu thêm thành công (túi còn chỗ)
-            if (pickedUpSuccessfully)
-            {
-                Debug.Log($"[Inventory] Đã nhặt: {amount}x {itemData.itemName}");
-                
-                Destroy(gameObject); // Xóa vật phẩm khỏi map
-            }
+            Debug.Log($"[ItemPickup] Inventory is full.");
+            return;
         }
+        
+        _pickedUp = true;
+        Debug.Log($"[ItemPickup] Picked up item: {itemData.itemName}");
+        Destroy(gameObject);
+    }
+
+    private bool TryCreateItem(out IInventoryItem item)
+    {
+        item = null;
+
+        if (itemData == null)
+        {
+            Debug.LogError($"[ItemPickup] ItemData is null.");
+            return false;
+        }
+
+        if (itemData is EquipmentData equipmentData)
+        {
+            item = LootRoller.RollEquipment(equipmentData, config);
+            return item != null;
+        }
+        
+        Debug.LogError($"[ItemPickup] Unsupported item type: '{itemData.GetType().Name}'.");
+        return false;
     }
 }

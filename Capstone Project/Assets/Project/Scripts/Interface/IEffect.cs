@@ -22,17 +22,10 @@ public class StatusEffect
         {
             var effect = template.Clone();
             
-            if (target is Mhieu.Enemy.EnemyHealth enemy)
-            {
-                enemy.ApplyEffect(effect);
-            }
-            else
-            {
-                effect.Apply(target);
-            }
+            if (target is Mhieu.Enemy.EnemyHealth enemy) enemy.ApplyEffect(effect);
+            else effect.Apply(target);
             
-            if(effect is IStatusEffect statusEffect)
-                OnStatusApplied?.Invoke(target, statusEffect);
+            if(effect is IStatusEffect statusEffect) OnStatusApplied?.Invoke(target, statusEffect);
         }
     }
 }
@@ -65,7 +58,6 @@ public class DamageEffect : IEffect<IAttackable>
     {
         target.TakeDamage(damageAmount);
         OnCompleted?.Invoke(this);
-        
     }
 
     public void Cancel()

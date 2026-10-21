@@ -71,6 +71,74 @@ MonoBehaviour:
     m_Key: UI_CONFIG_LOAD_FAILED
     m_Metadata:
       m_Items: []
+  - m_Id: 9656482171592704
+    m_Key: ENTER_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Key: CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Key: NAME_TOO_LONG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Key: NAME_NULL_OR_WHITESPACE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Key: NAME_INVALID
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11074257574305792
+    m_Key: ENTER_NEW_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817063121035264
+    m_Key: ENTER_USERNAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Key: ENTER_EMAIL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Key: ENTER_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Key: CONFIRM_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Key: REGISTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Key: ENTER_EMAIL_USERNAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Key: REGISTER_NOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Key: FORGOT_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Key: LOG_IN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971300923875328
+    m_Key: UI_NETWORK_ERROR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Key: UI_GAME_OUTDATED
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

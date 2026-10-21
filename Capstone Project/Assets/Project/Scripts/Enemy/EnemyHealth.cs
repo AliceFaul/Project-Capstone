@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -19,13 +18,11 @@ namespace Mhieu.Enemy
 
         private void Awake()
         {
-            if(animator == null)
-                animator = GetComponentInChildren<Animator>();
-            
+            if(animator == null) animator = GetComponentInChildren<Animator>();
             Init();
             
-            _targetFillAmount = 1f;
-            healthBar.fillAmount = 1;
+            _targetFillAmount = TotalHealth > 0 ? (float)Hp / TotalHealth : 1f;
+            if(healthBar != null) healthBar.fillAmount = _targetFillAmount;
         }
 
         private void Update()
@@ -35,24 +32,26 @@ namespace Mhieu.Enemy
 
         private void UpdateHealthBar()
         {
+            if(healthBar == null) return;
+            
             healthBar.fillAmount = Mathf.MoveTowards(
                 healthBar.fillAmount, 
                 _targetFillAmount, 
-                1.5f * Time.deltaTime
+                2f * Time.deltaTime
             );
         }
 
         public override void TakeDamage(float damage, ICharacterRuntime runtime)
         {
             base.TakeDamage(damage, runtime);
-            _targetFillAmount = Hp / TotalHealth;
+            _targetFillAmount = TotalHealth > 0 ? Mathf.Clamp01((float)Hp / TotalHealth) : 0f;
         }
 
         protected override void OnTakeDamage(float damage)
         {
             base.OnTakeDamage(damage);
-            animator.SetTrigger(Hit);
-            Instantiate(impactParticles, transform.position + Vector3.up, transform.rotation);
+            if(animator != null) animator.SetTrigger(Hit);
+            if(impactParticles != null) Instantiate(impactParticles, transform.position + Vector3.up, transform.rotation);
         }
 
         public void ApplyEffect(IEffect<IAttackable> effect)

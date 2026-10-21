@@ -33,8 +33,6 @@ public class LoadingScreen : MonoBehaviour, ILoading
     {
         try
         {
-            gameObject.SetActive(true);
-            
             await FadeToVisible();
         
             canvasGroup.alpha = 1;
@@ -56,8 +54,6 @@ public class LoadingScreen : MonoBehaviour, ILoading
             canvasGroup.alpha = 0;
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
-            
-            gameObject.SetActive(false);
         }
         catch (Exception e)
         {

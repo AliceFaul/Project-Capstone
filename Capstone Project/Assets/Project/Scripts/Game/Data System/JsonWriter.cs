@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 
 public class JsonWriter
@@ -13,7 +14,16 @@ public class JsonWriter
     public void Write<T>(T data, string fileName)
     {
         string path = Path.Combine(_filePath, fileName);
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(path, json);
+        string json = JsonUtility.ToJson(data, false);
+
+        try
+        {
+            byte[] encryptedBytes = CryptoUtils.EncryptStringToBytes_Aes(json);
+            File.WriteAllBytes(path, encryptedBytes);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[JsonWriter] Encrypt and write failed. Error: {e.Message}");
+        }
     }
 }

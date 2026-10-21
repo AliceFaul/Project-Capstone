@@ -74,6 +74,75 @@ MonoBehaviour:
     m_Localized: "Kh\xF4ng t\xECm th\u1EA5y t\u1EC7p c\u1EA5u h\xECnh."
     m_Metadata:
       m_Items: []
+  - m_Id: 9656482171592704
+    m_Localized: "Nh\u1EADp t\xEAn hi\u1EC3n th\u1ECB c\u1EE7a b\u1EA1n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Localized: "X\xE1c nh\u1EADn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Localized: "T\xEAn qu\xE1 d\xE0i."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Localized: "T\xEAn kh\xF4ng \u0111\u01B0\u1EE3c \u0111\u1EC3 tr\u1ED1ng."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Localized: "T\xEAn sai."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11074257574305792
+    m_Localized: "Nh\u1EADp t\xEAn m\u1EDBi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817063121035264
+    m_Localized: "Nh\u1EADp t\xEAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Localized: "Nh\u1EADp email"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Localized: "Nh\u1EADp m\u1EADt kh\u1EA9u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Localized: "X\xE1c nh\u1EADn m\u1EADt kh\u1EA9u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Localized: "\u0110\u0103ng k\xFD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Localized: "Nh\u1EADp email/t\xEAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Localized: "\u0110\u0103ng k\xFD ngay"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Localized: "Qu\xEAn m\u1EADt kh\u1EA9u?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Localized: "\u0110\u0103ng nh\u1EADp"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971300923875328
+    m_Localized: "M\u1EA5t k\u1EBFt n\u1ED1i server."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Localized: "Phi\xEAn b\u1EA3n c\u1EE7a b\u1EA1n th\u1EA5p. Xin h\xE3y t\u1EA3i
+      b\u1EA3n c\u1EADp nh\u1EADt m\u1EDBi"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
