@@ -39,8 +39,8 @@ public class AudioConfig : ScriptableObject, IConfig
     [Range(0f, 1f)] public float defaultSfx = 1f;
     
     [Header("UI cues")]
-    public AudioClip uiClick;
-    public AudioClip uiHover;
+    public AudioCue uiClick;
+    public AudioCue uiHover;
 
     public string GetParam(AudioChannel channel)
     {
