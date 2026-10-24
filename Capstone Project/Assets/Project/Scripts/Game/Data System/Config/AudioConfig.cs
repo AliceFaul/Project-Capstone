@@ -30,6 +30,13 @@ public class AudioConfig : ScriptableObject, IConfig
     public AudioMixerSnapshot combatSnapshot;
     public AudioMixerSnapshot pausedSnapshot;
     
+    [Header("Music")]
+    [Tooltip("Crossfade length (seconds) when a call does not specify one and the track has no override.")]
+    [Min(0f)] public float defaultMusicFade = 1f;
+    
+    [Tooltip("Optional. Starts as base music as soon as AudioService is ready (loading/ login / main menu).")]
+    public MusicTrack menuTrack;
+    
     [Header("SFX Pool")]
     [Min(4)] public int sfxPoolSize = 20;
     
