@@ -17,6 +17,12 @@ public class PlayerCombat : MonoBehaviour {
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
+    [Header("Audio")]
+    [SerializeField] private AudioCue swingCue;
+    [SerializeField] private AudioCue hitCue;
+    [SerializeField] private AudioCue critHitCue;
+    [SerializeField] private AudioCue shootCue;
+    
     [Header("Impact feel")]
     [SerializeField] private float hitStopDuration = 0.05f;
     [SerializeField] private float hitStopTimeScale = 0.02f;
@@ -149,9 +155,11 @@ public class PlayerCombat : MonoBehaviour {
     public void CmdDealDamage()
     {
         if(_currentMeleeWeapon == null) return;
+        if(swingCue != null && AudioService.Instance != null) AudioService.Instance.PlaySfx(swingCue, attackPoint.position);
         
         Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, AttackRange, enemyLayer);
         bool didHitAnything = false;
+        bool hasCrit = false;
 
         HashSet<IAttackable> damagedEnemies = new();
         
@@ -169,6 +177,14 @@ public class PlayerCombat : MonoBehaviour {
                 
                 attackable.TakeDamage(result.Damage, _controller.PlayerRuntime);
                 ApplyRuneEffects(EquipSlot.Melee, attackable);
+
+                hasCrit = result.IsCritical;
+                
+                if (AudioService.Instance != null)
+                {
+                    var cue = hasCrit ? (critHitCue != null ? critHitCue : hitCue) : hitCue;
+                    if(cue != null) AudioService.Instance.PlaySfx(cue, enemy.transform.position);
+                }
                 
                 damagedEnemies.Add(attackable);
                 didHitAnything = true;
@@ -180,7 +196,8 @@ public class PlayerCombat : MonoBehaviour {
             }
         }
 
-        if (didHitAnything) Impact();
+        if(!didHitAnything) return;
+        Impact(hasCrit);
     }
     
     // Call this method in the PlayerController when the player right clicks
@@ -231,6 +248,8 @@ public class PlayerCombat : MonoBehaviour {
         component.Initialize(direction, result.Damage, gameObject);
         AdjustAmmo(-1);
         _lastShootTime = Time.time;
+        
+        if(shootCue != null && AudioService.Instance != null) AudioService.Instance.PlaySfx(shootCue, firePoint.position);
     }
 
     private void UpdateWeapons()
@@ -298,7 +317,7 @@ public class PlayerCombat : MonoBehaviour {
         }
     }
 
-    private void Impact()
+    private void Impact(bool isCrit = false)
     {
         if(CameraShake.Instance != null) CameraShake.Instance.ShakeCamera();
 
@@ -307,15 +326,17 @@ public class PlayerCombat : MonoBehaviour {
             StopCoroutine(_hitStopRoutine);
             Time.timeScale = 1f;
         }
-        _hitStopRoutine = StartCoroutine(HitStopCo());
+        
+        float duration = isCrit ? hitStopDuration * 1.8f : hitStopDuration;
+        _hitStopRoutine = StartCoroutine(HitStopCo(duration));
     }
 
-    private IEnumerator HitStopCo()
+    private IEnumerator HitStopCo(float duration)
     {
         float previousTimeScale = Time.timeScale;
         Time.timeScale = hitStopTimeScale;
 
-        yield return new WaitForSecondsRealtime(hitStopDuration);
+        yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = previousTimeScale;
         _hitStopRoutine = null;
     }

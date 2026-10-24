@@ -16,6 +16,8 @@ MonoBehaviour:
   monoScripts:
   - {fileID: 11500000, guid: c6a0759f33ac4a189a10c2cc95aabcc5, type: 3}
   - {fileID: 11500000, guid: 4b732eca9b174b3196b77de9cbb13dcc, type: 3}
+  - {fileID: 11500000, guid: f3f76c9355514c88bc3ae356a9ee2bd0, type: 3}
   managerNames:
   - EventManager, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - EquipmentManager, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - AudioService, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

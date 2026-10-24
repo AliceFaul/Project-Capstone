@@ -8,7 +8,6 @@ using UnityEngine.Audio;
 public class MainMenuScreen : MonoBehaviour
 {
     [SerializeField] private CosmeticDatabase cosmeticDatabase;
-    [SerializeField] private AudioMixer mainAudioMixer;
     
     private VisualElement _root;
     private VisualElement _characterBlock;
@@ -60,6 +59,7 @@ public class MainMenuScreen : MonoBehaviour
         _root = GetComponent<UIDocument>().rootVisualElement;
         QueryElements();
         WireButtons();
+        UiAudio.Attach(_root);
     }
 
     private void OnEnable()
@@ -130,9 +130,21 @@ public class MainMenuScreen : MonoBehaviour
         _tabGameplay.clicked += () => SelectSettingsTab(2);
         _closeSettingsButton.clicked += HideSettingsPanel;
         
-        _masterSlider.RegisterValueChangedCallback(e => _masterValue.text = $"{e.newValue:P0}");
-        _musicSlider.RegisterValueChangedCallback(e => _musicValue.text = $"{e.newValue:P0}");
-        _sfxSlider.RegisterValueChangedCallback(e => _sfxValue.text = $"{e.newValue:P0}");
+        _masterSlider.RegisterValueChangedCallback(e =>
+        {
+            _masterValue.text = $"{e.newValue:P0}";
+            AudioService.Instance?.SetVolume(AudioChannel.Master, e.newValue);
+        });
+        _musicSlider.RegisterValueChangedCallback(e =>
+        {
+            _musicValue.text = $"{e.newValue:P0}";
+            AudioService.Instance?.SetVolume(AudioChannel.Music, e.newValue);
+        });
+        _sfxSlider.RegisterValueChangedCallback(e =>
+        {
+            _sfxValue.text = $"{e.newValue:P0}";
+            AudioService.Instance?.SetVolume(AudioChannel.Sfx, e.newValue);
+        });
     }
 
     private void BindData()
@@ -257,17 +269,23 @@ public class MainMenuScreen : MonoBehaviour
         Debug.Log($"[MainMenuScreen] Cosmetic Grid loaded!");
     }
 
-    private void OnCosmeticSlotClicked(CosmeticData cosmetic, bool isUnlocked)
+    private void SelectCosmetic(CosmeticData cosmetic, bool isUnlocked)
     {
-        //TODO: Play SFX
         _selectedCosmetic = cosmetic;
         _cosmeticConfirmButton.text = isUnlocked ? "Done" : (cosmetic.priceGem > 0 ? $" Buy {cosmetic.priceGem} Gem" : $"Buy {cosmetic.priceGold} Gold");
-        
         CosmeticPreviewed?.Invoke(cosmetic);
+    }
+
+    private void OnCosmeticSlotClicked(CosmeticData cosmetic, bool isUnlocked)
+    {
+        AudioService.Instance?.PlayUiClick();
+        SelectCosmetic(cosmetic, isUnlocked);
     }
 
     private void OnConfirmCosmeticClicked()
     {
+        AudioService.Instance?.PlayUiClick();
+        
         if(_selectedCosmetic == null || _config == null) return;
         bool isUnlocked = _config.IsCosmeticUnlocked(_selectedCosmetic);
 
@@ -299,6 +317,8 @@ public class MainMenuScreen : MonoBehaviour
 
     public void HideSettingsPanel()
     {
+        AudioService.Instance?.PlayUiClick();
+        
         ApplySettingsToConfig();
         _settingsPanel.style.display = DisplayStyle.None;
     }
@@ -307,6 +327,11 @@ public class MainMenuScreen : MonoBehaviour
     {
         _qualityDropdown.choices = new List<string>(QualitySettings.names);
         _fpsDropdown.choices = new List<string> { "30", "60", "120", "Unlimited" };
+        
+        _qualityDropdown.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
+        _fpsDropdown.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
+        _cameraShakeToggle.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
+        _damageTextToggle.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
     }
 
     private void LoadSettingsFromConfig()
@@ -337,23 +362,13 @@ public class MainMenuScreen : MonoBehaviour
         QualitySettings.SetQualityLevel(_playerConfig.quality);
         Application.targetFrameRate = _playerConfig.fps;
 
-        // Set Audio Mixer Volume
-        SetAudioMixer("MasterVolume", _playerConfig.masterVolume);
-        SetAudioMixer("MusicVolume", _playerConfig.musicVolume);
-        SetAudioMixer("SFXVolume", _playerConfig.sfxVolume);
-        
         Debug.Log($"[MainMenuScreen] Applied new settings");
     }
 
-    private void SetAudioMixer(string param, float linearVolume)
+    private void SelectSettingsTab(int index, bool playAudio = true)
     {
-        if(mainAudioMixer == null) return;
-        float db = Mathf.Log10(Mathf.Max(0.0001f, linearVolume)) * 20f;
-        mainAudioMixer.SetFloat(param, db);
-    }
-
-    private void SelectSettingsTab(int index)
-    {
+        if(playAudio) AudioService.Instance?.PlayUiClick();
+        
         _tabVideo.EnableInClassList("main-menu__settings-tab--active", index == 0);
         _tabAudio.EnableInClassList("main-menu__settings-tab--active", index == 1);
         _tabGameplay.EnableInClassList("main-menu__settings-tab--active", index == 2);

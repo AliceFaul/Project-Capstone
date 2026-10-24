@@ -10,9 +10,9 @@ public class PlayerConfig : ScriptableObject, IConfig
     // etc ...
     
     [Header("Audio")]
-    public float masterVolume;
-    public float musicVolume;
-    public float sfxVolume;
+    [Range(0f, 1f)] public float masterVolume = 1f;
+    [Range(0f, 1f)] public float musicVolume = 0.8f;
+    [Range(0f, 1f)] public float sfxVolume = 1f;
 
     [Header("Gameplay")] 
     public bool showDamageText;

@@ -436,6 +436,10 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  swingCue: {fileID: 11400000, guid: 4aba206289845094ca4cfd49fec31f67, type: 2}
+  hitCue: {fileID: 11400000, guid: 00978056191044f4d9c4c3d9377b40c8, type: 2}
+  critHitCue: {fileID: 11400000, guid: e9eeface09b4e8c40860e216f4565c97, type: 2}
+  shootCue: {fileID: 11400000, guid: aed574ff2dc273c4488d87091df879a2, type: 2}
   hitStopDuration: 0.05
   hitStopTimeScale: 0.02
 --- !u!114 &6254586106571862876
@@ -572,9 +576,9 @@ MonoBehaviour:
   acceleration: 60
   angularAcceleration: 1080
   stopSpeedThreshold: 0.05
-  jumpHeight: 1.8
-  jumpDuration: 0.45
-  jumpForwardSpeed: 6
+  jumpHeight: 2.5
+  jumpDuration: 0.7
+  jumpForwardSpeed: 1.5
   autoJumpCheckDistance: 1.2
   autoJumpCooldown: 0.6
   obstacleLayer:
