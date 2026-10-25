@@ -1,5 +1,13 @@
 ﻿using UnityEngine;
 
+public enum MusicPriority
+{
+    Scene = 0,
+    Combat = 100,
+    Boss = 200,
+    Cinematic = 300
+}
+
 [CreateAssetMenu(fileName = "NewMusicTrack", menuName = "Audio/Music Track")]
 public class MusicTrack : ScriptableObject
 {

@@ -12,11 +12,14 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     private AudioConfig _config;
     private PlayerConfig _playerConfig;
     private SfxPlayer _sfx;
+    private MusicPlayer _music;
+    private MusicDirector _director;
     private bool _initialized;
 
     private readonly float[] _volumes = { 1f, 0.8f, 1f };
     
     public bool IsReady => _initialized;
+    public MusicTrack CurrentMusic => _music?.Current;
 
     private void Awake()
     {
@@ -49,6 +52,9 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         LoadPlayerConfig();
 
         _sfx = new SfxPlayer(transform, _config);
+        _music = new MusicPlayer(transform, _config);
+        _director = new MusicDirector(_music);
+        
         _initialized = true;
         
         ApplyAllVolumes();
@@ -58,6 +64,8 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         if(Instance != this) return false;
         ApplyAllVolumes();
         
+        if(_config.menuTrack != null) PlayMusic(_config.menuTrack);
+        
         Debug.Log($"[AudioService] Ready (SFX pool = {_config.sfxPoolSize}).");
         return true;
     }
@@ -65,6 +73,8 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     private void Update()
     {
         _sfx?.Tick();
+        _music?.Tick(Time.unscaledDeltaTime);
+        _director?.Tick();
     }
 
     private void OnDestroy()
@@ -87,6 +97,17 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         if(_config == null) return;
         PlaySfx(_config.uiClick);
     }
+
+    public void PlayUIHover()
+    {
+        if(_config == null) return;
+        PlaySfx(_config.uiHover);
+    }
+    
+    public void PlayMusic(MusicTrack track, float fade = -1f) => _director?.SetBase(track, fade);
+    public void PushMusic(MusicTrack track, MusicPriority priority, object owner, float fade = -1f) => _director?.Push(track, priority, owner, fade);
+    public void PopMusic(object owner, float fade = -1f) => _director?.Pop(owner, fade);
+    public void StopMusic(float fade = 1f) => _director?.Clear(fade);
 
     public void SetVolume(AudioChannel channel, float value01)
     {

@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioCue
   clips:
   - {fileID: 8300000, guid: dddae61a31252994c87243c96d89d92d, type: 3}
+  - {fileID: 8300000, guid: 896c35c2d6946f748bf79b882a1e2177, type: 3}
+  - {fileID: 8300000, guid: c4e511568b98a7d47a854587d483e9b0, type: 3}
+  - {fileID: 8300000, guid: e17656aa473cc9747bf515e7193db142, type: 3}
   avoidImmediateRepeat: 1
   bus: 0
   volume: 0.7
