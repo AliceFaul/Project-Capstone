@@ -98,7 +98,7 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         PlaySfx(_config.uiClick);
     }
 
-    public void PlayUIHover()
+    public void PlayUiHover()
     {
         if(_config == null) return;
         PlaySfx(_config.uiHover);

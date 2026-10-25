@@ -255,6 +255,7 @@ public class MainMenuScreen : MonoBehaviour
             bool isEquipped = _config.EquippedCosmeticId == cosmetic.cosmeticId;
 
             var slot = new ItemSlotElement();
+            slot.AddToClassList(UiAudio.HoverClass);
             slot.SetItem(cosmetic, cosmetic.cosmeticIcon, quantity: 1, isEquipped: isEquipped, rarityUssClass: null);
             
             if(isUnlocked) slot.SetUnlocked();
