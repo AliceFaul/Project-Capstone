@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -9,7 +8,11 @@ using UnityEngine;
 /// </summary>
 public class OutlineTarget : MonoBehaviour
 {
+    [Tooltip("Used for hover (and for lock when locked Style is empty).")]
     [SerializeField] private OutlineStyle style;
+
+    [Tooltip("Optional. Used while this target is locked (for example the current attack target).")]
+    [SerializeField] private OutlineStyle lockedStyle;
 
     [Tooltip("Collect MeshRenderer/SkinnedMeshRenderer from this object and its children on Awake.")]
     [SerializeField] private bool autoCollectRenderers = true;
@@ -30,7 +33,11 @@ public class OutlineTarget : MonoBehaviour
     
     public bool IsHovered => hovered;
     public bool IsLocked => locked;
+    
+    public float ActiveTime => activeTime;
 
+    private float activeTime;
+    private OutlineStyle currentStyle;
     private bool warnedNoStyle;
 
     private void Awake()
@@ -43,12 +50,15 @@ public class OutlineTarget : MonoBehaviour
         hovered = false;
         locked = false;
         intensity = 0f;
+        activeTime = 0f;
+        currentStyle = null;
         OutlineRegistry.Unregister(this);
     }
 
     /// <summary> Mouse-over state, set by HoverSelector. </summary>
     public void SetHovered(bool value)
     {
+        if(value && !isActiveAndEnabled) return; // dead / diasble targets.
         hovered = value;
         Refresh();
     }
@@ -56,6 +66,7 @@ public class OutlineTarget : MonoBehaviour
     /// <summary> Stays outlined while true (for example the current attack target). </summary>
     public void SetLocked(bool value)
     {
+        if(value && !isActiveAndEnabled) return;
         locked = value;
         Refresh();
     }
@@ -90,11 +101,18 @@ public class OutlineTarget : MonoBehaviour
 
     internal bool Tick(float dt)
     {
-        if(style == null) return false;
-
-        float goal = (hovered || locked) ? 1f : 0f;
-        float time = goal > intensity ? style.fadeInTime : style.fadeOutTime;
+        bool wanted = hovered || locked;
+        if(wanted) currentStyle = (locked && lockedStyle != null) ? lockedStyle : style;
+        
+        var s = currentStyle != null ? currentStyle : style;
+        if(s == null) return false;
+        
+        float goal = wanted ? 1f : 0f;
+        float time = goal > intensity ? s.fadeInTime : s.fadeOutTime;
         intensity = time <= 0f ? goal : Mathf.MoveTowards(intensity, goal, dt / time);
+
+        if(goal > 0f) activeTime += dt;
+        else if(intensity <= 0f) activeTime = 0f;
         
         return goal > 0f || intensity > 0f;
     }
