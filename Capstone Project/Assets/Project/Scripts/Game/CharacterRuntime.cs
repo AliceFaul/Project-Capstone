@@ -42,7 +42,8 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     protected CharacterData CharacterData;
 
-    private CharacterStateType _stateType;
+    private bool _isDead;
+    public bool IsDead => _isDead;
     
     private Material _flashMaterial;
     private DamageFlasher _damageFlash;
@@ -50,10 +51,9 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     public virtual void Init()
     {
         CharacterData = GetComponent<CharacterInstall>().characterData;
+        _isDead = false;
         Hp = totalHealth;
         OnHpChanged?.Invoke(Hp);
-        
-        _stateType = GetComponent<IStateMachine>().GetCurrentState();
     }
 
     protected virtual void ApplyBonusStat(BonusStat bonusStat, float amount)
@@ -83,41 +83,42 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     public virtual void TakeDamage(float damage, ICharacterRuntime runtime)
     {
         if(this == null) return;
+
+        if(_isDead) return;
+        if(this == null) return;
         
-        if (_stateType != CharacterStateType.Dead)
+        float finalDamage = DamageReduceCal.Calculate(damage, TotalArmor);
+        OnTakeDamage((int)finalDamage);
+
+        Hp -= (int)finalDamage;
+        Hp = Mathf.Clamp(Hp, 0, totalHealth);
+
+        if(runtime is PlayerRuntime player && player.playerArchive != null)
+            player.playerArchive.totalDamageDealt += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
+            
+        if(this is PlayerRuntime selfPlayer && selfPlayer.playerArchive != null)
+            selfPlayer.playerArchive.totalDamageReceived += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
+            
+        OnHpChanged?.Invoke(Hp);
+        OnHit?.Invoke();
+        CombatEvents.RaiseDamageDealt(this, runtime, finalDamage);
+
+        if (Hp <= 0)
         {
-            if(this == null) return;
-            float finalDamage = DamageReduceCal.Calculate(damage, TotalArmor);
-            OnTakeDamage((int)finalDamage);
-
-            Hp -= (int)finalDamage;
-            Hp = Mathf.Clamp(Hp, 0, totalHealth);
-
-            if (runtime is PlayerRuntime player && player.playerArchive != null)
-                player.playerArchive.totalDamageDealt += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
-            
-            if(this is PlayerRuntime selfPlayer && selfPlayer.playerArchive != null)
-                selfPlayer.playerArchive.totalDamageReceived += Mathf.Max(1, Mathf.RoundToInt(finalDamage));
-            
-            OnHpChanged?.Invoke(Hp);
-            OnHit?.Invoke();
-
-            if (Hp <= 0)
+            _isDead = true;
+            Die();
+            if (runtime is IPlayerRuntime playerRuntime)
             {
-                Die();
-                if (runtime is IPlayerRuntime playerRuntime)
+                playerRuntime.GainExp(Mathf.Max(1, CharacterData.expOnKill));
+                playerRuntime.Currency?.Add(CurrencyType.Gold, Mathf.Max(1, Mathf.RoundToInt(CharacterData.goldOnKill)));
+                if (playerRuntime is PlayerRuntime playerRuntime2 && playerRuntime2.playerArchive != null)
                 {
-                    playerRuntime.GainExp(Mathf.Max(1, CharacterData.expOnKill));
-                    playerRuntime.Currency?.Add(CurrencyType.Gold, Mathf.Max(1, Mathf.RoundToInt(CharacterData.goldOnKill)));
-                    if (playerRuntime is PlayerRuntime playerRuntime2 && playerRuntime2.playerArchive != null)
-                    {
-                        playerRuntime2.playerArchive.enemyDefeated++;
-                    }
+                    playerRuntime2.playerArchive.enemyDefeated++;
                 }
             }
-            
-            Debug.Log($"{gameObject} took {finalDamage} damage, health remaining {Hp}");
         }
+            
+        Debug.Log($"{gameObject} took {finalDamage} damage, health remaining {Hp}");
     }
 
     public virtual void TakeDamage(float damage) => TakeDamage(damage, null);
@@ -144,6 +145,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     public void Revive()
     {
+        _isDead = false;
         Hp = totalHealth;
         OnHpChanged?.Invoke(Hp);
         Debug.Log($"{gameObject} has been revived!");
@@ -151,6 +153,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     public virtual void Die()
     {
+        _isDead = true;
         gameObject.GetComponent<IStateMachine>().ChangeState(CharacterStateType.Dead);
         Debug.Log($"{gameObject} has been died!");
     }

@@ -13,6 +13,10 @@ namespace Mhieu.Enemy
         [SerializeField] private Image healthBar;
         [SerializeField] private ParticleSystem impactParticles;
         [SerializeField] private Animator animator;
+        
+        [Header("Sounds")]
+        [SerializeField] private AudioCue hurtCue;
+        [SerializeField] private AudioCue deathCue;
 
         private float _targetFillAmount = 1f;
 
@@ -45,6 +49,9 @@ namespace Mhieu.Enemy
         {
             base.TakeDamage(damage, runtime);
             _targetFillAmount = TotalHealth > 0 ? Mathf.Clamp01((float)Hp / TotalHealth) : 0f;
+            
+            if(Hp <= 0) return;
+            if(hurtCue != null) AudioService.Instance?.PlaySfx(hurtCue, transform.position);
         }
 
         protected override void OnTakeDamage(float damage)
@@ -85,6 +92,8 @@ namespace Mhieu.Enemy
         public override void Die()
         {
             base.Die();
+            if(deathCue != null) AudioService.Instance?.PlaySfx(deathCue, transform.position);
+            
             // Handle enemy death logic here (e.g., play animation, drop loot, etc.)
             // Remove all applied effect in this enemy
             foreach (var effect in _activeEffects)
