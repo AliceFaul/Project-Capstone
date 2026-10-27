@@ -15,6 +15,7 @@ public interface IAudioService
     void PlaySfx(AudioClip clip, Vector3 position); // 3D at a position, for legacy raw clips. Prefer AudioCue.
     void PlayUiClick();
     void PlayUiHover();
+    void PlayUi(UiSfx sfx);
 
     int PlayLoop(AudioCue cue, Transform follow, float maxSeconds = 0f);
     int PlayLoop(AudioClip clip, Transform follow, float maxSeconds = 0f);

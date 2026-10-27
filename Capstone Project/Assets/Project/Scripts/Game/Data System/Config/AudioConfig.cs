@@ -48,7 +48,16 @@ public class AudioConfig : ScriptableObject, IConfig
     [Header("UI cues")]
     public AudioCue uiClick;
     public AudioCue uiHover;
+    public AudioCue uiPopupOpen;
+    public AudioCue uiPopupClose;
+    [Tooltip("Falls back to uiClick when empty.")] public AudioCue uiConfirm;
+    [Tooltip("Falls back to uiClick when empty.")] public AudioCue uiCancel;
+    public AudioCue uiError;
 
+    [Header("uGUI")]
+    [Tooltip("Automatically add UiSound (click / hover sounds) to every Button, Toggle and Dropdown that does not have one.")]
+    public bool autoAttachUGuiSounds = true;
+    
     public string GetParam(AudioChannel channel)
     {
         return channel switch
@@ -79,6 +88,22 @@ public class AudioConfig : ScriptableObject, IConfig
             SfxBus.Ambient => ambientGroup != null ? ambientGroup : sfxGroup,
             SfxBus.Gameplay => sfxGroup,
             _ => throw new ArgumentOutOfRangeException(nameof(bus), bus, null)
+        };
+    }
+
+    public AudioCue GetUiCue(UiSfx sfx)
+    {
+        return sfx switch
+        {
+            UiSfx.Click => uiClick,
+            UiSfx.Hover => uiHover,
+            UiSfx.PopupOpen => uiPopupOpen,
+            UiSfx.PopupClose => uiPopupClose,
+            UiSfx.Confirm => uiConfirm,
+            UiSfx.Cancel => uiCancel,
+            UiSfx.Error => uiError,
+            UiSfx.None => null,
+            _ => throw new ArgumentOutOfRangeException(nameof(sfx), sfx, null)
         };
     }
 }

@@ -135,6 +135,14 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         if(_config == null) return;
         PlaySfx(_config.uiHover);
     }
+
+    // Common UI sounds (popup open/close, confirm, cancel, error...) assigned through AudioConfig.
+    public void PlayUi(UiSfx sfx)
+    {
+        if(_config == null || sfx == UiSfx.None) return;
+        var cue = _config.GetUiCue(sfx);
+        if(cue != null) PlaySfx(cue);
+    }
     
     public void PlayMusic(MusicTrack track, float fade = -1f) => _director?.SetBase(track, fade);
     public void PushMusic(MusicTrack track, MusicPriority priority, object owner, float fade = -1f) => _director?.Push(track, priority, owner, fade);
