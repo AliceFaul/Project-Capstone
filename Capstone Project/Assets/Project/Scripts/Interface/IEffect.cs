@@ -6,8 +6,13 @@ using System;
 [Serializable]
 public class StatusEffect
 {
-    // VFX & SFX
+    // ===== SFX =====
     public AudioClip castSound;
+    public AudioCue castSfx;
+    public AudioClip runningSound;
+    public AudioCue runningSfx;
+    
+    // ===== VFX =====
     public GameObject castVfx;
     public GameObject runningVfx;
     

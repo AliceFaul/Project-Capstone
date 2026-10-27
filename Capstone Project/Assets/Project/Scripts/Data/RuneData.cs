@@ -60,6 +60,7 @@ public class RuneData : ItemData
     
     [Header("VFX / SFX cua hieu ung")]
     public AudioClip castSound;
+    public AudioClip runningSound;
     public GameObject castVfx;
     public GameObject runningVfx;
     
