@@ -94,7 +94,7 @@ public class MusicDirector
 
         foreach (var e in _entries)
         {
-            if(top == null || e.priority > top.priority || (e.priority == top.priority && e.order > top.order))
+            if(top == null || e.priority > top.priority || (e.priority == top.priority && e.order >= top.order))
                 top = e;
         }
         

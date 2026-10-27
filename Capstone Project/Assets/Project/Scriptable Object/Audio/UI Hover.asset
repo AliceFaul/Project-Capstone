@@ -16,7 +16,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 52ba6ee238dc1c245be12924dd6059ee, type: 3}
   avoidImmediateRepeat: 1
   bus: 1
-  volume: 0.5
+  volume: 0.3
   volumeVariance: {x: 0.85, y: 1}
   pitchRange: {x: 0.95, y: 1.08}
   spatialBlend: 0

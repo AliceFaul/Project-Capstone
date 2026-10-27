@@ -16,7 +16,7 @@ MonoBehaviour:
   fps: 30
   activeCameraShake: 1
   masterVolume: 1
-  musicVolume: 1
+  musicVolume: 0.8
   sfxVolume: 1
   showDamageText: 1
   inventory: 98

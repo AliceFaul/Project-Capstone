@@ -41,20 +41,15 @@ public class CombatMusicTrigger : MonoBehaviour
     {
         CombatEvents.DamageDealt -= OnDamageDealt;
         CombatEvents.AggroChanged -= OnAggroChanged;
-        LeaveCombat();
+        
+        if(gameObject.scene.isLoaded) LeaveCombat();
     }
 
     private void Update()
     {
         if(!InCombat) return;
 
-        if (_threats.Count > 0)
-        {
-            int before = _threats.Count;
-            _threats.RemoveWhere(IsGone);
-            
-            if(_threats.Count != before) _lastActivityTime = Time.time;
-        }
+        if(_threats.Count > 0) _threats.RemoveWhere(IsGone);
         
         // Scaled time on purpose: a paused game (timeScale 0) must not drift out of combat.
         if(_threats.Count == 0 && Time.time - _lastActivityTime >= graceSeconds) LeaveCombat();
@@ -97,7 +92,7 @@ public class CombatMusicTrigger : MonoBehaviour
         else if (_threats.Remove(source))
         {
             // The grace period starts when the last aggro source is gone.
-            _lastActivityTime = Time.time;
+            if(_threats.Count == 0) _lastActivityTime = Time.time;
         }
     }
 
