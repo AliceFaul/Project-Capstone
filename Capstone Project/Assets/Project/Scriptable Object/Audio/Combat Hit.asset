@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Combat Hit
   m_EditorClassIdentifier: Assembly-CSharp::AudioCue
   clips:
-  - {fileID: 8300000, guid: 5d28d9d7149cb1a4b84da9da68eda10c, type: 3}
+  - {fileID: 8300000, guid: 55d875c5414cc804fa4e2c1e2b11f947, type: 3}
+  - {fileID: 8300000, guid: b07ee6baced328244bafa07f65e85007, type: 3}
+  - {fileID: 8300000, guid: 53457ba8f3fc00b4aa3aacfa0ab6c4cf, type: 3}
+  - {fileID: 8300000, guid: 08d0c1a08691bcc408e662d3966c7e15, type: 3}
   avoidImmediateRepeat: 1
   bus: 0
   volume: 1

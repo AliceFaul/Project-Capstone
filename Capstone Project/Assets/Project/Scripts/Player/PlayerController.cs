@@ -21,7 +21,9 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
     
+    [Header("Behaviour")]
     [SerializeField] private CommandType currentCommand;
+    
     private ICommand<Vector3> _moveCommand;
     private ICommand<Transform> _attackCommand;
 
@@ -113,6 +115,9 @@ public class PlayerController : MonoBehaviour {
         }
         set => _artifactController = value;
     }
+
+    private OutlineTarget _currentOutlineTarget;
+    public OutlineTarget CurrentOutlineTarget => _currentOutlineTarget;
     
     private InputHandler _inputHandler;
     public InputHandler InputHandler
@@ -198,6 +203,7 @@ public class PlayerController : MonoBehaviour {
 
         if(((1 << hitLayer) & groundLayer) != 0) {
             if(!PlayerModifier.CanMove) return;
+            ClearCurrentOutline();
             
             // Move to the clicked position on the ground
             _isHoldingMove = true;
@@ -251,6 +257,7 @@ public class PlayerController : MonoBehaviour {
     private void ExecuteAttack(Transform target) {
         if (Combat.IsAttacking)
         {
+            LockOutline(target);
             Combat.SetTarget(target);
             Movement?.SnapFaceTowards(target.position);
             Combat.CmdAttack();
@@ -258,6 +265,7 @@ public class PlayerController : MonoBehaviour {
         }
         
         if(!PlayerModifier.CanAttack) return;
+        LockOutline(target);
         Movement?.SnapFaceTowards(target.position);
 
         if (invoker == null) return;
@@ -305,6 +313,23 @@ public class PlayerController : MonoBehaviour {
     {
         PlayerModifier.AttackModifier(!value);
         PlayerModifier.MoveModifier(!value);
+    }
+
+    private void LockOutline(Transform target)
+    {
+        var next = target != null ? target.GetComponentInParent<OutlineTarget>() : null;
+        if(next == null) return;
+        
+        ClearCurrentOutline();
+
+        _currentOutlineTarget = next;
+        if(_currentOutlineTarget != null) _currentOutlineTarget.SetLocked(true);
+    }
+
+    private void ClearCurrentOutline()
+    {
+        if(_currentOutlineTarget != null) _currentOutlineTarget.SetLocked(false);
+        _currentOutlineTarget = null;
     }
 
     private void OnMoveStart(Vector3 destination) { }

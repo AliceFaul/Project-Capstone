@@ -1914,6 +1914,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 350802552}
+  - component: {fileID: 350802553}
   m_Layer: 0
   m_Name: Environments
   m_TagString: Untagged
@@ -1955,6 +1956,21 @@ Transform:
   - {fileID: 280817735}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &350802553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350802551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cc9e6d7a6a9475bbcd1c3deb36f952c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneMusic
+  track: {fileID: 0}
+  fade: -1
+  playOnStart: 1
 --- !u!1 &361005089
 GameObject:
   m_ObjectHideFlags: 0
@@ -5426,7 +5442,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuScreen
   cosmeticDatabase: {fileID: 11400000, guid: 0ae5235fe4403a94cbf1707255598009, type: 2}
-  mainAudioMixer: {fileID: 0}
 --- !u!114 &884649659
 MonoBehaviour:
   m_ObjectHideFlags: 0

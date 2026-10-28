@@ -12,7 +12,14 @@ public interface IAudioService
     void PlaySfx(AudioCue cue);                     // 2D (UI, global feedback)
     void PlaySfx(AudioCue cue, Vector3 position);   // 3D, fire-and-forget at a position
     void PlaySfx(AudioCue cue, Transform follow);   // 3D, follows a transform while it is active
+    void PlaySfx(AudioClip clip, Vector3 position); // 3D at a position, for legacy raw clips. Prefer AudioCue.
     void PlayUiClick();
+    void PlayUiHover();
+    void PlayUi(UiSfx sfx);
+
+    int PlayLoop(AudioCue cue, Transform follow, float maxSeconds = 0f);
+    int PlayLoop(AudioClip clip, Transform follow, float maxSeconds = 0f);
+    void StopLoop(int handle, float fade = 0.25f);
     
     // ===== MUSIC =====
     MusicTrack CurrentMusic { get; }

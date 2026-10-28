@@ -168,7 +168,8 @@ public static class RuneEffectFactory
         {
             castSound = effect.Data.castSound,
             castVfx = effect.Data.castVfx,
-            runningVfx = effect.Data.runningVfx
+            runningVfx = effect.Data.runningVfx,
+            runningSound = effect.Data.runningSound
         };
         
         status.effects.Add(dot);

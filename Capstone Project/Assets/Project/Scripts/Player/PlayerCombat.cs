@@ -17,6 +17,10 @@ public class PlayerCombat : MonoBehaviour {
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
     
+    [Header("Status Effects")]
+    [Tooltip("Seconds the running VFX keeps fading out after the status ends.")]
+    [SerializeField] private float runningVfxFadeOut = 1.5f;
+    
     [Header("Audio")]
     [SerializeField] private AudioCue swingCue;
     [SerializeField] private AudioCue hitCue;
@@ -151,7 +155,6 @@ public class PlayerCombat : MonoBehaviour {
         _controller.StateMachine.ChangeState(CharacterStateType.Locomotion);
     }
     
-    // TODO: Add to Animation Event for exactly time
     public void CmdDealDamage()
     {
         if(_currentMeleeWeapon == null) return;
@@ -200,8 +203,6 @@ public class PlayerCombat : MonoBehaviour {
         Impact(hasCrit);
     }
     
-    // Call this method in the PlayerController when the player right clicks
-    // TODO: Add animation trigger here and ammo
     public void CmdShoot(Vector3 mousePosition)
     {
         if(_currentAmmo <= 0) return;
@@ -292,18 +293,29 @@ public class PlayerCombat : MonoBehaviour {
     
     private void Cast(StatusEffect effect, IAttackable target)
     {
-        effect.Apply(target);
         var mb = target as MonoBehaviour;
+        StatusRunningFeedback running = null;
 
-        if (effect.castVfx && mb) Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
-
-        if (effect.runningVfx && mb)
+        void BindRunningFeedback(IAttackable appliedTarget, IStatusEffect status)
         {
-            var runningVfx = Instantiate(effect.runningVfx, mb.transform);
-            Destroy(runningVfx, 3f);
+            if(mb == null) return;
+            running ??= StatusRunningFeedback.Create(effect, mb.transform, runningVfxFadeOut);
+            running?.Bind(status);
         }
         
-        // TODO: Add audio service
+        effect.OnStatusApplied += BindRunningFeedback;
+        effect.Apply(target);
+        effect.OnStatusApplied -= BindRunningFeedback;
+        
+        if(mb == null) return;
+        if(effect.castVfx) Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
+        
+        // Only instant effects (no status to follow): keep the old fixed-time behavior.
+        if(running == null && effect.runningVfx) Destroy(Instantiate(effect.runningVfx, mb.transform), 3f);
+
+        Vector3 soundPosition = mb.transform.position;
+        if(effect.castSfx != null) AudioService.Instance?.PlaySfx(effect.castSfx, soundPosition);
+        else if(effect.castSound != null) AudioService.Instance?.PlaySfx(effect.castSound, soundPosition);
     }
 
     private void ApplyRuneEffects(EquipSlot slot, IAttackable target)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -16,6 +17,7 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     private MusicDirector _director;
     private bool _initialized;
 
+    private readonly Dictionary<AudioClip, AudioCue> _clipCues = new();
     private readonly float[] _volumes = { 1f, 0.8f, 1f };
     
     public bool IsReady => _initialized;
@@ -81,6 +83,12 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     {
         if(Instance == this) Instance = null;
         OnVolumeChanged = null;
+
+        foreach (var cue in _clipCues.Values)
+        {
+            if(cue != null) Destroy(cue);
+        }
+        _clipCues.Clear();
     }
 
     public void PlaySfx(AudioCue cue) => _sfx?.Play(cue, false, default, null);
@@ -92,6 +100,30 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         _sfx?.Play(cue, true, follow.position, follow);
     }
 
+    public void PlaySfx(AudioClip clip, Vector3 position) => PlaySfx(GetClipCue(clip), position);
+
+    // Returns a handle for StopLoop, 0 if nothing started. The loop follows 'follow' and also stops by itself
+    // (short fade) if that transform is destroyed / deactivated, or after maxSeconds of game time (0 = no limit).
+    public int PlayLoop(AudioCue cue, Transform follow, float maxSeconds = 0f) => _sfx != null && follow != null ? _sfx.PlayLoop(cue, follow, maxSeconds) : 0;
+    public int PlayLoop(AudioClip clip, Transform follow, float maxSeconds = 0f) => PlayLoop(GetClipCue(clip), follow, maxSeconds);
+    public void StopLoop(int handle, float fade = 0.25f) => _sfx?.StopLoop(handle, fade);
+
+    private AudioCue GetClipCue(AudioClip clip)
+    {
+        if(clip == null) return null;
+
+        if (!_clipCues.TryGetValue(clip, out AudioCue cue) || cue == null)
+        {
+            cue = ScriptableObject.CreateInstance<AudioCue>();
+            cue.name = $"AdHoc_{clip.name}";
+            cue.hideFlags = HideFlags.HideAndDontSave;
+            cue.clips = new[] { clip };
+            _clipCues[clip] = cue;
+        }
+
+        return cue;
+    }
+    
     public void PlayUiClick()
     {
         if(_config == null) return;
@@ -102,6 +134,14 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     {
         if(_config == null) return;
         PlaySfx(_config.uiHover);
+    }
+
+    // Common UI sounds (popup open/close, confirm, cancel, error...) assigned through AudioConfig.
+    public void PlayUi(UiSfx sfx)
+    {
+        if(_config == null || sfx == UiSfx.None) return;
+        var cue = _config.GetUiCue(sfx);
+        if(cue != null) PlaySfx(cue);
     }
     
     public void PlayMusic(MusicTrack track, float fade = -1f) => _director?.SetBase(track, fade);
