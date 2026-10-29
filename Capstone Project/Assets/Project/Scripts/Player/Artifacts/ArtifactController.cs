@@ -37,6 +37,7 @@ public class ArtifactController : MonoBehaviour
      private bool _isCasting;
      
      public bool IsCasting => _isCasting;
+     public bool InputLocked { get; set; }
 
      // (slot, artifact) - HUD co the dung de chay hieu ung ban phim.
      public event Action<int, ArtifactData> OnArtifactUsed;
@@ -68,12 +69,11 @@ public class ArtifactController : MonoBehaviour
      
      private void OnEnable()
      {
-         if (_inputHandler != null)
-         {
-             _inputHandler.OnArtifact1 += OnArtifact1;
-             _inputHandler.OnArtifact2 += OnArtifact2;
-             _inputHandler.OnArtifact3 += OnArtifact3;
-         }
+         if(_inputHandler == null) return;
+         
+         _inputHandler.OnArtifact1 += OnArtifact1;
+         _inputHandler.OnArtifact2 += OnArtifact2;
+         _inputHandler.OnArtifact3 += OnArtifact3;
      }
 
      private void OnDisable()
@@ -117,7 +117,7 @@ public class ArtifactController : MonoBehaviour
 
      public bool TryActivate(int slot)
      {
-         if(_equipment == null || _isCasting) return false;
+         if(_equipment == null || _isCasting || InputLocked) return false;
 
          var instance = _equipment.GetArtifact(slot);
          var data = _equipment.GetArtifactDefinition(instance);
