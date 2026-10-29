@@ -15,6 +15,9 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     public event Action<int> OnLevelUp;
     public event Action<float, float> OnExpChanged;
     
+    [Header("Audio")]
+    [SerializeField] private AudioCue levelUpCue;
+    
     [Header("Player Bonus Stats")]
     private int bonusCritChance = 0;
     private int bonusCritDamage = 0;
@@ -36,14 +39,10 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     private readonly Dictionary<string, List<StatModifier>> _modifierSources = new Dictionary<string, List<StatModifier>>();
     private readonly float[] _flatBonus = new float[StatCount];
     private readonly float[] _percentBonus = new float[StatCount];
-
     
     public event Action OnStatsChanged;
     
-    private void Awake()
-    {
-        Init();
-    }
+    private void Awake() => Init();
     
     public override void Init()
     {
@@ -84,6 +83,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     protected virtual void LevelUp(int newLevel)
     {
         OnLevelUp?.Invoke(newLevel); // This event use for ui driven
+        if(levelUpCue != null) AudioService.Instance?.PlaySfx(levelUpCue);
 
         Hp = TotalHealth;
         HpChanged(Hp);

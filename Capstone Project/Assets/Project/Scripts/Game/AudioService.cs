@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -18,6 +19,15 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     private bool _initialized;
 
     private readonly Dictionary<AudioClip, AudioCue> _clipCues = new();
+
+    private readonly HashSet<object> _overlayOwners = new();
+    private static readonly Predicate<object> IsDestroyedOwner = owner => owner is UnityEngine.Object unityObject && unityObject == null;
+    private bool _combatMix;
+
+    private const float VolumeSaveDelay = 0.75f;
+    private bool _volumeDirty;
+    private float _lastVolumeChange;
+    
     private readonly float[] _volumes = { 1f, 0.8f, 1f };
     
     public bool IsReady => _initialized;
@@ -58,6 +68,7 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         _director = new MusicDirector(_music);
         
         _initialized = true;
+        if(_config.autoAttachUGuiSounds && GetComponent<UiSoundAutoAttach>() == null) gameObject.AddComponent<UiSoundAutoAttach>();
         
         ApplyAllVolumes();
 
@@ -77,10 +88,24 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         _sfx?.Tick();
         _music?.Tick(Time.unscaledDeltaTime);
         _director?.Tick();
+        
+        if(_overlayOwners.Count > 0 && _overlayOwners.RemoveWhere(IsDestroyedOwner) > 0) RefreshSnapshot(0.25f);
+        if(_volumeDirty && Time.unscaledTime - _lastVolumeChange >= VolumeSaveDelay) FlushVolumes();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if(pauseStatus) FlushVolumes();
+    }
+
+    private void OnApplicationQuit()
+    {
+        FlushVolumes();
     }
 
     private void OnDestroy()
     {
+        FlushVolumes();
         if(Instance == this) Instance = null;
         OnVolumeChanged = null;
 
@@ -123,18 +148,9 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
 
         return cue;
     }
-    
-    public void PlayUiClick()
-    {
-        if(_config == null) return;
-        PlaySfx(_config.uiClick);
-    }
 
-    public void PlayUiHover()
-    {
-        if(_config == null) return;
-        PlaySfx(_config.uiHover);
-    }
+    public void PlayUiClick() => PlayUi(UiSfx.Click);
+    public void PlayUiHover() => PlayUi(UiSfx.Hover);
 
     // Common UI sounds (popup open/close, confirm, cancel, error...) assigned through AudioConfig.
     public void PlayUi(UiSfx sfx)
@@ -166,6 +182,13 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
         }
  
         ApplyVolume(channel);
+
+        if (_playerConfig != null)
+        {
+            _volumeDirty = true;
+            _lastVolumeChange = Time.unscaledTime;
+        }
+        
         OnVolumeChanged?.Invoke(channel, v);
     }
 
@@ -222,19 +245,62 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
  
     // Slider 0..1 -> dB. 0 maps to -80 dB (silence).
     private static float ToDecibel(float linear) => Mathf.Log10(Mathf.Max(0.0001f, linear)) * 20f;
- 
-    public void SetSnapshot(AudioSnapshotType type, float transitionSeconds = 0.5f)
+
+    public void SetCombatMix(bool inCombat, float transitionSeconds = 0.5f)
     {
-        if (_config == null) return;
+        _combatMix = inCombat;
+        RefreshSnapshot(transitionSeconds);
+    }
+
+    public void SetOverlay(object owner, bool open, float transitionSeconds = 0.25f)
+    {
+        if(owner == null) return;
+        bool changed = open ? _overlayOwners.Add(owner) : _overlayOwners.Remove(owner);
+        if(changed) RefreshSnapshot(transitionSeconds);
+    }
+
+    private void RefreshSnapshot(float transitionSeconds)
+    {
+        if(_config == null) return;
+
+        AudioMixerSnapshot snapshot = null;
+        if(_overlayOwners.Count > 0) snapshot = _config.pausedSnapshot;
+        if(snapshot == null && _combatMix) snapshot = _config.combatSnapshot;
+        if(snapshot == null) snapshot = _config.normalSnapshot;
+        
+        if(snapshot != null) snapshot.TransitionTo(Mathf.Max(0f, transitionSeconds));
+    }
+
+    private void FlushVolumes()
+    {
+        if(!_volumeDirty) return;
+        _volumeDirty = false;
+        
+        if(_playerConfig != null) LocalConfigWriter.Save(_playerConfig);
+    }
+}
+
+public static class LocalConfigWriter
+{
+    public static bool Save(ScriptableObject config)
+    {
+        if (config == null) return false;
  
-        AudioMixerSnapshot snapshot;
-        switch (type)
+        try
         {
-            case AudioSnapshotType.Combat: snapshot = _config.combatSnapshot; break;
-            case AudioSnapshotType.Paused: snapshot = _config.pausedSnapshot; break;
-            default: snapshot = _config.normalSnapshot; break;
-        }
+            string path = Path.Combine(Application.persistentDataPath, config.name + ".json");
+            string tempPath = path + ".tmp";
  
-        if (snapshot != null) snapshot.TransitionTo(Mathf.Max(0f, transitionSeconds));
+            // Write to a temp file first so a crash in the middle never leaves a half-written config behind.
+            File.WriteAllText(tempPath, JsonUtility.ToJson(config, true));
+            if (File.Exists(path)) File.Delete(path);
+            File.Move(tempPath, path);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[LocalConfigWriter] Could not save {config.name}: {e.Message}");
+            return false;
+        }
     }
 }

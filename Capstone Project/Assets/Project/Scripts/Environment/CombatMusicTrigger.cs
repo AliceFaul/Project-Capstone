@@ -104,7 +104,7 @@ public class CombatMusicTrigger : MonoBehaviour
         
         InCombat = true;
         if(combatTrack != null) AudioService.Instance?.PushMusic(combatTrack, priority, this, enterFade);
-        if(useCombatSnapshot) AudioService.Instance?.SetSnapshot(AudioSnapshotType.Combat, enterFade);
+        if(useCombatSnapshot) AudioService.Instance?.SetCombatMix(InCombat, enterFade);
         OnCombatChanaged?.Invoke(true);
     }
 
@@ -116,7 +116,7 @@ public class CombatMusicTrigger : MonoBehaviour
         _threats.Clear();
         
         AudioService.Instance?.PopMusic(this, exitFade);
-        if(useCombatSnapshot) AudioService.Instance?.SetSnapshot(AudioSnapshotType.Normal, exitFade);
+        if(useCombatSnapshot) AudioService.Instance?.SetCombatMix(InCombat, exitFade);
         OnCombatChanaged?.Invoke(false);
     }
 }

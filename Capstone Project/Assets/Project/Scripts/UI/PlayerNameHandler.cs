@@ -37,7 +37,8 @@ public class PlayerNameHandler : MonoBehaviour
     private void ShowError(string errorId)
     {
         if(errorMessage == null) return;
-
+        AudioService.Instance?.PlayUi(UiSfx.Error);
+        
         LocalizedString message = errorId switch
         {
             "NAME_NULL_OR_WHITESPACE" => _nameNullOrWhiteSpace,

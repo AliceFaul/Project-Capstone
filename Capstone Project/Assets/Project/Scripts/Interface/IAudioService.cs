@@ -31,5 +31,7 @@ public interface IAudioService
     // ===== MIXER =====
     void SetVolume(AudioChannel channel, float value01);
     float GetVolume(AudioChannel channel);
-    void SetSnapshot(AudioSnapshotType type, float transitionSeconds = 0.5f);
+    // Mixer mood. Priority: overlay > combat > normal.
+    void SetCombatMix(bool inCombat, float transitionSeconds = 0.5f);
+    void SetOverlay(object owner, bool open, float transitionSeconds = 0.25f);
 }

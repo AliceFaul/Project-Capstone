@@ -10,6 +10,9 @@ public class PlayerHUDController : MonoBehaviour
     [SerializeField] private PlayerHUDView view;
     [SerializeField] private CurrencyUI currencyUI;
     
+    [Header("Audio")]
+    [SerializeField] private AudioCue abilityReadyCue;
+    
     [Header("Player")]
     [SerializeField] private PlayerController controller;
     
@@ -226,6 +229,7 @@ public class PlayerHUDController : MonoBehaviour
         if(slot < 0 || slot >= _abilityCooling.Length) return;
         _abilityCooling[slot] = false;
         view?.SetAbilityCooldown(slot, 0f);
+        if(abilityReadyCue != null) AudioService.Instance?.PlaySfx(abilityReadyCue);
     }
 
     private void UpdateAbilityCooldowns()

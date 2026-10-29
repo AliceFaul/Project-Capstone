@@ -15,7 +15,10 @@ public class Popup : UIElement
     private void Awake()
     {
         _animator = GetComponent<Animator>();
+        UiSound.AttachAll(gameObject);
     }
+
+    private void OnEnable() => AudioService.Instance?.PlayUi(UiSfx.PopupOpen);
 
     public void Setup(string instanceId, LocalizedString content, Func<bool> onClick1, Func<bool> onClick2)
     {
@@ -57,6 +60,7 @@ public class Popup : UIElement
     
     private IEnumerator ClosePopup(float time)
     {
+        AudioService.Instance?.PlayUi(UiSfx.PopupClose);
         if(_animator != null) _animator.Play($"Close");
         yield return new WaitForSeconds(time);
         Destroy(this.gameObject);
