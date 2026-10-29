@@ -12,6 +12,7 @@ public class PlayerHUDController : MonoBehaviour
     
     [Header("Audio")]
     [SerializeField] private AudioCue abilityReadyCue;
+    [SerializeField] private AudioCue artifactReadyCue;
     
     [Header("Player")]
     [SerializeField] private PlayerController controller;
@@ -305,8 +306,12 @@ public class PlayerHUDController : MonoBehaviour
             
             float normalized = _artifactController.GetCooldownNormalized(i);
             view.SetArtifactCooldown(i, normalized);
-            
-            if(normalized <= 0.001f) _artifactCooling[i] = false;
+
+            if (normalized <= 0.001f)
+            {
+                _artifactCooling[i] = false;
+                if(artifactReadyCue != null) AudioService.Instance?.PlaySfx(artifactReadyCue);
+            }
         }
     }
 

@@ -56,7 +56,6 @@ public class SceneLoader : MonoBehaviour
             animator = GetComponentInChildren<Animator>();
             animator?.Play("Scene_Open");
         }
-        canvas.worldCamera = Camera.main;
     }
 
     public async Task LoadScene(string sceneName, bool initHelper)
@@ -86,20 +85,16 @@ public class SceneLoader : MonoBehaviour
             
             _initManagerHelper.loadSceneWhenDone = sceneName;
 
-            if (operation != null)
-            {
-                while(operation.progress < 0.9f)
-                    await Task.Yield();
-            }
+            if(operation != null)
+                while(operation.progress < 0.9f) await Task.Yield();
         }
         else
         {
             operation = SceneManager.LoadSceneAsync(sceneName);
-            
-            if (operation != null) 
-                operation.allowSceneActivation = false;
+            if(operation != null) operation.allowSceneActivation = false;
         }
         
+        AudioService.Instance?.StopMusic(0.5f);
         animator?.Play("Scene_Close");
         
         await AnimationProcess();

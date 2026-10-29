@@ -96,16 +96,6 @@ public class PlayerCombat : MonoBehaviour {
         Debug.Log(target != null ? $"[PlayerCombat] Target: {target.name}" : $"[PlayerCombat] Target cleared.");
     }
 
-    private void HandleStatusApplied(IAttackable target, IStatusEffect statusEffect)
-    {
-        if(target is not MonoBehaviour mb) return;
-        var statusUI = mb.GetComponentInChildren<StatusEffectUI>();
-        statusUI?.ShowEffects(statusEffect);
-    }
-
-    // Call this method in the PlayerController when the player clicks on an enemy
-    // This method will check if the player can attack and then perform the attack
-    // TODO: You can add an animation trigger here if you have an attack animation
     public void CmdAttack() {
         if(_currentTarget == null || _currentMeleeWeapon == null) return;
 
@@ -290,33 +280,8 @@ public class PlayerCombat : MonoBehaviour {
         float speed = _controller.PlayerRuntime.ModifyStat(BonusStat.AttackSpeed, weaponSpeed);
         return Mathf.Max(0.1f, speed);   // chan duoi: vu khi thieu dong AttackSpeed khong lam dong bang anim / khong ban duoc
     }
-    
-    private void Cast(StatusEffect effect, IAttackable target)
-    {
-        var mb = target as MonoBehaviour;
-        StatusRunningFeedback running = null;
 
-        void BindRunningFeedback(IAttackable appliedTarget, IStatusEffect status)
-        {
-            if(mb == null) return;
-            running ??= StatusRunningFeedback.Create(effect, mb.transform, runningVfxFadeOut);
-            running?.Bind(status);
-        }
-        
-        effect.OnStatusApplied += BindRunningFeedback;
-        effect.Apply(target);
-        effect.OnStatusApplied -= BindRunningFeedback;
-        
-        if(mb == null) return;
-        if(effect.castVfx) Instantiate(effect.castVfx, mb.transform.position + new Vector3(0f, 2f, 0f), Quaternion.identity);
-        
-        // Only instant effects (no status to follow): keep the old fixed-time behavior.
-        if(running == null && effect.runningVfx) Destroy(Instantiate(effect.runningVfx, mb.transform), 3f);
-
-        Vector3 soundPosition = mb.transform.position;
-        if(effect.castSfx != null) AudioService.Instance?.PlaySfx(effect.castSfx, soundPosition);
-        else if(effect.castSound != null) AudioService.Instance?.PlaySfx(effect.castSound, soundPosition);
-    }
+    private void Cast(StatusEffect effect, IAttackable target) => StatusPresenter.Apply(effect, target, runningVfxFadeOut);
 
     private void ApplyRuneEffects(EquipSlot slot, IAttackable target)
     {
@@ -324,7 +289,6 @@ public class PlayerCombat : MonoBehaviour {
         {
             if(Random.value > runeEffect.Data.proChance) continue;
             var status = RuneEffectFactory.Create(runeEffect);
-            status.OnStatusApplied += HandleStatusApplied; // StatusEffectUI enable icon
             Cast(status, target);
         }
     }

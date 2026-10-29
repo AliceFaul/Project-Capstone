@@ -138,6 +138,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     public void Heal(float amount)
     {
+        if(_isDead || amount <= 0f) return;
         Hp = (int)Mathf.Min(Hp + amount, totalHealth);
         OnHpChanged?.Invoke(Hp);
         Debug.Log($"{gameObject} has been healed {amount}%!");

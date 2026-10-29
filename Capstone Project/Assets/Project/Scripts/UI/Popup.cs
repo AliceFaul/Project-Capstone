@@ -31,7 +31,7 @@ public class Popup : UIElement
             this.button1.onClick.AddListener(() =>
             {
                 bool close = onClick1 == null || onClick1.Invoke();
-                if(close) StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
+                if(close) StartCoroutine(ClosePopup(_animator != null ? _animator.GetCurrentAnimatorStateInfo(0).length : 0f));
             });
         }
         
@@ -41,7 +41,7 @@ public class Popup : UIElement
             this.button2.onClick.AddListener(() =>
             {
                 bool close = onClick2 == null || onClick2.Invoke();
-                if(close) StartCoroutine(ClosePopup(_animator.GetCurrentAnimatorStateInfo(0).length));
+                if(close) StartCoroutine(ClosePopup(_animator != null ? _animator.GetCurrentAnimatorStateInfo(0).length : 0f));
             });
         }
     }
@@ -62,7 +62,7 @@ public class Popup : UIElement
     {
         AudioService.Instance?.PlayUi(UiSfx.PopupClose);
         if(_animator != null) _animator.Play($"Close");
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSecondsRealtime(time);
         Destroy(this.gameObject);
     }
 }

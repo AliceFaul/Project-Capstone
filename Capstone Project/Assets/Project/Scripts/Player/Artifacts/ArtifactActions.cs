@@ -59,6 +59,7 @@ public class AreaStrikeAction : ArtifactAction
 {
     public DamageSpec damage = new DamageSpec();
     public float radius = 3f;
+    public AudioCue impactSfx;
 
     [Tooltip("Do tre luc kich hoat toi luc gay sat thuong (de khop VFX roi xuong).")]
     public float delay = 0.3f;
@@ -84,6 +85,7 @@ public class AreaStrikeAction : ArtifactAction
     {
         if(delay > 0f) yield return new WaitForSeconds(delay);
         ArtifactDamage.Area(point, radius, amount, context.Caster, context.EnemyLayer, effect);
+        AudioService.Instance?.PlaySfx(impactSfx, point);
     }
 }
 
