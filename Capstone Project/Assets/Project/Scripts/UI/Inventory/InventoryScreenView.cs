@@ -221,8 +221,8 @@ public class InventoryScreenView : MonoBehaviour
 
     private void RefreshCurrency()
     {
-        goldText.text = $"Gold {_data.Currency.Gold():N0}";
-        gemText.text = $"Gem {_data.Currency.Gem():N0}";
+        goldText.text = $"{_data.Currency.Gold():N0}";
+        gemText.text = $"{_data.Currency.Gem():N0}";
     }
 
     private void RefreshEquipment()

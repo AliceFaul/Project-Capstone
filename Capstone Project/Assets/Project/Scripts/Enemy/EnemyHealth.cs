@@ -102,6 +102,10 @@ namespace Mhieu.Enemy
                 effect.Cancel();
             }
             _activeEffects.Clear();
+
+            // Disable outline when enemies dead.
+            var outlineComponent = GetComponent<OutlineTarget>();
+            if(outlineComponent != null) outlineComponent.enabled = false;
             
             gameObject.SetActive(false); // For now, just deactivate the enemy
         }

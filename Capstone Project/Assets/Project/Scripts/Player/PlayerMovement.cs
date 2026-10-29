@@ -155,7 +155,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void CmdJump()
     {
-        if (_isJumping || Time.time < _lastJumpTime + autoJumpCooldown) return;
+        if(!_controller.PlayerModifier.CanMove) return;
+        if(_isJumping || Time.time < _lastJumpTime + autoJumpCooldown) return;
 
         Vector3 targetJumpDir = transform.forward;
         
