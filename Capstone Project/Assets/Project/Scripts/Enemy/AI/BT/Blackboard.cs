@@ -14,8 +14,14 @@ namespace Mhieu.AI.BT
         public bool IsAggro;
         public Vector3 HomePosition;
 
-        /// <summary>True khi bị Hit/Knockback/Dead: Brain dừng cây và hủy hành động đang chạy.</summary>
+        /// <summary>True khi bị Hit/Knockback: Brain báo để cây tạm đứng yên.</summary>
         public bool IsDisabled;
+
+        /// <summary>
+        /// True từ lúc bỏ đuổi (quá xa) cho tới khi về tới nhà. Trong lúc này enemy phớt lờ player
+        /// để không bị giật qua lại ở rìa leash.
+        /// </summary>
+        public bool IsReturningHome;
 
         /// <summary>Pha của boss (1, 2, 3...). Quái thường luôn là 1.</summary>
         public int Phase = 1;
@@ -35,6 +41,7 @@ namespace Mhieu.AI.BT
         {
             ClearTarget();
             IsDisabled = false;
+            IsReturningHome = false;
             Phase = 1;
             LastDamagedTime = float.NegativeInfinity;
         }

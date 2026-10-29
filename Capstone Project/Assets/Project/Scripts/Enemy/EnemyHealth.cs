@@ -1,101 +1,52 @@
-using System;
-using UnityEngine;
-using UnityEngine.UI;
+using System;   
 using System.Collections.Generic;
+using UnityEngine;
+using Mhieu.Enemy;
 
-namespace Mhieu.Enemy
+public class EnemyHealth : MonoBehaviour
 {
-    public class EnemyHealth : CharacterRuntime
+    [Header("Health")]
+    public float maxHealth = 100f;  
+    public float currentHealth;
+
+    [Header("Retreat")]
+    [Range(0.01f, 1f)]
+    public float retreatHealthPercent = 0.2f;
+
+    private EnemyFSM enemyFSM;
+
+    private void Awake()
     {
-        private static readonly int Hit = Animator.StringToHash("Hit");
-        private readonly List<IEffect<IAttackable>> _activeEffects = new();
-        
-        [Header("Setting")] 
-        [SerializeField] private Image healthBar;
-        [SerializeField] private ParticleSystem impactParticles;
-        [SerializeField] private Animator animator;
+        currentHealth = maxHealth;
+        enemyFSM = GetComponent<EnemyFSM>();
+    }
 
-        private float _targetFillAmount = 1f;
+    public void TakeDamage(float damage)
+    {
+        if (currentHealth <= 0)
+            return;
 
-        private void Awake()
+        currentHealth -= damage;
+
+        Debug.Log(gameObject.name + " nhận " + damage + " damage.");
+
+        // Chết
+        if (currentHealth <= 0)
         {
-            if(animator == null)
-                animator = GetComponentInChildren<Animator>();
-            
-            Init();
-            
-            _targetFillAmount = 1f;
-            healthBar.fillAmount = 1;
+            currentHealth = 0;
+
+            enemyFSM.ChangeState(EnemyState.Dead);
+            return;
         }
 
-        private void Update()
+        // Máu thấp
+        if (currentHealth <= maxHealth * retreatHealthPercent)
         {
-            UpdateHealthBar();
+            enemyFSM.ChangeState(EnemyState.Retreat);
+            return;
         }
 
-        private void UpdateHealthBar()
-        {
-            healthBar.fillAmount = Mathf.MoveTowards(
-                healthBar.fillAmount, 
-                _targetFillAmount, 
-                1.5f * Time.deltaTime
-            );
-        }
-
-        public override void TakeDamage(float damage, ICharacterRuntime runtime)
-        {
-            base.TakeDamage(damage, runtime);
-            _targetFillAmount = Hp / TotalHealth;
-        }
-
-        protected override void OnTakeDamage(float damage)
-        {
-            base.OnTakeDamage(damage);
-            animator.SetTrigger(Hit);
-            Instantiate(impactParticles, transform.position + Vector3.up, transform.rotation);
-        }
-
-        public void ApplyEffect(IEffect<IAttackable> effect)
-        {
-            // Delete old one if new effect have same type
-            if (effect is IStatusEffect newStatusEffect)
-            {
-                var existing = _activeEffects.Find(e 
-                    => e is IStatusEffect s && s.StatusType == newStatusEffect.StatusType);
-
-                if (existing != null)
-                {
-                    existing.OnCompleted -= RemoveEffect;
-                    _activeEffects.Remove(existing);
-                    existing.Cancel();
-                }
-            }
-            
-            // Apply new effect
-            effect.OnCompleted += RemoveEffect;
-            _activeEffects.Add(effect);
-            effect.Apply(this);
-        }
-
-        private void RemoveEffect(IEffect<IAttackable> effect)
-        {
-            effect.OnCompleted -= RemoveEffect;
-            _activeEffects.Remove(effect);
-        }
-
-        public override void Die()
-        {
-            base.Die();
-            // Handle enemy death logic here (e.g., play animation, drop loot, etc.)
-            // Remove all applied effect in this enemy
-            foreach (var effect in _activeEffects)
-            {
-                effect.OnCompleted -= RemoveEffect;
-                effect.Cancel();
-            }
-            _activeEffects.Clear();
-            
-            gameObject.SetActive(false); // For now, just deactivate the enemy
-        }
+        // Bị đánh
+        enemyFSM.ChangeState(EnemyState.Hit);
     }
 }

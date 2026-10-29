@@ -43,3 +43,23 @@ public class EnemyAttack : MonoBehaviour
         );
     }
 }
+
+public class PlayerHealth : MonoBehaviour
+{
+    public float health = 100f;
+
+    public void TakeDamage(float amount)
+    {
+        health -= amount;
+        if (health <= 0f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        // Handle player death (e.g., disable player, play animation, etc.)
+        Debug.Log("Player died.");
+    }
+}
