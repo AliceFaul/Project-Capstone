@@ -16,6 +16,7 @@ public class SceneLoader : MonoBehaviour
     public static SceneLoader Instance  { get; private set; }
     [SerializeField] private Animator animator;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private List<SceneRef> sceneRefs;
     
     private InitManagerHelper _initManagerHelper;
@@ -47,15 +48,12 @@ public class SceneLoader : MonoBehaviour
 
     private void OnLoadScene(Scene scene, LoadSceneMode mode)
     {
-        if (animator != null)
-        {
-            animator.Play("Scene_Open");
-        }
-        else
-        {
-            animator = GetComponentInChildren<Animator>();
-            animator?.Play("Scene_Open");
-        }
+        if(animator == null) animator = GetComponentInChildren<Animator>(true);
+        if(animator != null) animator.Play("Scene_Open", 0, 0f);
+
+        if(canvasGroup == null) return;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = false;
     }
 
     public async Task LoadScene(string sceneName, bool initHelper)
@@ -76,13 +74,10 @@ public class SceneLoader : MonoBehaviour
             
             foreach (var sr in sceneRefs)
             {
-                if (sr.sceneName == sceneName)
-                {
-                    _initManagerHelper.preloadGroups = sr.preloadKeys;
-                    break;
-                }
+                if(sr.sceneName != sceneName) continue;
+                _initManagerHelper.preloadGroups = sr.preloadKeys;
+                break;
             }
-            
             _initManagerHelper.loadSceneWhenDone = sceneName;
 
             if(operation != null)
@@ -95,17 +90,18 @@ public class SceneLoader : MonoBehaviour
         }
         
         AudioService.Instance?.StopMusic(0.5f);
-        animator?.Play("Scene_Close");
         
+        if(canvasGroup != null)
+        {
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+        }
+        
+        animator?.Play("Scene_Close", 0, 0f);
         await AnimationProcess();
         
-        if(operation != null)
-            operation.allowSceneActivation = true;
-
-        if (initHelper)
-        {
-            _initManagerHelper.Load();
-        }
+        if(operation != null) operation.allowSceneActivation = true;
+        if(initHelper) _initManagerHelper.Load();
     }
 
     private async Task AnimationProcess()
