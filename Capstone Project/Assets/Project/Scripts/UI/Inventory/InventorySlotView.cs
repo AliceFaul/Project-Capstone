@@ -7,9 +7,10 @@ using Project.Capstone.Inventory;
 
 public enum SlotKind { Equipped, Bag }
 
-// One slot (equipped or in a bag). Button = keyboard navigation + click. Hover/focus -> Highlighted.
+// One slot (equipped or in a bag). Button = keyboard navigation + click.
+// Hover shows the highlight only while the pointer is over the slot; keyboard focus keeps it until focus moves.
 [RequireComponent(typeof(Button))]
-public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, ISelectHandler, IDeselectHandler
+public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
     [SerializeField] private Image icon;
     [SerializeField] private Image rarityStrip;
@@ -29,7 +30,17 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, ISelectHan
     public event Action<InventorySlotView> Highlighted;
     public event Action<InventorySlotView> Clicked;
 
+    private bool _pointerOver;
+    private bool _pointerDriven;
+
     private void Awake() => GetComponent<Button>().onClick.AddListener(() => Clicked?.Invoke(this));
+
+    private void OnDisable()
+    {
+        _pointerOver = false;
+        _pointerDriven = false;
+        highlight.SetActive(false);
+    }
 
     public void Bind(IInventoryItem item, ItemData definition)
     {
@@ -47,7 +58,7 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, ISelectHan
 
             bool hasSprite = definition != null && definition.icon != null;
             icon.sprite = hasSprite ? definition.icon : null;
-            icon.color = hasSprite ? Color.white : color; // placeholder = flat rarity colour
+            icon.color = hasSprite ? Color.white : color;
         }
 
         int level = item is EquipmentInstance equipment ? equipment.level : 0;
@@ -57,11 +68,29 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, ISelectHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(gameObject);
+        _pointerOver = true;
+
+        var eventSystem = EventSystem.current;
+        bool alreadySelected = eventSystem != null && eventSystem.currentSelectedGameObject == gameObject;
+        if (eventSystem != null) eventSystem.SetSelectedGameObject(gameObject);
+        _pointerDriven = true;
+
+        if (alreadySelected) // OnSelect will not fire again
+        {
+            highlight.SetActive(true);
+            Highlighted?.Invoke(this);
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _pointerOver = false;
+        if (_pointerDriven) highlight.SetActive(false); // selection stays so keyboard navigation can continue from here
     }
 
     public void OnSelect(BaseEventData eventData)
     {
+        _pointerDriven = _pointerOver;
         highlight.SetActive(true);
         Highlighted?.Invoke(this);
     }

@@ -46,7 +46,7 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     public bool IsDead => _isDead;
     
     private Material _flashMaterial;
-    private DamageFlasher _damageFlash;
+    protected DamageFlasher _damageFlash;
 
     public virtual void Init()
     {
@@ -130,8 +130,8 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
             _flashMaterial = ResourceManager.Instance.GetAsset<Material>("DamageFlashMaterial");
             _damageFlash = new DamageFlasher(GetComponentInChildren<Renderer>(), _flashMaterial);
         }
-        
         _damageFlash.Trigger();
+        
         var floatingText = UIManager.Instance.GetFloatingTextService();
         floatingText.Create("DamageText", $"dmg{Time.time}_{UnityEngine.Random.Range(0, 99999)}", damage.ToString("F1"), transform.position + Vector3.up * 0.8f);
     }

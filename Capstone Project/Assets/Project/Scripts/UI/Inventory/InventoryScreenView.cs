@@ -5,11 +5,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Project.Capstone.Inventory;
 
-// Inventory screen: binds to PlayerDataConfig / EquipmentManager and reacts to their events (no polling).
-// Mouse: hover = inspect, left click = equip / unequip / insert rune. Keyboard: arrows + Enter, Y = stats, Esc = back.
 public class InventoryScreenView : MonoBehaviour
 {
     private static readonly InventoryCategory[] TabCategories =
@@ -120,8 +119,10 @@ public class InventoryScreenView : MonoBehaviour
 
     private void OnEnable()
     {
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         statsPanel.SetActive(false);
         detailPanel.SetActive(true);
+        detail.Hide();
         toastText.gameObject.SetActive(false);
         _pendingWeapon = null;
         _removeWeapon = null;
@@ -144,6 +145,7 @@ public class InventoryScreenView : MonoBehaviour
 
     private void OnDisable()
     {
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         _focus = null;
         if (!_subscribed) return;
         _subscribed = false;
@@ -194,13 +196,15 @@ public class InventoryScreenView : MonoBehaviour
         if (_pendingWeapon != null)
         {
             _pendingWeapon = null;
-            Toast("Socket selection cancelled.");
+            Toast(InventoryText.Get("TOAST_SELECT_CANCELLED"));
         }
         else if (statsPanel.activeSelf) ToggleStats();
         else onBack?.Invoke();
     }
 
     // ---------------------------------------------------------------- refresh
+
+    private void OnLocaleChanged(UnityEngine.Localization.Locale locale) => RefreshAll();
 
     private void RefreshAll()
     {
@@ -221,8 +225,8 @@ public class InventoryScreenView : MonoBehaviour
 
     private void RefreshCurrency()
     {
-        goldText.text = $"{_data.Currency.Gold():N0}";
-        gemText.text = $"{_data.Currency.Gem():N0}";
+        goldText.text = _data.Currency.Gold().ToString("N0");
+        gemText.text = _data.Currency.Gem().ToString("N0");
     }
 
     private void RefreshEquipment()
@@ -313,7 +317,8 @@ public class InventoryScreenView : MonoBehaviour
         return string.IsNullOrEmpty(id) ? null : _data.GetDefinition<ItemData>(id);
     }
 
-    // ---------------------------------------------------------------- game events
+
+    // ===== EVENTS =====
 
     private void OnEquipChanged(EquipmentChangedEventArgs _) { HasChanges = true; RefreshEquipment(); RefreshDetail(); }
     private void OnStatsChanged(EquipSlot _) { HasChanges = true; RefreshEquipment(); RefreshDetail(); }
@@ -322,7 +327,7 @@ public class InventoryScreenView : MonoBehaviour
     private void OnExpChanged(float exp, float toNext) => RefreshHeader();
     private void OnLevelUp(int level) => RefreshHeader();
 
-    // ---------------------------------------------------------------- detail panel
+    // ===== DETAIL PANEL =====
 
     private void OnSlotHighlighted(InventorySlotView slot)
     {
@@ -346,34 +351,41 @@ public class InventoryScreenView : MonoBehaviour
     {
         if (slot.Item == null)
         {
-            if (slot.kind == SlotKind.Bag) detail.ShowInfo("EMPTY", "EMPTY SLOT", "");
-            else detail.ShowInfo("EMPTY", $"{slot.equipSlot.ToString().ToUpper()} SLOT", "Pick an item from the bag to equip it.");
+            detail.Hide(); // nothing to inspect on an empty slot
             return;
         }
 
-        detail.Show(slot.Item, slot.Definition, slot.kind == SlotKind.Equipped ? "EQUIPPED" : "IN BAG", _equip);
+        string header = InventoryText.Get(slot.kind == SlotKind.Equipped ? "DETAIL_EQUIPPED" : "DETAIL_IN_BAG");
+        detail.Show(slot.Item, slot.Definition, header, _equip);
     }
 
     private void ShowPipDetail(SocketPipView pip)
     {
         var weapon = _equip.GetEquipped(pip.weaponSlot);
         var sockets = _equip.Sockets;
-        if (weapon == null || sockets == null) return;
+        if (weapon == null || sockets == null)
+        {
+            detail.Hide();
+            return;
+        }
 
         int i = pip.socketIndex;
-        string header = $"SOCKET {i + 1}";
+        string header = InventoryText.Get("SOCKET_HEADER", i + 1);
 
         if (!sockets.IsSocketUnlocked(weapon, i))
         {
-            detail.ShowInfo(header, "LOCKED SOCKET", $"Unlocks when the weapon reaches level {UnlockLevel(i)}.");
+            detail.ShowInfo(header, InventoryText.Get("SOCKET_LOCKED_TITLE"), InventoryText.Get("SOCKET_LOCKED_BODY", UnlockLevel(i)));
             return;
         }
 
         var rune = weapon.GetSocket(i);
         if (rune == null || rune.IsEmpty)
-            detail.ShowInfo(header, "EMPTY SOCKET", "Click it, then choose a rune from the bag.");
-        else
-            detail.Show(rune, Def(rune), $"{header} - CLICK TWICE TO REMOVE ({sockets.GetRemovalCost(weapon)} GEM)", _equip);
+        {
+            detail.Hide(); // empty socket: nothing to show
+            return;
+        }
+
+        detail.Show(rune, Def(rune), InventoryText.Get("SOCKET_FILLED_HEADER", i + 1, sockets.GetRemovalCost(weapon)), _equip);
     }
 
     private int UnlockLevel(int socketIndex)
@@ -382,7 +394,7 @@ public class InventoryScreenView : MonoBehaviour
         return cfg != null && socketIndex < cfg.socketUnlockLevels.Length ? cfg.socketUnlockLevels[socketIndex] : 0;
     }
 
-    // ---------------------------------------------------------------- actions
+    // ===== ACTIONS =====
 
     private void OnSlotClicked(InventorySlotView slot)
     {
@@ -390,7 +402,7 @@ public class InventoryScreenView : MonoBehaviour
 
         if (slot.kind == SlotKind.Equipped)
         {
-            if (!_equip.Unequip(slot.equipSlot, slot.artifactIndex)) Toast("The bag is full - cannot unequip.");
+            if (!_equip.Unequip(slot.equipSlot, slot.artifactIndex)) Toast(InventoryText.Get("TOAST_BAG_FULL"));
             return;
         }
 
@@ -400,7 +412,7 @@ public class InventoryScreenView : MonoBehaviour
             return;
         }
 
-        if (!_equip.Equip(slot.Item)) Toast("Cannot equip this item.");
+        if (!_equip.Equip(slot.Item)) Toast(InventoryText.Get("TOAST_CANNOT_EQUIP"));
     }
 
     private void InsertRune(RuneInstance rune)
@@ -414,13 +426,13 @@ public class InventoryScreenView : MonoBehaviour
         // No socket chosen: use the first free unlocked socket (melee first, then ranged).
         if (weapon == null && !TryFindFreeSocket(sockets, out weapon, out index))
         {
-            Toast("No free socket on your equipped weapons.");
+            Toast(InventoryText.Get("TOAST_NO_FREE_SOCKET"));
             return;
         }
 
         var result = sockets.TryInsert(weapon, index, rune);
         _pendingWeapon = null;
-        Toast(SocketMessage(result, "Rune socketed."));
+        Toast(SocketMessage(result, "TOAST_RUNE_SOCKETED"));
     }
 
     private bool TryFindFreeSocket(SocketService sockets, out EquipmentInstance weapon, out int index)
@@ -451,7 +463,7 @@ public class InventoryScreenView : MonoBehaviour
 
         if (!sockets.IsSocketUnlocked(weapon, i))
         {
-            Toast($"This socket unlocks at weapon level {UnlockLevel(i)}.");
+            Toast(InventoryText.Get("TOAST_SOCKET_UNLOCKS", UnlockLevel(i)));
             return;
         }
 
@@ -461,7 +473,7 @@ public class InventoryScreenView : MonoBehaviour
             _pendingWeapon = weapon;
             _pendingIndex = i;
             SelectTab(RuneTab);
-            Toast("Choose a rune from the bag (Esc to cancel).");
+            Toast(InventoryText.Get("TOAST_PICK_RUNE"));
             return;
         }
 
@@ -469,27 +481,27 @@ public class InventoryScreenView : MonoBehaviour
         if (_removeWeapon == weapon && _removeIndex == i && Time.unscaledTime < _removeUntil)
         {
             _removeWeapon = null;
-            Toast(SocketMessage(sockets.TryRemove(weapon, i), "Rune removed."));
+            Toast(SocketMessage(sockets.TryRemove(weapon, i), "TOAST_RUNE_REMOVED"));
             return;
         }
 
         _removeWeapon = weapon;
         _removeIndex = i;
         _removeUntil = Time.unscaledTime + 3f;
-        Toast($"Click again to remove this rune (costs {sockets.GetRemovalCost(weapon)} Gem).");
+        Toast(InventoryText.Get("TOAST_REMOVE_CONFIRM", sockets.GetRemovalCost(weapon)));
     }
 
-    private static string SocketMessage(SocketResult result, string success)
+    private static string SocketMessage(SocketResult result, string successKey)
     {
         switch (result)
         {
-            case SocketResult.Success: return success;
-            case SocketResult.NotEnoughGem: return "Not enough Gem.";
-            case SocketResult.InventoryFull: return "The rune bag is full.";
-            case SocketResult.SocketLocked: return "This socket is locked.";
-            case SocketResult.SocketOccupied: return "This socket already has a rune.";
-            case SocketResult.RuneNotInInventory: return "That rune is no longer in the bag.";
-            default: return "Cannot do that.";
+            case SocketResult.Success: return InventoryText.Get(successKey);
+            case SocketResult.NotEnoughGem: return InventoryText.Get("TOAST_NOT_ENOUGH_GEM");
+            case SocketResult.InventoryFull: return InventoryText.Get("TOAST_RUNE_BAG_FULL");
+            case SocketResult.SocketLocked: return InventoryText.Get("TOAST_SOCKET_LOCKED");
+            case SocketResult.SocketOccupied: return InventoryText.Get("TOAST_SOCKET_OCCUPIED");
+            case SocketResult.RuneNotInInventory: return InventoryText.Get("TOAST_RUNE_MISSING");
+            default: return InventoryText.Get("TOAST_GENERIC_FAIL");
         }
     }
 

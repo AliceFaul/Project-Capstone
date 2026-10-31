@@ -6,9 +6,8 @@ using Project.Capstone.Inventory;
 
 public enum PipState { Hidden, Locked, Empty, Filled }
 
-// One rune socket marker under a weapon slot. Hover/focus -> detail, click -> insert/remove flow (handled by InventoryScreenView).
 [RequireComponent(typeof(Button))]
-public class SocketPipView : MonoBehaviour, IPointerEnterHandler, ISelectHandler, IDeselectHandler
+public class SocketPipView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
     [SerializeField] private Image fill;
     [SerializeField] private GameObject highlight;
@@ -20,7 +19,17 @@ public class SocketPipView : MonoBehaviour, IPointerEnterHandler, ISelectHandler
     public event Action<SocketPipView> Highlighted;
     public event Action<SocketPipView> Clicked;
 
+    private bool _pointerOver;
+    private bool _pointerDriven;
+
     private void Awake() => GetComponent<Button>().onClick.AddListener(() => Clicked?.Invoke(this));
+
+    private void OnDisable()
+    {
+        _pointerOver = false;
+        _pointerDriven = false;
+        highlight.SetActive(false);
+    }
 
     public void SetState(PipState state, Color color)
     {
@@ -33,11 +42,29 @@ public class SocketPipView : MonoBehaviour, IPointerEnterHandler, ISelectHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(gameObject);
+        _pointerOver = true;
+
+        var eventSystem = EventSystem.current;
+        bool alreadySelected = eventSystem != null && eventSystem.currentSelectedGameObject == gameObject;
+        if (eventSystem != null) eventSystem.SetSelectedGameObject(gameObject);
+        _pointerDriven = true;
+
+        if (alreadySelected)
+        {
+            highlight.SetActive(true);
+            Highlighted?.Invoke(this);
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _pointerOver = false;
+        if (_pointerDriven) highlight.SetActive(false);
     }
 
     public void OnSelect(BaseEventData eventData)
     {
+        _pointerDriven = _pointerOver;
         highlight.SetActive(true);
         Highlighted?.Invoke(this);
     }

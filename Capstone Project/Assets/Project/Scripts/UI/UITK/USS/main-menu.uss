@@ -293,22 +293,17 @@
 }
 
 .button-base {
-    transition-property: background-color, border-color, translate, scale;
+    transition-property: translate, scale;
     transition-duration: 0.1s;
     scale: 1 1;
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
 }
 
 .button-base:hover {
-    border-color: var(--color-hover);
+    border-color: rgb(255, 255, 255);
+    border-width: 2px;
 }
-
-/*
-.button-base:active {
-    translate: 0 2px;
-    scale: 0.97 0.97;
-    background-color: var(--color-border-dark);
-}
-*/
 
 .button-base:disabled {
     opacity: 0.45;

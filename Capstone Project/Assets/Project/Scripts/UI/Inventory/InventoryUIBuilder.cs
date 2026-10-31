@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using TMPro;
 using UnityEditor;
 using UnityEditor.Events;
@@ -11,7 +12,7 @@ using Project.Capstone.Inventory;
 /// <summary>
 /// Tools > UI > Build Inventory Screen
 /// Builds the approved layout (reference 1920x1080) and saves prefabs to Assets/UI/Inventory/Prefabs.
-/// Art is placeholder (flat colors); items without an icon show a rarity-colored square.
+/// Art is placeholder (flat colours); items without an icon show a rarity-coloured square.
 /// </summary>
 public static class InventoryUIBuilder
 {
@@ -43,6 +44,7 @@ public static class InventoryUIBuilder
         Undo.RegisterCreatedObjectUndo(root, "Build Inventory Screen");
         Selection.activeGameObject = root;
         Debug.Log("Inventory screen built. Prefabs saved in " + PrefabDir);
+        InventoryLocalizationTool.AddKeys();
     }
 
     // ------------------------------------------------------------------ prefabs
@@ -182,17 +184,17 @@ public static class InventoryUIBuilder
         top.rectTransform.pivot = new Vector2(0.5f, 1);
         top.rectTransform.anchoredPosition = Vector2.zero;
         top.rectTransform.sizeDelta = new Vector2(0, 80);
-        TopLeft(Txt("Tab", top.transform, "INVENTORY", 30, Color.white).rectTransform, 100, 18, 260, 44);
+        TopLeft(LTxt("Tab", top.transform, "INV_TITLE", 30, Color.white).rectTransform, 100, 18, 260, 44);
         TopLeft(Img("TabUnderline", top.transform, Orange).rectTransform, 100, 70, 190, 6);
-        var goldText = CurrencyChip(top.transform, 1420, new Color(0.95f, 0.75f, 0.22f), "Gold 12,480");
-        var gemText = CurrencyChip(top.transform, 1670, new Color(0.25f, 0.78f, 0.94f), "Gem 320");
+        var goldText = CurrencyChip(top.transform, 1420, new Color(0.95f, 0.75f, 0.22f), "12,480");
+        var gemText = CurrencyChip(top.transform, 1670, new Color(0.25f, 0.78f, 0.94f), "320");
 
         // ---- header: level, exp, stats button
-        TopLeft(Txt("LevelLabel", screen, "LEVEL", 26, Grey).rectTransform, 100, 110, 200, 34);
+        TopLeft(LTxt("LevelLabel", screen, "INV_LEVEL", 26, Grey).rectTransform, 100, 110, 200, 34);
         var levelValue = Txt("LevelValue", screen, "29", 92, Purple);
         TopLeft(levelValue.rectTransform, 100, 140, 260, 110);
 
-        TopLeft(Txt("ExpLabel", screen, "EXPERIENCE", 20, Grey).rectTransform, 440, 120, 300, 30);
+        TopLeft(LTxt("ExpLabel", screen, "INV_EXPERIENCE", 20, Grey).rectTransform, 440, 120, 300, 30);
         var bar = Img("ExpBar", screen, SlotBg);
         TopLeft(bar.rectTransform, 440, 156, 560, 22);
         var expFill = Img("Fill", bar.transform, Cyan);
@@ -204,7 +206,7 @@ public static class InventoryUIBuilder
         TopLeft(statsBtnImg.rectTransform, 1440, 150, 380, 64);
         var statsBtn = statsBtnImg.gameObject.AddComponent<Button>();
         statsBtn.targetGraphic = statsBtnImg;
-        TopLeft(Txt("Label", statsBtnImg.transform, "Player Stats", 26, Color.white).rectTransform, 22, 12, 280, 40);
+        TopLeft(LTxt("Label", statsBtnImg.transform, "INV_PLAYER_STATS", 26, Color.white).rectTransform, 22, 12, 280, 40);
         TopLeft(Badge("Key", statsBtnImg.transform, "Y", 44, 36), 316, 14, 44, 36);
         UnityEventTools.AddPersistentListener(statsBtn.onClick, new UnityAction(view.ToggleStats));
 
@@ -218,28 +220,28 @@ public static class InventoryUIBuilder
         Stretch(previewLabel.rectTransform, 20, 20, 20, 20);
 
         // ---- equipment
-        TopLeft(Txt("Cap_Weapons", screen, "WEAPONS", 20, Grey).rectTransform, 540, 250, 300, 30);
+        TopLeft(LTxt("Cap_Weapons", screen, "INV_WEAPONS", 20, Grey).rectTransform, 540, 250, 300, 30);
         var melee = PlaceEquipSlot(screen, slotPrefab, "MeleeSlot", EquipSlot.Melee, 0, 540, 290, null);
         var ranged = PlaceEquipSlot(screen, slotPrefab, "RangedSlot", EquipSlot.Ranged, 0, 675, 290, null);
-        TopLeft(Txt("Label_Melee", screen, "MELEE", 18, Grey).rectTransform, 540, 404, 110, 26);
-        TopLeft(Txt("Label_Ranged", screen, "RANGED", 18, Grey).rectTransform, 675, 404, 110, 26);
+        TopLeft(LTxt("Label_Melee", screen, "INV_MELEE", 18, Grey).rectTransform, 540, 404, 110, 26);
+        TopLeft(LTxt("Label_Ranged", screen, "INV_RANGED", 18, Grey).rectTransform, 675, 404, 110, 26);
         for (int i = 0; i < EquipmentInstance.SocketCount; i++)
         {
             PlacePip(screen, pipPrefab, EquipSlot.Melee, i, 540 + i * 38, 438);
             PlacePip(screen, pipPrefab, EquipSlot.Ranged, i, 675 + i * 38, 438);
         }
 
-        TopLeft(Txt("Cap_Armor", screen, "ARMOR", 20, Grey).rectTransform, 540, 500, 300, 30);
+        TopLeft(LTxt("Cap_Armor", screen, "INV_ARMOR", 20, Grey).rectTransform, 540, 500, 300, 30);
         var armor = PlaceEquipSlot(screen, slotPrefab, "ArmorSlot", EquipSlot.Armor, 0, 540, 540, null);
-        TopLeft(Txt("Label_Armor", screen, "ARMOR", 18, Grey).rectTransform, 540, 656, 110, 26);
 
-        TopLeft(Txt("Cap_Artifacts", screen, "ARTIFACTS", 20, Grey).rectTransform, 540, 700, 300, 30);
+        TopLeft(LTxt("Cap_Artifacts", screen, "INV_ARTIFACTS", 20, Grey).rectTransform, 540, 700, 300, 30);
         var artifacts = new InventorySlotView[Loadout.ArtifactSlotCount];
         for (int i = 0; i < artifacts.Length; i++)
             artifacts[i] = PlaceEquipSlot(screen, slotPrefab, "ArtifactSlot" + (i + 1), EquipSlot.Artifact, i, 540 + i * 135, 770, (i + 1).ToString());
 
         // ---- bag: tabs + scrolling grid
         string[] tabNames = { "MELEE", "RANGED", "ARMOR", "RUNE", "ARTIFACT" };
+        string[] tabKeys = { "INV_MELEE", "INV_RANGED", "INV_ARMOR", "INV_RUNE", "INV_ARTIFACT" };
         var tabButtons = new Button[tabNames.Length];
         var tabLines = new GameObject[tabNames.Length];
         for (int i = 0; i < tabNames.Length; i++)
@@ -248,7 +250,7 @@ public static class InventoryUIBuilder
             TopLeft(tabImg.rectTransform, 960 + i * 88, 250, 84, 44);
             tabButtons[i] = tabImg.gameObject.AddComponent<Button>();
             tabButtons[i].targetGraphic = tabImg;
-            var label = Txt("Label", tabImg.transform, tabNames[i], 16, Color.white, TextAlignmentOptions.Center);
+            var label = LTxt("Label", tabImg.transform, tabKeys[i], 16, Color.white, TextAlignmentOptions.Center);
             Stretch(label.rectTransform);
             var line = Img("Underline", tabImg.transform, Orange);
             line.rectTransform.anchorMin = new Vector2(0, 0);
@@ -283,7 +285,7 @@ public static class InventoryUIBuilder
         scroll.movementType = ScrollRect.MovementType.Clamped;
         scroll.scrollSensitivity = 30f;
 
-        TopLeft(Txt("BagHint", screen, "Click an item to equip", 20, Grey, TextAlignmentOptions.Left, FontStyles.Normal).rectTransform, 960, 774, 260, 30);
+        TopLeft(LTxt("BagHint", screen, "INV_BAG_HINT", 20, Grey, TextAlignmentOptions.Left, FontStyles.Normal).rectTransform, 960, 774, 260, 30);
         var bagCount = Txt("BagCount", screen, "0 / 25", 20, Color.white, TextAlignmentOptions.Right);
         TopLeft(bagCount.rectTransform, 1200, 774, 200, 30);
 
@@ -297,8 +299,8 @@ public static class InventoryUIBuilder
         toast.gameObject.SetActive(false);
 
         TopLeft(Badge("BackKey", screen, "Esc", 70, 40), 100, 995, 70, 40);
-        TopLeft(Txt("BackLabel", screen, "Back", 28, Color.white).rectTransform, 185, 995, 160, 40);
-        TopLeft(Txt("SelectLabel", screen, "Equip / Unequip", 28, Color.white, TextAlignmentOptions.Right).rectTransform, 1480, 995, 240, 40);
+        TopLeft(LTxt("BackLabel", screen, "INV_BACK", 28, Color.white).rectTransform, 185, 995, 160, 40);
+        TopLeft(LTxt("SelectLabel", screen, "INV_EQUIP_UNEQUIP", 28, Color.white, TextAlignmentOptions.Right).rectTransform, 1480, 995, 240, 40);
         TopLeft(Badge("SelectKey", screen, "Click", 90, 40), 1730, 995, 90, 40);
 
         // ---- wiring
@@ -322,6 +324,7 @@ public static class InventoryUIBuilder
         var panel = Img("DetailPanel", screen, Panel);
         TopLeft(panel.rectTransform, 1440, 250, 380, 680);
         view = panel.gameObject.AddComponent<InventoryDetailView>();
+        panel.gameObject.AddComponent<CanvasGroup>();
 
         var header = Img("Header", panel.transform, PanelHeader);
         TopLeft(header.rectTransform, 0, 0, 380, 44);
@@ -368,14 +371,14 @@ public static class InventoryUIBuilder
         // stats
         var statsGroup = NewRect("StatsGroup", body);
         VLG(statsGroup.gameObject, 4);
-        Txt("StatsLabel", statsGroup, "STATS", 20, Grey);
+        LTxt("StatsLabel", statsGroup, "DETAIL_STATS", 20, Grey);
         var statsRows = NewRect("Rows", statsGroup);
         VLG(statsRows.gameObject, 2);
 
         // sockets (weapons only)
         var socketsGroup = NewRect("SocketsGroup", body);
         VLG(socketsGroup.gameObject, 8);
-        Txt("SocketsLabel", socketsGroup, "SOCKETS", 20, Grey);
+        LTxt("SocketsLabel", socketsGroup, "DETAIL_SOCKETS", 20, Grey);
         var socketRow = NewRect("Squares", socketsGroup);
         HLG(socketRow.gameObject, 14);
         LE(socketRow.gameObject, prefH: 56);
@@ -397,7 +400,8 @@ public static class InventoryUIBuilder
             ("rarityBg", badge), ("rarityText", rarityText), ("nameText", nameText), ("subText", subText),
             ("expGroup", expGroup.gameObject), ("expFill", expFill.rectTransform), ("expText", expText),
             ("statsGroup", statsGroup.gameObject), ("statsRoot", statsRows), ("statRowPrefab", rowPrefab),
-            ("socketsGroup", socketsGroup.gameObject), ("runeText", runeText), ("descText", descText));
+            ("socketsGroup", socketsGroup.gameObject), ("runeText", runeText), ("descText", descText),
+            ("canvasGroup", panel.gameObject.GetComponent<CanvasGroup>()));
         SetArray(view, "socketSquares", squares);
         SetArray(view, "socketLabels", squareLabels);
 
@@ -412,13 +416,14 @@ public static class InventoryUIBuilder
 
         var header = Img("Header", panel.transform, PanelHeader);
         TopLeft(header.rectTransform, 0, 0, 380, 44);
-        Stretch(Txt("Text", header.transform, "PLAYER STATS", 20, Color.white, TextAlignmentOptions.Center).rectTransform);
+        Stretch(LTxt("Text", header.transform, "INV_PLAYER_STATS_HEADER", 20, Color.white, TextAlignmentOptions.Center).rectTransform);
 
         var list = NewRect("Rows", panel.transform);
         TopLeft(list, 22, 64, 336, 600);
         VLG(list.gameObject, 4);
 
         string[] names = { "Health", "Damage", "Defense", "Move Speed", "Crit Chance", "Crit Damage", "Attack Speed" };
+        string[] statKeys = { "STAT_HEALTH", "STAT_DAMAGE", "STAT_DEFENSE", "STAT_MOVE_SPEED", "STAT_CRIT_CHANCE", "STAT_CRIT_DAMAGE", "STAT_ATTACK_SPEED" };
         var values = new TMP_Text[names.Length];
         for (int i = 0; i < names.Length; i++)
         {
@@ -428,7 +433,7 @@ public static class InventoryUIBuilder
             bg.color = i % 2 == 0 ? new Color(1, 1, 1, 0.05f) : new Color(0, 0, 0, 0);
             bg.raycastTarget = false;
 
-            var label = Txt("Label", row, names[i], 22, Grey, TextAlignmentOptions.MidlineLeft, FontStyles.Normal);
+            var label = LTxt("Label", row, statKeys[i], 22, Grey, TextAlignmentOptions.MidlineLeft, FontStyles.Normal);
             Stretch(label.rectTransform, 12, 0, 12, 0);
             values[i] = Txt("Value", row, "0", 22, Color.white, TextAlignmentOptions.MidlineRight);
             Stretch(values[i].rectTransform, 12, 0, 12, 0);
@@ -529,6 +534,23 @@ public static class InventoryUIBuilder
         t.fontStyle = style;
         t.raycastTarget = false;
         t.textWrappingMode = TextWrappingModes.Normal;
+        return t;
+    }
+
+    /// <summary>Text bound to the language system: a LocalizationText with a "UI" table key (English default shown in the editor).</summary>
+    private static TextMeshProUGUI LTxt(string name, Transform parent, string key, float size, Color c,
+        TextAlignmentOptions align = TextAlignmentOptions.Left, FontStyles style = FontStyles.Bold)
+    {
+        string fallback = InventoryText.Defaults.TryGetValue(key, out var d) ? d : key;
+        var t = Txt(name, parent, fallback, size, c, align, style);
+
+        var loc = t.gameObject.AddComponent<LocalizationText>();
+        var so = new SerializedObject(loc);
+        so.FindProperty("text").objectReferenceValue = t;
+        so.ApplyModifiedPropertiesWithoutUndo();
+        typeof(LocalizationText).GetField("localizedString", BindingFlags.NonPublic | BindingFlags.Instance)
+            .SetValue(loc, InventoryText.Ref(key));
+        EditorUtility.SetDirty(loc);
         return t;
     }
 

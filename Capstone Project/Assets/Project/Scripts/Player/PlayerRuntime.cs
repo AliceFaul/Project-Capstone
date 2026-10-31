@@ -7,6 +7,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
 {
     private PlayerDataConfig _config;
     private PlayerController _controller;
+    private Material _flashMaterial;
     
     [Header("Experience")] 
     protected override int Level => _config != null ? _config.Level : base.Level;
@@ -120,6 +121,17 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         }
         
         base.TakeDamage(damage, runtime);
+    }
+
+    protected override void OnTakeDamage(float damage)
+    {
+        if (_flashMaterial == null)
+        {
+            _flashMaterial = ResourceManager.Instance.GetAsset<Material>("DamageFlashMaterial");
+            Renderer playerRenderer = GetComponentInChildren<Renderer>();
+            if(playerRenderer != null) _damageFlash = new DamageFlasher(playerRenderer, _flashMaterial);
+        }
+        _damageFlash?.Trigger();
     }
 
     protected override void ApplyBonusStat(BonusStat bonusStat, float amount)

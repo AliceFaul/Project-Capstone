@@ -41,6 +41,7 @@
     opacity: 1;
 }
 
+/*
 .button-base {
     background-color: var(--color-panel-alt);
     border-width: 3px;
@@ -57,6 +58,7 @@
     background-color: var(--color-panel-highlight);
     border-color: var(--color-accent);
 }
+ */
 
 .text-title {
     color: var(--color-text-title);

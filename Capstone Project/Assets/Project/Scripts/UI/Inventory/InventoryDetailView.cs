@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using Project.Capstone.Inventory;
 
-// Right-hand panel. Renders equipment / artifact / rune instances using the game's own data.
 public class InventoryDetailView : MonoBehaviour
 {
     private static readonly Color EmptyColor = new Color(0.08f, 0.17f, 0.23f, 1f);
     private static readonly Color LockedColor = new Color(0.08f, 0.17f, 0.23f, 0.45f);
 
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TMP_Text headerText;
     [SerializeField] private GameObject levelRow;
     [SerializeField] private TMP_Text levelText;
@@ -29,8 +29,19 @@ public class InventoryDetailView : MonoBehaviour
     [SerializeField] private TMP_Text runeText;
     [SerializeField] private TMP_Text descText;
 
+    public void Hide()
+    {
+        if (canvasGroup != null) canvasGroup.alpha = 0f;
+    }
+
+    private void Reveal()
+    {
+        if (canvasGroup != null) canvasGroup.alpha = 1f;
+    }
+
     public void ShowInfo(string header, string title, string body)
     {
+        Reveal();
         headerText.text = header;
         Clear();
         SetText(nameText, title);
@@ -39,6 +50,7 @@ public class InventoryDetailView : MonoBehaviour
 
     public void Show(IInventoryItem item, ItemData def, string header, EquipmentManager equip)
     {
+        Reveal();
         headerText.text = header;
         Clear();
 
@@ -46,9 +58,9 @@ public class InventoryDetailView : MonoBehaviour
         levelRow.SetActive(true);
         levelText.gameObject.SetActive(false);
         rarityBg.color = InventoryUIUtil.RarityColor(rarity);
-        rarityText.text = rarity.ToString().ToUpper();
+        rarityText.text = InventoryUIUtil.RarityName(rarity);
 
-        SetText(nameText, def != null ? (def.itemName ?? "").ToUpper() : "UNKNOWN ITEM");
+        SetText(nameText, def != null ? (def.itemName ?? "").ToUpper() : InventoryText.Get("DETAIL_UNKNOWN_ITEM"));
         SetText(descText, def != null ? def.itemDescription : "");
 
         switch (item)
@@ -64,12 +76,14 @@ public class InventoryDetailView : MonoBehaviour
         var cfg = equip != null ? equip.ProgressConfig : null;
 
         levelText.gameObject.SetActive(true);
-        levelText.text = $"Lv {e.level}";
+        levelText.text = InventoryText.Get("DETAIL_LEVEL", e.level);
 
-        string kind = e.category == InventoryCategory.Armor ? "Armor"
-            : e.category == InventoryCategory.Melee ? "Melee weapon" : "Ranged weapon";
         bool isWeapon = e.category == InventoryCategory.Melee || e.category == InventoryCategory.Ranged;
-        SetText(subText, isWeapon && def != null ? $"{kind} - {def.weaponType}" : kind);
+        string kind = e.category == InventoryCategory.Armor
+            ? InventoryText.Get("DETAIL_SUB_ARMOR")
+            : InventoryText.Get(e.category == InventoryCategory.Melee ? "DETAIL_KIND_MELEE" : "DETAIL_KIND_RANGED");
+        string weaponType = isWeapon && def != null ? InventoryText.Get("WEAPON_" + def.weaponType.ToString().ToUpper()) : null;
+        SetText(subText, weaponType != null ? $"{kind} - {weaponType}" : kind);
 
         if (cfg != null)
         {
@@ -77,13 +91,13 @@ public class InventoryDetailView : MonoBehaviour
             if (e.level >= cfg.maxLevel)
             {
                 InventoryUIUtil.SetBar(expFill, 1f);
-                expText.text = "MAX LEVEL";
+                expText.text = InventoryText.Get("DETAIL_MAX_LEVEL");
             }
             else
             {
                 float need = cfg.GetExpToNextLevel(e.level);
                 InventoryUIUtil.SetBar(expFill, e.exp / need);
-                expText.text = $"{e.exp:0} / {need:0} EXP";
+                expText.text = InventoryText.Get("DETAIL_EXP", e.exp.ToString("0"), need.ToString("0"));
             }
         }
 
@@ -92,7 +106,7 @@ public class InventoryDetailView : MonoBehaviour
             foreach (var pair in StatResolver.GetAllStats(e, def, cfg))
             {
                 var table = def.GetStatTable(pair.Key);
-                string tier = table != null && table.Tiered ? $"Tier {e.GetTier(pair.Key) + 1}" : "";
+                string tier = table != null && table.Tiered ? InventoryText.Get("DETAIL_TIER", e.GetTier(pair.Key) + 1) : "";
                 AddRow(InventoryUIUtil.StatName(pair.Key), InventoryUIUtil.FormatStat(pair.Key, pair.Value), tier);
             }
         }
@@ -128,36 +142,36 @@ public class InventoryDetailView : MonoBehaviour
                 {
                     if (a.SocketIndex == i) { isActive = true; break; }
                 }
-                lines.Add(InventoryUIUtil.RuneLine(rune, data) + (isActive ? "" : " (inactive)"));
+                lines.Add(InventoryUIUtil.RuneLine(rune, data) + (isActive ? "" : " " + InventoryText.Get("RUNE_INACTIVE")));
             }
             else
             {
                 socketSquares[i].color = unlocked ? EmptyColor : LockedColor;
                 int need = i < cfg.socketUnlockLevels.Length ? cfg.socketUnlockLevels[i] : 0;
-                socketLabels[i].text = unlocked ? "" : $"Lv {need}";
+                socketLabels[i].text = unlocked ? "" : InventoryText.Get("DETAIL_LEVEL", need);
             }
         }
 
         SetText(runeText, string.Join("\n", lines));
     }
 
+    // Artifact: cooldown + how it works (numbers in the description are highlighted).
     private void ShowArtifact(ArtifactData def)
     {
         if (def == null) return;
 
-        SetText(subText, $"Artifact - {def.group}");
-        AddRow("Cooldown", $"{def.cooldown:0.#}s", "");
-        AddRow("Cast time", def.castTime > 0f ? $"{def.castTime:0.#}s" : "Instant", "");
-        AddRow("Target", def.targeting == ArtifactTargeting.Seft ? "Self" : def.targeting.ToString(), "");
+        SetText(subText, InventoryText.Get("DETAIL_SUB_ARTIFACT"));
+        AddRow(InventoryText.Get("DETAIL_COOLDOWN"), InventoryText.Get("DETAIL_SECONDS", def.cooldown.ToString("0.#")), "");
         statsGroup.SetActive(true);
+        SetText(descText, InventoryUIUtil.HighlightNumbers(def.itemDescription));
     }
 
     private void ShowRune(RuneInstance rune, RuneData def)
     {
         if (def == null) return;
 
-        SetText(subText, def.kind == RuneKind.Stat ? "Stat rune" : "Damage effect rune");
-        AddRow("Quality", $"{RuneResolver.GetQuality(rune, def) * 100f:0}%", "");
+        SetText(subText, InventoryText.Get(def.kind == RuneKind.Stat ? "DETAIL_SUB_RUNE_STAT" : "DETAIL_SUB_RUNE_EFFECT"));
+        AddRow(InventoryText.Get("DETAIL_QUALITY"), $"{RuneResolver.GetQuality(rune, def) * 100f:0}%", "");
 
         if (def.kind == RuneKind.Stat)
         {
@@ -171,8 +185,8 @@ public class InventoryDetailView : MonoBehaviour
         {
             RuneResolver.TryGetRoll(rune, RuneData.DamagePerTickId, out float dmg);
             RuneResolver.TryGetRoll(rune, RuneData.DurationId, out float dur);
-            AddRow($"{def.effectType} damage", $"{dmg:0.#} / {def.tickInterval:0.#}s", "");
-            AddRow("Duration", $"{dur:0.#}s", "");
+            AddRow(InventoryText.Get("DETAIL_EFFECT_DAMAGE", def.effectType), $"{dmg:0.#} / {def.tickInterval:0.#}s", "");
+            AddRow(InventoryText.Get("DETAIL_DURATION"), InventoryText.Get("DETAIL_SECONDS", dur.ToString("0.#")), "");
         }
         statsGroup.SetActive(true);
     }
