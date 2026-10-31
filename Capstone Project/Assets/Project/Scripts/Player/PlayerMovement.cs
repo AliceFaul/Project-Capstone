@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class PlayerMovement : MonoBehaviour
@@ -48,7 +49,8 @@ public class PlayerMovement : MonoBehaviour
     public event Action OnMoveStop;
     public event Action OnJumpStart;
 
-    private void Awake() {
+    private void Awake() 
+    {
         _agent = GetComponent<NavMeshAgent>();
         _controller = GetComponent<PlayerController>();
         _runtime = _controller != null ? _controller.PlayerRuntime : GetComponent<PlayerRuntime>();
@@ -66,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
     {
         UpdateRotation();
         UpdateMovement();
-        UpdateAutoJump();
+        // UpdateAutoJump();
     }
 
     private void OnEnable()
@@ -83,8 +85,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnStatsChanged()
     {
-        if(_agent != null && _runtime != null)
-            _agent.speed = _runtime.TotalSpeed;
+        if(_agent != null && _runtime != null) _agent.speed = _runtime.TotalSpeed;
     }
 
     private void UpdateMovement()
@@ -171,8 +172,8 @@ public class PlayerMovement : MonoBehaviour
                 targetJumpDir.y = 0f;
                 targetJumpDir.Normalize();
             }
-            
-            _agent.ResetPath();
+
+            _agent.isStopped = true;
         }
         
         StartCoroutine(JumpRoutine(targetJumpDir, jumpHeight, jumpDuration));
@@ -213,33 +214,67 @@ public class PlayerMovement : MonoBehaviour
         _controller?.StateMachine?.ChangeState(CharacterStateType.Jump);
         
         float elapsed = 0f;
-        float originalOffset = _agent.baseOffset;
+        float originalOffset = _agent != null ? _agent.baseOffset : 0f;
+        Vector3 currentHorizontalDir = jumpDirection.normalized;
+        Camera cam = Camera.main;
 
         try
         {
             while (elapsed < duration)
             {
-                elapsed += Time.deltaTime;
-                float t = elapsed / duration;
+                float dt = Time.deltaTime;
+                elapsed += dt;
+                float t = Mathf.Clamp01(elapsed / duration);
 
                 // Parabol equation: 4 * h * t * (1 - t)
                 float currentHeight = 4f * height * t * (1f - t);
-                _agent.baseOffset = originalOffset + currentHeight;
+                if(_agent != null) _agent.baseOffset = originalOffset + currentHeight;
 
-                if (_agent.enabled) _agent.Move(jumpDirection * (jumpForwardSpeed * Time.deltaTime));
-                else transform.position += jumpDirection * (jumpForwardSpeed * Time.deltaTime);
+                if (Mouse.current != null && (Mouse.current.leftButton.isPressed || Mouse.current.leftButton.wasPressedThisFrame) && cam != null)
+                {
+                    Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
+                    if (Physics.Raycast(ray, out var hit, 200f, groundLayer))
+                    {
+                        Vector3 toTarget = hit.point - transform.position;
+                        toTarget.y = 0f;
+
+                        if (toTarget.sqrMagnitude > 0.001f)
+                        {
+                            toTarget.Normalize();
+                            currentHorizontalDir = Vector3.Slerp(currentHorizontalDir, toTarget, dt * 8f).normalized;
+                        }
+                    }
+                }
+                
+                if (currentHorizontalDir.sqrMagnitude > 0.001f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(currentHorizontalDir);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, dt * 18f);
+                }
+
+                Vector3 moveDelta = currentHorizontalDir * (jumpForwardSpeed * dt);
+                if(_agent != null && _agent.enabled) _agent.Move(moveDelta);
+                else transform.position += moveDelta;
                 yield return null;
             }
         }
         finally
         {
-            if(_agent != null) _agent.baseOffset = originalOffset;
+            if (_agent != null)
+            {
+                _agent.baseOffset = originalOffset;
+                _agent.Warp(transform.position);
+            }
             _isJumping = false;
 
-            if (_hasJumpDestination && _agent.enabled && _agent.isOnNavMesh)
+            if (_hasJumpDestination && _agent != null && _agent.enabled && _agent.isOnNavMesh)
             {
                 _agent.isStopped = false;
                 _agent.SetDestination(_jumpDestination);
+            }
+            else if (_agent != null && _agent.enabled)
+            {
+                _agent.isStopped = false;
             }
 
             _hasJumpDestination = false;
@@ -300,7 +335,7 @@ public class PlayerMovement : MonoBehaviour
     
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying) return;
+        if(!Application.isPlaying) return;
 
         float dynamicCheckDistance = Mathf.Clamp(_agent.velocity.magnitude * 0.3f, 0.5f, autoJumpCheckDistance);
         Vector3 origin = transform.position + Vector3.up * 0.2f;
