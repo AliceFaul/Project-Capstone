@@ -33,6 +33,7 @@ public class StartupProcessor : MonoBehaviour
     private InputSystem_Actions _input;
     private readonly bool _offlineMode = false;
     private TaskCompletionSource<bool> _clickTcs;
+    private bool _isWaitingForClick = false;
 
     private async void Awake()
     {
@@ -79,7 +80,9 @@ public class StartupProcessor : MonoBehaviour
                 _loading.SetMessage(_clickToStartLocale);
             }
 
+            _isWaitingForClick = true;
             await WaitForClicked();
+            _isWaitingForClick = false;
 
             if(_loading != null) await _loading.ShowProgressBar();
 
@@ -93,22 +96,17 @@ public class StartupProcessor : MonoBehaviour
             
             if (pipelineResult.IsSuccess)
             {
-                _loading?.SetProgress(1f, _clickToContinueLocale);
-                await Task.Delay(300);
-                if(_loading != null) await _loading.HideProgressBar();
-                
                 if (AuthUIHandler.Instance != null)
                 {
                     bool result = await AuthUIHandler.Instance.TryLogin();
                     if (!result)
                     {
                         Debug.LogError($"[StartupProcessor] Authentication failed or cancelled.");
-                        var authErrorHandler = new StartupErrorController();
-                        authErrorHandler.ThrowError("AUTH_FAILED");
                         return;
                     }
                 }
 
+                if(_loading != null) await _loading.HideProgressBar();
                 await StartWorkflowAfterAuth();
             }
             else
@@ -129,10 +127,12 @@ public class StartupProcessor : MonoBehaviour
         _cts?.Cancel();
         _cts?.Dispose();
         
-        if (_input == null) return;
-        _input.UI.Click.performed -= OnClickPerformed;
-        _input.Disable();
-        _input.Dispose();
+        if (_input != null)
+        {
+            _input.UI.Click.performed -= OnClickPerformed;
+            _input.Disable();
+            _input.Dispose();
+        }
 
         if (Instance == this) Instance = null;
     }
@@ -231,7 +231,10 @@ public class StartupProcessor : MonoBehaviour
         return _clickTcs.Task;
     }
 
-    private void OnClickPerformed(InputAction.CallbackContext context) => _clickTcs?.TrySetResult(true);
+    private void OnClickPerformed(InputAction.CallbackContext context)
+    {
+        if (_isWaitingForClick) _clickTcs?.TrySetResult(true);
+    }
 
     private async Task FadeBlur(bool enable, float duration)
     {
@@ -313,10 +316,11 @@ public class StartupProcessor : MonoBehaviour
     public async Task StartWorkflowAfterAuth()
     {
         _input?.UI.Enable();
-        if (_loading != null) _loading?.SetProgress(1f, _clickToContinueLocale);
-        
-        Debug.Log("[StartupProcessor] Authenticated - waiting for 'Click to Continue' to Main Menu!");
+        _loading?.SetProgress(1f, _clickToContinueLocale);
+
+        _isWaitingForClick = true;
         await WaitForClicked();
+        _isWaitingForClick = false;
 
         await FadeBlur(enable: false, blurFadeDuration);
         if (_loading != null) await _loading.Hide();
@@ -325,24 +329,16 @@ public class StartupProcessor : MonoBehaviour
     
     private async Task OpenMainMenu()
     {
-        _input.UI.Disable();
+        _input?.UI.Disable();
         Debug.Log($"[StartupProcessor] Opening main menu");
         
         var mainMenu = FindFirstObjectByType<MainMenu>();
         if(mainMenu != null) await mainMenu.OpenMainMenu();
-        else Debug.LogError($"[StartupProcessor] No main menu component found!");
     }
 
     public async Task ResetBlur() => await FadeBlur(enable: true, blurFadeDuration);
     public void EnableUIInput() => _input?.UI.Enable();
 
-    public TService GetService<TService>()
-    {
-        return _serviceRegistry.Get<TService>();
-    }
-
-    public bool GetService<TService>(out TService service)
-    {
-        return _serviceRegistry.TryGet<TService>(out service);
-    }
+    public TService GetService<TService>() => _serviceRegistry.Get<TService>();
+    public bool GetService<TService>(out TService service) => _serviceRegistry.TryGet(out service);
 }

@@ -439,12 +439,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22337453435260928
-    m_Localized: Login failed. Please check your account or network connection.
+    m_Localized: Login failed. Please check your credentials or network connection.
     m_Metadata:
       m_Items: []
   - m_Id: 22337513053097984
-    m_Localized: Disconnected from the cloud server! Your progress is temporarily
-      saved locally (Offline).
+    m_Localized: Could not connect to cloud servers. Loading local backup instead.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348295560105984
+    m_Localized: Connection lost! Your progress has been saved locally on this device.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348566184988672
+    m_Localized: Storage error! Failed to write data to local device storage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22364712707690496
+    m_Localized: Auto Save Successful.
     m_Metadata:
       m_Items: []
   references:

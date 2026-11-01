@@ -440,7 +440,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22337513053097984
-    m_Key: SAVE_FAILED_CONTENT
+    m_Key: LOAD_CLOUD_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348295560105984
+    m_Key: SAVE_CLOUD_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348566184988672
+    m_Key: LOCAL_SAVE_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22364712707690496
+    m_Key: AUTO_SAVE_SUCCESS_CONTENT
     m_Metadata:
       m_Items: []
   m_Metadata:

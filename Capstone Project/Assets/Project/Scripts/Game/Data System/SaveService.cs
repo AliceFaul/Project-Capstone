@@ -19,9 +19,6 @@ public class SaveService : IGameService, IDisposable
     private CancellationTokenSource _autoSaveCts;
     private bool _isCloudAvailable = true;
     
-    public static event Action<string> OnSaveLoadErrorOccurred;
-    public static event Action OnSaveCompletedSuccessfully;
-
     public SaveService(ConfigManager configManager, PlayFabServiceManager playFabService)
     {
         _configManager = configManager;
@@ -61,14 +58,23 @@ public class SaveService : IGameService, IDisposable
             await LoadData();
             StartAutoSaveLoop();
         }
-        catch(Exception e) { Debug.LogError($"[SaveService] Failed to load data. Error: {e.Message}"); }
+        catch(Exception e) 
+        { 
+            Debug.LogError($"[SaveService] Critical failure during post-auth data loading. Error: {e.Message}"); 
+        }
     }
 
     private void StartAutoSaveLoop()
     {
-        _autoSaveCts?.Cancel();
+        if(_autoSaveCts != null)
+        {
+            _autoSaveCts.Cancel();
+            _autoSaveCts.Dispose();
+        }
         _autoSaveCts = new CancellationTokenSource();
+    
         _ = AutoSaveLoop(_autoSaveCts.Token);
+        Debug.Log("[SaveService] Auto-save loop started successfully.");
     }
 
     private async Task LoadData(CancellationToken ct = default)
@@ -87,7 +93,7 @@ public class SaveService : IGameService, IDisposable
         catch (Exception ex)
         {
             _isCloudAvailable = false;
-            OnSaveLoadErrorOccurred?.Invoke("Unable to connect to the PlayFab server. Using offline data.");
+            EventManager.Instance?.Trigger("ON_LOAD_CLOUD_FAILED");
             Debug.LogError($"[SaveService] Cloud load connection error: {ex.Message}");
         }
 
@@ -103,7 +109,8 @@ public class SaveService : IGameService, IDisposable
             catch (Exception e)
             {
                 Debug.LogError($"[SaveService] Parse cloud data failed: {e.Message}");
-                OnSaveLoadErrorOccurred?.Invoke("The cloud data has a structural error.");
+                EventManager.Instance?.Trigger("ON_LOAD_CLOUD_FAILED");
+                LocalBackup();
             }
         }
         else
@@ -126,6 +133,7 @@ public class SaveService : IGameService, IDisposable
         catch (Exception e)
         {
             Debug.LogError($"[SaveService] Failed to write local cache. Error: {e.Message}");
+            EventManager.Instance?.Trigger("ON_LOCAL_SAVE_FAILED");
         }
 
         string json = JsonUtility.ToJson(currentData);
@@ -145,7 +153,7 @@ public class SaveService : IGameService, IDisposable
         if (!cloudOk)
         {
             Debug.LogError($"[SaveService] Saving in cloud failed. Progress is cached locally.");
-            OnSaveLoadErrorOccurred?.Invoke("Connection lost! The process is temporarily saved locally on your computer.");
+            EventManager.Instance?.Trigger("ON_SAVE_CLOUD_FAILED");
         }
         
         return cloudOk;
@@ -158,13 +166,20 @@ public class SaveService : IGameService, IDisposable
             try
             {
                 await Task.Delay(TimeSpan.FromMinutes(AutoSaveIntervalMinutes), ct);
-                Debug.Log("$[SaveService] Triggering periodic auto-save...");
+                Debug.Log($"[SaveService] Triggering periodic auto-save...");
                 bool success = await SaveData(ct);
 
-                if(success) OnSaveCompletedSuccessfully?.Invoke();
+                if(success) EventManager.Instance?.Trigger("ON_AUTO_SAVE_SUCCESS");
             }
-            catch(OperationCanceledException) { Debug.Log($"[SaveService] Auto-save loop stopped."); break; }
-            catch(Exception e) { Debug.LogError($"[SaveService] Error in auto-save loop: {e.Message}"); }
+            catch(OperationCanceledException) 
+            { 
+                Debug.Log($"[SaveService] Auto-save loop stopped."); 
+                break; 
+            }
+            catch(Exception e) 
+            { 
+                Debug.LogError($"[SaveService] Error in auto-save loop: {e.Message}"); 
+            }
         }
     }
 
@@ -187,7 +202,7 @@ public class SaveService : IGameService, IDisposable
         catch(Exception e)
         {
             Debug.LogError($"[SaveService] Parse local data failed: {e.Message}");
-            OnSaveLoadErrorOccurred?.Invoke($"[SaveService] The local files stored on the machine are corrupted.");
+            EventManager.Instance?.Trigger("ON_LOCAL_SAVE_FAILED");
         }
     }
 

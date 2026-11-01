@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Localization; // Đảm bảo dự án đã cài gói Localization
 
 public class AuthUIHandler : MonoBehaviour
 {
@@ -16,6 +17,14 @@ public class AuthUIHandler : MonoBehaviour
     [SerializeField] private GameObject loginPanel;
     [SerializeField] private GameObject registerPanel;
     [SerializeField] private GameObject loadingOverlay;
+
+    [Header("System Popup Configuration")]
+    [SerializeField] private string errorPopupPrefabId = "DefaultErrorPopup";
+    [SerializeField] private LocalizedString loginFailedLocalizedString = new LocalizedString("UI", "LOGIN_FAILED_CONTENT");
+    [SerializeField] private LocalizedString loadCloudFailedLocalizedString = new LocalizedString("UI", "load_cloud_failed_content");
+    [SerializeField] private LocalizedString saveCloudFailedLocalizedString = new LocalizedString("UI", "save_cloud_failed_content");
+    [SerializeField] private LocalizedString localSaveFailedLocalizedString = new LocalizedString("UI", "local_save_failed_content");
+    [SerializeField] private LocalizedString autoSaveSuccessLocalizedString = new LocalizedString("UI", "AUTO_SAVE_SUCCESS_CONTENT");
 
     private TaskCompletionSource<bool> _tcs;
     private CancellationTokenSource _cts;
@@ -33,6 +42,24 @@ public class AuthUIHandler : MonoBehaviour
     {
         if(mainMenu == null) mainMenu = FindFirstObjectByType<MainMenu>();
         if(canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
+    }
+
+    private void OnEnable()
+    {
+        EventManager.Instance?.AddListener("ON_AUTH_FAILED", ShowLoginFailedPopup);
+        EventManager.Instance?.AddListener("ON_LOAD_CLOUD_FAILED", ShowLoadCloudFailedPopup);
+        EventManager.Instance?.AddListener("ON_SAVE_CLOUD_FAILED", ShowSaveCloudFailedPopup);
+        EventManager.Instance?.AddListener("ON_LOCAL_SAVE_FAILED", ShowLocalSaveFailedPopup);
+        EventManager.Instance?.AddListener("ON_AUTO_SAVE_SUCCESS", HandleAutoSaveSuccess);
+    }
+
+    private void OnDisable()
+    {
+        EventManager.Instance?.RemoveListener("ON_AUTH_FAILED", ShowLoginFailedPopup);
+        EventManager.Instance?.RemoveListener("ON_LOAD_CLOUD_FAILED", ShowLoadCloudFailedPopup);
+        EventManager.Instance?.RemoveListener("ON_SAVE_CLOUD_FAILED", ShowSaveCloudFailedPopup);
+        EventManager.Instance?.RemoveListener("ON_LOCAL_SAVE_FAILED", ShowLocalSaveFailedPopup);
+        EventManager.Instance?.RemoveListener("ON_AUTO_SAVE_SUCCESS", HandleAutoSaveSuccess);
     }
 
     private void OnDestroy()
@@ -62,6 +89,7 @@ public class AuthUIHandler : MonoBehaviour
         {
             SetLoadingState(false);
             ShowAuthPanel();
+            ShowLoginFailedPopup();
         }
         
         return await _tcs.Task;
@@ -113,11 +141,14 @@ public class AuthUIHandler : MonoBehaviour
 
             SetLoadingState(false);
             Debug.Log("[AuthUIHandler] Logout completed.");
+            
+            if (StartupProcessor.Instance != null && StartupProcessor.Instance.GetService(out SaveService saveService))
+            {
+                saveService.Dispose();
+                Debug.Log("[AuthUIHandler] Auto-save loop disposed clean on logout.");
+            }
         }
-        catch (Exception e)
-        {
-            Debug.LogError($"[AuthUIHandler] Logout failed: {e.Message}");
-        }
+        catch(Exception e) { Debug.LogError($"[AuthUIHandler] Logout failed: {e.Message}"); }
         
         CryptoUtils.ClearCredentials();
         if(mainMenu == null) mainMenu = FindFirstObjectByType<MainMenu>();
@@ -148,5 +179,40 @@ public class AuthUIHandler : MonoBehaviour
     public void SetLoadingState(bool loading)
     {
         if(loadingOverlay != null) loadingOverlay.SetActive(loading);
+    }
+
+    private void ShowLoginFailedPopup()
+    {
+        if(UIManager.Instance == null) return;
+        UIManager.Instance.GetPopupService().Create(errorPopupPrefabId, "popup_login_failed", loginFailedLocalizedString, () => true);
+    }
+
+    private void ShowLoadCloudFailedPopup()
+    {
+        if(UIManager.Instance == null) return;
+        UIManager.Instance.GetPopupService().Create(errorPopupPrefabId, "popup_load_cloud_failed", loadCloudFailedLocalizedString, () => true);
+    }
+
+    private void ShowSaveCloudFailedPopup()
+    {
+        if(UIManager.Instance == null) return;
+        UIManager.Instance.GetPopupService().Create(errorPopupPrefabId, "popup_save_cloud_failed", saveCloudFailedLocalizedString, () => true);
+    }
+
+    private void ShowLocalSaveFailedPopup()
+    {
+        if(UIManager.Instance == null) return;
+        UIManager.Instance.GetPopupService().Create(errorPopupPrefabId, "popup_local_save_failed", localSaveFailedLocalizedString, () => true);
+    }
+
+    private void HandleAutoSaveSuccess()
+    {
+        if(UIManager.Instance == null) return; 
+
+        UIManager.Instance.GetFloatingTextService().Create(
+            "AutoSaveText", 
+            "toast_autosave_" + DateTime.UtcNow.Ticks, 
+            autoSaveSuccessLocalizedString
+        );
     }
 }
