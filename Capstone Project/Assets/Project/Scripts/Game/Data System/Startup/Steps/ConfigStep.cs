@@ -30,10 +30,18 @@ public class ConfigStep : StartupStep
 
             try
             {
-                configLoader.LoadConfig(config);
-
+                var result = configLoader.LoadConfig(config);
                 sr.Register(type, config);
-                Debug.Log($"[ConfigStep] Read {fileName} successfully.");
+
+                switch (result)
+                {
+                    case ConfigResult.Success:
+                        Debug.Log($"[ConfigStep] Read {fileName} successfully."); break;
+                    case ConfigResult.Skipped:
+                        Debug.Log($"[ConfigStep] {fileName} execution was skipped (Using runtime initialization)."); break;
+                    case ConfigResult.FileNotFound:
+                        Debug.LogWarning($"[ConfigStep] {fileName} not found. Registered config with default baseline settings."); break;
+                }
             }
             catch (Exception e)
             {

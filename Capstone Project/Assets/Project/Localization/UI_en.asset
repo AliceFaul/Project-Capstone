@@ -142,6 +142,311 @@ MonoBehaviour:
     m_Localized: Your version is outdated. Please download the latest update.
     m_Metadata:
       m_Items: []
+  - m_Id: 22304924657389568
+    m_Localized: INVENTORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384512
+    m_Localized: LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384513
+    m_Localized: EXPERIENCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384514
+    m_Localized: TOTAL STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384515
+    m_Localized: TOTAL STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384516
+    m_Localized: WEAPONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384517
+    m_Localized: ARMOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384518
+    m_Localized: ARTIFACTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384519
+    m_Localized: MELEE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384520
+    m_Localized: RANGED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384521
+    m_Localized: RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384522
+    m_Localized: ARTIFACT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384523
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384524
+    m_Localized: Equip / Unequip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384525
+    m_Localized: Click an item to equip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384526
+    m_Localized: Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384527
+    m_Localized: Defense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384528
+    m_Localized: Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384529
+    m_Localized: Attack Range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384530
+    m_Localized: Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384531
+    m_Localized: Move Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384532
+    m_Localized: Crit Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384533
+    m_Localized: Crit Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384534
+    m_Localized: COMMON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384535
+    m_Localized: UNCOMMON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384536
+    m_Localized: RARE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384537
+    m_Localized: LEGENDARY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384538
+    m_Localized: Sword
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384539
+    m_Localized: Axe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384540
+    m_Localized: Bow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384541
+    m_Localized: Crossbow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384542
+    m_Localized: EQUIPPED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384543
+    m_Localized: IN BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384544
+    m_Localized: UNKNOWN ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384545
+    m_Localized: Lv {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384546
+    m_Localized: MAX LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384547
+    m_Localized: '{0} / {1} EXP'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384548
+    m_Localized: Tier {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384549
+    m_Localized: Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384550
+    m_Localized: Melee weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384551
+    m_Localized: Ranged weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384552
+    m_Localized: Artifact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384553
+    m_Localized: Stat rune
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384554
+    m_Localized: Damage effect rune
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384555
+    m_Localized: STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384556
+    m_Localized: RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384557
+    m_Localized: Cooldown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384558
+    m_Localized: '{0}s'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384559
+    m_Localized: Quality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384560
+    m_Localized: Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384561
+    m_Localized: '{0} damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384562
+    m_Localized: Unknown rune
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384563
+    m_Localized: (inactive)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384564
+    m_Localized: '{0}: {1} {2} damage every {3}s for {4}s'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384565
+    m_Localized: '{0}: {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384566
+    m_Localized: SOCKET {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384567
+    m_Localized: SOCKET {0} - CLICK TWICE TO REMOVE ({1} GEM)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384568
+    m_Localized: LOCKED SOCKET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384569
+    m_Localized: Unlocks when the weapon reaches level {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384570
+    m_Localized: The bag is full - cannot unequip.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384571
+    m_Localized: Cannot equip this item.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384572
+    m_Localized: No free socket on your equipped weapons.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384573
+    m_Localized: This socket unlocks at weapon level {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384574
+    m_Localized: Choose a rune from the bag (Esc to cancel).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384575
+    m_Localized: Socket selection cancelled.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384576
+    m_Localized: Click again to remove this rune (costs {0} Gem).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384577
+    m_Localized: Rune socketed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384578
+    m_Localized: Rune removed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384579
+    m_Localized: Not enough Gem.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384580
+    m_Localized: The rune bag is full.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384581
+    m_Localized: This socket is locked.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384582
+    m_Localized: This socket already has a rune.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384583
+    m_Localized: That rune is no longer in the bag.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384584
+    m_Localized: Cannot do that.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22337453435260928
+    m_Localized: Login failed. Please check your account or network connection.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22337513053097984
+    m_Localized: Disconnected from the cloud server! Your progress is temporarily
+      saved locally (Offline).
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

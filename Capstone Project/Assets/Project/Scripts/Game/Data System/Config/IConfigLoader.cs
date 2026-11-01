@@ -2,5 +2,5 @@
 
 public interface IConfigLoader
 {
-    void LoadConfig(ScriptableObject config);
+    ConfigResult LoadConfig(ScriptableObject config);
 }

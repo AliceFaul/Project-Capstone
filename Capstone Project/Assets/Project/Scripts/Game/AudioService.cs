@@ -275,8 +275,11 @@ public class AudioService : MonoBehaviour, IManager, IAudioService
     {
         if(!_volumeDirty) return;
         _volumeDirty = false;
-        
-        if(_playerConfig != null) LocalConfigWriter.Save(_playerConfig);
+
+        if(_playerConfig == null) return;
+        JsonWriter writer = new JsonWriter(Application.persistentDataPath);
+        writer.Write(_playerConfig, _playerConfig.name + ".json");
+        Debug.Log($"[AudioService] Encrypted and saved {_playerConfig.name}.json successfully.");
     }
 }
 

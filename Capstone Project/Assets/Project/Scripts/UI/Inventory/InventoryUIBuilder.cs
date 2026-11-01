@@ -47,7 +47,7 @@ public static class InventoryUIBuilder
         InventoryLocalizationTool.AddKeys();
     }
 
-    // ------------------------------------------------------------------ prefabs
+    // ===== PREFABS =====
 
     private static GameObject BuildSlotPrefab()
     {

@@ -5,15 +5,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Tools > UI > Upgrade Selected Inventory Prefab
-/// Brings an inventory prefab that was built by an older InventoryUIBuilder up to date WITHOUT rebuilding it:
-///  - InventoryScreen background swallows clicks (Raycast Target)
-///  - InventoryScreenController gets its Screen View reference
-///  - InventoryDetailView gets a CanvasGroup (used to hide the panel for empty slots)
-///  - static labels get a LocalizationText bound to the "UI" string table
-/// Select the prefab asset (or an instance of it in the scene) first. Labels you renamed are listed in the Console.
-/// </summary>
 public static class InventoryPrefabUpgrader
 {
     // path suffix (relative to the prefab root) -> localization key

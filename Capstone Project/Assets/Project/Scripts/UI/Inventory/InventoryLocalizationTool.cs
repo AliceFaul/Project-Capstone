@@ -2,11 +2,6 @@
 using UnityEditor.Localization;
 using UnityEngine;
 
-/// <summary>
-/// Tools > UI > Add Inventory Localization Keys
-/// Adds every InventoryText key to the "UI" string table (all locales get the English default; existing entries are never overwritten).
-/// Translate the new entries afterward in the Localization Tables window.
-/// </summary>
 public static class InventoryLocalizationTool
 {
     [MenuItem("Tools/UI/Add Inventory Localization Keys")]
