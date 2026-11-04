@@ -297,7 +297,7 @@
     transition-duration: 0.1s;
     scale: 1 1;
     border-width: 2px;
-    border-color: rgb(255, 255, 255);
+    border-color: rgba(255, 255, 255, 0);
 }
 
 .button-base:hover {

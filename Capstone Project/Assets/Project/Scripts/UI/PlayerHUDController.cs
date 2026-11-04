@@ -24,6 +24,7 @@ public class PlayerHUDController : MonoBehaviour
     private PlayerRuntime _runtime;
     private PlayerAbilityHolder _abilityHolder;
     private ArtifactController _artifactController;
+    private PlayerCombat _combat;
 
     private bool[] _abilityCooling = Array.Empty<bool>();
     private readonly bool[] _artifactCooling = new bool[ArtifactSlotCount];
@@ -59,6 +60,7 @@ public class PlayerHUDController : MonoBehaviour
         if(!_isBound) return;
         UpdateAbilityCooldowns();
         UpdateArtifactCooldowns();
+        UpdateAmmoRegen();
     }
 
     private void ResolveComponents()
@@ -71,6 +73,7 @@ public class PlayerHUDController : MonoBehaviour
             if(_runtime == null) _runtime = controller.PlayerRuntime;
             if(_abilityHolder == null) _abilityHolder = controller.AbilityHolder;
             if(_artifactController == null) _artifactController = controller.ArtifactController;
+            if(_combat == null) _combat = controller.Combat;
         }
         else
         {
@@ -118,6 +121,8 @@ public class PlayerHUDController : MonoBehaviour
             _equipment.OnLoadoutReloaded += RefreshArtifacts;
         }
         
+        if(_combat != null) _combat.OnAmmoChanged += OnAmmoChanged;
+        
         if(currencyUI != null && _runtime != null) currencyUI.Initialize(_runtime);
         
         _isBound = true;
@@ -149,6 +154,8 @@ public class PlayerHUDController : MonoBehaviour
             _equipment.OnEquipmentChanged -= OnEquipmentChanged;
             _equipment.OnLoadoutReloaded -= RefreshArtifacts;
         }
+        
+        if(_combat != null) _combat.OnAmmoChanged -= OnAmmoChanged;
 
         _isBound = false;
     }
@@ -159,6 +166,7 @@ public class PlayerHUDController : MonoBehaviour
         RefreshProgression();
         RefreshAbilities();
         RefreshArtifacts();
+        RefreshAmmo();
     }
 
     private void OnHpChanged(int current)
@@ -218,6 +226,13 @@ public class PlayerHUDController : MonoBehaviour
         }
     }
 
+    private void RefreshAmmo()
+    {
+        if(_combat == null || view == null) return;
+        view.SetAmmo(_combat.CurrentAmmo, _combat.MaxAmmo);
+        UpdateAmmoRegen();
+    }
+
     private void OnAbilityCooldownStarted(int slot, float remaining, float maximum)
     {
         if(slot < 0 || slot >= _abilityCooling.Length) return;
@@ -231,6 +246,12 @@ public class PlayerHUDController : MonoBehaviour
         _abilityCooling[slot] = false;
         view?.SetAbilityCooldown(slot, 0f);
         if(abilityReadyCue != null) AudioService.Instance?.PlaySfx(abilityReadyCue);
+    }
+
+    private void OnAmmoChanged(int current, int maximum)
+    {
+        view?.SetAmmo(current, maximum);
+        UpdateAmmoRegen();
     }
 
     private void UpdateAbilityCooldowns()
@@ -251,6 +272,18 @@ public class PlayerHUDController : MonoBehaviour
                 view.SetAbilityCooldown(i, 0f);
             }
         }
+    }
+
+    private void UpdateAmmoRegen()
+    {
+        if(view == null) return;
+        if (_combat != null)
+        {
+            view.SetAmmoRegen(0f, false);
+            return;
+        }
+        
+        view.SetAmmoRegen(_combat.AmmoRegenProgress, _combat.IsAmmoRegenerating);
     }
 
     private void RefreshArtifacts()

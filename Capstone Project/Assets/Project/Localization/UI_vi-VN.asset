@@ -464,6 +464,70 @@ MonoBehaviour:
     m_Localized: "T\u1EF1 \u0111\u1ED9ng l\u01B0u th\xE0nh c\xF4ng."
     m_Metadata:
       m_Items: []
+  - m_Id: 23071425618382848
+    m_Localized: RUNE SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463232
+    m_Localized: ACTIVE RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463233
+    m_Localized: RUNES IN BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463234
+    m_Localized: Socket {0} - empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463235
+    m_Localized: Socket {0} - locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463236
+    m_Localized: Pick a rune from the bag on the right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463237
+    m_Localized: Select a rune from the bag to see its details.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463238
+    m_Localized: Remove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463239
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463240
+    m_Localized: '{0} Gem'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463241
+    m_Localized: INSERT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463242
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463243
+    m_Localized: DESCRIPTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463244
+    m_Localized: 'Same group as {0}: {0} would become inactive.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463245
+    m_Localized: 'Same group as {0}: this rune would stay inactive.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463246
+    m_Localized: '{0} {1} damage every {2}s for {3}s'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

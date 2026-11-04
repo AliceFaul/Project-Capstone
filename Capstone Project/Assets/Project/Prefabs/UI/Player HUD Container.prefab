@@ -584,7 +584,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 0
+  m_Spacing: 2.6
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1257,6 +1257,11 @@ MonoBehaviour:
   levelText: {fileID: 3830573427397809660}
   expSlider: {fileID: 5174043106618459768}
   expLerpSpeed: 8
+  ammoText: {fileID: 0}
+  ammoRegenRoot: {fileID: 0}
+  ammoRegenFill: {fileID: 0}
+  ammoNormalColor: {r: 0.96, g: 0.95, b: 0.9, a: 1}
+  ammoEmptyColor: {r: 1, g: 0.35, b: 0.3, a: 1}
   artifactSlots:
   - icon: {fileID: 6795965902263762213}
     cooldownOverlay: {fileID: 1307138804584263262}
@@ -1283,6 +1288,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHUDController
   view: {fileID: 2349691521959372595}
   currencyUI: {fileID: 0}
+  abilityReadyCue: {fileID: 0}
+  artifactReadyCue: {fileID: 0}
   controller: {fileID: 0}
   cooldownChannel: {fileID: 11400000, guid: 86bba598dd7bd3f4da02a4aa6934c274, type: 2}
 --- !u!1 &2677106957908678119
@@ -1713,6 +1720,7 @@ GameObject:
   - component: {fileID: 7044073921419605320}
   - component: {fileID: 6919001475388279521}
   - component: {fileID: 1828339740066005912}
+  - component: {fileID: 6775293694317922046}
   m_Layer: 5
   m_Name: Inventory icon
   m_TagString: Untagged
@@ -1778,6 +1786,50 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6775293694317922046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903482732157417615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1828339740066005912}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2998187465809009041
 GameObject:
   m_ObjectHideFlags: 0
@@ -3719,7 +3771,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 25, y: 25}
+  m_SizeDelta: {x: 31.1642, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5568787973681043675
 CanvasRenderer:

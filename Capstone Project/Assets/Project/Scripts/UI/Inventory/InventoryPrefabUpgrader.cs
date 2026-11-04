@@ -5,6 +5,15 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Tools > UI > Upgrade Selected Inventory Prefab
+/// Brings an inventory prefab that was built by an older InventoryUIBuilder up to date WITHOUT rebuilding it:
+///  - InventoryScreen background swallows clicks (Raycast Target)
+///  - InventoryScreenController gets its Screen View reference
+///  - InventoryDetailView gets a CanvasGroup (used to hide the panel for empty slots)
+///  - static labels get a LocalizationText bound to the "UI" string table
+/// Select the prefab asset (or an instance of it in the scene) first. Labels you renamed are listed in the Console.
+/// </summary>
 public static class InventoryPrefabUpgrader
 {
     // path suffix (relative to the prefab root) -> localization key
@@ -82,6 +91,8 @@ public static class InventoryPrefabUpgrader
             SetRef(detail, "canvasGroup", group);
         }
 
+        AddPopupIfMissing(root, view, detail);
+
         var matched = new HashSet<string>();
         int added = 0;
         foreach (var text in root.GetComponentsInChildren<TMP_Text>(true))
@@ -108,6 +119,38 @@ public static class InventoryPrefabUpgrader
                   (missing.Count > 0 ? " Not found (renamed or removed, add by hand if needed): " + string.Join(", ", missing) : ""));
     }
 
+    // Builds the rune socket popup inside the prefab (reusing its own slot / stat row prefabs) and wires it to the screen view.
+    private static void AddPopupIfMissing(GameObject root, InventoryScreenView view, InventoryDetailView detail)
+    {
+        var popup = root.GetComponentInChildren<RuneSocketPopup>(true);
+
+        if (popup == null)
+        {
+            var bagSlot = GetRef<InventorySlotView>(view, "bagSlotPrefab");
+            var statRow = detail != null ? GetRef<GameObject>(detail, "statRowPrefab") : null;
+            if (bagSlot == null || statRow == null)
+            {
+                Debug.LogWarning("[Inventory] Could not add the rune socket popup: bag slot prefab or stat row prefab is not assigned.");
+                return;
+            }
+
+            popup = InventoryUIBuilder.AddPopupTo(view.transform, bagSlot, statRow);
+            Debug.Log("[Inventory] Rune socket popup added.");
+        }
+
+        SetRef(view, "popup", popup);
+        if (popup.GetComponent<UIBlurBackdrop>() == null) InventoryUIBuilder.AddBlurTo(popup);
+        popup.transform.SetAsLastSibling();
+        var toast = view.transform.Find("Toast");
+        if (toast != null) toast.SetAsLastSibling();
+    }
+
+    private static T GetRef<T>(Object target, string field) where T : Object
+    {
+        var p = new SerializedObject(target).FindProperty(field);
+        return p?.objectReferenceValue as T;
+    }
+
     private static bool HasLocalized(GameObject root, string suffix)
     {
         foreach (var loc in root.GetComponentsInChildren<LocalizationText>(true))
@@ -124,7 +167,8 @@ public static class InventoryPrefabUpgrader
         var so = new SerializedObject(loc);
         so.FindProperty("text").objectReferenceValue = text;
         so.ApplyModifiedPropertiesWithoutUndo();
-        typeof(LocalizationText).GetField("localizedString", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(loc, InventoryText.Ref(key));
+        typeof(LocalizationText).GetField("localizedString", BindingFlags.NonPublic | BindingFlags.Instance)
+            ?.SetValue(loc, InventoryText.Ref(key));
         EditorUtility.SetDirty(loc);
 
         if (InventoryText.Defaults.TryGetValue(key, out var fallback)) text.text = fallback;

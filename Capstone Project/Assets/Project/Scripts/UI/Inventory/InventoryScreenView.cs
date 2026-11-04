@@ -9,6 +9,8 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Project.Capstone.Inventory;
 
+// Inventory screen: binds to PlayerDataConfig / EquipmentManager and reacts to their events (no polling).
+// Mouse: hover = inspect, left click = equip / unequip / insert rune. Keyboard: arrows + Enter, Y = stats, Esc = back.
 public class InventoryScreenView : MonoBehaviour
 {
     private static readonly InventoryCategory[] TabCategories =
@@ -16,7 +18,6 @@ public class InventoryScreenView : MonoBehaviour
         InventoryCategory.Melee, InventoryCategory.Ranged, InventoryCategory.Armor,
         InventoryCategory.Rune, InventoryCategory.Artifact
     };
-    private const int RuneTab = 3;
 
     [Header("Header")]
     [SerializeField] private TMP_Text levelText;
@@ -43,6 +44,7 @@ public class InventoryScreenView : MonoBehaviour
     [SerializeField] private GameObject detailPanel;
     [SerializeField] private GameObject statsPanel;
     [SerializeField] private TMP_Text toastText;
+    [SerializeField] private RuneSocketPopup popup;
 
     public UnityEvent onBack;
 
@@ -59,11 +61,6 @@ public class InventoryScreenView : MonoBehaviour
     private int _tab;
     private object _focus;
 
-    private EquipmentInstance _pendingWeapon;   // socket chosen by clicking an empty pip
-    private int _pendingIndex = -1;
-    private EquipmentInstance _removeWeapon;    // rune removal needs a second click (costs Gem)
-    private int _removeIndex = -1;
-    private float _removeUntil;
     private float _toastUntil;
 
     private void Awake()
@@ -79,6 +76,11 @@ public class InventoryScreenView : MonoBehaviour
         {
             p.Highlighted += OnPipHighlighted;
             p.Clicked += OnPipClicked;
+        }
+        if (popup != null)
+        {
+            popup.Message += Toast;
+            popup.Closed += OnPopupClosed;
         }
         for (int i = 0; i < tabButtons.Length; i++)
         {
@@ -124,8 +126,9 @@ public class InventoryScreenView : MonoBehaviour
         detailPanel.SetActive(true);
         detail.Hide();
         toastText.gameObject.SetActive(false);
-        _pendingWeapon = null;
-        _removeWeapon = null;
+        _openingPopup = false;
+        SetMainInteractable(true);
+        if (popup != null) popup.Close();
 
         if (!TryBind()) return;
 
@@ -180,8 +183,9 @@ public class InventoryScreenView : MonoBehaviour
 
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
-        if (keyboard.yKey.wasPressedThisFrame) ToggleStats();
         if (keyboard.escapeKey.wasPressedThisFrame) Back();
+        if (popup != null && popup.IsOpen) return;
+        if (keyboard.yKey.wasPressedThisFrame) ToggleStats();
     }
 
     public void ToggleStats()
@@ -193,16 +197,10 @@ public class InventoryScreenView : MonoBehaviour
 
     private void Back()
     {
-        if (_pendingWeapon != null)
-        {
-            _pendingWeapon = null;
-            Toast(InventoryText.Get("TOAST_SELECT_CANCELLED"));
-        }
+        if (popup != null && popup.IsOpen) popup.Close();
         else if (statsPanel.activeSelf) ToggleStats();
         else onBack?.Invoke();
     }
-
-    // ---------------------------------------------------------------- refresh
 
     private void OnLocaleChanged(UnityEngine.Localization.Locale locale) => RefreshAll();
 
@@ -317,7 +315,6 @@ public class InventoryScreenView : MonoBehaviour
         return string.IsNullOrEmpty(id) ? null : _data.GetDefinition<ItemData>(id);
     }
 
-
     // ===== EVENTS =====
 
     private void OnEquipChanged(EquipmentChangedEventArgs _) { HasChanges = true; RefreshEquipment(); RefreshDetail(); }
@@ -385,7 +382,7 @@ public class InventoryScreenView : MonoBehaviour
             return;
         }
 
-        detail.Show(rune, Def(rune), InventoryText.Get("SOCKET_FILLED_HEADER", i + 1, sockets.GetRemovalCost(weapon)), _equip);
+        detail.Show(rune, Def(rune), InventoryText.Get("SOCKET_HEADER", i + 1), _equip);
     }
 
     private int UnlockLevel(int socketIndex)
@@ -408,101 +405,72 @@ public class InventoryScreenView : MonoBehaviour
 
         if (slot.Item is RuneInstance rune)
         {
-            InsertRune(rune);
+            OpenPopupForRune(rune);
             return;
         }
 
         if (!_equip.Equip(slot.Item)) Toast(InventoryText.Get("TOAST_CANNOT_EQUIP"));
     }
 
-    private void InsertRune(RuneInstance rune)
+    private void OnPipClicked(SocketPipView pip)
+    {
+        if (_equip.GetEquipped(pip.weaponSlot) == null) return;
+        OpenPopup(pip.weaponSlot, pip.socketIndex, null);
+    }
+
+    // Clicking a rune in the bag opens the socket popup with that rune preselected on the first free socket.
+    private void OpenPopupForRune(RuneInstance rune)
     {
         var sockets = _equip.Sockets;
         if (sockets == null) return;
 
-        EquipmentInstance weapon = _pendingWeapon;
-        int index = _pendingIndex;
-
-        // No socket chosen: use the first free unlocked socket (melee first, then ranged).
-        if (weapon == null && !TryFindFreeSocket(sockets, out weapon, out index))
-        {
-            Toast(InventoryText.Get("TOAST_NO_FREE_SOCKET"));
-            return;
-        }
-
-        var result = sockets.TryInsert(weapon, index, rune);
-        _pendingWeapon = null;
-        Toast(SocketMessage(result, "TOAST_RUNE_SOCKETED"));
-    }
-
-    private bool TryFindFreeSocket(SocketService sockets, out EquipmentInstance weapon, out int index)
-    {
         foreach (var slot in new[] { EquipSlot.Melee, EquipSlot.Ranged })
         {
-            weapon = _equip.GetEquipped(slot);
+            var weapon = _equip.GetEquipped(slot);
             if (weapon == null) continue;
 
-            for (index = 0; index < EquipmentInstance.SocketCount; index++)
+            for (int i = 0; i < EquipmentInstance.SocketCount; i++)
             {
-                if (sockets.IsSocketUnlocked(weapon, index) && weapon.GetSocket(index).IsEmpty) return true;
+                if (!sockets.IsSocketUnlocked(weapon, i) || !weapon.GetSocket(i).IsEmpty) continue;
+                OpenPopup(slot, i, rune);
+                return;
             }
         }
 
-        weapon = null;
-        index = -1;
-        return false;
+        Toast(InventoryText.Get("TOAST_NO_FREE_SOCKET"));
     }
 
-    private void OnPipClicked(SocketPipView pip)
+    private bool _openingPopup;
+
+    private void OpenPopup(EquipSlot weaponSlot, int socketIndex, RuneInstance preselect)
     {
-        var weapon = _equip.GetEquipped(pip.weaponSlot);
-        var sockets = _equip.Sockets;
-        if (weapon == null || sockets == null) return;
-
-        int i = pip.socketIndex;
-
-        if (!sockets.IsSocketUnlocked(weapon, i))
-        {
-            Toast(InventoryText.Get("TOAST_SOCKET_UNLOCKS", UnlockLevel(i)));
-            return;
-        }
-
-        var rune = weapon.GetSocket(i);
-        if (rune == null || rune.IsEmpty)
-        {
-            _pendingWeapon = weapon;
-            _pendingIndex = i;
-            SelectTab(RuneTab);
-            Toast(InventoryText.Get("TOAST_PICK_RUNE"));
-            return;
-        }
-
-        // Removing costs Gem: require a second click within 3 seconds.
-        if (_removeWeapon == weapon && _removeIndex == i && Time.unscaledTime < _removeUntil)
-        {
-            _removeWeapon = null;
-            Toast(SocketMessage(sockets.TryRemove(weapon, i), "TOAST_RUNE_REMOVED"));
-            return;
-        }
-
-        _removeWeapon = weapon;
-        _removeIndex = i;
-        _removeUntil = Time.unscaledTime + 3f;
-        Toast(InventoryText.Get("TOAST_REMOVE_CONFIRM", sockets.GetRemovalCost(weapon)));
+        if (popup == null || _openingPopup || popup.IsOpen) return;
+        StartCoroutine(OpenPopupRoutine(weaponSlot, socketIndex, preselect));
     }
 
-    private static string SocketMessage(SocketResult result, string successKey)
+    private IEnumerator OpenPopupRoutine(EquipSlot weaponSlot, int socketIndex, RuneInstance preselect)
     {
-        switch (result)
+        _openingPopup = true;
+        SetMainInteractable(false);
+        yield return popup.PrepareBackdrop();
+        _openingPopup = false;
+        popup.Open(_data, _equip, weaponSlot, socketIndex, preselect);
+    }
+
+    private void SetMainInteractable(bool value)
+    {
+        foreach (var selectable in GetComponentsInChildren<Selectable>(true))
         {
-            case SocketResult.Success: return InventoryText.Get(successKey);
-            case SocketResult.NotEnoughGem: return InventoryText.Get("TOAST_NOT_ENOUGH_GEM");
-            case SocketResult.InventoryFull: return InventoryText.Get("TOAST_RUNE_BAG_FULL");
-            case SocketResult.SocketLocked: return InventoryText.Get("TOAST_SOCKET_LOCKED");
-            case SocketResult.SocketOccupied: return InventoryText.Get("TOAST_SOCKET_OCCUPIED");
-            case SocketResult.RuneNotInInventory: return InventoryText.Get("TOAST_RUNE_MISSING");
-            default: return InventoryText.Get("TOAST_GENERIC_FAIL");
+            if (popup != null && selectable.transform.IsChildOf(popup.transform)) continue;
+            selectable.interactable = value;
         }
+    }
+
+    private void OnPopupClosed()
+    {
+        if (this == null) return; // scene is being torn down
+        SetMainInteractable(true);
+        if (isActiveAndEnabled) StartCoroutine(SelectFirst());
     }
 
     private void Toast(string message)

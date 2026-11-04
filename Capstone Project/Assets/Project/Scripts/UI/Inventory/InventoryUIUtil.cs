@@ -86,4 +86,40 @@ public static class InventoryUIUtil
         }
         return InventoryText.Get("RUNE_STAT_LINE", data.itemName, string.Join(", ", parts));
     }
+
+    // Effect text without the rune name (used by the socket popup rows).
+    public static string RuneSummary(RuneInstance rune, RuneData data)
+    {
+        if (data == null) return InventoryText.Get("RUNE_UNKNOWN");
+
+        if (data.kind == RuneKind.DamageEffect)
+        {
+            RuneResolver.TryGetRoll(rune, RuneData.DamagePerTickId, out float dmg);
+            RuneResolver.TryGetRoll(rune, RuneData.DurationId, out float dur);
+            return InventoryText.Get("RUNE_EFFECT_SUMMARY", dmg.ToString("0.#"), data.effectType,
+                data.tickInterval.ToString("0.#"), dur.ToString("0.#"));
+        }
+
+        var parts = new List<string>();
+        foreach (var line in data.statLines)
+        {
+            if (!RuneResolver.TryGetRoll(rune, line.Id, out float v)) continue;
+            parts.Add(line.mode == StatMode.Percent ? $"+{v:0.##}% {StatName(line.stat)}" : $"+{v:0.##} {StatName(line.stat)}");
+        }
+        return string.Join(", ", parts);
+    }
+
+    public static string SocketMessage(SocketResult result, string successKey)
+    {
+        switch (result)
+        {
+            case SocketResult.Success: return InventoryText.Get(successKey);
+            case SocketResult.NotEnoughGem: return InventoryText.Get("TOAST_NOT_ENOUGH_GEM");
+            case SocketResult.InventoryFull: return InventoryText.Get("TOAST_RUNE_BAG_FULL");
+            case SocketResult.SocketLocked: return InventoryText.Get("TOAST_SOCKET_LOCKED");
+            case SocketResult.SocketOccupied: return InventoryText.Get("TOAST_SOCKET_OCCUPIED");
+            case SocketResult.RuneNotInInventory: return InventoryText.Get("TOAST_RUNE_MISSING");
+            default: return InventoryText.Get("TOAST_GENERIC_FAIL");
+        }
+    }
 }

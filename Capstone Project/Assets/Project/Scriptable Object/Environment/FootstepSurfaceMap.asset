@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e8dfb01cf5943ff90f6b600d1bb0e78, type: 3}
+  m_Name: FootstepSurfaceMap
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepSurfaceMap
+  defaultSurface: {fileID: 0}
+  terrainLayers:
+  - layer: {fileID: 8574412962073106934, guid: a81995a1b9792014b8df74c003aef209, type: 2}
+    surface: {fileID: 0}
+  - layer: {fileID: 8574412962073106934, guid: 81e91e370b984c440840e5b9aaba5988, type: 2}
+    surface: {fileID: 0}
+  - layer: {fileID: 8574412962073106934, guid: b0bff560aeb461f4ab4c2c556d09ce73, type: 2}
+    surface: {fileID: 0}

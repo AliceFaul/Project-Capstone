@@ -455,6 +455,70 @@ MonoBehaviour:
     m_Key: AUTO_SAVE_SUCCESS_CONTENT
     m_Metadata:
       m_Items: []
+  - m_Id: 23071425618382848
+    m_Key: POPUP_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463232
+    m_Key: POPUP_ACTIVE_RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463233
+    m_Key: POPUP_RUNES_IN_BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463234
+    m_Key: POPUP_SOCKET_EMPTY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463235
+    m_Key: POPUP_SOCKET_LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463236
+    m_Key: POPUP_PICK_RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463237
+    m_Key: POPUP_NO_RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463238
+    m_Key: POPUP_REMOVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463239
+    m_Key: POPUP_CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463240
+    m_Key: POPUP_COST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463241
+    m_Key: POPUP_INSERT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463242
+    m_Key: POPUP_CANCEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463243
+    m_Key: POPUP_DESCRIPTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463244
+    m_Key: POPUP_CONFLICT_REPLACES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463245
+    m_Key: POPUP_CONFLICT_WEAKER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463246
+    m_Key: RUNE_EFFECT_SUMMARY
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

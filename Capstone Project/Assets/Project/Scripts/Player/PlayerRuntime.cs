@@ -188,11 +188,9 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         switch (type)
         {
             case CurrencyType.Gold:
-                playerArchive.goldObtained += amount;
-                break;
+                playerArchive.goldObtained += amount; break;
             case CurrencyType.Gem:
-                playerArchive.gemObtained += amount;
-                break;
+                playerArchive.gemObtained += amount; break;
         }
     }
     

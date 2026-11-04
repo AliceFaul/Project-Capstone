@@ -1,18 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using Project.Capstone.Inventory;
-using TMPro;
 using UnityEngine;
 
-public class PlayerCombat : MonoBehaviour {
+public class PlayerCombat : MonoBehaviour 
+{
+    private const int AmmoCapacityLimit = 15;
+
     [Header("Combat Setting")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject projectilePrefab;
     
     [Header("Ammo Setting")]
-    [SerializeField] private int maxAmmo = 15;
-    [SerializeField] private TMP_Text ammoText;
+    [SerializeField, Range(1, AmmoCapacityLimit)] private int maxAmmo = 15;
+    [Tooltip("Gameplay seconds required to recover one arrow. Shooting does not reset an active cycle.")]
+    [SerializeField, Min(0.1f)] private float ammoRegenInterval = 2f;
     
     [Header("Layer")]
     [SerializeField] private LayerMask enemyLayer;
@@ -43,6 +46,7 @@ public class PlayerCombat : MonoBehaviour {
     private bool _comboQueued;
     private bool _activeCombatWindow;
     private int _currentAmmo;
+    private float _ammoRegenElapsed;
     private Vector3 _shootPosition;
     
     private float _lastAttackTime;
@@ -50,6 +54,13 @@ public class PlayerCombat : MonoBehaviour {
     
     public Transform CurrentTarget => _currentTarget;
     public int CurrentAmmo => _currentAmmo;
+    public int MaxAmmo => Mathf.Clamp(maxAmmo, 1, AmmoCapacityLimit);
+    public float AmmoRegenInterval => Mathf.Max(0.1f, ammoRegenInterval);
+    public bool IsAmmoRegenerating => _currentAmmo < MaxAmmo;
+    public float AmmoRegenProgress => IsAmmoRegenerating
+        ? Mathf.Clamp01(_ammoRegenElapsed / AmmoRegenInterval)
+        : 0f;
+    public event System.Action<int, int> OnAmmoChanged;
     public bool IsAttacking => _controller.StateMachine.CurrentState == CharacterStateType.Attack;
 
     public float AttackRange { get; private set; }
@@ -58,26 +69,30 @@ public class PlayerCombat : MonoBehaviour {
     private void Awake()
     {
         _controller = GetComponent<PlayerController>();
+        maxAmmo = MaxAmmo;
+        _currentAmmo = maxAmmo;
     }
 
     private void Start()
     {
-        _currentAmmo = maxAmmo;
-        if (ammoText != null) ammoText.text = _currentAmmo.ToString();
+        OnAmmoChanged?.Invoke(_currentAmmo, MaxAmmo);
 
         _equipmentManager = EquipmentManager.Instance;
-        
         if (_equipmentManager == null)
         {
             Debug.LogError($"[PlayerCombat] Equipment Manager not found.");
             return;
         }
-        
         _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
         _equipmentManager.OnLoadoutReloaded += OnLoadoutReloaded;
         _equipmentManager.OnEquipmentStatsChanged += OnEquipmentStatsChanged;
         
         UpdateWeapons();
+    }
+
+    private void Update()
+    {
+        UpdateAmmo(Time.deltaTime);
     }
 
     private void OnDestroy()
@@ -220,6 +235,13 @@ public class PlayerCombat : MonoBehaviour {
 
     public void CmdSpawnProjectile()
     {
+        if (_currentAmmo <= 0 || _currentRangedWeapon == null) return;
+        if (_equipmentManager == null || firePoint == null || projectilePrefab == null)
+        {
+            Debug.LogError("[PlayerCombat] Missing equipment manager, fire point or projectile prefab.", this);
+            return;
+        }
+
         Vector3 direction = _shootPosition - firePoint.position;
         direction.y = 0f;
         
@@ -233,6 +255,7 @@ public class PlayerCombat : MonoBehaviour {
         if (component == null)
         {
             Debug.LogError($"[PlayerCombat] Projectile prefab does not contain Projectile component.");
+            Destroy(projectile);
             return;
         }
         
@@ -241,6 +264,22 @@ public class PlayerCombat : MonoBehaviour {
         _lastShootTime = Time.time;
         
         if(shootCue != null && AudioService.Instance != null) AudioService.Instance.PlaySfx(shootCue, firePoint.position);
+    }
+    
+    private void UpdateAmmo(float deltaTime)
+    {
+        if (!IsAmmoRegenerating)
+        {
+            _ammoRegenElapsed = 0f;
+            return;
+        }
+
+        _ammoRegenElapsed += Mathf.Max(0f, deltaTime);
+        int recovered = Mathf.Min(MaxAmmo - _currentAmmo, Mathf.FloorToInt(_ammoRegenElapsed / AmmoRegenInterval));
+        if(recovered <= 0) return;
+
+        _ammoRegenElapsed -= recovered * AmmoRegenInterval;
+        AdjustAmmo(recovered);
     }
 
     private void UpdateWeapons()
@@ -330,7 +369,14 @@ public class PlayerCombat : MonoBehaviour {
 
     private void AdjustAmmo(int amount = 1)
     {
-        _currentAmmo = Mathf.Clamp(_currentAmmo + amount, 0, maxAmmo);
-        if(ammoText != null) ammoText.text = _currentAmmo.ToString();
+        int nextAmmo = Mathf.Clamp(_currentAmmo + amount, 0, MaxAmmo);
+        if(nextAmmo == _currentAmmo) return;
+
+        bool wasFull = _currentAmmo >= MaxAmmo;
+        _currentAmmo = nextAmmo;
+
+        if(wasFull || _currentAmmo == MaxAmmo) _ammoRegenElapsed = 0f;
+
+        OnAmmoChanged?.Invoke(_currentAmmo, MaxAmmo);
     }
 }

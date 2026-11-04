@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine.Localization;
 
-/// <summary>
-/// Utility create inventory localized text in UI Table.
-/// </summary>
 public static class InventoryText
 {
     public const string Table = "UI";
@@ -37,6 +34,15 @@ public static class InventoryText
         { "RUNE_EFFECT_LINE", "{0}: {1} {2} damage every {3}s for {4}s" }, { "RUNE_STAT_LINE", "{0}: {1}" },
         { "SOCKET_HEADER", "SOCKET {0}" }, { "SOCKET_FILLED_HEADER", "SOCKET {0} - CLICK TWICE TO REMOVE ({1} GEM)" },
         { "SOCKET_LOCKED_TITLE", "LOCKED SOCKET" }, { "SOCKET_LOCKED_BODY", "Unlocks when the weapon reaches level {0}." },
+        // rune socket popup
+        { "POPUP_TITLE", "RUNE SOCKETS" }, { "POPUP_ACTIVE_RUNES", "ACTIVE RUNES" }, { "POPUP_RUNES_IN_BAG", "RUNES IN BAG" },
+        { "POPUP_SOCKET_EMPTY", "Socket {0} - empty" }, { "POPUP_SOCKET_LOCKED", "Socket {0} - locked" },
+        { "POPUP_PICK_RUNE", "Pick a rune from the bag on the right" }, { "POPUP_NO_RUNE", "Select a rune from the bag to see its details." },
+        { "POPUP_REMOVE", "Remove" }, { "POPUP_CONFIRM", "Confirm" }, { "POPUP_COST", "{0} Gem" },
+        { "POPUP_INSERT", "INSERT" }, { "POPUP_CANCEL", "Cancel" }, { "POPUP_DESCRIPTION", "DESCRIPTION" },
+        { "POPUP_CONFLICT_REPLACES", "Same group as {0}: {0} would become inactive." },
+        { "POPUP_CONFLICT_WEAKER", "Same group as {0}: this rune would stay inactive." },
+        { "RUNE_EFFECT_SUMMARY", "{0} {1} damage every {2}s for {3}s" },
         // toasts
         { "TOAST_BAG_FULL", "The bag is full - cannot unequip." }, { "TOAST_CANNOT_EQUIP", "Cannot equip this item." },
         { "TOAST_NO_FREE_SOCKET", "No free socket on your equipped weapons." },
@@ -57,7 +63,7 @@ public static class InventoryText
     public static string Get(string key, params object[] args)
     {
         string text = null;
-        bool hasArgs = args is { Length: > 0 };
+        bool hasArgs = args != null && args.Length > 0;
 
         try
         {

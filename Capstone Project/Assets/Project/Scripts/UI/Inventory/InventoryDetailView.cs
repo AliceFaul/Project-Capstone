@@ -122,8 +122,6 @@ public class InventoryDetailView : MonoBehaviour
         if (cfg == null || sockets == null) return;
 
         socketsGroup.SetActive(true);
-        var active = RuneResolver.GetActiveRunes(e, cfg.GetRune);
-        var lines = new List<string>();
 
         for (int i = 0; i < socketSquares.Length; i++)
         {
@@ -136,13 +134,6 @@ public class InventoryDetailView : MonoBehaviour
                 var data = cfg.GetRune(rune.runeId);
                 socketSquares[i].color = InventoryUIUtil.RarityColor(data != null ? data.rarity : Rarity.Common);
                 socketLabels[i].text = "";
-
-                bool isActive = false;
-                foreach (var a in active)
-                {
-                    if (a.SocketIndex == i) { isActive = true; break; }
-                }
-                lines.Add(InventoryUIUtil.RuneLine(rune, data) + (isActive ? "" : " " + InventoryText.Get("RUNE_INACTIVE")));
             }
             else
             {
@@ -152,7 +143,7 @@ public class InventoryDetailView : MonoBehaviour
             }
         }
 
-        SetText(runeText, string.Join("\n", lines));
+        SetText(runeText, ""); // rune details are read in the rune socket popup
     }
 
     // Artifact: cooldown + how it works (numbers in the description are highlighted).
