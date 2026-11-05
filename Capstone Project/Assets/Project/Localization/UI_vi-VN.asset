@@ -528,6 +528,18 @@ MonoBehaviour:
     m_Localized: '{0} {1} damage every {2}s for {3}s'
     m_Metadata:
       m_Items: []
+  - m_Id: 23448176894808064
+    m_Localized: SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859968
+    m_Localized: ACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859969
+    m_Localized: INACTIVE
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

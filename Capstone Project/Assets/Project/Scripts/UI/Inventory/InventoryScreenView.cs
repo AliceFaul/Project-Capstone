@@ -9,8 +9,6 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Project.Capstone.Inventory;
 
-// Inventory screen: binds to PlayerDataConfig / EquipmentManager and reacts to their events (no polling).
-// Mouse: hover = inspect, left click = equip / unequip / insert rune. Keyboard: arrows + Enter, Y = stats, Esc = back.
 public class InventoryScreenView : MonoBehaviour
 {
     private static readonly InventoryCategory[] TabCategories =
@@ -62,6 +60,8 @@ public class InventoryScreenView : MonoBehaviour
     private object _focus;
 
     private float _toastUntil;
+    private GameObject _returnSelection;
+    private readonly Dictionary<Selectable, bool> _mainStates = new Dictionary<Selectable, bool>();
 
     private void Awake()
     {
@@ -126,7 +126,6 @@ public class InventoryScreenView : MonoBehaviour
         detailPanel.SetActive(true);
         detail.Hide();
         toastText.gameObject.SetActive(false);
-        _openingPopup = false;
         SetMainInteractable(true);
         if (popup != null) popup.Close();
 
@@ -150,6 +149,9 @@ public class InventoryScreenView : MonoBehaviour
     {
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         _focus = null;
+        StopAllCoroutines();
+        if (popup != null) popup.Close();
+        SetMainInteractable(true);
         if (!_subscribed) return;
         _subscribed = false;
 
@@ -172,7 +174,7 @@ public class InventoryScreenView : MonoBehaviour
     private IEnumerator SelectFirst()
     {
         yield return null;
-        if (EventSystem.current != null && meleeSlot != null)
+        if (isActiveAndEnabled && (popup == null || !popup.IsOpen) && EventSystem.current != null && meleeSlot != null)
             EventSystem.current.SetSelectedGameObject(meleeSlot.gameObject);
     }
 
@@ -293,6 +295,7 @@ public class InventoryScreenView : MonoBehaviour
         }
 
         bagCountText.text = $"{used} / {slots.Count}";
+        if (popup != null && popup.IsOpen) SetMainInteractable(false);
         for (int i = 0; i < tabUnderlines.Length; i++) tabUnderlines[i].SetActive(i == _tab);
     }
 
@@ -392,7 +395,7 @@ public class InventoryScreenView : MonoBehaviour
     }
 
     // ===== ACTIONS =====
-
+    
     private void OnSlotClicked(InventorySlotView slot)
     {
         if (slot.Item == null) return;
@@ -431,7 +434,8 @@ public class InventoryScreenView : MonoBehaviour
 
             for (int i = 0; i < EquipmentInstance.SocketCount; i++)
             {
-                if (!sockets.IsSocketUnlocked(weapon, i) || !weapon.GetSocket(i).IsEmpty) continue;
+                var socket = weapon.GetSocket(i);
+                if (!sockets.IsSocketUnlocked(weapon, i) || socket is { IsEmpty: false }) continue;
                 OpenPopup(slot, i, rune);
                 return;
             }
@@ -440,37 +444,49 @@ public class InventoryScreenView : MonoBehaviour
         Toast(InventoryText.Get("TOAST_NO_FREE_SOCKET"));
     }
 
-    private bool _openingPopup;
-
     private void OpenPopup(EquipSlot weaponSlot, int socketIndex, RuneInstance preselect)
     {
-        if (popup == null || _openingPopup || popup.IsOpen) return;
-        StartCoroutine(OpenPopupRoutine(weaponSlot, socketIndex, preselect));
-    }
-
-    private IEnumerator OpenPopupRoutine(EquipSlot weaponSlot, int socketIndex, RuneInstance preselect)
-    {
-        _openingPopup = true;
-        SetMainInteractable(false);
-        yield return popup.PrepareBackdrop();
-        _openingPopup = false;
+        if (popup == null) return;
+        if (!popup.IsOpen && EventSystem.current != null)
+            _returnSelection = EventSystem.current.currentSelectedGameObject;
+        SetMainInteractable(false); // keyboard navigation must stay inside the popup
         popup.Open(_data, _equip, weaponSlot, socketIndex, preselect);
     }
 
     private void SetMainInteractable(bool value)
     {
+        if (value)
+        {
+            foreach (var pair in _mainStates)
+                if (pair.Key != null) pair.Key.interactable = pair.Value;
+            _mainStates.Clear();
+            return;
+        }
         foreach (var selectable in GetComponentsInChildren<Selectable>(true))
         {
             if (popup != null && selectable.transform.IsChildOf(popup.transform)) continue;
-            selectable.interactable = value;
+            if (!_mainStates.ContainsKey(selectable)) _mainStates.Add(selectable, selectable.interactable);
+            selectable.interactable = false;
         }
     }
 
     private void OnPopupClosed()
     {
-        if (this == null) return; // scene is being torn down
+        if (this == null) return;
         SetMainInteractable(true);
-        if (isActiveAndEnabled) StartCoroutine(SelectFirst());
+        if (isActiveAndEnabled) StartCoroutine(RestoreSelection());
+    }
+
+    private IEnumerator RestoreSelection()
+    {
+        yield return null;
+        if (!isActiveAndEnabled || (popup != null && popup.IsOpen) || EventSystem.current == null) yield break;
+        var previous = _returnSelection != null ? _returnSelection.GetComponent<Selectable>() : null;
+        if (previous != null && previous.isActiveAndEnabled && previous.IsInteractable())
+            EventSystem.current.SetSelectedGameObject(previous.gameObject);
+        else if (meleeSlot != null && meleeSlot.gameObject.activeInHierarchy)
+            EventSystem.current.SetSelectedGameObject(meleeSlot.gameObject);
+        _returnSelection = null;
     }
 
     private void Toast(string message)

@@ -34,6 +34,7 @@ public static class InventoryText
         { "RUNE_EFFECT_LINE", "{0}: {1} {2} damage every {3}s for {4}s" }, { "RUNE_STAT_LINE", "{0}: {1}" },
         { "SOCKET_HEADER", "SOCKET {0}" }, { "SOCKET_FILLED_HEADER", "SOCKET {0} - CLICK TWICE TO REMOVE ({1} GEM)" },
         { "SOCKET_LOCKED_TITLE", "LOCKED SOCKET" }, { "SOCKET_LOCKED_BODY", "Unlocks when the weapon reaches level {0}." },
+        { "POPUP_SOCKETS", "SOCKETS" }, { "POPUP_STATE_ACTIVE", "ACTIVE" }, { "POPUP_STATE_INACTIVE", "INACTIVE" },
         // rune socket popup
         { "POPUP_TITLE", "RUNE SOCKETS" }, { "POPUP_ACTIVE_RUNES", "ACTIVE RUNES" }, { "POPUP_RUNES_IN_BAG", "RUNES IN BAG" },
         { "POPUP_SOCKET_EMPTY", "Socket {0} - empty" }, { "POPUP_SOCKET_LOCKED", "Socket {0} - locked" },

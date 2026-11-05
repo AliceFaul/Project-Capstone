@@ -277,7 +277,7 @@ public class PlayerHUDController : MonoBehaviour
     private void UpdateAmmoRegen()
     {
         if(view == null) return;
-        if (_combat != null)
+        if(_combat == null)
         {
             view.SetAmmoRegen(0f, false);
             return;

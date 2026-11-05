@@ -1,19 +1,14 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System;
+using System.IO;
+using System.Collections.Generic;
+using Object = UnityEngine.Object;
 using System.Reflection;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Tools > UI > Upgrade Selected Inventory Prefab
-/// Brings an inventory prefab that was built by an older InventoryUIBuilder up to date WITHOUT rebuilding it:
-///  - InventoryScreen background swallows clicks (Raycast Target)
-///  - InventoryScreenController gets its Screen View reference
-///  - InventoryDetailView gets a CanvasGroup (used to hide the panel for empty slots)
-///  - static labels get a LocalizationText bound to the "UI" string table
-/// Select the prefab asset (or an instance of it in the scene) first. Labels you renamed are listed in the Console.
-/// </summary>
 public static class InventoryPrefabUpgrader
 {
     // path suffix (relative to the prefab root) -> localization key
@@ -51,20 +46,32 @@ public static class InventoryPrefabUpgrader
             return;
         }
 
+        // Load the source only for reading; save to a new path with new generated dependencies.
         var root = PrefabUtility.LoadPrefabContents(assetPath);
         try
         {
+            var oldFont = root.GetComponentInChildren<TMP_Text>(true)?.font;
+            var options = new CapstoneUIBuildOptions
+            {
+                IconFolder = "Assets/CapstoneUI/Icons",
+                Font = oldFont != null ? oldFont : TMP_Settings.defaultFontAsset,
+                CharacterPreview = root.GetComponentInChildren<RawImage>(true)?.texture as RenderTexture
+            };
+            CapstoneUIEditor.ValidateInputs(options, "Assets/CapstoneUI/Generated", false, true);
+            CapstoneUIEditor.ResolveIcons(options);
+            options.Output = AssetDatabase.GenerateUniqueAssetPath("Assets/CapstoneUI/Generated/Upgrade_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+            Directory.CreateDirectory(options.Output);
+            AssetDatabase.Refresh();
+            CapstoneUIEditor.CreateShapes(options);
             Apply(root);
-            PrefabUtility.SaveAsPrefabAsset(root, assetPath);
+            InventoryUIBuilder.BuildDependenciesForCopy(root, options);
+            var copy = CapstoneUIEditor.Save(root, options.Output + "/InventoryCanvas.prefab");
+            Selection.activeObject = copy;
+            InventoryLocalizationTool.AddKeys();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Inventory] Visual upgrade saved as a new prefab: " + AssetDatabase.GetAssetPath(copy));
         }
-        finally
-        {
-            PrefabUtility.UnloadPrefabContents(root);
-        }
-
-        InventoryLocalizationTool.AddKeys();
-        AssetDatabase.SaveAssets();
-        Debug.Log($"[Inventory] Upgraded {assetPath}.");
+        finally { PrefabUtility.UnloadPrefabContents(root); }
     }
 
     private static void Apply(GameObject root)
@@ -72,16 +79,12 @@ public static class InventoryPrefabUpgrader
         var view = root.GetComponentInChildren<InventoryScreenView>(true);
         if (view == null)
         {
-            Debug.LogError("[Inventory] No InventoryScreenView found in this prefab.");
-            return;
+            throw new InvalidOperationException("[Inventory] No InventoryScreenView found in this prefab.");
         }
 
         var bg = view.GetComponent<Image>();
         if (bg != null) bg.raycastTarget = true;
 
-        var controller = root.GetComponentInChildren<InventoryScreenController>(true);
-        if (controller != null) SetRef(controller, "screenView", view);
-        else Debug.LogWarning("[Inventory] No InventoryScreenController found - add it to the canvas root and assign Screen Root.");
 
         var detail = root.GetComponentInChildren<InventoryDetailView>(true);
         if (detail != null)
@@ -90,8 +93,6 @@ public static class InventoryPrefabUpgrader
             if (group == null) group = detail.gameObject.AddComponent<CanvasGroup>();
             SetRef(detail, "canvasGroup", group);
         }
-
-        AddPopupIfMissing(root, view, detail);
 
         var matched = new HashSet<string>();
         int added = 0;
@@ -119,38 +120,6 @@ public static class InventoryPrefabUpgrader
                   (missing.Count > 0 ? " Not found (renamed or removed, add by hand if needed): " + string.Join(", ", missing) : ""));
     }
 
-    // Builds the rune socket popup inside the prefab (reusing its own slot / stat row prefabs) and wires it to the screen view.
-    private static void AddPopupIfMissing(GameObject root, InventoryScreenView view, InventoryDetailView detail)
-    {
-        var popup = root.GetComponentInChildren<RuneSocketPopup>(true);
-
-        if (popup == null)
-        {
-            var bagSlot = GetRef<InventorySlotView>(view, "bagSlotPrefab");
-            var statRow = detail != null ? GetRef<GameObject>(detail, "statRowPrefab") : null;
-            if (bagSlot == null || statRow == null)
-            {
-                Debug.LogWarning("[Inventory] Could not add the rune socket popup: bag slot prefab or stat row prefab is not assigned.");
-                return;
-            }
-
-            popup = InventoryUIBuilder.AddPopupTo(view.transform, bagSlot, statRow);
-            Debug.Log("[Inventory] Rune socket popup added.");
-        }
-
-        SetRef(view, "popup", popup);
-        if (popup.GetComponent<UIBlurBackdrop>() == null) InventoryUIBuilder.AddBlurTo(popup);
-        popup.transform.SetAsLastSibling();
-        var toast = view.transform.Find("Toast");
-        if (toast != null) toast.SetAsLastSibling();
-    }
-
-    private static T GetRef<T>(Object target, string field) where T : Object
-    {
-        var p = new SerializedObject(target).FindProperty(field);
-        return p?.objectReferenceValue as T;
-    }
-
     private static bool HasLocalized(GameObject root, string suffix)
     {
         foreach (var loc in root.GetComponentsInChildren<LocalizationText>(true))
@@ -167,8 +136,7 @@ public static class InventoryPrefabUpgrader
         var so = new SerializedObject(loc);
         so.FindProperty("text").objectReferenceValue = text;
         so.ApplyModifiedPropertiesWithoutUndo();
-        typeof(LocalizationText).GetField("localizedString", BindingFlags.NonPublic | BindingFlags.Instance)
-            ?.SetValue(loc, InventoryText.Ref(key));
+        typeof(LocalizationText).GetField("localizedString", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(loc, InventoryText.Ref(key));
         EditorUtility.SetDirty(loc);
 
         if (InventoryText.Defaults.TryGetValue(key, out var fallback)) text.text = fallback;
@@ -191,10 +159,10 @@ public static class InventoryPrefabUpgrader
         var p = so.FindProperty(field);
         if (p == null)
         {
-            Debug.LogError($"[Inventory] Field '{field}' not found on {target.GetType().Name}.");
-            return;
+            throw new InvalidOperationException($"[Inventory] Field '{field}' not found on {target.GetType().Name}.");
         }
         p.objectReferenceValue = value;
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 }
+#endif

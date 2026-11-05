@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.IO;
 using System.Reflection;
 using TMPro;
@@ -11,13 +12,14 @@ using Project.Capstone.Inventory;
 
 /// <summary>
 /// Tools > UI > Build Inventory Screen
-/// Builds the approved layout (reference 1920x1080) and saves prefabs to Assets/UI/Inventory/Prefabs.
-/// Art is placeholder (flat colors); items without an icon show a rarity-colored square.
+/// Builds the approved 1920x1080 layout and retains the existing runtime/localization wiring.
+/// Run through CapstoneUIPrefabTool to supply imported icon/font assets.
 /// </summary>
 public static class InventoryUIBuilder
 {
-    private const string PrefabDir = "Assets/UI/Inventory/Prefabs";
-    private const string BlurShaderPath = "Assets/Shaders/UI/UIBlurBackdrop.shader";
+    private static string PrefabDir;
+    private static CapstoneUIBuildOptions Options;
+    private static CapstoneUIEditor.BuildScene BuildScene;
 
     private static readonly Color Bg = new Color(0.055f, 0.133f, 0.188f, 1f);
     private static readonly Color TopBarColor = new Color(0.03f, 0.082f, 0.118f, 1f);
@@ -31,28 +33,64 @@ public static class InventoryUIBuilder
     private static readonly Color Cyan = new Color(0.37f, 0.82f, 1f, 1f);
 
     [MenuItem("Tools/UI/Build Inventory Screen")]
-    public static void Build()
+    public static void Build() => CapstoneUIPrefabTool.OpenInventory();
+
+    public static GameObject BuildToFolder(CapstoneUIBuildOptions options)
     {
+        Options = options;
+        PrefabDir = options.Output + "/Inventory";
         Directory.CreateDirectory(PrefabDir);
         AssetDatabase.Refresh();
-
-        var slotPrefab = BuildSlotPrefab();
-        var pipPrefab = BuildPipPrefab();
-        var rowPrefab = BuildStatRowPrefab();
-        var root = BuildScreen(slotPrefab, pipPrefab, rowPrefab);
-
-        PrefabUtility.SaveAsPrefabAssetAndConnect(root, PrefabDir + "/InventoryScreen.prefab", InteractionMode.UserAction);
-        Undo.RegisterCreatedObjectUndo(root, "Build Inventory Screen");
-        Selection.activeGameObject = root;
-        Debug.Log("Inventory screen built. Prefabs saved in " + PrefabDir);
-        InventoryLocalizationTool.AddKeys();
+        using (var scene = new CapstoneUIEditor.BuildScene())
+        {
+            BuildScene = scene;
+            try
+            {
+                var slotPrefab = BuildSlotPrefab();
+                var pipPrefab = BuildPipPrefab();
+                var rowPrefab = BuildStatRowPrefab();
+                var root = BuildScreen(slotPrefab, pipPrefab, rowPrefab);
+                RuneSocketsLayoutBuilder.Attach(root, options, slotPrefab, rowPrefab);
+                InventoryVisualSkin.Apply(root, options);
+                var saved = CapstoneUIEditor.Save(root, PrefabDir + "/InventoryCanvas.prefab");
+                InventoryLocalizationTool.AddKeys();
+                return saved;
+            }
+            finally { BuildScene = null; Options = null; }
+        }
     }
 
-    // ------------------------------------------------------------------ prefabs
+    // Upgrading an existing prefab gets its own dependencies; never edits the old slot/row assets.
+    public static void BuildDependenciesForCopy(GameObject root, CapstoneUIBuildOptions options)
+    {
+        Options = options;
+        PrefabDir = options.Output + "/Inventory";
+        Directory.CreateDirectory(PrefabDir);
+        AssetDatabase.Refresh();
+        using (var scene = new CapstoneUIEditor.BuildScene())
+        {
+            BuildScene = scene;
+            try
+            {
+                var slot = BuildSlotPrefab();
+                var row = BuildStatRowPrefab();
+                var view = root.GetComponentInChildren<InventoryScreenView>(true);
+                var detail = root.GetComponentInChildren<InventoryDetailView>(true);
+                CapstoneUIEditor.Ref(view, "bagSlotPrefab", slot.GetComponent<InventorySlotView>());
+                CapstoneUIEditor.Ref(detail, "statRowPrefab", row);
+                RuneSocketsLayoutBuilder.Attach(root, options, slot, row);
+                InventoryVisualSkin.Apply(root, options);
+            }
+            finally { BuildScene = null; Options = null; }
+        }
+    }
+
+    // ===== PREFABS =====
 
     private static GameObject BuildSlotPrefab()
     {
         var go = new GameObject("InventorySlot", typeof(RectTransform), typeof(Image), typeof(Button), typeof(InventorySlotView));
+        BuildScene.Own(go);
         ((RectTransform)go.transform).sizeDelta = new Vector2(80, 80);
 
         var frame = go.GetComponent<Image>();
@@ -72,8 +110,10 @@ public static class InventoryUIBuilder
         icon.rectTransform.anchorMax = new Vector2(0.85f, 0.85f);
         icon.rectTransform.offsetMin = icon.rectTransform.offsetMax = Vector2.zero;
         icon.preserveAspect = true;
+        icon.enabled = false;
 
         var strip = Img("RarityStrip", go.transform, Color.white);
+        strip.enabled = false;
         strip.rectTransform.anchorMin = new Vector2(0, 0);
         strip.rectTransform.anchorMax = new Vector2(1, 0);
         strip.rectTransform.offsetMin = new Vector2(2, 2);
@@ -86,6 +126,7 @@ public static class InventoryUIBuilder
         lbr.sizeDelta = new Vector2(30, 22);
         var levelText = Txt("Text", levelBadge.transform, "1", 16, Color.white, TextAlignmentOptions.Center);
         Stretch(levelText.rectTransform);
+        levelBadge.gameObject.SetActive(false);
 
         var hotkey = Badge("HotkeyBadge", go.transform, "1", 36, 30);
         hotkey.anchorMin = hotkey.anchorMax = new Vector2(0.5f, 1f);
@@ -98,12 +139,15 @@ public static class InventoryUIBuilder
             ("hotkeyBadge", hotkey.gameObject), ("hotkeyText", hotkey.GetComponentInChildren<TMP_Text>()),
             ("highlight", highlight.gameObject));
 
+        go.GetComponent<InventorySlotView>().kind = SlotKind.Bag;
+        InventoryVisualSkin.ApplySlot(go.GetComponent<InventorySlotView>(), Options);
         return SaveAsPrefab(go, "InventorySlot");
     }
 
     private static GameObject BuildPipPrefab()
     {
         var go = new GameObject("SocketPip", typeof(RectTransform), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(SocketPipView));
+        BuildScene.Own(go);
         ((RectTransform)go.transform).sizeDelta = new Vector2(30, 30);
 
         var frame = go.GetComponent<Image>();
@@ -127,18 +171,24 @@ public static class InventoryUIBuilder
     private static GameObject BuildStatRowPrefab()
     {
         var go = new GameObject("StatRow", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+        BuildScene.Own(go);
         var h = go.GetComponent<HorizontalLayoutGroup>();
         h.spacing = 8;
         h.childControlWidth = h.childControlHeight = true;
         h.childForceExpandWidth = h.childForceExpandHeight = false;
         h.childAlignment = TextAnchor.MiddleLeft;
         go.GetComponent<LayoutElement>().minHeight = 34;
+        var glyph = Img("Icon", go.transform, Color.white);
+        glyph.preserveAspect = true;
+        glyph.enabled = false;
+        var glyphLayout = LE(glyph.gameObject, prefW: 34, prefH: 34);
+        glyphLayout.minWidth = 34;
 
-        var label = Txt("Label", go.transform, "Stat", 22, Color.white, TextAlignmentOptions.Left, FontStyles.Normal);
+        var label = Txt("Label", go.transform, "Stat", 19, Color.white, TextAlignmentOptions.Left, FontStyles.Normal);
         label.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-        Txt("Value", go.transform, "0", 22, Color.white, TextAlignmentOptions.Right);
+        Txt("Value", go.transform, "0", 20, Color.white, TextAlignmentOptions.Right);
         var tier = Txt("Tier", go.transform, "", 16, Grey, TextAlignmentOptions.Right, FontStyles.Normal);
-        LE(tier.gameObject, prefW: 70);
+        LE(tier.gameObject, prefW: 54);
 
         return SaveAsPrefab(go, "StatRow");
     }
@@ -146,7 +196,7 @@ public static class InventoryUIBuilder
     private static GameObject SaveAsPrefab(GameObject go, string name)
     {
         var path = PrefabDir + "/" + name + ".prefab";
-        PrefabUtility.SaveAsPrefabAsset(go, path);
+        CapstoneUIEditor.Save(go, path);
         Object.DestroyImmediate(go);
         return AssetDatabase.LoadAssetAtPath<GameObject>(path);
     }
@@ -156,6 +206,8 @@ public static class InventoryUIBuilder
     private static GameObject BuildScreen(GameObject slotPrefab, GameObject pipPrefab, GameObject rowPrefab)
     {
         var canvasGO = new GameObject("InventoryCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        BuildScene.Own(canvasGO);
+        canvasGO.GetComponent<Canvas>().sortingOrder = 100;
         canvasGO.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
         var scaler = canvasGO.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -163,20 +215,12 @@ public static class InventoryUIBuilder
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
 
-        if (Object.FindFirstObjectByType<EventSystem>() == null)
-        {
-            var es = new GameObject("EventSystem", typeof(EventSystem));
-            es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
-        }
-
         var screen = NewRect("InventoryScreen", canvasGO.transform);
         Stretch(screen);
         var bgImage = screen.gameObject.AddComponent<Image>();
         bgImage.color = Bg;
         bgImage.raycastTarget = true; // swallows clicks so they never reach the world
         var view = screen.gameObject.AddComponent<InventoryScreenView>();
-        var controller = canvasGO.AddComponent<InventoryScreenController>();
-        SetRefs(controller, ("screenRoot", screen.gameObject), ("screenView", view));
 
         // ---- top bar
         var top = Img("TopBar", screen, TopBarColor);
@@ -304,25 +348,22 @@ public static class InventoryUIBuilder
         TopLeft(LTxt("SelectLabel", screen, "INV_EQUIP_UNEQUIP", 28, Color.white, TextAlignmentOptions.Right).rectTransform, 1480, 995, 240, 40);
         TopLeft(Badge("SelectKey", screen, "Click", 90, 40), 1730, 995, 90, 40);
 
-        // ---- rune socket popup (above everything except the toast)
-        var popup = BuildRuneSocketPopup(screen, slotPrefab.GetComponent<InventorySlotView>(), rowPrefab, BuildSocketRowPrefab());
-        popup.transform.SetAsLastSibling();
-        toast.transform.SetAsLastSibling();
-
         // ---- wiring
         SetRefs(view,
             ("levelText", levelValue), ("expText", expText), ("expFill", expFill.rectTransform),
             ("goldText", goldText), ("gemText", gemText),
             ("meleeSlot", melee), ("rangedSlot", ranged), ("armorSlot", armor),
             ("bagContent", content), ("bagSlotPrefab", slotPrefab.GetComponent<InventorySlotView>()), ("bagCountText", bagCount),
-            ("detail", detailView), ("detailPanel", detailPanel), ("statsPanel", statsPanel), ("toastText", toast),
-            ("popup", popup));
+            ("detail", detailView), ("detailPanel", detailPanel), ("statsPanel", statsPanel), ("toastText", toast));
         SetArray(view, "artifactSlots", artifacts);
         SetArray(view, "tabButtons", tabButtons);
         SetArray(view, "tabUnderlines", tabLines);
-        UnityEventTools.AddPersistentListener(view.onBack, new UnityAction(controller.Close));
+        // Fresh prefabs can close themselves; connect your existing save/input flow to onBack.
+        if (view.onBack == null) view.onBack = new UnityEvent();
+        UnityEventTools.AddBoolPersistentListener(view.onBack, screen.gameObject.SetActive, false);
 
         statsPanel.SetActive(false);
+        screen.gameObject.SetActive(false);
         return canvasGO;
     }
 
@@ -459,7 +500,7 @@ public static class InventoryUIBuilder
         var view = go.GetComponent<InventorySlotView>();
         var so = new SerializedObject(view);
         so.FindProperty("kind").enumValueIndex = (int)SlotKind.Equipped;
-        so.FindProperty("equipSlot").enumValueIndex = (int)slot;
+        so.FindProperty("equipSlot").intValue = (int)slot;
         so.FindProperty("artifactIndex").intValue = artifactIndex;
         so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -480,7 +521,7 @@ public static class InventoryUIBuilder
         TopLeft((RectTransform)go.transform, x, y, 30, 30);
 
         var so = new SerializedObject(go.GetComponent<SocketPipView>());
-        so.FindProperty("weaponSlot").enumValueIndex = (int)weapon;
+        so.FindProperty("weaponSlot").intValue = (int)weapon;
         so.FindProperty("socketIndex").intValue = index;
         so.ApplyModifiedPropertiesWithoutUndo();
     }
@@ -491,240 +532,6 @@ public static class InventoryUIBuilder
         var t = Txt("CurrencyText", parent, text, 28, Color.white);
         TopLeft(t.rectTransform, x + 40, 20, 200, 40);
         return t;
-    }
-
-    // ------------------------------------------------------------------ rune socket popup
-
-    /// <summary>Adds the rune socket popup to an existing inventory screen (used by InventoryPrefabUpgrader).</summary>
-    public static RuneSocketPopup AddPopupTo(Transform screen, InventorySlotView bagSlotPrefab, GameObject statRowPrefab)
-    {
-        Directory.CreateDirectory(PrefabDir);
-        AssetDatabase.Refresh();
-        return BuildRuneSocketPopup((RectTransform)screen, bagSlotPrefab, statRowPrefab, BuildSocketRowPrefab());
-    }
-
-    private static GameObject BuildSocketRowPrefab()
-    {
-        var go = new GameObject("RuneSocketRow", typeof(RectTransform), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(RuneSocketRowView));
-        ((RectTransform)go.transform).sizeDelta = new Vector2(470, 104);
-
-        var frame = go.GetComponent<Image>();
-        frame.color = Border;
-        var btn = go.GetComponent<Button>();
-        btn.targetGraphic = frame;
-        btn.transition = Selectable.Transition.None;
-        Stretch(Img("Inner", go.transform, Panel).rectTransform, 2, 2, 2, 2);
-
-        var icon = Img("Icon", go.transform, SlotBg);
-        TopLeft(icon.rectTransform, 18, 16, 72, 72);
-        var iconText = Txt("Text", icon.transform, "", 20, Color.white, TextAlignmentOptions.Center);
-        Stretch(iconText.rectTransform);
-
-        var nameText = Txt("Name", go.transform, "", 22, Color.white);
-        TopLeft(nameText.rectTransform, 108, 14, 245, 30);
-        var detailText = Txt("Detail", go.transform, "", 17, Grey, TextAlignmentOptions.TopLeft, FontStyles.Normal);
-        TopLeft(detailText.rectTransform, 108, 46, 250, 52);
-
-        var removeImg = Img("RemoveButton", go.transform, new Color(0.165f, 0.259f, 0.322f, 1f), true);
-        TopLeft(removeImg.rectTransform, 366, 12, 92, 48);
-        var removeBtn = removeImg.gameObject.AddComponent<Button>();
-        removeBtn.targetGraphic = removeImg;
-        var removeLabel = Txt("Label", removeImg.transform, "Remove", 18, Color.white, TextAlignmentOptions.Center);
-        Stretch(removeLabel.rectTransform);
-        var costText = Txt("Cost", go.transform, "", 16, Grey, TextAlignmentOptions.Center, FontStyles.Normal);
-        TopLeft(costText.rectTransform, 360, 66, 104, 26);
-
-        SetRefs(go.GetComponent<RuneSocketRowView>(),
-            ("frame", frame), ("icon", icon), ("iconText", iconText), ("nameText", nameText), ("detailText", detailText),
-            ("removeButton", removeBtn), ("removeLabel", removeLabel), ("costText", costText),
-            ("group", go.GetComponent<CanvasGroup>()));
-
-        return SaveAsPrefab(go, "RuneSocketRow");
-    }
-
-    private static RuneSocketPopup BuildRuneSocketPopup(RectTransform screen, InventorySlotView bagSlotPrefab,
-        GameObject statRowPrefab, GameObject socketRowPrefab)
-    {
-        var root = NewRect("RuneSocketPopup", screen);
-        Stretch(root);
-        var popup = root.gameObject.AddComponent<RuneSocketPopup>();
-
-        // Full-screen backdrop: swallows clicks; its material can be swapped for a blur later.
-        var backdrop = Img("Backdrop", root, new Color(0.012f, 0.039f, 0.059f, 0.82f), true);
-        Stretch(backdrop.rectTransform);
-
-        var frame = Img("Panel", root, PanelHeader, true);
-        TopLeft(frame.rectTransform, 360, 150, 1200, 780);
-        var inner = Img("Inner", frame.transform, new Color(0.059f, 0.141f, 0.188f, 1f));
-        Stretch(inner.rectTransform, 2, 2, 2, 2);
-        var p = inner.transform;
-
-        // header
-        var header = Img("Header", p, PanelHeader);
-        header.rectTransform.anchorMin = new Vector2(0, 1);
-        header.rectTransform.anchorMax = new Vector2(1, 1);
-        header.rectTransform.pivot = new Vector2(0.5f, 1);
-        header.rectTransform.anchoredPosition = Vector2.zero;
-        header.rectTransform.sizeDelta = new Vector2(0, 64);
-        Stretch(LTxt("Title", header.transform, "POPUP_TITLE", 24, Color.white, TextAlignmentOptions.Center).rectTransform, 120, 0, 120, 0);
-        var escBadge = Badge("EscKey", header.transform, "Esc", 70, 36);
-        escBadge.anchorMin = escBadge.anchorMax = escBadge.pivot = new Vector2(1, 0.5f);
-        escBadge.anchoredPosition = new Vector2(-28, 0);
-
-        // weapon card + sockets (left column)
-        var weaponIcon = Img("WeaponIcon", p, Orange);
-        TopLeft(weaponIcon.rectTransform, 28, 90, 96, 96);
-        var levelPill = Img("LevelPill", weaponIcon.transform, new Color(0, 0, 0, 0.65f));
-        levelPill.rectTransform.anchorMin = levelPill.rectTransform.anchorMax = levelPill.rectTransform.pivot = new Vector2(1, 0);
-        levelPill.rectTransform.anchoredPosition = new Vector2(-4, 4);
-        levelPill.rectTransform.sizeDelta = new Vector2(40, 28);
-        var weaponLevel = Txt("Text", levelPill.transform, "1", 20, Color.white, TextAlignmentOptions.Center);
-        Stretch(weaponLevel.rectTransform);
-        var weaponName = Txt("WeaponName", p, "", 30, Color.white);
-        TopLeft(weaponName.rectTransform, 142, 98, 360, 40);
-        var weaponSub = Txt("WeaponSub", p, "", 18, Grey, TextAlignmentOptions.Left, FontStyles.Normal);
-        TopLeft(weaponSub.rectTransform, 142, 142, 360, 26);
-
-        TopLeft(LTxt("Cap_ActiveRunes", p, "POPUP_ACTIVE_RUNES", 20, Grey).rectTransform, 28, 210, 300, 30);
-        var rows = new RuneSocketRowView[EquipmentInstance.SocketCount];
-        for (int i = 0; i < rows.Length; i++)
-        {
-            var go = (GameObject)PrefabUtility.InstantiatePrefab(socketRowPrefab, p);
-            go.name = "SocketRow" + (i + 1);
-            TopLeft((RectTransform)go.transform, 28, 244 + i * 116, 470, 104);
-            rows[i] = go.GetComponent<RuneSocketRowView>();
-        }
-
-        // rune bag (right column)
-        TopLeft(LTxt("Cap_RunesInBag", p, "POPUP_RUNES_IN_BAG", 20, Grey).rectTransform, 534, 90, 400, 30);
-        var bagCount = Txt("BagCount", p, "0 / 25", 20, Color.white, TextAlignmentOptions.Right);
-        TopLeft(bagCount.rectTransform, 1004, 90, 160, 30);
-
-        var scrollRt = NewRect("RuneScroll", p);
-        TopLeft(scrollRt, 534, 124, 530, 170);
-        var scroll = scrollRt.gameObject.AddComponent<ScrollRect>();
-        var viewport = NewRect("Viewport", scrollRt);
-        Stretch(viewport);
-        viewport.gameObject.AddComponent<RectMask2D>();
-        var content = NewRect("Content", viewport);
-        content.anchorMin = new Vector2(0, 1);
-        content.anchorMax = new Vector2(1, 1);
-        content.pivot = new Vector2(0.5f, 1);
-        content.anchoredPosition = Vector2.zero;
-        content.sizeDelta = Vector2.zero;
-        var grid = content.gameObject.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(80, 80);
-        grid.spacing = new Vector2(10, 10);
-        grid.padding = new RectOffset(4, 4, 4, 4);
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 6;
-        content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        scroll.viewport = viewport;
-        scroll.content = content;
-        scroll.horizontal = false;
-        scroll.vertical = true;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-        scroll.scrollSensitivity = 30f;
-
-        var selection = Img("SelectionFrame", content, Color.white);
-        selection.rectTransform.anchorMin = selection.rectTransform.anchorMax = selection.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        selection.rectTransform.sizeDelta = new Vector2(88, 88);
-        selection.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
-        selection.gameObject.SetActive(false);
-
-        // rune card
-        var card = Img("RuneCard", p, Panel);
-        TopLeft(card.rectTransform, 534, 316, 630, 340);
-        var hint = Txt("Hint", card.transform, "", 22, Grey, TextAlignmentOptions.Center, FontStyles.Normal);
-        Stretch(hint.rectTransform, 24, 24, 24, 24);
-
-        var cardContent = NewRect("Content", card.transform);
-        Stretch(cardContent);
-        var cv = VLG(cardContent.gameObject, 6);
-        cv.padding = new RectOffset(22, 22, 18, 18);
-
-        var nameRow = NewRect("NameRow", cardContent);
-        HLG(nameRow.gameObject, 14);
-        LE(nameRow.gameObject, prefH: 44);
-        var runeName = Txt("RuneName", nameRow, "", 30, Color.white);
-        var badge = Img("RarityBadge", nameRow, Orange);
-        LE(badge.gameObject, prefW: 130, prefH: 32);
-        var rarityText = Txt("Text", badge.transform, "", 18, Color.white, TextAlignmentOptions.Center);
-        Stretch(rarityText.rectTransform);
-
-        var rowsRoot = NewRect("Rows", cardContent);
-        VLG(rowsRoot.gameObject, 2);
-
-        var descGroup = NewRect("DescGroup", cardContent);
-        VLG(descGroup.gameObject, 2).padding = new RectOffset(0, 0, 8, 0);
-        LTxt("DescCap", descGroup, "POPUP_DESCRIPTION", 16, Grey);
-        var descText = Txt("DescText", descGroup, "", 19, Color.white, TextAlignmentOptions.TopLeft, FontStyles.Normal);
-
-        var warn = Img("Warning", cardContent, new Color(0.169f, 0.141f, 0.071f, 1f));
-        var wv = VLG(warn.gameObject, 0);
-        wv.padding = new RectOffset(14, 14, 10, 10);
-        var warnText = Txt("Text", warn.transform, "", 18, new Color(1f, 0.89f, 0.66f), TextAlignmentOptions.TopLeft, FontStyles.Normal);
-
-        // buttons + gem balance
-        var insertImg = Img("InsertButton", p, Orange, true);
-        TopLeft(insertImg.rectTransform, 534, 672, 450, 56);
-        var insertBtn = insertImg.gameObject.AddComponent<Button>();
-        insertBtn.targetGraphic = insertImg;
-        Stretch(LTxt("Label", insertImg.transform, "POPUP_INSERT", 20, new Color(0.04f, 0.09f, 0.13f), TextAlignmentOptions.Center).rectTransform);
-
-        var cancelImg = Img("CancelButton", p, new Color(0.165f, 0.259f, 0.322f, 1f), true);
-        TopLeft(cancelImg.rectTransform, 1000, 672, 164, 56);
-        var cancelBtn = cancelImg.gameObject.AddComponent<Button>();
-        cancelBtn.targetGraphic = cancelImg;
-        TopLeft(LTxt("Label", cancelImg.transform, "POPUP_CANCEL", 20, Color.white).rectTransform, 14, 10, 90, 36);
-        TopLeft(Badge("Key", cancelImg.transform, "Esc", 54, 36), 100, 10, 54, 36);
-
-        TopLeft(Img("GemIcon", p, new Color(0.25f, 0.78f, 0.94f)).rectTransform, 1030, 742, 24, 24);
-        var gemText = Txt("GemText", p, "0", 19, Color.white, TextAlignmentOptions.Right);
-        TopLeft(gemText.rectTransform, 1060, 738, 104, 30);
-
-        SetRefs(popup,
-            ("backdrop", backdrop), ("weaponIcon", weaponIcon), ("weaponLevel", weaponLevel), ("weaponName", weaponName),
-            ("weaponSub", weaponSub), ("bagContent", content), ("bagSlotPrefab", bagSlotPrefab), ("bagCountText", bagCount),
-            ("selectionFrame", selection.rectTransform), ("cardContent", cardContent.gameObject), ("hintText", hint),
-            ("runeName", runeName), ("rarityBg", badge), ("rarityText", rarityText), ("rowsRoot", rowsRoot),
-            ("statRowPrefab", statRowPrefab), ("descGroup", descGroup.gameObject), ("descText", descText),
-            ("warnGroup", warn.gameObject), ("warnText", warnText),
-            ("insertButton", insertBtn), ("cancelButton", cancelBtn), ("gemText", gemText));
-        SetArray(popup, "rows", rows);
-        AddBlurTo(popup);
-
-        root.gameObject.SetActive(false);
-        return popup;
-    }
-
-    /// <summary>Adds the blurred backdrop (RawImage + UIBlurBackdrop) to a rune socket popup. Also used by InventoryPrefabUpgrader.</summary>
-    public static void AddBlurTo(RuneSocketPopup popup)
-    {
-        var dim = popup.Backdrop;
-        if (dim == null)
-        {
-            Debug.LogWarning("[Inventory] The popup has no Backdrop image - blur not added.");
-            return;
-        }
-
-        // RawImage sits right below the dim overlay in the hierarchy, so the dim tints the blurred picture.
-        var blurRect = NewRect("BackdropBlur", popup.transform);
-        Stretch(blurRect);
-        blurRect.SetSiblingIndex(dim.transform.GetSiblingIndex());
-        var raw = blurRect.gameObject.AddComponent<RawImage>();
-        raw.color = new Color(0.82f, 0.86f, 0.9f, 1f);
-        raw.raycastTarget = false;
-        raw.enabled = false; // shown after the first capture
-
-        var blur = popup.GetComponent<UIBlurBackdrop>();
-        if (blur == null) blur = popup.gameObject.AddComponent<UIBlurBackdrop>();
-
-        var shader = AssetDatabase.LoadAssetAtPath<Shader>(BlurShaderPath);
-        if (shader == null) Debug.LogWarning($"[Inventory] Blur shader not found at {BlurShaderPath} - the popup will use a plain dim backdrop.");
-
-        SetRefs(blur, ("blurImage", raw), ("dimImage", dim), ("blurShader", shader));
-        SetRefs(popup, ("blur", blur));
     }
 
     // ------------------------------------------------------------------ helpers
@@ -768,6 +575,7 @@ public static class InventoryUIBuilder
     {
         var rt = NewRect(name, parent);
         var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
+        t.font = Options.Font;
         t.text = s;
         t.fontSize = size;
         t.color = c;
@@ -834,7 +642,7 @@ public static class InventoryUIBuilder
         return l;
     }
 
-    private static void SetRefs(Object target, params (string field, Object value)[] refs)
+    private static void SetRefs(UnityEngine.Object target, params (string field, UnityEngine.Object value)[] refs)
     {
         var so = new SerializedObject(target);
         foreach (var (field, value) in refs)
@@ -842,25 +650,24 @@ public static class InventoryUIBuilder
             var p = so.FindProperty(field);
             if (p == null)
             {
-                Debug.LogError($"Field '{field}' not found on {target.GetType().Name}");
-                continue;
+                throw new System.InvalidOperationException($"Field '{field}' not found on {target.GetType().Name}");
             }
             p.objectReferenceValue = value;
         }
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void SetArray(Object target, string field, Object[] values)
+    private static void SetArray(UnityEngine.Object target, string field, UnityEngine.Object[] values)
     {
         var so = new SerializedObject(target);
         var p = so.FindProperty(field);
         if (p == null)
         {
-            Debug.LogError($"Field '{field}' not found on {target.GetType().Name}");
-            return;
+            throw new System.InvalidOperationException($"Field '{field}' not found on {target.GetType().Name}");
         }
         p.arraySize = values.Length;
         for (int i = 0; i < values.Length; i++) p.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 }
+#endif

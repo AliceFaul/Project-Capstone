@@ -48,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
     public event Action<Vector3> OnMoveStart;
     public event Action OnMoveStop;
     public event Action OnJumpStart;
+    public event Action OnJumpEnd;
 
     private void Awake() 
     {
@@ -278,6 +279,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             _hasJumpDestination = false;
+            OnJumpEnd?.Invoke();
             
             if (_controller?.StateMachine != null && _controller.StateMachine.IsCurrentState(CharacterStateType.Jump))
             {

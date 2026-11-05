@@ -23,6 +23,12 @@ public class RuneSocketRowView : MonoBehaviour
     [SerializeField] private TMP_Text costText;
     [SerializeField] private CanvasGroup group;
 
+    [Header("Visual icons")]
+    [SerializeField] private Image glyph;
+    [SerializeField] private Sprite emptySprite, lockedSprite, runeSprite;
+    [SerializeField] private TMP_Text socketText;
+    [SerializeField] private TMP_Text stateText;
+
     [NonSerialized] public int index;
 
     public event Action<RuneSocketRowView> Clicked;
@@ -40,6 +46,14 @@ public class RuneSocketRowView : MonoBehaviour
         frame.color = selected ? SelectedBorder : Border;
         icon.color = state == SocketRowState.Filled ? iconColor : EmptyIcon;
         iconText.text = iconLabel;
+        if (socketText != null) socketText.text = InventoryText.Get("SOCKET_HEADER", index + 1);
+        if (stateText != null) stateText.gameObject.SetActive(false);
+        if (glyph != null)
+        {
+            glyph.sprite = state == SocketRowState.Locked ? lockedSprite : state == SocketRowState.Empty ? emptySprite : runeSprite;
+            glyph.enabled = glyph.sprite != null;
+            glyph.color = Color.white;
+        }
         nameText.text = title;
         detailText.text = detail;
 
@@ -47,6 +61,17 @@ public class RuneSocketRowView : MonoBehaviour
         costText.gameObject.SetActive(state == SocketRowState.Filled);
         costText.text = cost;
         SetRemoveArmed(false);
+    }
+
+    public void SetRuneVisual(Sprite sprite, bool active)
+    {
+        if (glyph != null) { glyph.sprite = sprite != null ? sprite : runeSprite; glyph.enabled = glyph.sprite != null; }
+        if (stateText != null)
+        {
+            stateText.gameObject.SetActive(true);
+            stateText.text = InventoryText.Get(active ? "POPUP_STATE_ACTIVE" : "POPUP_STATE_INACTIVE");
+            stateText.color = active ? new Color(.2f,.85f,.95f) : new Color(1f,.74f,.25f);
+        }
     }
 
     public void SetRemoveArmed(bool armed) => removeLabel.text = InventoryText.Get(armed ? "POPUP_CONFIRM" : "POPUP_REMOVE");

@@ -13,6 +13,9 @@ public enum SlotKind { Equipped, Bag }
 public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
     [SerializeField] private Image icon;
+    [SerializeField] private Image emptyPlaceholder;
+    [SerializeField] private Image rarityTint;
+    [SerializeField] private GameObject equippedBadge;
     [SerializeField] private Image rarityStrip;
     [SerializeField] private GameObject levelBadge;
     [SerializeField] private TMP_Text levelText;
@@ -39,7 +42,7 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         _pointerOver = false;
         _pointerDriven = false;
-        highlight.SetActive(false);
+        if (highlight != null) highlight.SetActive(false);
     }
 
     public void Bind(IInventoryItem item, ItemData definition)
@@ -49,12 +52,16 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
         bool has = item != null;
 
         icon.enabled = has;
+        if (emptyPlaceholder != null) emptyPlaceholder.enabled = !has && emptyPlaceholder.sprite != null;
+        if (rarityTint != null) rarityTint.enabled = has;
+        if (equippedBadge != null) equippedBadge.SetActive(has && kind == SlotKind.Equipped);
         rarityStrip.enabled = has;
 
         if (has)
         {
             var color = InventoryUIUtil.RarityColor(definition != null ? definition.rarity : Rarity.Common);
             rarityStrip.color = color;
+            if (rarityTint != null) rarityTint.color = new Color(color.r, color.g, color.b, .18f);
 
             bool hasSprite = definition != null && definition.icon != null;
             icon.sprite = hasSprite ? definition.icon : null;

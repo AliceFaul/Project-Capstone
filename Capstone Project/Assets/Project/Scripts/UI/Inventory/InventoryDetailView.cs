@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -28,6 +29,20 @@ public class InventoryDetailView : MonoBehaviour
     [SerializeField] private TMP_Text[] socketLabels;
     [SerializeField] private TMP_Text runeText;
     [SerializeField] private TMP_Text descText;
+
+    [Serializable]
+    private struct StatIconEntry { public BonusStat stat; public Sprite icon; }
+    [Header("Visual icons")]
+    [SerializeField] private StatIconEntry[] statIcons;
+    [SerializeField] private Sprite cooldownIcon, qualityIcon, durationIcon, effectIcon;
+    [SerializeField] private Image[] socketIcons;
+    [SerializeField] private Sprite emptySocketIcon, lockedSocketIcon, runeFallbackIcon;
+
+    private Sprite IconFor(BonusStat stat)
+    {
+        if (statIcons != null) foreach (var entry in statIcons) if (entry.stat == stat) return entry.icon;
+        return null;
+    }
 
     public void Hide()
     {
@@ -106,8 +121,8 @@ public class InventoryDetailView : MonoBehaviour
             foreach (var pair in StatResolver.GetAllStats(e, def, cfg))
             {
                 var table = def.GetStatTable(pair.Key);
-                string tier = table != null && table.Tiered ? InventoryText.Get("DETAIL_TIER", e.GetTier(pair.Key) + 1) : "";
-                AddRow(InventoryUIUtil.StatName(pair.Key), InventoryUIUtil.FormatStat(pair.Key, pair.Value), tier);
+                string tier = table is { Tiered: true } ? InventoryText.Get("DETAIL_TIER", e.GetTier(pair.Key) + 1) : "";
+                AddRow(InventoryUIUtil.StatName(pair.Key), InventoryUIUtil.FormatStat(pair.Key, pair.Value), tier, IconFor(pair.Key));
             }
         }
         statsGroup.SetActive(statsRoot.childCount > 0);
@@ -127,19 +142,21 @@ public class InventoryDetailView : MonoBehaviour
         {
             bool unlocked = sockets.IsSocketUnlocked(e, i);
             var rune = e.GetSocket(i);
-            bool filled = unlocked && rune != null && !rune.IsEmpty;
+            bool filled = unlocked && rune is { IsEmpty: false };
 
             if (filled)
             {
                 var data = cfg.GetRune(rune.runeId);
                 socketSquares[i].color = InventoryUIUtil.RarityColor(data != null ? data.rarity : Rarity.Common);
                 socketLabels[i].text = "";
+                SetSocketIcon(i, data != null && data.icon != null ? data.icon : runeFallbackIcon, 1f);
             }
             else
             {
                 socketSquares[i].color = unlocked ? EmptyColor : LockedColor;
                 int need = i < cfg.socketUnlockLevels.Length ? cfg.socketUnlockLevels[i] : 0;
                 socketLabels[i].text = unlocked ? "" : InventoryText.Get("DETAIL_LEVEL", need);
+                SetSocketIcon(i, unlocked ? emptySocketIcon : lockedSocketIcon, unlocked ? .35f : .65f);
             }
         }
 
@@ -152,7 +169,7 @@ public class InventoryDetailView : MonoBehaviour
         if (def == null) return;
 
         SetText(subText, InventoryText.Get("DETAIL_SUB_ARTIFACT"));
-        AddRow(InventoryText.Get("DETAIL_COOLDOWN"), InventoryText.Get("DETAIL_SECONDS", def.cooldown.ToString("0.#")), "");
+        AddRow(InventoryText.Get("DETAIL_COOLDOWN"), InventoryText.Get("DETAIL_SECONDS", def.cooldown.ToString("0.#")), "", cooldownIcon);
         statsGroup.SetActive(true);
         SetText(descText, InventoryUIUtil.HighlightNumbers(def.itemDescription));
     }
@@ -162,22 +179,22 @@ public class InventoryDetailView : MonoBehaviour
         if (def == null) return;
 
         SetText(subText, InventoryText.Get(def.kind == RuneKind.Stat ? "DETAIL_SUB_RUNE_STAT" : "DETAIL_SUB_RUNE_EFFECT"));
-        AddRow(InventoryText.Get("DETAIL_QUALITY"), $"{RuneResolver.GetQuality(rune, def) * 100f:0}%", "");
+        AddRow(InventoryText.Get("DETAIL_QUALITY"), $"{RuneResolver.GetQuality(rune, def) * 100f:0}%", "", qualityIcon);
 
         if (def.kind == RuneKind.Stat)
         {
             foreach (var line in def.statLines)
             {
                 if (!RuneResolver.TryGetRoll(rune, line.Id, out float v)) continue;
-                AddRow(InventoryUIUtil.StatName(line.stat), line.mode == StatMode.Percent ? $"+{v:0.##}%" : $"+{v:0.##}", "");
+                AddRow(InventoryUIUtil.StatName(line.stat), line.mode == StatMode.Percent ? $"+{v:0.##}%" : $"+{v:0.##}", "", IconFor(line.stat));
             }
         }
         else
         {
             RuneResolver.TryGetRoll(rune, RuneData.DamagePerTickId, out float dmg);
             RuneResolver.TryGetRoll(rune, RuneData.DurationId, out float dur);
-            AddRow(InventoryText.Get("DETAIL_EFFECT_DAMAGE", def.effectType), $"{dmg:0.#} / {def.tickInterval:0.#}s", "");
-            AddRow(InventoryText.Get("DETAIL_DURATION"), InventoryText.Get("DETAIL_SECONDS", dur.ToString("0.#")), "");
+            AddRow(InventoryText.Get("DETAIL_EFFECT_DAMAGE", def.effectType), $"{dmg:0.#} / {def.tickInterval:0.#}s", "", def.icon != null ? def.icon : effectIcon);
+            AddRow(InventoryText.Get("DETAIL_DURATION"), InventoryText.Get("DETAIL_SECONDS", dur.ToString("0.#")), "", durationIcon);
         }
         statsGroup.SetActive(true);
     }
@@ -202,13 +219,26 @@ public class InventoryDetailView : MonoBehaviour
         }
     }
 
-    private void AddRow(string label, string value, string tier)
+    private void AddRow(string label, string value, string tier, Sprite sprite = null)
     {
         var row = Instantiate(statRowPrefab, statsRoot);
-        var texts = row.GetComponentsInChildren<TMP_Text>();
-        texts[0].text = label;
-        texts[1].text = value;
-        texts[2].text = tier;
+        // Named children avoid coupling to hierarchy traversal order when icons are added.
+        var labelText = row.transform.Find("Label")?.GetComponent<TMP_Text>();
+        var valueText = row.transform.Find("Value")?.GetComponent<TMP_Text>();
+        var tierText = row.transform.Find("Tier")?.GetComponent<TMP_Text>();
+        if (labelText != null) labelText.text = label;
+        if (valueText != null) valueText.text = value;
+        if (tierText != null) { tierText.text = tier; tierText.gameObject.SetActive(!string.IsNullOrEmpty(tier)); }
+        var image = row.transform.Find("Icon")?.GetComponent<Image>();
+        if (image != null) { image.sprite = sprite; image.enabled = sprite != null; }
+    }
+
+    private void SetSocketIcon(int index, Sprite sprite, float alpha)
+    {
+        if (socketIcons == null || index < 0 || index >= socketIcons.Length || socketIcons[index] == null) return;
+        socketIcons[index].sprite = sprite;
+        socketIcons[index].enabled = sprite != null;
+        socketIcons[index].color = new Color(1, 1, 1, alpha);
     }
 
     private static void SetText(TMP_Text text, string value)

@@ -519,6 +519,18 @@ MonoBehaviour:
     m_Key: RUNE_EFFECT_SUMMARY
     m_Metadata:
       m_Items: []
+  - m_Id: 23448176894808064
+    m_Key: POPUP_SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859968
+    m_Key: POPUP_STATE_ACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859969
+    m_Key: POPUP_STATE_INACTIVE
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -5,6 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using Project.Capstone.Inventory;
 
 // Modal popup for the sockets of ONE equipped weapon: shows its 3 sockets, lets the player pick a rune from the rune bag,
@@ -13,8 +15,7 @@ using Project.Capstone.Inventory;
 public class RuneSocketPopup : MonoBehaviour
 {
     [Header("Backdrop")]
-    [SerializeField] private Image backdrop; // dim overlay behind the panel (the blurred snapshot sits just below it)
-    [SerializeField] private UIBlurBackdrop blur;
+    [SerializeField] private Image backdrop; // full-screen image behind the panel (blur material goes here)
 
     [Header("Weapon")]
     [SerializeField] private Image weaponIcon;
@@ -49,6 +50,16 @@ public class RuneSocketPopup : MonoBehaviour
     [SerializeField] private Button cancelButton;
     [SerializeField] private TMP_Text gemText;
 
+    [Serializable]
+    private struct StatIconEntry { public BonusStat stat; public Sprite icon; }
+    [Header("Visuals")]
+    [SerializeField] private StatIconEntry[] statIcons;
+    [SerializeField] private Sprite durationIcon, effectIcon, meleeFallbackIcon, rangedFallbackIcon;
+    [SerializeField] private GameObject qualityGroup;
+    [SerializeField] private RectTransform qualityFill;
+    [SerializeField] private TMP_Text qualityValue;
+    [SerializeField] private ScrollRect bagScroll;
+
     public event Action<string> Message;
     public event Action Closed;
 
@@ -80,6 +91,7 @@ public class RuneSocketPopup : MonoBehaviour
     public void Open(PlayerDataConfig data, EquipmentManager equip, EquipSlot weaponSlot, int socketIndex, RuneInstance preselect)
     {
         bool wasOpen = IsOpen;
+        if (wasOpen) Unsubscribe();
         _data = data;
         _equip = equip;
         _weaponSlot = weaponSlot;
@@ -88,44 +100,55 @@ public class RuneSocketPopup : MonoBehaviour
         _armedIndex = -1;
 
         gameObject.SetActive(true); // OnEnable refreshes
-        if (wasOpen) Refresh();
+        if (wasOpen) { Subscribe(); Refresh(); }
     }
 
     public void Close() => gameObject.SetActive(false);
 
-    // Called by InventoryScreenView before Open(): snapshots and blurs the screen as it looks right now (no-op without a UIBlurBackdrop).
-    public IEnumerator PrepareBackdrop()
-    {
-        if (blur != null) yield return blur.Capture();
-    }
-
     private void OnEnable()
     {
         if (_data == null || _equip == null) return;
+        Subscribe();
+        Refresh();
+        if (isActiveAndEnabled) StartCoroutine(FocusFirst());
+    }
 
+    private void Subscribe()
+    {
+        if (_subscribed || _data == null || _equip == null) return;
         _equip.OnEquipmentStatsChanged += OnStatsChanged;
         _equip.OnLoadoutReloaded += Refresh;
         _data.Inventory.OnBagChanged += OnBagChanged;
         _data.Currency.OnCurrencyChanged += OnCurrencyChanged;
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         _subscribed = true;
+    }
 
-        Refresh();
-        StartCoroutine(FocusFirst());
+    private void Unsubscribe()
+    {
+        if (!_subscribed) return;
+        _subscribed = false;
+        if (_equip != null)
+        {
+            _equip.OnEquipmentStatsChanged -= OnStatsChanged;
+            _equip.OnLoadoutReloaded -= Refresh;
+        }
+        if (_data != null)
+        {
+            _data.Inventory.OnBagChanged -= OnBagChanged;
+            _data.Currency.OnCurrencyChanged -= OnCurrencyChanged;
+        }
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
     }
 
     private void OnDisable()
     {
-        if (_subscribed)
-        {
-            _subscribed = false;
-            _equip.OnEquipmentStatsChanged -= OnStatsChanged;
-            _equip.OnLoadoutReloaded -= Refresh;
-            _data.Inventory.OnBagChanged -= OnBagChanged;
-            _data.Currency.OnCurrencyChanged -= OnCurrencyChanged;
-        }
-        if (blur != null) blur.Release();
+        StopAllCoroutines();
+        Unsubscribe();
         Closed?.Invoke();
     }
+
+    private void OnLocaleChanged(Locale locale) => Refresh();
 
     private void Update()
     {
@@ -140,7 +163,8 @@ public class RuneSocketPopup : MonoBehaviour
 
         foreach (var view in _views)
         {
-            if (!view.gameObject.activeSelf) continue;
+            if (!view.gameObject.activeSelf || view.Item == null) continue;
+            if (_selected != null && view.Item.InstanceId != _selected.instanceId) continue;
             eventSystem.SetSelectedGameObject(view.gameObject);
             yield break;
         }
@@ -178,8 +202,9 @@ public class RuneSocketPopup : MonoBehaviour
         var rarity = def != null ? def.rarity : Rarity.Common;
         bool hasSprite = def != null && def.icon != null;
 
-        weaponIcon.sprite = hasSprite ? def.icon : null;
-        weaponIcon.color = hasSprite ? Color.white : InventoryUIUtil.RarityColor(rarity);
+        weaponIcon.sprite = hasSprite ? def.icon : weapon.category == InventoryCategory.Melee ? meleeFallbackIcon : rangedFallbackIcon;
+        weaponIcon.enabled = weaponIcon.sprite != null;
+        weaponIcon.color = Color.white;
         weaponLevel.text = weapon.level.ToString();
         weaponName.text = def != null ? (def.itemName ?? "").ToUpper() : InventoryText.Get("DETAIL_UNKNOWN_ITEM");
 
@@ -197,6 +222,7 @@ public class RuneSocketPopup : MonoBehaviour
         if (sockets == null || cfg == null) return;
 
         int cost = sockets.GetRemovalCost(weapon);
+        var activeRunes = RuneResolver.GetActiveRunes(weapon, cfg.GetRune);
 
         for (int i = 0; i < rows.Length; i++)
         {
@@ -223,6 +249,9 @@ public class RuneSocketPopup : MonoBehaviour
                     InventoryUIUtil.HighlightNumbers(InventoryUIUtil.RuneSummary(rune, data)),
                     InventoryUIUtil.RarityColor(def != null ? def.rarity : Rarity.Common), "",
                     InventoryUIUtil.HighlightNumbers(InventoryText.Get("POPUP_COST", cost)), false);
+                bool active = false;
+                foreach (var entry in activeRunes) if (entry.SocketIndex == i) { active = true; break; }
+                rows[i].SetRuneVisual(data != null ? data.icon : null, active);
             }
         }
     }
@@ -236,6 +265,7 @@ public class RuneSocketPopup : MonoBehaviour
             var view = Instantiate(bagSlotPrefab, bagContent);
             view.kind = SlotKind.Bag;
             view.Clicked += OnRuneClicked;
+            view.Highlighted += EnsureVisible;
             _views.Add(view);
         }
 
@@ -260,21 +290,35 @@ public class RuneSocketPopup : MonoBehaviour
 
     private void PlaceSelectionFrame()
     {
-        bool shown = false;
-        if (_selected != null)
+        if (selectionFrame == null) return;
+        selectionFrame.gameObject.SetActive(false);
+        if (_selected == null) return;
+        foreach (var view in _views)
         {
-            foreach (var view in _views)
-            {
-                if (!view.gameObject.activeSelf || view.Item == null || view.Item.InstanceId != _selected.instanceId) continue;
-                selectionFrame.gameObject.SetActive(true);
-                selectionFrame.position = ((RectTransform)view.transform).position;
-                shown = true;
-                break;
-            }
+            if (!view.gameObject.activeSelf || view.Item == null || view.Item.InstanceId != _selected.instanceId) continue;
+            // A child of the selected slot follows both scrolling and layout rebuilds.
+            selectionFrame.SetParent(view.transform, false);
+            selectionFrame.anchorMin = Vector2.zero;
+            selectionFrame.anchorMax = Vector2.one;
+            selectionFrame.offsetMin = selectionFrame.offsetMax = Vector2.zero;
+            selectionFrame.SetAsLastSibling();
+            selectionFrame.gameObject.SetActive(true);
+            break;
         }
+    }
 
-        if (!shown) selectionFrame.gameObject.SetActive(false);
-        selectionFrame.SetAsFirstSibling(); // behind the slots: only the outer ring shows
+    private void EnsureVisible(InventorySlotView view)
+    {
+        if (bagScroll == null || bagScroll.viewport == null || bagScroll.content == null) return;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(bagScroll.content);
+        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(bagScroll.viewport, view.transform);
+        var rect = bagScroll.viewport.rect;
+        var position = bagScroll.content.anchoredPosition;
+        if (bounds.min.y < rect.yMin) position.y += rect.yMin - bounds.min.y;
+        else if (bounds.max.y > rect.yMax) position.y -= bounds.max.y - rect.yMax;
+        position.y = Mathf.Clamp(position.y, 0, Mathf.Max(0, bagScroll.content.rect.height - rect.height));
+        bagScroll.StopMovement();
+        bagScroll.content.anchoredPosition = position;
     }
 
     private void RefreshCard(EquipmentInstance weapon)
@@ -301,21 +345,27 @@ public class RuneSocketPopup : MonoBehaviour
         rarityBg.color = InventoryUIUtil.RarityColor(rarity);
         rarityText.text = InventoryUIUtil.RarityName(rarity);
 
+        if (qualityGroup != null) qualityGroup.SetActive(data != null);
         if (data != null)
         {
-            AddRow(InventoryText.Get("DETAIL_QUALITY"), $"{RuneResolver.GetQuality(_selected, data) * 100f:0}%");
+            float quality = RuneResolver.GetQuality(_selected, data);
+            if (qualityFill != null) InventoryUIUtil.SetBar(qualityFill, quality);
+            if (qualityValue != null) qualityValue.text = $"{quality * 100f:0}%";
+            if (qualityGroup == null) AddRow(InventoryText.Get("DETAIL_QUALITY"), $"{quality * 100f:0}%");
 
             if (data.kind == RuneKind.DamageEffect)
             {
                 RuneResolver.TryGetRoll(_selected, RuneData.DurationId, out float duration);
-                AddRow(InventoryText.Get("DETAIL_DURATION"), InventoryText.Get("DETAIL_SECONDS", duration.ToString("0.#")));
+                AddRow(InventoryText.Get("DETAIL_DURATION"), InventoryText.Get("DETAIL_SECONDS", duration.ToString("0.#")), durationIcon);
+                RuneResolver.TryGetRoll(_selected, RuneData.DamagePerTickId, out float damage);
+                AddRow(InventoryText.Get("DETAIL_EFFECT_DAMAGE", data.effectType), $"{damage:0.#} / {data.tickInterval:0.#}s", data.icon != null ? data.icon : effectIcon);
             }
             else
             {
                 foreach (var line in data.statLines)
                 {
                     if (!RuneResolver.TryGetRoll(_selected, line.Id, out float v)) continue;
-                    AddRow(InventoryUIUtil.StatName(line.stat), line.mode == StatMode.Percent ? $"+{v:0.##}%" : $"+{v:0.##}");
+                    AddRow(InventoryUIUtil.StatName(line.stat), line.mode == StatMode.Percent ? $"+{v:0.##}%" : $"+{v:0.##}", IconFor(line.stat));
                 }
             }
         }
@@ -337,24 +387,29 @@ public class RuneSocketPopup : MonoBehaviour
         other = null;
         replaces = false;
         var cfg = _equip.ProgressConfig;
+        var sockets = _equip.Sockets;
+        if (cfg == null || sockets == null || _selected == null) return false;
         float quality = RuneResolver.GetQuality(_selected, selectedData);
+        float strongestQuality = float.NegativeInfinity;
+        int strongestIndex = -1;
 
         for (int i = 0; i < EquipmentInstance.SocketCount; i++)
         {
-            if (i == _socketIndex) continue;
-
+            if (i == _socketIndex || !sockets.IsSocketUnlocked(weapon, i)) continue;
             var rune = weapon.GetSocket(i);
             if (rune == null || rune.IsEmpty) continue;
-
             var data = cfg.GetRune(rune.runeId);
             if (data == null || data.GroupKey != selectedData.GroupKey) continue;
-
-            float otherQuality = RuneResolver.GetQuality(rune, data);
+            float candidate = RuneResolver.GetQuality(rune, data);
+            // Compare every candidate; the first matching rune may already be inactive.
+            if (strongestIndex >= 0 && candidate <= strongestQuality) continue;
+            strongestQuality = candidate;
+            strongestIndex = i;
             other = data;
-            replaces = quality > otherQuality || (Mathf.Approximately(quality, otherQuality) && _socketIndex < i);
-            return true;
         }
-        return false;
+        if (strongestIndex < 0) return false;
+        replaces = quality > strongestQuality || (Mathf.Approximately(quality, strongestQuality) && _socketIndex < strongestIndex);
+        return true;
     }
 
     private void RefreshButtons(EquipmentInstance weapon)
@@ -362,7 +417,7 @@ public class RuneSocketPopup : MonoBehaviour
         var sockets = _equip.Sockets;
         bool canInsert = _selected != null && sockets != null
                          && sockets.IsSocketUnlocked(weapon, _socketIndex)
-                         && weapon.GetSocket(_socketIndex).IsEmpty;
+                         && (weapon.GetSocket(_socketIndex) == null || weapon.GetSocket(_socketIndex).IsEmpty);
         insertButton.interactable = canInsert;
         gemText.text = _data.Currency.Gem().ToString("N0");
     }
@@ -382,7 +437,7 @@ public class RuneSocketPopup : MonoBehaviour
             return;
         }
 
-        if (weapon.GetSocket(i).IsEmpty)
+        if (weapon.GetSocket(i) == null || weapon.GetSocket(i).IsEmpty)
         {
             _socketIndex = i;
             Refresh();
@@ -447,7 +502,7 @@ public class RuneSocketPopup : MonoBehaviour
         for (int step = 1; step <= EquipmentInstance.SocketCount; step++)
         {
             int i = (from + step) % EquipmentInstance.SocketCount;
-            if (sockets.IsSocketUnlocked(weapon, i) && weapon.GetSocket(i).IsEmpty) return i;
+            if (sockets.IsSocketUnlocked(weapon, i) && (weapon.GetSocket(i) == null || weapon.GetSocket(i).IsEmpty)) return i;
         }
         return from;
     }
@@ -472,13 +527,23 @@ public class RuneSocketPopup : MonoBehaviour
         return string.IsNullOrEmpty(id) ? null : _data.GetDefinition<ItemData>(id);
     }
 
-    private void AddRow(string label, string value)
+    private Sprite IconFor(BonusStat stat)
+    {
+        if (statIcons != null) foreach (var entry in statIcons) if (entry.stat == stat) return entry.icon;
+        return null;
+    }
+
+    private void AddRow(string label, string value, Sprite sprite = null)
     {
         var row = Instantiate(statRowPrefab, rowsRoot);
-        var texts = row.GetComponentsInChildren<TMP_Text>();
-        texts[0].text = label;
-        texts[1].text = value;
-        texts[2].text = "";
+        var labelText = row.transform.Find("Label")?.GetComponent<TMP_Text>();
+        var valueText = row.transform.Find("Value")?.GetComponent<TMP_Text>();
+        var tierText = row.transform.Find("Tier")?.GetComponent<TMP_Text>();
+        if (labelText != null) labelText.text = label;
+        if (valueText != null) valueText.text = value;
+        if (tierText != null) tierText.gameObject.SetActive(false);
+        var image = row.transform.Find("Icon")?.GetComponent<Image>();
+        if (image != null) { image.sprite = sprite; image.enabled = sprite != null; }
     }
 
     private void ClearRows()
