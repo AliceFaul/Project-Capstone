@@ -1,15 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum CommandType
-{
-    None,
-    Move,
-    Attack,
-    Interact
-}
+public enum CommandType { None, Move, Attack, Interact }
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour 
+{
     [Header("References")]
     [SerializeField] private Camera mainCamera;
     [SerializeField] private ParticleSystem clickEffect;
@@ -29,6 +24,7 @@ public class PlayerController : MonoBehaviour {
 
     private bool _isHoldingMove = false;
     private float _lastClickEffectTime;
+    private int _leftPressFrame = -1;
     
     private PlayerMovement _movement;
     public PlayerMovement Movement
@@ -192,7 +188,12 @@ public class PlayerController : MonoBehaviour {
         Movement.OnMoveStop -= OnMoveStop;
     }
 
-    private void HandleLeftClick() { 
+    private void HandleLeftClick()
+    {
+        _leftPressFrame = Time.frameCount;
+        _isHoldingMove = false;
+        if(InventoryScreenView.BlocksWorldClick(_leftPressFrame)) return;
+
         if(InputHandler == null) return;
         if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
         
@@ -229,6 +230,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void HandleRightClick() {
+        if(InventoryScreenView.BlocksWorldClick(Time.frameCount)) return;
+
         // Handle right-click actions if needed
         // Ranged attack, special ability, etc.
         if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
@@ -279,14 +282,15 @@ public class PlayerController : MonoBehaviour {
 
     private void ContinuousMovement()
     {
+        if (!_isHoldingMove) return;
+
         bool mouseHeld = Mouse.current != null ? Mouse.current.leftButton.isPressed : Input.GetMouseButton(0);
-        if (!mouseHeld)
+        if (!mouseHeld || InventoryScreenView.BlocksWorldClick(_leftPressFrame))
         {
             _isHoldingMove = false;
             return;
         }
         
-        if(!_isHoldingMove) return;
         if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
         
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);

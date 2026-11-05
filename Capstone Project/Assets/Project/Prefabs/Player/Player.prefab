@@ -267,6 +267,7 @@ GameObject:
   - component: {fileID: 9006754850781956550}
   - component: {fileID: 888270505598952987}
   - component: {fileID: 7735905665274845618}
+  - component: {fileID: 2884577494648549503}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -660,6 +661,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapTarget
   facing: {fileID: 0}
+--- !u!114 &2884577494648549503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0b137075ede43d6b6e2d79ac3689595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerFootstep
+  controller: {fileID: 2854524255848535839}
+  surfaceMap: {fileID: 11400000, guid: 09a68d1636190404882e5adf184252f9, type: 2}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  strideLength: 1.5
+  minSpeed: 0.5
+  groundCheckDistance: 0.5
+  minAirTimeForLanding: 0.15
 --- !u!1001 &4161441569483653642
 PrefabInstance:
   m_ObjectHideFlags: 0

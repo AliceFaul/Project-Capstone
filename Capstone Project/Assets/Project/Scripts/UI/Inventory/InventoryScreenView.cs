@@ -11,6 +11,22 @@ using Project.Capstone.Inventory;
 
 public class InventoryScreenView : MonoBehaviour
 {
+    private static readonly HashSet<InventoryScreenView> openInventories = new HashSet<InventoryScreenView>();
+    private static int lastInventoryClosedFrame = -1;
+
+    // A drag keeps the frame of its original press, including across closing the inventory.
+    public static bool BlocksWorldClick(int pressFrame)
+    {
+        return openInventories.Count > 0 || pressFrame <= lastInventoryClosedFrame;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetWorldClickState()
+    {
+        openInventories.Clear();
+        lastInventoryClosedFrame = -1;
+    }
+
     private static readonly InventoryCategory[] TabCategories =
     {
         InventoryCategory.Melee, InventoryCategory.Ranged, InventoryCategory.Armor,
@@ -121,6 +137,7 @@ public class InventoryScreenView : MonoBehaviour
 
     private void OnEnable()
     {
+        openInventories.Add(this);
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         statsPanel.SetActive(false);
         detailPanel.SetActive(true);
@@ -147,6 +164,9 @@ public class InventoryScreenView : MonoBehaviour
 
     private void OnDisable()
     {
+        if (openInventories.Remove(this) && openInventories.Count == 0)
+            lastInventoryClosedFrame = Time.frameCount;
+
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         _focus = null;
         StopAllCoroutines();
@@ -203,6 +223,8 @@ public class InventoryScreenView : MonoBehaviour
         else if (statsPanel.activeSelf) ToggleStats();
         else onBack?.Invoke();
     }
+
+    // ---------------------------------------------------------------- refresh
 
     private void OnLocaleChanged(UnityEngine.Localization.Locale locale) => RefreshAll();
 
@@ -318,7 +340,7 @@ public class InventoryScreenView : MonoBehaviour
         return string.IsNullOrEmpty(id) ? null : _data.GetDefinition<ItemData>(id);
     }
 
-    // ===== EVENTS =====
+    // ---------------------------------------------------------------- game events
 
     private void OnEquipChanged(EquipmentChangedEventArgs _) { HasChanges = true; RefreshEquipment(); RefreshDetail(); }
     private void OnStatsChanged(EquipSlot _) { HasChanges = true; RefreshEquipment(); RefreshDetail(); }
@@ -327,7 +349,7 @@ public class InventoryScreenView : MonoBehaviour
     private void OnExpChanged(float exp, float toNext) => RefreshHeader();
     private void OnLevelUp(int level) => RefreshHeader();
 
-    // ===== DETAIL PANEL =====
+    // ---------------------------------------------------------------- detail panel
 
     private void OnSlotHighlighted(InventorySlotView slot)
     {
@@ -394,8 +416,8 @@ public class InventoryScreenView : MonoBehaviour
         return cfg != null && socketIndex < cfg.socketUnlockLevels.Length ? cfg.socketUnlockLevels[socketIndex] : 0;
     }
 
-    // ===== ACTIONS =====
-    
+    // ---------------------------------------------------------------- actions
+
     private void OnSlotClicked(InventorySlotView slot)
     {
         if (slot.Item == null) return;

@@ -15,8 +15,8 @@ MonoBehaviour:
   defaultSurface: {fileID: 0}
   terrainLayers:
   - layer: {fileID: 8574412962073106934, guid: a81995a1b9792014b8df74c003aef209, type: 2}
-    surface: {fileID: 0}
+    surface: {fileID: 11400000, guid: d9090111ea490a442a3add525935d55b, type: 2}
   - layer: {fileID: 8574412962073106934, guid: 81e91e370b984c440840e5b9aaba5988, type: 2}
-    surface: {fileID: 0}
+    surface: {fileID: 11400000, guid: 2b2cdd83eddc89f4fb7c5b394098c5e6, type: 2}
   - layer: {fileID: 8574412962073106934, guid: b0bff560aeb461f4ab4c2c556d09ce73, type: 2}
-    surface: {fileID: 0}
+    surface: {fileID: 11400000, guid: d9090111ea490a442a3add525935d55b, type: 2}
