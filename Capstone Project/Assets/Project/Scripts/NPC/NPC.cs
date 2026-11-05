@@ -1,37 +1,26 @@
 ﻿using UnityEngine;
 
-public class NPC : MonoBehaviour
+/// Interactable NPC: the player clicks it (PlayerController walks over, then calls OnInteract).
+public class NPC : Interactable
 {
     [Header("NPC Info")]
-    public string npcName = "Trưởng Làng";
-    public QuestData questData;
-    public bool hasGivenQuest = false; // Biến kiểm tra NPC đã giao Quest chưa
+    [SerializeField] private string npcName = "Blacksmith";
+    [SerializeField] private QuestData questData;
+    [SerializeField] private bool hasGivenQuest = false;
 
     [Header("Dialogue")]
     [TextArea(3, 5)]
-    public string[] sentences;
+    [SerializeField] private string[] sentences;
 
-    private void OnMouseDown()
+    public string NpcName { get => npcName; set => npcName = value; }
+    public string[] Sentences  { get => sentences; set => sentences = value; }
+
+    protected override void OnInteract(PlayerController player)
     {
-        if (DialogueManager.Instance == null) return;
-        if (DialogueManager.Instance.IsDialogueActive) return;
-
-        // Nếu đã nhận quest rồi thì không cho bật lại bảng nhận quest nữa
-        if (hasGivenQuest)
-        {
-            Debug.Log($"{npcName} đang đứng yên, không có nhiệm vụ mới.");
-            return;
-        }
-
-        // Truyền thêm (this) để DialogueManager biết chính xác NPC nào đang nói chuyện
+        if(DialogueManager.Instance == null) return;
+        if(DialogueManager.Instance.IsDialogueActive) return;
+        
+        if(!hasGivenQuest) return;
         DialogueManager.Instance.StartDialogue(npcName, sentences, questData, this);
-    }
-
-    // Hàm gọi từ DialogueManager khi người chơi bấm [Chấp nhận]
-    public void SetIdleState()
-    {
-        hasGivenQuest = true;
-        // Nếu ông có Animator đổi animation đứng yên thì bật ở đây:
-        // GetComponent<Animator>()?.SetTrigger("Idle");
     }
 }

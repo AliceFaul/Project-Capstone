@@ -223,13 +223,14 @@ public class PlayerController : MonoBehaviour
         if(((1 << hitLayer) & interactLayer) != 0) {
             // Interact with the clicked object
             _isHoldingMove = false;
-            // ExecuteInteraction();
+            ExecuteInteraction(hit.collider.GetComponentInParent<IInteractable>());
             Debug.Log(hit.collider.gameObject.name);
             return;
         }
     }
 
-    private void HandleRightClick() {
+    private void HandleRightClick() 
+    {
         if(InventoryScreenView.BlocksWorldClick(Time.frameCount)) return;
 
         // Handle right-click actions if needed
@@ -276,13 +277,45 @@ public class PlayerController : MonoBehaviour
         currentCommand = CommandType.Attack;
     }
 
-    private void ExecuteInteraction() { 
+    private IInteractable _pendingInteractable;
     
+    // In range: interact now. Out of range: walk next to the target first.
+    private void ExecuteInteraction(IInteractable target)
+    {
+        _pendingInteractable = null;
+        if(!InteractionUtil.IsAlive(target) || !target.CanInteract(this)) return;
+
+        if(InteractionUtil.IsInRange(transform.position, target))
+        {
+            Movement?.Stop();
+            Movement?.SnapFaceTowards(target.InteractPosition);
+            currentCommand = CommandType.None;
+            target.Interact(this);
+            return;
+        }
+        
+        if(!PlayerModifier.CanMove) return;
+        
+        _pendingInteractable = target;
+        ExecuteMovement(InteractionUtil.GetApproachPoint(transform.position, target));
+        currentCommand = CommandType.Interact;
+    }
+
+    private void FinishPendingInteraction()
+    {
+        var target = _pendingInteractable;
+        _pendingInteractable = null;
+        
+        if(!InteractionUtil.IsAlive(target) || !target.CanInteract(this)) return;
+        if(!InteractionUtil.IsInRange(transform.position, target, 1.5f)) return;
+        
+        Movement?.SnapFaceTowards(target.InteractPosition);
+        target.Interact(this);
     }
 
     private void ContinuousMovement()
     {
-        if (!_isHoldingMove) return;
+        if(!_isHoldingMove) return;
 
         bool mouseHeld = Mouse.current != null ? Mouse.current.leftButton.isPressed : Input.GetMouseButton(0);
         if (!mouseHeld || InventoryScreenView.BlocksWorldClick(_leftPressFrame))
@@ -350,8 +383,7 @@ public class PlayerController : MonoBehaviour
             case CommandType.Attack:
                 Combat.CmdAttack(); break;
             case CommandType.Interact:
-                // Interact...
-                break;
+                FinishPendingInteraction(); break;
         }
         
         currentCommand = CommandType.None;
