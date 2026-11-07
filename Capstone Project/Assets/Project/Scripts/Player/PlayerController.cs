@@ -224,7 +224,6 @@ public class PlayerController : MonoBehaviour
             // Interact with the clicked object
             _isHoldingMove = false;
             ExecuteInteraction(hit.collider.GetComponentInParent<IInteractable>());
-            Debug.Log(hit.collider.gameObject.name);
             return;
         }
     }
