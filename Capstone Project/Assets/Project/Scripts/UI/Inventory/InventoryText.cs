@@ -44,6 +44,11 @@ public static class InventoryText
         { "POPUP_CONFLICT_REPLACES", "Same group as {0}: {0} would become inactive." },
         { "POPUP_CONFLICT_WEAKER", "Same group as {0}: this rune would stay inactive." },
         { "RUNE_EFFECT_SUMMARY", "{0} {1} damage every {2}s for {3}s" },
+        // node map
+        { "NODE_COMBAT", "Battle" }, { "NODE_REWARD", "Treasure" }, { "NODE_EVENT", "Event" }, { "NODE_REST", "Rest" },
+        { "NODE_ELITE", "Elite" }, { "NODE_BOSS", "Boss" }, { "NODE_SHOP", "Shop" },
+        // pickups
+        { "PICKUP_GOT", "+ {0}" }, { "PICKUP_BAG_FULL", "Bag is full" },
         // toasts
         { "TOAST_BAG_FULL", "The bag is full - cannot unequip." }, { "TOAST_CANNOT_EQUIP", "Cannot equip this item." },
         { "TOAST_NO_FREE_SOCKET", "No free socket on your equipped weapons." },
@@ -64,7 +69,7 @@ public static class InventoryText
     public static string Get(string key, params object[] args)
     {
         string text = null;
-        bool hasArgs = args != null && args.Length > 0;
+        bool hasArgs = args is { Length: > 0 };
 
         try
         {

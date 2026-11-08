@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -19,6 +20,11 @@ namespace Mhieu.Enemy
         [SerializeField] private AudioCue deathCue;
 
         private float _targetFillAmount = 1f;
+
+        public event Action<EnemyHealth> Died;
+        
+        private float _healthMultiplier = 1f;
+        private float _damageMultiplier = 1f;
 
         private void Awake()
         {
@@ -43,6 +49,28 @@ namespace Mhieu.Enemy
                 _targetFillAmount, 
                 2f * Time.deltaTime
             );
+        }
+
+        public void ApplyScaling(float healthMultiplier, float damageMultiplier)
+        {
+            _healthMultiplier = Mathf.Max(0.01f, healthMultiplier);
+            _damageMultiplier = Mathf.Max(0.01f, damageMultiplier);
+
+            Hp = TotalHealth;
+            _targetFillAmount = 1f;
+            
+            if(healthBar != null) healthBar.fillAmount = 1f;
+            HpChanged(Hp);
+        }
+
+        protected override float GetPercentBonus(BonusStat stat)
+        {
+            switch (stat)
+            {
+                case BonusStat.Health: return _healthMultiplier - 1f;
+                case BonusStat.Damage: return _damageMultiplier - 1f;
+                default: return base.GetPercentBonus(stat);
+            }
         }
 
         public override void TakeDamage(float damage, ICharacterRuntime runtime)
@@ -106,6 +134,8 @@ namespace Mhieu.Enemy
             // Disable outline when enemies dead.
             var outlineComponent = GetComponent<OutlineTarget>();
             if(outlineComponent != null) outlineComponent.enabled = false;
+            
+            Died?.Invoke(this);
             
             gameObject.SetActive(false); // For now, just deactivate the enemy
         }
