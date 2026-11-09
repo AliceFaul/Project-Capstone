@@ -42,15 +42,29 @@ public class Chest : Interactable
     {
         StopAllCoroutines();
         IsOpen = false;
-        
+
+        var col = GetComponent<Collider>();
+        if (col != null) col.enabled = true;
+
         if(animator == null) return;
-        
         animator.Rebind();
         animator.Update(0f);
     }
     
     private IEnumerator OpenRoutine(PlayerController player)
     {
+        if (table == null)
+        {
+            Debug.LogWarning($"[Chest] {name} has no LootTable assigned.", this);
+            yield break;
+        }
+
+        if (pickupPrefab == null)
+        {
+            Debug.LogError($"[Chest] {name} has no WorldPickup prefab assigned.", this);
+            yield break;
+        }
+        
         if(animator != null && !string.IsNullOrEmpty(openTrigger)) animator.SetTrigger(openTrigger);
         if(openCue != null) AudioService.Instance?.PlaySfx(openCue, transform.position);
         if(openVfx != null) openVfx.Play();

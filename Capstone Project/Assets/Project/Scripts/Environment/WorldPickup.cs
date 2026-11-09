@@ -148,6 +148,8 @@ public class WorldPickup : Interactable
 
         Vector3 target = PlayerChest(player);
         if((target - transform.position).sqrMagnitude > magnetRadius * magnetRadius) return;
+        
+        if(Physics.Linecast(transform.position + Vector3.up * 0.2f, target, out _, ~0, QueryTriggerInteraction.Ignore)) return;
 
         var inventory = GetInventory(player);
         if(inventory == null) return;
@@ -176,7 +178,8 @@ public class WorldPickup : Interactable
         transform.position = Vector3.MoveTowards(transform.position, target, _speed * Time.deltaTime);
 
         float distance = Vector3.Distance(transform.position, target);
-        visual.localScale = _baseScale * Mathf.Lerp(0.5f, 1f, Mathf.InverseLerp(pickupRadius, pickupRadius * 4f, distance));
+        float t = Mathf.InverseLerp(pickupRadius * 3f, pickupRadius, distance);
+        visual.localScale = _baseScale * Mathf.Lerp(1f, 0.35f, t);
         
         if(distance > pickupRadius) return;
         if(TryCollect(player)) return;
