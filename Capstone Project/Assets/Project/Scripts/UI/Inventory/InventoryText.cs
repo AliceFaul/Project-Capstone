@@ -44,6 +44,11 @@ public static class InventoryText
         { "POPUP_CONFLICT_REPLACES", "Same group as {0}: {0} would become inactive." },
         { "POPUP_CONFLICT_WEAKER", "Same group as {0}: this rune would stay inactive." },
         { "RUNE_EFFECT_SUMMARY", "{0} {1} damage every {2}s for {3}s" },
+        // node contents
+        { "REST_HEALED", "+{0} HP" }, { "EVENT_SUCCESS", "The shrine rewards you!" }, { "EVENT_FAILED", "Nothing happens..." },
+        { "EVENT_NOT_ENOUGH_GOLD", "Not enough gold!" }, { "EVENT_NOT_ENOUGH_GEM", "Not enough Gem!" },
+        { "EVENT_NOT_ENOUGH_HP", "You are too weak for this." },
+        { "DOOR_LOCKED", "Locked - find the key" }, { "DOOR_OPENED", "Unlocked" }, { "KEY_FOUND", "Key found" },
         // node map
         { "NODE_COMBAT", "Battle" }, { "NODE_REWARD", "Treasure" }, { "NODE_EVENT", "Event" }, { "NODE_REST", "Rest" },
         { "NODE_ELITE", "Elite" }, { "NODE_BOSS", "Boss" }, { "NODE_SHOP", "Shop" },
