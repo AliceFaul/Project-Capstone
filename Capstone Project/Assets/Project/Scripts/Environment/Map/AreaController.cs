@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Mhieu.Enemy;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
@@ -15,6 +17,8 @@ public struct NodeRunContext
     public int Difficulty;
 }
 
+// Put on the root of one region of the map scene. Only the area of the current node is active; its enemies / chests are
+// spawned from AreaSpawnPoints when the node is entered and destroyed when the player leaves.
 public class AreaController : MonoBehaviour
 {
     public enum ClearMode { Auto, KillAll, Immediate, OpenAllChests }
@@ -24,6 +28,8 @@ public class AreaController : MonoBehaviour
     [SerializeField] private string areaId;
     [SerializeField] private NodeType type = NodeType.Combat;
     [SerializeField] private Transform entryPoint;
+    [Tooltip("Used by the Area Builder (spacing, boundary) and for the scene gizmo.")]
+    [SerializeField] private float radius = 14f;
 
     [Header("Clearing")]
     [Tooltip("Auto: Combat / Elite / Boss = kill all enemies, every other type is cleared at once.")]
@@ -38,6 +44,7 @@ public class AreaController : MonoBehaviour
 
     public string AreaId => string.IsNullOrEmpty(areaId) ? name : areaId;
     public NodeType Type => type;
+    public float Radius => radius;
     public bool IsCleared { get; private set; }
     public Vector3 EntryPosition => entryPoint != null ? entryPoint.position : transform.position;
 
@@ -66,7 +73,6 @@ public class AreaController : MonoBehaviour
     {
         gameObject.SetActive(true);
         IsCleared = false;
-        
         _entered = false;
         _enemiesAlive = 0;
         _chestsClosed = 0;
@@ -157,22 +163,22 @@ public class AreaController : MonoBehaviour
     {
         if (exits == null) return;
 
+        // exit 0 -> first next node, exit 1 -> second... (ExitIndex, then array order)
+        var ordered = exits.Where(e => e != null).OrderBy(e => e.ExitIndex).ToList();
         var next = context.Node.Next;
-        if (next.Count > exits.Length)
-            Debug.LogError($"[AreaController] '{AreaId}' has {exits.Length} exits but its node leads to {next.Count} nodes.", this);
+        if (next.Count > ordered.Count)
+            Debug.LogError($"[AreaController] '{AreaId}' has {ordered.Count} exits but its node leads to {next.Count} nodes.", this);
 
-        for (int i = 0; i < exits.Length; i++)
+        for (int i = 0; i < ordered.Count; i++)
         {
-            if (exits[i] == null) continue;
-
             if (i < next.Count)
             {
                 var target = context.Graph.Get(next[i]);
-                exits[i].Bind(target.Type, target.Id, true);
+                ordered[i].Bind(target.Type, target.Id, true);
             }
             else
             {
-                exits[i].gameObject.SetActive(false);
+                ordered[i].gameObject.SetActive(false);
             }
         }
     }
@@ -222,5 +228,17 @@ public class AreaController : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(EntryPosition + Vector3.up * 0.3f, 0.6f);
+
+        // area disc
+        Gizmos.color = new Color(0.2f, 1f, 0.4f, 0.8f);
+        Vector3 center = transform.position + Vector3.up * 0.2f;
+        Vector3 previous = center + Vector3.forward * radius;
+        for (int i = 1; i <= 48; i++)
+        {
+            float angle = i * Mathf.PI * 2f / 48f;
+            Vector3 point = center + new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle)) * radius;
+            Gizmos.DrawLine(previous, point);
+            previous = point;
+        }
     }
 }

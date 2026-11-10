@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-/// Click-to-use exit at the end of a path. Each exit leads to one of the node's next nodes and stays locked until the area is cleared.
+// Click-to-use exit at the end of a path. Each exit leads to one of the node's next nodes and stays locked until the area is cleared.
 public class AreaExit : Interactable
 {
     [Header("Presentation")]
@@ -10,6 +10,10 @@ public class AreaExit : Interactable
     [SerializeField] private GameObject lockedVisual;
     [SerializeField] private GameObject openVisual;
 
+    [Tooltip("Order of this exit: exit 0 leads to the first next node, exit 1 to the second...")]
+    [SerializeField] private int exitIndex;
+
+    public int ExitIndex { get => exitIndex; set => exitIndex = value; }
     public int TargetNodeId { get; private set; } = -1;
     public NodeType TargetType { get; private set; }
     public bool Locked { get; private set; } = true;
