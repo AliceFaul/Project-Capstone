@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6721397491872605189}
   - component: {fileID: 7077303908005482692}
   - component: {fileID: 6385603286033423297}
-  - component: {fileID: 7776902752026035920}
   - component: {fileID: 5382001679924868167}
   - component: {fileID: 5425391976666243453}
   - component: {fileID: 5709878089819640434}
@@ -75,21 +74,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterData: {fileID: 11400000, guid: 5efdba99ccbf87c4eb343d501acfc64e, type: 2}
---- !u!114 &7776902752026035920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 712773337231112459}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16308c63bed74ea4baa68ea6dc8d9f1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 0
-  retreatHealthPercent: 0.2
 --- !u!114 &5382001679924868167
 MonoBehaviour:
   m_ObjectHideFlags: 0

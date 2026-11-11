@@ -122,7 +122,7 @@ public class MainMenu : MonoBehaviour
 
     private void StartGame()
     {
-        _ = SceneLoader.Instance.LoadScene("Mhieu", false);
+        _ = SceneLoader.Instance.LoadScene("K.Phong", false);
     }
     
     private void Option()
