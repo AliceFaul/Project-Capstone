@@ -7,10 +7,8 @@ using Project.Capstone.Inventory;
 
 public enum SlotKind { Equipped, Bag }
 
-// One slot (equipped or in a bag). Button = keyboard navigation + click.
-// Hover shows the highlight only while the pointer is over the slot; keyboard focus keeps it until focus moves.
 [RequireComponent(typeof(Button))]
-public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
+public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler, ISubmitHandler
 {
     [SerializeField] private Image icon;
     [SerializeField] private Image emptyPlaceholder;
@@ -22,6 +20,7 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
     [SerializeField] private GameObject hotkeyBadge;
     [SerializeField] private TMP_Text hotkeyText;
     [SerializeField] private GameObject highlight;
+    [SerializeField] private Color pinnedHighlightColor = new Color(1f, 0.78f, 0.32f, 1f);
 
     public SlotKind kind;
     public EquipSlot equipSlot;   // Equipped only
@@ -32,17 +31,32 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public event Action<InventorySlotView> Highlighted;
     public event Action<InventorySlotView> Clicked;
+    public event Action<InventorySlotView> Submitted;
 
     private bool _pointerOver;
     private bool _pointerDriven;
+    private bool _selected;
+    private bool _pinned;
+    private Button _button;
+    private Image _highlightImage;
+    private Color _normalHighlightColor;
 
-    private void Awake() => GetComponent<Button>().onClick.AddListener(() => Clicked?.Invoke(this));
+    private void Awake()
+    {
+        _button = GetComponent<Button>();
+        _button.onClick.AddListener(() => Clicked?.Invoke(this));
+        if (highlight != null) _highlightImage = highlight.GetComponent<Image>();
+        if (_highlightImage != null) _normalHighlightColor = _highlightImage.color;
+        RefreshHighlight();
+    }
 
     private void OnDisable()
     {
         _pointerOver = false;
         _pointerDriven = false;
-        if (highlight != null) highlight.SetActive(false);
+        _selected = false;
+        _pinned = false;
+        RefreshHighlight();
     }
 
     public void Bind(IInventoryItem item, ItemData definition)
@@ -75,16 +89,17 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (_button == null || !_button.IsInteractable()) return;
         _pointerOver = true;
 
         var eventSystem = EventSystem.current;
         bool alreadySelected = eventSystem != null && eventSystem.currentSelectedGameObject == gameObject;
         if (eventSystem != null) eventSystem.SetSelectedGameObject(gameObject);
         _pointerDriven = true;
+        RefreshHighlight();
 
         if (alreadySelected) // OnSelect will not fire again
         {
-            highlight.SetActive(true);
             Highlighted?.Invoke(this);
         }
     }
@@ -92,15 +107,42 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void OnPointerExit(PointerEventData eventData)
     {
         _pointerOver = false;
-        if (_pointerDriven) highlight.SetActive(false); // selection stays so keyboard navigation can continue from here
+        RefreshHighlight();
     }
 
     public void OnSelect(BaseEventData eventData)
     {
+        if (_button == null || !_button.IsInteractable()) return;
+        _selected = true;
         _pointerDriven = _pointerOver;
-        highlight.SetActive(true);
+        RefreshHighlight();
         Highlighted?.Invoke(this);
     }
 
-    public void OnDeselect(BaseEventData eventData) => highlight.SetActive(false);
+    public void OnDeselect(BaseEventData eventData)
+    {
+        _selected = false;
+        RefreshHighlight();
+    }
+
+    public void OnSubmit(BaseEventData eventData)
+    {
+        if (!isActiveAndEnabled || _button == null || !_button.IsInteractable()) return;
+        Submitted?.Invoke(this);
+    }
+
+    public void SetPinned(bool pinned)
+    {
+        if (_pinned == pinned) return;
+        _pinned = pinned;
+        RefreshHighlight();
+    }
+
+    private void RefreshHighlight()
+    {
+        if (highlight == null) return;
+        highlight.SetActive(_pinned || _pointerOver || (_selected && !_pointerDriven));
+        if (_highlightImage != null)
+            _highlightImage.color = _pinned ? pinnedHighlightColor : _normalHighlightColor;
+    }
 }

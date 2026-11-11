@@ -9,6 +9,9 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Project.Capstone.Inventory;
 
+// Inventory screen: binds to PlayerDataConfig / EquipmentManager and reacts to their events (no polling).
+// Mouse: hover previews, click pins, double click equips/unequips or opens the rune popup.
+// Clicking an empty slot unpins. Keyboard: arrows + Enter, Y = stats, Esc = back.
 public class InventoryScreenView : MonoBehaviour
 {
     private static readonly HashSet<InventoryScreenView> openInventories = new HashSet<InventoryScreenView>();
@@ -60,6 +63,11 @@ public class InventoryScreenView : MonoBehaviour
     [SerializeField] private TMP_Text toastText;
     [SerializeField] private RuneSocketPopup popup;
 
+    [Header("Interaction")]
+    [Min(0.1f)]
+    [Tooltip("Maximum time between two clicks on the same item and slot, in unscaled seconds.")]
+    [SerializeField] private float doubleClickInterval = 0.3f;
+
     public UnityEvent onBack;
 
     // True when equipment, sockets or bags changed since the last ClearChanges() - the controller saves on close.
@@ -74,6 +82,15 @@ public class InventoryScreenView : MonoBehaviour
     private readonly List<SocketPipView> _pips = new List<SocketPipView>();
     private int _tab;
     private object _focus;
+    private bool _detailPinned;
+    private bool _detailDirty;
+    private InventorySlotView _lastClickedSlot;
+    private IInventoryItem _lastClickedItem;
+    private float _lastClickTime;
+    private InventorySlotView _pendingActionSlot;
+    private IInventoryItem _pendingActionItem;
+
+    private bool CanInspect => isActiveAndEnabled && _subscribed && (popup == null || !popup.IsOpen);
 
     private float _toastUntil;
     private GameObject _returnSelection;
@@ -87,6 +104,7 @@ public class InventoryScreenView : MonoBehaviour
         {
             s.Highlighted += OnSlotHighlighted;
             s.Clicked += OnSlotClicked;
+            s.Submitted += OnSlotSubmitted;
         }
         foreach (var p in _pips)
         {
@@ -138,6 +156,11 @@ public class InventoryScreenView : MonoBehaviour
     private void OnEnable()
     {
         openInventories.Add(this);
+        _focus = null;
+        _detailPinned = false;
+        _detailDirty = false;
+        ResetSlotInput();
+        RefreshPinnedSlots();
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         statsPanel.SetActive(false);
         detailPanel.SetActive(true);
@@ -169,6 +192,10 @@ public class InventoryScreenView : MonoBehaviour
 
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         _focus = null;
+        _detailPinned = false;
+        _detailDirty = false;
+        ResetSlotInput();
+        RefreshPinnedSlots();
         StopAllCoroutines();
         if (popup != null) popup.Close();
         SetMainInteractable(true);
@@ -208,6 +235,24 @@ public class InventoryScreenView : MonoBehaviour
         if (keyboard.escapeKey.wasPressedThisFrame) Back();
         if (popup != null && popup.IsOpen) return;
         if (keyboard.yKey.wasPressedThisFrame) ToggleStats();
+    }
+
+    private void LateUpdate()
+    {
+        // Submit and Button.onClick can run in either order. Apply their shared action after both.
+        if (_pendingActionSlot != null)
+        {
+            var slot = _pendingActionSlot;
+            var item = _pendingActionItem;
+            ResetSlotInput();
+            if (CanInspect && slot.isActiveAndEnabled && SameItem(slot.Item, item))
+                ActivateSlot(slot, item);
+        }
+
+        // Equipment/bag events may fire halfway through a swap. Read the final item locations once.
+        if (!_detailDirty || _data == null || _equip == null) return;
+        _detailDirty = false;
+        RenderDetail();
     }
 
     public void ToggleStats()
@@ -301,6 +346,7 @@ public class InventoryScreenView : MonoBehaviour
             view.kind = SlotKind.Bag;
             view.Highlighted += OnSlotHighlighted;
             view.Clicked += OnSlotClicked;
+            view.Submitted += OnSlotSubmitted;
             _bagViews.Add(view);
         }
 
@@ -323,6 +369,7 @@ public class InventoryScreenView : MonoBehaviour
 
     private void SelectTab(int index)
     {
+        ResetSlotInput();
         _tab = Mathf.Clamp(index, 0, TabCategories.Length - 1);
         RebuildBag();
         RefreshDetail();
@@ -353,32 +400,111 @@ public class InventoryScreenView : MonoBehaviour
 
     private void OnSlotHighlighted(InventorySlotView slot)
     {
-        _focus = slot;
-        ShowSlotDetail(slot);
+        if (!CanInspect || _detailPinned || slot.Item == null) return;
+        _focus = slot.Item;
+        RefreshDetail();
     }
 
     private void OnPipHighlighted(SocketPipView pip)
     {
-        _focus = pip;
-        ShowPipDetail(pip);
-    }
+        if (!CanInspect || _detailPinned) return;
+        var weapon = _equip.GetEquipped(pip.weaponSlot);
+        var sockets = _equip.Sockets;
+        if (weapon == null || sockets == null) return;
 
-    private void RefreshDetail()
-    {
-        if (_focus is InventorySlotView slot) ShowSlotDetail(slot);
-        else if (_focus is SocketPipView pip) ShowPipDetail(pip);
-    }
-
-    private void ShowSlotDetail(InventorySlotView slot)
-    {
-        if (slot.Item == null)
+        if (!sockets.IsSocketUnlocked(weapon, pip.socketIndex))
+            _focus = pip;
+        else
         {
-            detail.Hide(); // nothing to inspect on an empty slot
-            return;
+            var rune = weapon.GetSocket(pip.socketIndex);
+            if (rune == null || rune.IsEmpty) return;
+            _focus = rune;
+        }
+        RefreshDetail();
+    }
+
+    private void RefreshDetail() => _detailDirty = true;
+
+    private void RenderDetail()
+    {
+        if (_focus is IInventoryItem item)
+        {
+            if (!TryShowFocusedItem(item))
+            {
+                _focus = null;
+                _detailPinned = false;
+                detail.Hide();
+            }
+        }
+        else if (_focus is SocketPipView pip) ShowPipDetail(pip);
+        RefreshPinnedSlots();
+    }
+
+    private bool TryShowFocusedItem(IInventoryItem focusedItem)
+    {
+        // Resolve the item by instance identity, even after its old UI slot is reused.
+        string equippedHeader = InventoryText.Get("DETAIL_EQUIPPED");
+        foreach (var slot in EquipSlots())
+        {
+            IInventoryItem candidate;
+            if (slot.equipSlot == EquipSlot.Artifact)
+                candidate = _equip.GetArtifact(slot.artifactIndex);
+            else
+                candidate = _equip.GetEquipped(slot.equipSlot);
+            if (TryShowCandidate(candidate, focusedItem, equippedHeader)) return true;
         }
 
-        string header = InventoryText.Get(slot.kind == SlotKind.Equipped ? "DETAIL_EQUIPPED" : "DETAIL_IN_BAG");
-        detail.Show(slot.Item, slot.Definition, header, _equip);
+        string bagHeader = InventoryText.Get("DETAIL_IN_BAG");
+        foreach (var category in TabCategories)
+        {
+            foreach (var candidate in _data.Inventory.GetSlots(category))
+                if (TryShowCandidate(candidate, focusedItem, bagHeader)) return true;
+        }
+        return false;
+    }
+
+    private bool TryShowCandidate(IInventoryItem candidate, IInventoryItem focusedItem, string header)
+    {
+        if (SameItem(candidate, focusedItem))
+        {
+            ShowItemDetail(candidate, header);
+            return true;
+        }
+
+        if (focusedItem is RuneInstance && candidate is EquipmentInstance weapon)
+        {
+            for (int i = 0; i < EquipmentInstance.SocketCount; i++)
+            {
+                var rune = weapon.GetSocket(i);
+                if (rune == null || rune.IsEmpty || !SameItem(rune, focusedItem)) continue;
+                ShowItemDetail(rune, InventoryText.Get("SOCKET_HEADER", i + 1));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void ShowItemDetail(IInventoryItem item, string header)
+    {
+        _focus = item;
+        if (_detailPinned) header += " - " + InventoryText.Get("DETAIL_PINNED");
+        detail.Show(item, Def(item), header, _equip);
+    }
+
+    private static bool SameItem(IInventoryItem first, IInventoryItem second)
+    {
+        if (ReferenceEquals(first, second)) return first != null;
+        return first != null && second != null && !string.IsNullOrEmpty(first.InstanceId)
+            && first.InstanceId == second.InstanceId;
+    }
+
+    private void RefreshPinnedSlots()
+    {
+        var item = _focus as IInventoryItem;
+        foreach (var slot in EquipSlots())
+            slot.SetPinned(_detailPinned && SameItem(slot.Item, item));
+        foreach (var slot in _bagViews)
+            slot.SetPinned(_detailPinned && slot.gameObject.activeSelf && SameItem(slot.Item, item));
     }
 
     private void ShowPipDetail(SocketPipView pip)
@@ -420,21 +546,84 @@ public class InventoryScreenView : MonoBehaviour
 
     private void OnSlotClicked(InventorySlotView slot)
     {
-        if (slot.Item == null) return;
+        if (!CanInspect) return;
+        if (slot.Item == null)
+        {
+            UnpinDetail();
+            return;
+        }
 
+        float now = Time.unscaledTime;
+        bool doubleClick = _lastClickedSlot == slot && SameItem(_lastClickedItem, slot.Item)
+            && now - _lastClickTime <= doubleClickInterval;
+        PinDetail(slot.Item);
+        if (doubleClick)
+            QueueSlotAction(slot);
+        else
+        {
+            _lastClickedSlot = slot;
+            _lastClickedItem = slot.Item;
+            _lastClickTime = now;
+        }
+    }
+
+    private void OnSlotSubmitted(InventorySlotView slot)
+    {
+        if (!CanInspect) return;
+        if (slot.Item == null)
+        {
+            UnpinDetail();
+            return;
+        }
+        PinDetail(slot.Item);
+        QueueSlotAction(slot);
+    }
+
+    private void PinDetail(IInventoryItem item)
+    {
+        _focus = item;
+        _detailPinned = true;
+        RefreshDetail();
+    }
+
+    private void UnpinDetail()
+    {
+        _detailPinned = false;
+        ResetSlotInput();
+        RefreshDetail();
+    }
+
+    private void QueueSlotAction(InventorySlotView slot)
+    {
+        ResetSlotInput();
+        _pendingActionSlot = slot;
+        _pendingActionItem = slot.Item;
+    }
+
+    private void ResetSlotInput()
+    {
+        _lastClickedSlot = null;
+        _lastClickedItem = null;
+        _lastClickTime = 0f;
+        _pendingActionSlot = null;
+        _pendingActionItem = null;
+    }
+
+    private void ActivateSlot(InventorySlotView slot, IInventoryItem item)
+    {
         if (slot.kind == SlotKind.Equipped)
         {
             if (!_equip.Unequip(slot.equipSlot, slot.artifactIndex)) Toast(InventoryText.Get("TOAST_BAG_FULL"));
             return;
         }
 
-        if (slot.Item is RuneInstance rune)
+        if (item is RuneInstance rune)
         {
             OpenPopupForRune(rune);
             return;
         }
 
-        if (!_equip.Equip(slot.Item)) Toast(InventoryText.Get("TOAST_CANNOT_EQUIP"));
+        if (!_equip.Equip(item)) Toast(InventoryText.Get("TOAST_CANNOT_EQUIP"));
     }
 
     private void OnPipClicked(SocketPipView pip)
@@ -443,7 +632,7 @@ public class InventoryScreenView : MonoBehaviour
         OpenPopup(pip.weaponSlot, pip.socketIndex, null);
     }
 
-    // Clicking a rune in the bag opens the socket popup with that rune preselected on the first free socket.
+    // Activating a bag rune opens the popup with that rune selected on the first free socket.
     private void OpenPopupForRune(RuneInstance rune)
     {
         var sockets = _equip.Sockets;
@@ -457,7 +646,7 @@ public class InventoryScreenView : MonoBehaviour
             for (int i = 0; i < EquipmentInstance.SocketCount; i++)
             {
                 var socket = weapon.GetSocket(i);
-                if (!sockets.IsSocketUnlocked(weapon, i) || socket is { IsEmpty: false }) continue;
+                if (!sockets.IsSocketUnlocked(weapon, i) || (socket != null && !socket.IsEmpty)) continue;
                 OpenPopup(slot, i, rune);
                 return;
             }
@@ -469,6 +658,7 @@ public class InventoryScreenView : MonoBehaviour
     private void OpenPopup(EquipSlot weaponSlot, int socketIndex, RuneInstance preselect)
     {
         if (popup == null) return;
+        ResetSlotInput();
         if (!popup.IsOpen && EventSystem.current != null)
             _returnSelection = EventSystem.current.currentSelectedGameObject;
         SetMainInteractable(false); // keyboard navigation must stay inside the popup

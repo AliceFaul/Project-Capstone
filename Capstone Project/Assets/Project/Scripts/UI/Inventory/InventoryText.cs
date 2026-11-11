@@ -13,7 +13,7 @@ public static class InventoryText
         { "INV_PLAYER_STATS", "TOTAL STATS" }, { "INV_PLAYER_STATS_HEADER", "TOTAL STATS" },
         { "INV_WEAPONS", "WEAPONS" }, { "INV_ARMOR", "ARMOR" }, { "INV_ARTIFACTS", "ARTIFACTS" },
         { "INV_MELEE", "MELEE" }, { "INV_RANGED", "RANGED" }, { "INV_RUNE", "RUNE" }, { "INV_ARTIFACT", "ARTIFACT" },
-        { "INV_BACK", "Back" }, { "INV_EQUIP_UNEQUIP", "Equip / Unequip" }, { "INV_BAG_HINT", "Click an item to equip" },
+        { "INV_BACK", "Back" }, { "INV_EQUIP_UNEQUIP", "Equip / Unequip" }, { "INV_BAG_HINT", "Click to pin details" },
         // stats
         { "STAT_HEALTH", "Health" }, { "STAT_DEFENSE", "Defense" }, { "STAT_DAMAGE", "Damage" },
         { "STAT_ATTACK_RANGE", "Attack Range" }, { "STAT_ATTACK_SPEED", "Attack Speed" }, { "STAT_MOVE_SPEED", "Move Speed" },
@@ -23,6 +23,7 @@ public static class InventoryText
         { "WEAPON_SWORD", "Sword" }, { "WEAPON_AXE", "Axe" }, { "WEAPON_BOW", "Bow" }, { "WEAPON_CROSSBOW", "Crossbow" },
         // detail panel
         { "DETAIL_EQUIPPED", "EQUIPPED" }, { "DETAIL_IN_BAG", "IN BAG" }, { "DETAIL_UNKNOWN_ITEM", "UNKNOWN ITEM" },
+        { "DETAIL_PINNED", "PINNED" },
         { "DETAIL_LEVEL", "Lv {0}" }, { "DETAIL_MAX_LEVEL", "MAX LEVEL" }, { "DETAIL_EXP", "{0} / {1} EXP" }, { "DETAIL_TIER", "Tier {0}" },
         { "DETAIL_SUB_ARMOR", "Armor" }, { "DETAIL_KIND_MELEE", "Melee weapon" }, { "DETAIL_KIND_RANGED", "Ranged weapon" },
         { "DETAIL_SUB_ARTIFACT", "Artifact" }, { "DETAIL_SUB_RUNE_STAT", "Stat rune" }, { "DETAIL_SUB_RUNE_EFFECT", "Damage effect rune" },
