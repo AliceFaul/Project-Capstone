@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a758184466fd4be5a8ddd7b0ef7c22bf, type: 3}
+  m_Name: AudioConfig
+  m_EditorClassIdentifier: Assembly-CSharp::AudioConfig
+  mixer: {fileID: 24100000, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  masterParam: MasterVolume
+  musicParam: MusicVolume
+  sfxParam: SFXVolume
+  musicGroup: {fileID: -8973976079085828591, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  sfxGroup: {fileID: 230803711424412660, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  uiGroup: {fileID: -1613780136998752363, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  ambientGroup: {fileID: -936308941393621012, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  normalSnapshot: {fileID: 6817370574271883058, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  combatSnapshot: {fileID: 4586358077779185363, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  pausedSnapshot: {fileID: -1994511573032629538, guid: bec9188387c089b4ca1934d7e4ae6919, type: 2}
+  sfxPoolSize: 20
+  defaultMaster: 1
+  defaultMusic: 0.8
+  defaultSfx: 1
+  uiClick: {fileID: 11400000, guid: fb6a86597cd9af04995408f1e0ad010d, type: 2}
+  uiHover: {fileID: 11400000, guid: 8b2dc76880fd8794f8ce21e0511f8793, type: 2}

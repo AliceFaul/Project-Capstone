@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-// 1 o slot dung chung cho Inventory grid VA Upgrade screen (list equipment dang mac).
-// Xuat hien san trong thu vien UI Builder (nho UxmlFactory) - keo tha truc tiep vao layout,
-// khong can code them gi de dung o man khac.
 public class ItemSlotElement : VisualElement
 {
     public new class UxmlFactory : UxmlFactory<ItemSlotElement, UxmlTraits> { }
@@ -17,17 +14,14 @@ public class ItemSlotElement : VisualElement
     private readonly VisualElement _equippedBadge;
     private readonly VisualElement _rarityRibbon;
     private readonly Label _typeLabel;
+    private readonly VisualElement _lockedOverlay;
+    private readonly Label _priceLabel;
     private string _currentRarityClass;
     private bool _isSelected;
 
-    // Click luon ban (dung de hien Detail Panel). DoubleClicked chi ban them khi click 2 lan lien
-    // tiep (Unity tinh san clickCount trong ClickEvent theo double-click-time cua he thong) -
-    // dung de trigger swap/equip theo dung logic ban mo ta.
     public event Action<ItemSlotElement> Clicked;
     public event Action<ItemSlotElement> DoubleClicked;
 
-    // Item dang gan cho slot nay - de kieu object tam thoi, thay bang ItemInstance/EquipmentData
-    // thuc te cua ban khi tich hop (xem SetItem).
     public object BoundItem { get; private set; }
 
     public ItemSlotElement()
@@ -44,7 +38,7 @@ public class ItemSlotElement : VisualElement
         _typeLabel.style.display = DisplayStyle.None;
         Add(_typeLabel);
 
-        // Dai mau goc tren-trai the hien do hiem, giong style Minecraft Dungeons - an khi slot
+        // Dai mau goc tren-trai the hien do hiem - an khi slot
         // trong hoac khi item chua co rarity gan (xem SetRarity).
         _rarityRibbon = new VisualElement();
         _rarityRibbon.AddToClassList("item-slot__rarity-ribbon");
@@ -60,21 +54,39 @@ public class ItemSlotElement : VisualElement
         _equippedBadge.AddToClassList("item-slot__equipped-badge");
         _equippedBadge.style.display = DisplayStyle.None;
         Add(_equippedBadge);
+        
+        _lockedOverlay = new VisualElement();
+        _lockedOverlay.AddToClassList("item-slot__locked-overlay");
+        _lockedOverlay.style.display = DisplayStyle.None;
+        Add(_lockedOverlay);
+        
+        _priceLabel = new Label();
+        _priceLabel.AddToClassList("item-slot__price-label");
+        _priceLabel.style.display = DisplayStyle.None;
+        Add(_priceLabel);
 
         RegisterCallback<ClickEvent>(OnClick);
     }
 
-    // Vien xanh sang khi slot dang duoc chon (giong o "Pickaxe"/"Sword" vien xanh trong anh mau) -
-    // goi tu ben ngoai (InventoryScreenController) khi 1 slot duoc click, va SetSelected(false)
-    // cho slot duoc chon truoc do.
     public void SetSelected(bool selected)
     {
         _isSelected = selected;
         EnableInClassList("item-slot--selected", selected);
     }
 
-    // Goi 1 lan luc setup slot (Melee/Armor/Ranged/Artifact/Rune) - text nay se tu an di khi
-    // SetItem() duoc goi va tu hien lai khi SetEmpty() duoc goi.
+    public void SetLocked(string priceText)
+    {
+        _lockedOverlay.style.display = DisplayStyle.Flex;
+        _priceLabel.style.display = DisplayStyle.Flex;
+        _priceLabel.text = priceText;
+    }
+
+    public void SetUnlocked()
+    {
+        _lockedOverlay.style.display = DisplayStyle.None;
+        _priceLabel.style.display = DisplayStyle.None;
+    }
+
     public void SetSlotTypeLabel(string label)
     {
         _typeLabel.text = label;
@@ -89,7 +101,6 @@ public class ItemSlotElement : VisualElement
         }
     }
 
-    // Goi ham nay khi bind data thuc te (thay tham so 'object item' bang kieu ItemInstance cua ban).
     public void SetItem(object item, Sprite icon, int quantity, bool isEquipped, string rarityUssClass)
     {
         BoundItem = item;

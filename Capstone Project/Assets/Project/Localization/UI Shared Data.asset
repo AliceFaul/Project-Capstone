@@ -35,6 +35,574 @@ MonoBehaviour:
     m_Key: UI_STEP_FAILED
     m_Metadata:
       m_Items: []
+  - m_Id: 575997936017408
+    m_Key: CLICK_TO_START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 585364450189312
+    m_Key: CLOSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612590688280576
+    m_Key: UI_ROOT_MANAGER_NOT_FOUND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612720728481792
+    m_Key: UI_ASSET_PRELOAD_FAILED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 620669442072576
+    m_Key: RUNNING_STARTUP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630245382037504
+    m_Key: CLICK_TO_CONTINUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630485623382016
+    m_Key: UI_RESOURCE_MANAGER_NOT_FOUND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630930177662976
+    m_Key: UI_MANAGER_TYPE_NOT_FOUND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1467084305211392
+    m_Key: UI_CONFIG_LOAD_FAILED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9656482171592704
+    m_Key: ENTER_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Key: CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Key: NAME_TOO_LONG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Key: NAME_NULL_OR_WHITESPACE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Key: NAME_INVALID
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11074257574305792
+    m_Key: ENTER_NEW_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817063121035264
+    m_Key: ENTER_USERNAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Key: ENTER_EMAIL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Key: ENTER_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Key: CONFIRM_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Key: REGISTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Key: ENTER_EMAIL_USERNAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Key: REGISTER_NOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Key: FORGOT_PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Key: LOG_IN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971300923875328
+    m_Key: UI_NETWORK_ERROR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Key: UI_GAME_OUTDATED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924657389568
+    m_Key: INV_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384512
+    m_Key: INV_LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384513
+    m_Key: INV_EXPERIENCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384514
+    m_Key: INV_PLAYER_STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384515
+    m_Key: INV_PLAYER_STATS_HEADER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384516
+    m_Key: INV_WEAPONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384517
+    m_Key: INV_ARMOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384518
+    m_Key: INV_ARTIFACTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384519
+    m_Key: INV_MELEE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384520
+    m_Key: INV_RANGED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384521
+    m_Key: INV_RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384522
+    m_Key: INV_ARTIFACT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384523
+    m_Key: INV_BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384524
+    m_Key: INV_EQUIP_UNEQUIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384525
+    m_Key: INV_BAG_HINT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384526
+    m_Key: STAT_HEALTH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384527
+    m_Key: STAT_DEFENSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384528
+    m_Key: STAT_DAMAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384529
+    m_Key: STAT_ATTACK_RANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384530
+    m_Key: STAT_ATTACK_SPEED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384531
+    m_Key: STAT_MOVE_SPEED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384532
+    m_Key: STAT_CRIT_CHANCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384533
+    m_Key: STAT_CRIT_DAMAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384534
+    m_Key: RARITY_COMMON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384535
+    m_Key: RARITY_UNCOMMON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384536
+    m_Key: RARITY_RARE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384537
+    m_Key: RARITY_LEGENDARY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384538
+    m_Key: WEAPON_SWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384539
+    m_Key: WEAPON_AXE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384540
+    m_Key: WEAPON_BOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384541
+    m_Key: WEAPON_CROSSBOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384542
+    m_Key: DETAIL_EQUIPPED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384543
+    m_Key: DETAIL_IN_BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384544
+    m_Key: DETAIL_UNKNOWN_ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384545
+    m_Key: DETAIL_LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384546
+    m_Key: DETAIL_MAX_LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384547
+    m_Key: DETAIL_EXP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384548
+    m_Key: DETAIL_TIER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384549
+    m_Key: DETAIL_SUB_ARMOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384550
+    m_Key: DETAIL_KIND_MELEE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384551
+    m_Key: DETAIL_KIND_RANGED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384552
+    m_Key: DETAIL_SUB_ARTIFACT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384553
+    m_Key: DETAIL_SUB_RUNE_STAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384554
+    m_Key: DETAIL_SUB_RUNE_EFFECT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384555
+    m_Key: DETAIL_STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384556
+    m_Key: DETAIL_SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384557
+    m_Key: DETAIL_COOLDOWN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384558
+    m_Key: DETAIL_SECONDS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384559
+    m_Key: DETAIL_QUALITY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384560
+    m_Key: DETAIL_DURATION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384561
+    m_Key: DETAIL_EFFECT_DAMAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384562
+    m_Key: RUNE_UNKNOWN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384563
+    m_Key: RUNE_INACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384564
+    m_Key: RUNE_EFFECT_LINE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384565
+    m_Key: RUNE_STAT_LINE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384566
+    m_Key: SOCKET_HEADER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384567
+    m_Key: SOCKET_FILLED_HEADER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384568
+    m_Key: SOCKET_LOCKED_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384569
+    m_Key: SOCKET_LOCKED_BODY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384570
+    m_Key: TOAST_BAG_FULL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384571
+    m_Key: TOAST_CANNOT_EQUIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384572
+    m_Key: TOAST_NO_FREE_SOCKET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384573
+    m_Key: TOAST_SOCKET_UNLOCKS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384574
+    m_Key: TOAST_PICK_RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384575
+    m_Key: TOAST_SELECT_CANCELLED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384576
+    m_Key: TOAST_REMOVE_CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384577
+    m_Key: TOAST_RUNE_SOCKETED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384578
+    m_Key: TOAST_RUNE_REMOVED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384579
+    m_Key: TOAST_NOT_ENOUGH_GEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384580
+    m_Key: TOAST_RUNE_BAG_FULL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384581
+    m_Key: TOAST_SOCKET_LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384582
+    m_Key: TOAST_SOCKET_OCCUPIED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384583
+    m_Key: TOAST_RUNE_MISSING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384584
+    m_Key: TOAST_GENERIC_FAIL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22337453435260928
+    m_Key: LOGIN_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22337513053097984
+    m_Key: LOAD_CLOUD_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348295560105984
+    m_Key: SAVE_CLOUD_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348566184988672
+    m_Key: LOCAL_SAVE_FAILED_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22364712707690496
+    m_Key: AUTO_SAVE_SUCCESS_CONTENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425618382848
+    m_Key: POPUP_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463232
+    m_Key: POPUP_ACTIVE_RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463233
+    m_Key: POPUP_RUNES_IN_BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463234
+    m_Key: POPUP_SOCKET_EMPTY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463235
+    m_Key: POPUP_SOCKET_LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463236
+    m_Key: POPUP_PICK_RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463237
+    m_Key: POPUP_NO_RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463238
+    m_Key: POPUP_REMOVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463239
+    m_Key: POPUP_CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463240
+    m_Key: POPUP_COST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463241
+    m_Key: POPUP_INSERT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463242
+    m_Key: POPUP_CANCEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463243
+    m_Key: POPUP_DESCRIPTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463244
+    m_Key: POPUP_CONFLICT_REPLACES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463245
+    m_Key: POPUP_CONFLICT_WEAKER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463246
+    m_Key: RUNE_EFFECT_SUMMARY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448176894808064
+    m_Key: POPUP_SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859968
+    m_Key: POPUP_STATE_ACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859969
+    m_Key: POPUP_STATE_INACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647616303104
+    m_Key: NODE_COMBAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647683411968
+    m_Key: NODE_REWARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647683411969
+    m_Key: NODE_EVENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606272
+    m_Key: NODE_REST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606273
+    m_Key: NODE_ELITE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606274
+    m_Key: NODE_BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606275
+    m_Key: NODE_SHOP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606276
+    m_Key: PICKUP_GOT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606277
+    m_Key: PICKUP_BAG_FULL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410645078016
+    m_Key: REST_HEALED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352704
+    m_Key: EVENT_SUCCESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352705
+    m_Key: EVENT_FAILED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352706
+    m_Key: EVENT_NOT_ENOUGH_GOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352707
+    m_Key: EVENT_NOT_ENOUGH_GEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352708
+    m_Key: EVENT_NOT_ENOUGH_HP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352709
+    m_Key: DOOR_LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352710
+    m_Key: DOOR_OPENED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352711
+    m_Key: KEY_FOUND
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

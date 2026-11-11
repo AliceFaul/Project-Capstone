@@ -14,18 +14,25 @@ namespace Mhieu.Enemy
         [SerializeField] private Image healthBar;
         [SerializeField] private ParticleSystem impactParticles;
         [SerializeField] private Animator animator;
+        
+        [Header("Sounds")]
+        [SerializeField] private AudioCue hurtCue;
+        [SerializeField] private AudioCue deathCue;
 
         private float _targetFillAmount = 1f;
 
+        public event Action<EnemyHealth> Died;
+        
+        private float _healthMultiplier = 1f;
+        private float _damageMultiplier = 1f;
+
         private void Awake()
         {
-            if(animator == null)
-                animator = GetComponentInChildren<Animator>();
-            
+            if(animator == null) animator = GetComponentInChildren<Animator>();
             Init();
             
-            _targetFillAmount = 1f;
-            healthBar.fillAmount = 1;
+            _targetFillAmount = TotalHealth > 0 ? (float)Hp / TotalHealth : 1f;
+            if(healthBar != null) healthBar.fillAmount = _targetFillAmount;
         }
 
         private void Update()
@@ -35,24 +42,51 @@ namespace Mhieu.Enemy
 
         private void UpdateHealthBar()
         {
+            if(healthBar == null) return;
+            
             healthBar.fillAmount = Mathf.MoveTowards(
                 healthBar.fillAmount, 
                 _targetFillAmount, 
-                1.5f * Time.deltaTime
+                2f * Time.deltaTime
             );
+        }
+
+        public void ApplyScaling(float healthMultiplier, float damageMultiplier)
+        {
+            _healthMultiplier = Mathf.Max(0.01f, healthMultiplier);
+            _damageMultiplier = Mathf.Max(0.01f, damageMultiplier);
+
+            Hp = TotalHealth;
+            _targetFillAmount = 1f;
+            
+            if(healthBar != null) healthBar.fillAmount = 1f;
+            HpChanged(Hp);
+        }
+
+        protected override float GetPercentBonus(BonusStat stat)
+        {
+            switch (stat)
+            {
+                case BonusStat.Health: return _healthMultiplier - 1f;
+                case BonusStat.Damage: return _damageMultiplier - 1f;
+                default: return base.GetPercentBonus(stat);
+            }
         }
 
         public override void TakeDamage(float damage, ICharacterRuntime runtime)
         {
             base.TakeDamage(damage, runtime);
-            _targetFillAmount = Hp / TotalHealth;
+            _targetFillAmount = TotalHealth > 0 ? Mathf.Clamp01((float)Hp / TotalHealth) : 0f;
+            
+            if(Hp <= 0) return;
+            if(hurtCue != null) AudioService.Instance?.PlaySfx(hurtCue, transform.position);
         }
 
         protected override void OnTakeDamage(float damage)
         {
             base.OnTakeDamage(damage);
-            animator.SetTrigger(Hit);
-            Instantiate(impactParticles, transform.position + Vector3.up, transform.rotation);
+            if(animator != null) animator.SetTrigger(Hit);
+            if(impactParticles != null) Instantiate(impactParticles, transform.position + Vector3.up, transform.rotation);
         }
 
         public void ApplyEffect(IEffect<IAttackable> effect)
@@ -86,6 +120,8 @@ namespace Mhieu.Enemy
         public override void Die()
         {
             base.Die();
+            if(deathCue != null) AudioService.Instance?.PlaySfx(deathCue, transform.position);
+            
             // Handle enemy death logic here (e.g., play animation, drop loot, etc.)
             // Remove all applied effect in this enemy
             foreach (var effect in _activeEffects)
@@ -94,6 +130,12 @@ namespace Mhieu.Enemy
                 effect.Cancel();
             }
             _activeEffects.Clear();
+
+            // Disable outline when enemies dead.
+            var outlineComponent = GetComponent<OutlineTarget>();
+            if(outlineComponent != null) outlineComponent.enabled = false;
+            
+            Died?.Invoke(this);
             
             gameObject.SetActive(false); // For now, just deactivate the enemy
         }

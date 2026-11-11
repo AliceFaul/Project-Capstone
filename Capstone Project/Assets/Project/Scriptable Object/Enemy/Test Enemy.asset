@@ -17,7 +17,7 @@ MonoBehaviour:
   expOnKill: 10
   goldOnKill: 100
   level: 1
-  baseHealth: 1000000
+  baseHealth: 1000
   baseDefense: 10
   baseDamage: 0
   baseSpeed: 0

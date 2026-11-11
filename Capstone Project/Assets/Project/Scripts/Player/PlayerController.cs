@@ -1,18 +1,14 @@
-using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public enum CommandType
+public enum CommandType { None, Move, Attack, Interact }
+
+public class PlayerController : MonoBehaviour 
 {
-    None,
-    Move,
-    Attack,
-    Interact
-}
-
-public class PlayerController : MonoBehaviour {
     [Header("References")]
     [SerializeField] private Camera mainCamera;
     [SerializeField] private ParticleSystem clickEffect;
+    [SerializeField] private float clickEffectCooldown = 0.25f;
     [SerializeField] private PlayerInvokerCommand invoker;
 
     [Header("Layer")]
@@ -20,9 +16,15 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private LayerMask interactLayer;
     
+    [Header("Behaviour")]
     [SerializeField] private CommandType currentCommand;
+    
     private ICommand<Vector3> _moveCommand;
     private ICommand<Transform> _attackCommand;
+
+    private bool _isHoldingMove = false;
+    private float _lastClickEffectTime;
+    private int _leftPressFrame = -1;
     
     private PlayerMovement _movement;
     public PlayerMovement Movement
@@ -51,6 +53,28 @@ public class PlayerController : MonoBehaviour {
         }
         set => _combat = value;
     }
+
+    private PlayerRuntime _playerRuntime;
+    public PlayerRuntime PlayerRuntime
+    {
+        get
+        {
+            if(_playerRuntime == null) _playerRuntime = GetComponent<PlayerRuntime>();
+            return _playerRuntime;
+        }
+        set => _playerRuntime = value;
+    }
+
+    private PlayerBuffs _playerBuffs;
+    public PlayerBuffs PlayerBuffs
+    {
+        get
+        {
+            if(_playerBuffs == null) _playerBuffs = GetComponent<PlayerBuffs>();
+            return _playerBuffs;
+        }
+        set => _playerBuffs = value;
+    }
     
     private PlayerStateMachine _stateMachine;
     public PlayerStateMachine StateMachine
@@ -65,6 +89,31 @@ public class PlayerController : MonoBehaviour {
         }
         set => _stateMachine = value;
     }
+    
+    private PlayerAbilityHolder _abilityHolder;
+    public PlayerAbilityHolder AbilityHolder
+    {
+        get
+        {
+            if(_abilityHolder == null) _abilityHolder = GetComponent<PlayerAbilityHolder>();
+            return _abilityHolder;
+        }
+        set => _abilityHolder = value;
+    }
+
+    private ArtifactController _artifactController;
+    public ArtifactController ArtifactController
+    {
+        get
+        {
+            if(_artifactController == null) _artifactController = GetComponent<ArtifactController>();
+            return _artifactController;
+        }
+        set => _artifactController = value;
+    }
+
+    private OutlineTarget _currentOutlineTarget;
+    public OutlineTarget CurrentOutlineTarget => _currentOutlineTarget;
     
     private InputHandler _inputHandler;
     public InputHandler InputHandler
@@ -85,10 +134,7 @@ public class PlayerController : MonoBehaviour {
     {
         get
         {
-            if (_playerModifier == null)
-            {
-                _playerModifier = new PlayerModifier();
-            }
+            _playerModifier ??= new PlayerModifier();
             return _playerModifier;
         }
         set => _playerModifier = value;
@@ -120,11 +166,14 @@ public class PlayerController : MonoBehaviour {
     private void Update()
     {
         AnimationHandler.UpdateAnimation();
+        ContinuousMovement();
+        Jump();
     }
 
     private void OnEnable() {
         InputHandler.OnLeftClick += HandleLeftClick;
         InputHandler.OnRightClick += HandleRightClick;
+        InputHandler.OnToggleMinimap += HandleToggleMinimap;
         Movement.OnDestinationReached += OnDestinationReached;
         Movement.OnMoveStart += OnMoveStart;
         Movement.OnMoveStop += OnMoveStop;
@@ -133,68 +182,75 @@ public class PlayerController : MonoBehaviour {
     private void OnDisable() {
         InputHandler.OnLeftClick -= HandleLeftClick;
         InputHandler.OnRightClick -= HandleRightClick;
+        InputHandler.OnToggleMinimap -= HandleToggleMinimap;
         Movement.OnDestinationReached -= OnDestinationReached;
         Movement.OnMoveStart -= OnMoveStart;
         Movement.OnMoveStop -= OnMoveStop;
     }
 
-    private void HandleLeftClick() { 
-        if(InputHandler == null) {
-            Debug.LogWarning("InputHandler is not assigned.");
-            return;
-        }
-        
-        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition))
-            return;
+    private void HandleLeftClick()
+    {
+        _leftPressFrame = Time.frameCount;
+        _isHoldingMove = false;
+        if(InventoryScreenView.BlocksWorldClick(_leftPressFrame)) return;
+
+        if(InputHandler == null) return;
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
         
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
 
-        if(!Physics.Raycast(ray, out RaycastHit hit)) {
-            return;
-        }
+        if(!Physics.Raycast(ray, out RaycastHit hit, 200f, ~0, QueryTriggerInteraction.Ignore)) return;
         int hitLayer = hit.collider.gameObject.layer;
 
         if(((1 << hitLayer) & groundLayer) != 0) {
+            if(!PlayerModifier.CanMove) return;
+            ClearCurrentOutline();
+            
             // Move to the clicked position on the ground
+            _isHoldingMove = true;
             ExecuteMovement(hit.point);
-            Instantiate(clickEffect, hit.point, Quaternion.identity);
-            Debug.Log(hit.collider.gameObject.name);
+            SpawnClickEffect(hit.point);
             return;
         }
 
         if(((1 << hitLayer) & enemyLayer) != 0) {
             // Attack the clicked enemy
+            _isHoldingMove = false;
             ExecuteAttack(hit.collider.transform);
-            Debug.Log(hit.collider.gameObject.name);
             return;
         }
 
         if(((1 << hitLayer) & interactLayer) != 0) {
             // Interact with the clicked object
-            // ExecuteInteraction();
-            Debug.Log(hit.collider.gameObject.name);
+            _isHoldingMove = false;
+            ExecuteInteraction(hit.collider.GetComponentInParent<IInteractable>());
             return;
         }
     }
 
-    private void HandleRightClick() {
+    private void HandleRightClick() 
+    {
+        if(InventoryScreenView.BlocksWorldClick(Time.frameCount)) return;
+
         // Handle right-click actions if needed
         // Ranged attack, special ability, etc.
-        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition))
-            return;
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
         
         Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
-        {
-            return;
-        }
+        if(!Physics.Raycast(ray, out RaycastHit hit, 100f, ~0, QueryTriggerInteraction.Ignore)) return;
 
+        _isHoldingMove = false;
         Movement.Stop();
         Combat.CmdShoot(hit.point);
     }
 
+    private void HandleToggleMinimap() => MinimapController.Instance?.Toggle();
+
     private void ExecuteMovement(Vector3 destination) {
-        if(invoker != null) { 
+        if(!PlayerModifier.CanMove) return;
+        
+        if(invoker != null) 
+        { 
             invoker.ExecuteCommand(_moveCommand, destination);
             currentCommand = CommandType.Move;
         }
@@ -202,17 +258,91 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ExecuteAttack(Transform target) {
+        if (Combat.IsAttacking)
+        {
+            LockOutline(target);
+            Combat.SetTarget(target);
+            Movement?.SnapFaceTowards(target.position);
+            Combat.CmdAttack();
+            return;
+        }
+        
+        if(!PlayerModifier.CanAttack) return;
+        LockOutline(target);
         Movement?.SnapFaceTowards(target.position);
 
-        if (invoker == null) 
-            return;
-        
+        if (invoker == null) return;
         invoker.ExecuteCommand(_attackCommand, target);
         currentCommand = CommandType.Attack;
     }
 
-    private void ExecuteInteraction() { 
+    private IInteractable _pendingInteractable;
     
+    // In range: interact now. Out of range: walk next to the target first.
+    private void ExecuteInteraction(IInteractable target)
+    {
+        _pendingInteractable = null;
+        if(!InteractionUtil.IsAlive(target) || !target.CanInteract(this)) return;
+
+        if(InteractionUtil.IsInRange(transform.position, target))
+        {
+            Movement?.Stop();
+            Movement?.SnapFaceTowards(target.InteractPosition);
+            currentCommand = CommandType.None;
+            target.Interact(this);
+            return;
+        }
+        
+        if(!PlayerModifier.CanMove) return;
+        
+        _pendingInteractable = target;
+        ExecuteMovement(InteractionUtil.GetApproachPoint(transform.position, target));
+        currentCommand = CommandType.Interact;
+    }
+
+    private void FinishPendingInteraction()
+    {
+        var target = _pendingInteractable;
+        _pendingInteractable = null;
+        
+        if(!InteractionUtil.IsAlive(target) || !target.CanInteract(this)) return;
+        if(!InteractionUtil.IsInRange(transform.position, target, 1.5f)) return;
+        
+        Movement?.SnapFaceTowards(target.InteractPosition);
+        target.Interact(this);
+    }
+
+    private void ContinuousMovement()
+    {
+        if(!_isHoldingMove) return;
+
+        bool mouseHeld = Mouse.current != null ? Mouse.current.leftButton.isPressed : Input.GetMouseButton(0);
+        if (!mouseHeld || InventoryScreenView.BlocksWorldClick(_leftPressFrame))
+        {
+            _isHoldingMove = false;
+            return;
+        }
+        
+        if(UIInputBlocker.IsPointerOverUI(InputHandler.MousePosition)) return;
+        
+        Ray ray = mainCamera.ScreenPointToRay(InputHandler.MousePosition);
+        if(!Physics.Raycast(ray, out var hit, 100f, groundLayer)) return;
+        ExecuteMovement(hit.point);
+        if(Time.time >= _lastClickEffectTime + clickEffectCooldown) SpawnClickEffect(hit.point);
+    }
+
+    private void Jump()
+    {
+        bool pressed = Keyboard.current != null ? Keyboard.current.spaceKey.wasPressedThisFrame : Input.GetKeyDown(KeyCode.Space);
+        if(pressed) Movement.CmdJump();
+    }
+
+    private void SpawnClickEffect(Vector3 point)
+    {
+        if(clickEffect == null) return;
+        
+        Instantiate(clickEffect, point, Quaternion.identity);
+        _lastClickEffectTime = Time.time;
     }
 
     public void CmdCombatLocked(bool value)
@@ -221,15 +351,26 @@ public class PlayerController : MonoBehaviour {
         PlayerModifier.MoveModifier(!value);
     }
 
-    private void OnMoveStart(Vector3 destination)
+    private void LockOutline(Transform target)
     {
-        // VFX like spawn dust in footstep, sfx, shake camera, etc...
+        var next = target != null ? target.GetComponentInParent<OutlineTarget>() : null;
+        if(next == null) return;
+        
+        ClearCurrentOutline();
+
+        _currentOutlineTarget = next;
+        if(_currentOutlineTarget != null) _currentOutlineTarget.SetLocked(true);
     }
 
-    private void OnMoveStop()
-    { 
-        // VFX like spawn dust in footstep, sfx, shake camera, etc...
+    private void ClearCurrentOutline()
+    {
+        if(_currentOutlineTarget != null) _currentOutlineTarget.SetLocked(false);
+        _currentOutlineTarget = null;
     }
+
+    private void OnMoveStart(Vector3 destination) { }
+
+    private void OnMoveStop() { }
 
     private void OnDestinationReached()
     {
@@ -239,11 +380,9 @@ public class PlayerController : MonoBehaviour {
                 // Move...
                 break;
             case CommandType.Attack:
-                Combat.CmdAttack();
-                break;
+                Combat.CmdAttack(); break;
             case CommandType.Interact:
-                // Interact...
-                break;
+                FinishPendingInteraction(); break;
         }
         
         currentCommand = CommandType.None;

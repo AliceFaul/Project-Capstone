@@ -56,6 +56,26 @@
     border-color: var(--color-panel);
 }
 
+.item-slot__locked-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: var(--radius-s);
+}
+
+.item-slot__price-label {
+    position: absolute;
+    bottom: 3px;
+    width: 100%;
+    -unity-text-align: middle-center;
+    font-size: var(--font-size-small);
+    -unity-font-style: bold;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
 .item-slot__rarity-ribbon {
     position: absolute;
     top: 0;

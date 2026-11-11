@@ -15,3 +15,5 @@ MonoBehaviour:
   floatingTexts:
   - id: DamageText
     prefab: {fileID: 875085548824185081, guid: 36dec51c8bb7faf4d91f81b53aaf6a88, type: 3}
+  - id: AutoSaveText
+    prefab: {fileID: 5221742733327870612, guid: 3342840622dbfb149b2afec267db220b, type: 3}

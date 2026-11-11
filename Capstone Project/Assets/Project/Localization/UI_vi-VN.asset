@@ -38,6 +38,580 @@ MonoBehaviour:
     m_Localized: "L\u1ED6I"
     m_Metadata:
       m_Items: []
+  - m_Id: 575997936017408
+    m_Localized: "Nh\u1EA5n \u0111\u1EC3 B\u1EAFt \u0111\u1EA7u."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 585364450189312
+    m_Localized: "\u0110\xF3ng"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612590688280576
+    m_Localized: "Kh\xF4ng t\xECm th\u1EA5y t\xE0i nguy\xEAn qu\u1EA3n l\xFD."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 612720728481792
+    m_Localized: "T\u1EA3i t\xE0i nguy\xEAn th\u1EA5t b\u1EA1i"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 620669442072576
+    m_Localized: "\u0110ang kh\u1EDFi \u0111\u1ED9ng..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630245382037504
+    m_Localized: "Nh\u1EA5n \u0111\u1EC3 ti\u1EBFp t\u1EE5c."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630485623382016
+    m_Localized: "Kh\xF4ng t\xECm th\u1EA5y b\u1ED9 qu\u1EA3n l\xFD t\xE0i nguy\xEAn."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 630930177662976
+    m_Localized: "Sai ki\u1EC3u qu\u1EA3n l\xFD."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1467084305211392
+    m_Localized: "Kh\xF4ng t\xECm th\u1EA5y t\u1EC7p c\u1EA5u h\xECnh."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9656482171592704
+    m_Localized: "Nh\u1EADp t\xEAn hi\u1EC3n th\u1ECB c\u1EE7a b\u1EA1n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10861444528480256
+    m_Localized: "X\xE1c nh\u1EADn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864666261463040
+    m_Localized: "T\xEAn qu\xE1 d\xE0i."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10864761635741696
+    m_Localized: "T\xEAn kh\xF4ng \u0111\u01B0\u1EE3c \u0111\u1EC3 tr\u1ED1ng."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10865027739164672
+    m_Localized: "T\xEAn sai."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11074257574305792
+    m_Localized: "Nh\u1EADp t\xEAn m\u1EDBi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817063121035264
+    m_Localized: "Nh\u1EADp t\xEAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817721584820224
+    m_Localized: "Nh\u1EADp email"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11817944927313920
+    m_Localized: "Nh\u1EADp m\u1EADt kh\u1EA9u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818221344530432
+    m_Localized: "X\xE1c nh\u1EADn m\u1EADt kh\u1EA9u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11818477289349120
+    m_Localized: "\u0110\u0103ng k\xFD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11824635970461696
+    m_Localized: "Nh\u1EADp email/t\xEAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825013889835008
+    m_Localized: "\u0110\u0103ng k\xFD ngay"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825270862258176
+    m_Localized: "Qu\xEAn m\u1EADt kh\u1EA9u?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11825481948995584
+    m_Localized: "\u0110\u0103ng nh\u1EADp"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971300923875328
+    m_Localized: "M\u1EA5t k\u1EBFt n\u1ED1i server."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13971455148433408
+    m_Localized: "Phi\xEAn b\u1EA3n c\u1EE7a b\u1EA1n th\u1EA5p. Xin h\xE3y t\u1EA3i
+      b\u1EA3n c\u1EADp nh\u1EADt m\u1EDBi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924657389568
+    m_Localized: INVENTORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384512
+    m_Localized: LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384513
+    m_Localized: EXPERIENCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384514
+    m_Localized: TOTAL STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384515
+    m_Localized: TOTAL STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384516
+    m_Localized: WEAPONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384517
+    m_Localized: ARMOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384518
+    m_Localized: ARTIFACTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384519
+    m_Localized: MELEE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384520
+    m_Localized: RANGED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384521
+    m_Localized: RUNE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384522
+    m_Localized: ARTIFACT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384523
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384524
+    m_Localized: Equip / Unequip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384525
+    m_Localized: Click an item to equip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384526
+    m_Localized: Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384527
+    m_Localized: Defense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384528
+    m_Localized: Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384529
+    m_Localized: Attack Range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384530
+    m_Localized: Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384531
+    m_Localized: Move Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384532
+    m_Localized: Crit Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384533
+    m_Localized: Crit Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384534
+    m_Localized: COMMON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384535
+    m_Localized: UNCOMMON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384536
+    m_Localized: RARE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384537
+    m_Localized: LEGENDARY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384538
+    m_Localized: Sword
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384539
+    m_Localized: Axe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384540
+    m_Localized: Bow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384541
+    m_Localized: Crossbow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384542
+    m_Localized: EQUIPPED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384543
+    m_Localized: IN BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384544
+    m_Localized: UNKNOWN ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384545
+    m_Localized: Lv {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384546
+    m_Localized: MAX LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384547
+    m_Localized: '{0} / {1} EXP'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384548
+    m_Localized: Tier {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384549
+    m_Localized: Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384550
+    m_Localized: Melee weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384551
+    m_Localized: Ranged weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384552
+    m_Localized: Artifact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384553
+    m_Localized: Stat rune
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384554
+    m_Localized: Damage effect rune
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384555
+    m_Localized: STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384556
+    m_Localized: RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384557
+    m_Localized: Cooldown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384558
+    m_Localized: '{0}s'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384559
+    m_Localized: Quality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384560
+    m_Localized: Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384561
+    m_Localized: '{0} damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384562
+    m_Localized: Unknown rune
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384563
+    m_Localized: (inactive)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384564
+    m_Localized: '{0}: {1} {2} damage every {3}s for {4}s'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384565
+    m_Localized: '{0}: {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384566
+    m_Localized: SOCKET {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384567
+    m_Localized: SOCKET {0} - CLICK TWICE TO REMOVE ({1} GEM)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384568
+    m_Localized: LOCKED SOCKET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384569
+    m_Localized: Unlocks when the weapon reaches level {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384570
+    m_Localized: The bag is full - cannot unequip.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384571
+    m_Localized: Cannot equip this item.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384572
+    m_Localized: No free socket on your equipped weapons.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384573
+    m_Localized: This socket unlocks at weapon level {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384574
+    m_Localized: Choose a rune from the bag (Esc to cancel).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384575
+    m_Localized: Socket selection cancelled.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384576
+    m_Localized: Click again to remove this rune (costs {0} Gem).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384577
+    m_Localized: Rune socketed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384578
+    m_Localized: Rune removed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384579
+    m_Localized: Not enough Gem.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384580
+    m_Localized: The rune bag is full.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384581
+    m_Localized: This socket is locked.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384582
+    m_Localized: This socket already has a rune.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384583
+    m_Localized: That rune is no longer in the bag.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22304924808384584
+    m_Localized: Cannot do that.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22337453435260928
+    m_Localized: "\u0110\u0103ng nh\u1EADp th\u1EA5t b\u1EA1i. Vui l\xF2ng ki\u1EC3m
+      tra l\u1EA1i t\xE0i kho\u1EA3n ho\u1EB7c k\u1EBFt n\u1ED1i m\u1EA1ng."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22337513053097984
+    m_Localized: "Kh\xF4ng th\u1EC3 k\u1EBFt n\u1ED1i t\u1EDBi m\xE1y ch\u1EE7 \u0111\xE1m
+      m\xE2y. \u0110ang t\u1EA3i d\u1EEF li\u1EC7u d\u1EF1 ph\xF2ng c\u1EE5c b\u1ED9."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348295560105984
+    m_Localized: "M\u1EA5t k\u1EBFt n\u1ED1i m\xE1y ch\u1EE7! Ti\u1EBFn tr\xECnh
+      c\u1EE7a b\u1EA1n \u0111\xE3 \u0111\u01B0\u1EE3c t\u1EA1m l\u01B0u c\u1EE5c
+      b\u1ED9 tr\xEAn thi\u1EBFt b\u1ECB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22348566184988672
+    m_Localized: "L\u1ED7i l\u01B0u tr\u1EEF! Kh\xF4ng th\u1EC3 ghi d\u1EEF li\u1EC7u
+      l\u01B0u game v\xE0o b\u1ED9 nh\u1EDB thi\u1EBFt b\u1ECB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22364712707690496
+    m_Localized: "T\u1EF1 \u0111\u1ED9ng l\u01B0u th\xE0nh c\xF4ng."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425618382848
+    m_Localized: RUNE SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463232
+    m_Localized: ACTIVE RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463233
+    m_Localized: RUNES IN BAG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463234
+    m_Localized: Socket {0} - empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463235
+    m_Localized: Socket {0} - locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463236
+    m_Localized: Pick a rune from the bag on the right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463237
+    m_Localized: Select a rune from the bag to see its details.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463238
+    m_Localized: Remove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463239
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463240
+    m_Localized: '{0} Gem'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463241
+    m_Localized: INSERT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463242
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463243
+    m_Localized: DESCRIPTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463244
+    m_Localized: 'Same group as {0}: {0} would become inactive.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463245
+    m_Localized: 'Same group as {0}: this rune would stay inactive.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23071425706463246
+    m_Localized: '{0} {1} damage every {2}s for {3}s'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448176894808064
+    m_Localized: SOCKETS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859968
+    m_Localized: ACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23448177003859969
+    m_Localized: INACTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647616303104
+    m_Localized: Battle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647683411968
+    m_Localized: Treasure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647683411969
+    m_Localized: Event
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606272
+    m_Localized: Rest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606273
+    m_Localized: Elite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606274
+    m_Localized: Boss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606275
+    m_Localized: Shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606276
+    m_Localized: + {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25404647687606277
+    m_Localized: Bag is full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410645078016
+    m_Localized: +{0} HP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352704
+    m_Localized: The shrine rewards you!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352705
+    m_Localized: Nothing happens...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352706
+    m_Localized: Not enough gold!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352707
+    m_Localized: Not enough Gem!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352708
+    m_Localized: You are too weak for this.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352709
+    m_Localized: Locked - find the key
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352710
+    m_Localized: Unlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25579410737352711
+    m_Localized: Key found
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

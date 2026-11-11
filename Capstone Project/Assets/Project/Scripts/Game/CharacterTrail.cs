@@ -21,26 +21,15 @@ public class CharacterTrail : MonoBehaviour
     private bool _isTrailActive;
     private SkinnedMeshRenderer[] _trailMeshRenderers;
 
-    // private void Update()
-    // {
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-           // ActivateTrail();
-        // }
-    // }
-
     // TODO: Call in Animation Event or another player actions
-    [Obsolete("Obsolete")]
     public void ActivateTrail()
     {
-        if(_isTrailActive)
-            return;
+        if(_isTrailActive) return;
         
         _isTrailActive = true;
         StartCoroutine(ActivateTrailCo(activeTime));
     }
 
-    [Obsolete("Obsolete")]
     private IEnumerator ActivateTrailCo(float time)
     {
         while (time > 0)

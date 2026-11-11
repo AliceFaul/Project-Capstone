@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Threading.Tasks;
+using Project.Capstone.Inventory;
 
 public class ActiveWeapon : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class ActiveWeapon : MonoBehaviour
     [Tooltip("Socket to hold current prefab ranged weapon")]
     [SerializeField] private Transform rangedSocket;
 
+    private EquipmentManager _equipmentManager;
+    
     private GameObject _currentMeleeVisual;
     private GameObject _currentRangedVisual;
     private int _meleeRequestId = 0;
@@ -21,11 +24,7 @@ public class ActiveWeapon : MonoBehaviour
     {
         try
         {
-            await WaitGameReady();
-            
-            await UpdateMeleeWeapon(EquipmentManager.Instance.Melee);
-            await UpdateRangedWeapon(EquipmentManager.Instance.Ranged);
-            EquipmentManager.Instance.OnEquipmentChanged += UpdateWeapons;
+            await Initialize();
         }
         catch (Exception e)
         {
@@ -35,101 +34,127 @@ public class ActiveWeapon : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (EquipmentManager.Instance != null)
-            EquipmentManager.Instance.OnEquipmentChanged -= UpdateWeapons;
+        if (_equipmentManager != null)
+        {
+            _equipmentManager.OnEquipmentChanged -= OnEquipmentChanged;
+            _equipmentManager.OnLoadoutReloaded -= OnLoadoutReloaded;
+        }
+        
+        _meleeRequestId++;
+        _rangedRequestId++;
+        DestroyVisual(ref _currentMeleeVisual);
+        DestroyVisual(ref _currentRangedVisual);
     }
 
-    private async Task WaitGameReady()
+    private async Task Initialize()
     {
-        while (GameManager.Instance == null)
-        {
-            await Task.Yield();
-        }
+        while(EquipmentManager.Instance == null) await Task.Yield();
+        if(this == null) return;
         
-        if(GameManager.Instance.IsReady)
-            return;
-        
-        var tcs = new TaskCompletionSource<bool>();
-        void OnReady() => tcs.TrySetResult(true);
-        
-        GameManager.Instance.OnGameReady += OnReady;
+        _equipmentManager = EquipmentManager.Instance;
+        _equipmentManager.OnEquipmentChanged += OnEquipmentChanged;
+        _equipmentManager.OnLoadoutReloaded += OnLoadoutReloaded;
 
-        if (GameManager.Instance.IsReady)
-        {
-            GameManager.Instance.OnGameReady -= OnReady;
-            return;
-        }
-        
-        await tcs.Task;
-        GameManager.Instance.OnGameReady -= OnReady;
+        await UpdateMeleeWeapon(_equipmentManager.GetEquipped(EquipSlot.Melee));
+        await UpdateRangedWeapon(_equipmentManager.GetEquipped(EquipSlot.Ranged));
     }
 
-    private async void UpdateWeapons(EquipmentChangedEventArgs args)
+    private async void OnEquipmentChanged(EquipmentChangedEventArgs args)
     {
         try
         {
-            Debug.Log($"Receive Event : {args.EquipmentType}");
-        
-            switch (args.EquipmentType)
+            switch (args.Slot)
             {
-                case EquipmentType.MeleeWeapon:
-                    await UpdateMeleeWeapon(args.NewEquipmentData);
+                case EquipSlot.Melee:
+                    await UpdateMeleeWeapon(args.NewItem as EquipmentInstance);
                     break;
-                case EquipmentType.RangedWeapon:
-                    await UpdateRangedWeapon(args.NewEquipmentData);
+                case EquipSlot.Ranged:
+                    await UpdateRangedWeapon(args.NewItem as EquipmentInstance);
                     break;
             }
         }
         catch (Exception e)
         {
-            Debug.LogError("[ActiveWeapon.UpdateWeapons()] Update Weapons Error: " + e.Message);
+            Debug.LogException(e);
         }
     }
 
-    private async Task UpdateMeleeWeapon(EquipmentData equipment)
+    private async void OnLoadoutReloaded()
     {
-        if (equipment == null || equipment.equipmentType != EquipmentType.MeleeWeapon)
+        try
         {
-            WeaponFactory.DestroyInstance(_currentMeleeVisual);
-            return;
+            await UpdateMeleeWeapon(_equipmentManager.GetEquipped(EquipSlot.Melee));
+            await UpdateRangedWeapon(_equipmentManager.GetEquipped(EquipSlot.Ranged));
         }
-        
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+    private async Task UpdateMeleeWeapon(EquipmentInstance instance)
+    {
         int requestId = ++_meleeRequestId;
-        GameObject newWeapon = await WeaponFactory.Create(equipment, meleeSocket);
+        DestroyVisual(ref _currentMeleeVisual);
+        
+        if(instance == null) return;
+        EquipmentData definition = _equipmentManager.GetDefinition(instance);
+        
+        if(definition == null) return;
+        GameObject newWeapon = await WeaponFactory.Create(definition, meleeSocket);
 
         if (requestId != _meleeRequestId)
         {
             WeaponFactory.DestroyInstance(newWeapon);
             return;
         }
+
+        if (newWeapon == null)
+        {
+            DestroyVisual(ref _currentMeleeVisual);
+            return;
+        }
         
         WeaponFactory.DestroyInstance(_currentMeleeVisual);
         _currentMeleeVisual = newWeapon;
 
-        Debug.Log($"Change melee weapon: {equipment.itemName}");
+        Debug.Log($"Change melee weapon: {definition.itemName}");
     }
 
-    private async Task UpdateRangedWeapon(EquipmentData equipment)
+    private async Task UpdateRangedWeapon(EquipmentInstance instance)
     {
-        if (equipment == null || equipment.equipmentType != EquipmentType.RangedWeapon)
-        {
-            WeaponFactory.DestroyInstance(_currentRangedVisual);
-            return;
-        }
-        
         int requestId = ++_rangedRequestId;
-        GameObject newWeapon = await WeaponFactory.Create(equipment, rangedSocket);
+        DestroyVisual(ref _currentRangedVisual);
+        
+        if(instance == null) return;
+        EquipmentData definition = _equipmentManager.GetDefinition(instance);
+        
+        if(definition == null) return;
+        GameObject newWeapon = await WeaponFactory.Create(definition, rangedSocket);
 
         if (requestId != _rangedRequestId)
         {
             WeaponFactory.DestroyInstance(newWeapon);
             return;
         }
+
+        if (newWeapon == null)
+        {
+            DestroyVisual(ref _currentRangedVisual);
+            return;
+        }
         
         WeaponFactory.DestroyInstance(_currentRangedVisual);
         _currentRangedVisual = newWeapon;
         
-        Debug.Log($"Change ranged weapon: {equipment.itemName}");
+        Debug.Log($"Change ranged weapon: {definition.itemName}");
+    }
+
+    private static void DestroyVisual(ref GameObject visual)
+    {
+        if(visual == null) return;
+        WeaponFactory.DestroyInstance(visual);
+        visual = null;
     }
     
     // === HELPER SHOW AND HIDE WEAPON
@@ -139,6 +164,17 @@ public class ActiveWeapon : MonoBehaviour
     public void HideRanged() => rangedSocket.gameObject.SetActive(false);
     
     // === HELPER SWORD VFX ===
-    public void ActivateTrail() => _currentMeleeVisual?.GetComponent<TrailVFXHandler>().PlayTrail();
-    public void DeactivateTrail() => _currentMeleeVisual?.GetComponent<TrailVFXHandler>().StopTrail();
+    public void ActivateTrail()
+    {
+        if(_currentMeleeVisual == null) return;
+        var trail = _currentMeleeVisual.GetComponent<TrailVFXHandler>();
+        if(trail != null) trail.PlayTrail();
+    }
+
+    public void DeactivateTrail()
+    {
+        if(_currentMeleeVisual == null) return;
+        var trail = _currentMeleeVisual.GetComponent<TrailVFXHandler>();
+        if(trail != null) trail.StopTrail();
+    }
 }

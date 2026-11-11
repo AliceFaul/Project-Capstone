@@ -7,6 +7,6 @@ public class Slot : MonoBehaviour
 
     public void OnClick()
     {
-        PlayerInventory.Instance.UseItem(slotIndex);
+        //PlayerInventory.Instance.UseItem(slotIndex);
     }
 } 

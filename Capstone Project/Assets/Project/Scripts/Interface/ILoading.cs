@@ -1,7 +1,12 @@
-﻿public interface ILoading
+﻿using UnityEngine.Localization;
+using System.Threading.Tasks;
+
+public interface ILoading
 {
-    void Show();
-    void Hide();
-    void SetProgress(float progress, string message = null);
-    void SetMessage(string message);
+    Task Show();
+    Task Hide();
+    Task ShowProgressBar();
+    Task HideProgressBar();
+    void SetProgress(float progress, LocalizedString message = null);
+    void SetMessage(LocalizedString message);
 }

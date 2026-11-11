@@ -19,9 +19,9 @@ TagManager:
   - Player
   - Obstacle
   - Projectile
-  - 
-  - 
-  - 
+  - OverlayMap
+  - PlayerIcon
+  - Environment
   - 
   - 
   - 

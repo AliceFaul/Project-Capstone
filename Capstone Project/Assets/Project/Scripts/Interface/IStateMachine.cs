@@ -6,6 +6,7 @@ public enum CharacterStateType
     Attack,
     Roll,
     Hit,
+    Jump,
     Knockback,
     Dead,
     Interact,

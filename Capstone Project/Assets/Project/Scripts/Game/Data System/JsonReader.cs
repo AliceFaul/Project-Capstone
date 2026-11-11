@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.IO;
+using System;
 
 public class JsonReader
 {
@@ -16,10 +17,20 @@ public class JsonReader
 
         if (!File.Exists(path))
         {
-            Debug.LogError($"[JsonReader] File not found: {path}");
+            Debug.LogWarning($"[JsonReader] File not found: {path}");
             return null;
         }
-        
-        return File.ReadAllText(path);
+
+        try
+        {
+            byte[] encrypted = File.ReadAllBytes(path);
+            string decrypted = CryptoUtils.DecryptStringFromBytes_Aes(encrypted);
+            return decrypted;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[JsonReader] Decrypt file failed: {e.Message}");
+            return null;
+        }
     }
 }

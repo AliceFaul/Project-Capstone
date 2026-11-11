@@ -16,6 +16,7 @@ public class SceneLoader : MonoBehaviour
     public static SceneLoader Instance  { get; private set; }
     [SerializeField] private Animator animator;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private List<SceneRef> sceneRefs;
     
     private InitManagerHelper _initManagerHelper;
@@ -36,7 +37,7 @@ public class SceneLoader : MonoBehaviour
 
     private void OnEnable()
     {
-        SceneManager.sceneLoaded -= OnLoadScene; 
+        SceneManager.sceneLoaded -= OnLoadScene;
         SceneManager.sceneLoaded += OnLoadScene;
     }
     
@@ -47,16 +48,12 @@ public class SceneLoader : MonoBehaviour
 
     private void OnLoadScene(Scene scene, LoadSceneMode mode)
     {
-        if (animator != null)
-        {
-            animator.Play("Scene_Open");
-        }
-        else
-        {
-            animator = GetComponentInChildren<Animator>();
-            animator?.Play("Scene_Open");
-        }
-        canvas.worldCamera = Camera.main;
+        if(animator == null) animator = GetComponentInChildren<Animator>(true);
+        if(animator != null) animator.Play("Scene_Open", 0, 0f);
+
+        if(canvasGroup == null) return;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = false;
     }
 
     public async Task LoadScene(string sceneName, bool initHelper)
@@ -77,40 +74,34 @@ public class SceneLoader : MonoBehaviour
             
             foreach (var sr in sceneRefs)
             {
-                if (sr.sceneName == sceneName)
-                {
-                    _initManagerHelper.preloadGroups = sr.preloadKeys;
-                    break;
-                }
+                if(sr.sceneName != sceneName) continue;
+                _initManagerHelper.preloadGroups = sr.preloadKeys;
+                break;
             }
-            
             _initManagerHelper.loadSceneWhenDone = sceneName;
 
-            if (operation != null)
-            {
-                while(operation.progress < 0.9f)
-                    await Task.Yield();
-            }
+            if(operation != null)
+                while(operation.progress < 0.9f) await Task.Yield();
         }
         else
         {
             operation = SceneManager.LoadSceneAsync(sceneName);
-            
-            if (operation != null) 
-                operation.allowSceneActivation = false;
+            if(operation != null) operation.allowSceneActivation = false;
         }
         
-        animator?.Play("Scene_Close");
+        AudioService.Instance?.StopMusic(0.5f);
         
+        if(canvasGroup != null)
+        {
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+        }
+        
+        animator?.Play("Scene_Close", 0, 0f);
         await AnimationProcess();
         
-        if(operation != null)
-            operation.allowSceneActivation = true;
-
-        if (initHelper)
-        {
-            _initManagerHelper.Load();
-        }
+        if(operation != null) operation.allowSceneActivation = true;
+        if(initHelper) _initManagerHelper.Load();
     }
 
     private async Task AnimationProcess()

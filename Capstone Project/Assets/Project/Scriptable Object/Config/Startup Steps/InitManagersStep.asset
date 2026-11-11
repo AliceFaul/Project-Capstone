@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18a240d4ff084629a5f86fa4d0846634, type: 3}
+  m_Name: InitManagersStep
+  m_EditorClassIdentifier: Assembly-CSharp::InitManagersStep
+  rootManager: Script
+  monoScripts:
+  - {fileID: 11500000, guid: c6a0759f33ac4a189a10c2cc95aabcc5, type: 3}
+  - {fileID: 11500000, guid: 4b732eca9b174b3196b77de9cbb13dcc, type: 3}
+  - {fileID: 11500000, guid: f3f76c9355514c88bc3ae356a9ee2bd0, type: 3}
+  managerNames:
+  - EventManager, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - EquipmentManager, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - AudioService, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
