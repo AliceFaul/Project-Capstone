@@ -9,8 +9,8 @@ using UnityEngine.Rendering.Universal;
 public class ShopSceneDirector : MonoBehaviour
 {
     [Header("Camera")]
-    [Tooltip("The shop virtual camera. Keep this GameObject INACTIVE; it is enabled while the shop is open. Give it a higher " +
-             "priority than the gameplay camera (or at least activate it later - ties go to the newest).")]
+    [Tooltip("The shop virtual camera. Keep this GameObject INACTIVE; it is enabled while the shop is open. Give it an explicit " +
+             "Priority higher than the gameplay camera. For the blur, set its Lens > Mode Override to Perspective (see the warning in the console).")]
     [SerializeField] private GameObject shopCamera;
     
     [Tooltip("Used when no CinemachineBrain is found: seconds to wait for the camera blend.")]
@@ -27,21 +27,30 @@ public class ShopSceneDirector : MonoBehaviour
     [Range(0.5f, 1.5f)] [SerializeField] private float blurMaxRadius = 1.5f;
     [SerializeField] private float focusFadeTime = 0.6f;
 
-    [Header("Player")]
+    [Header("Hide while the shop is open")]
     [SerializeField] private bool hidePlayer = true;
     
+    [Tooltip("Gameplay HUD, minimap overlay... A Canvas is switched off (its scripts keep running); anything else loses its renderers.")]
+    [SerializeField] private GameObject[] hideWhileOpen;
+    
+    [Tooltip("Also hides every world-space canvas: enemy health bars, floating texts, labels...")]
+    [SerializeField] private bool hideWorldSpaceCanvases = true;
+
+    [Header("Input")]
     [Tooltip("Turn off once the shop UI handles Esc itself.")]
     [SerializeField] private bool closeWithEscape = true;
 
     public bool IsOpen { get; private set; }
     public ShopService Shop { get; private set; }
 
-    public event Action<ShopService> Opened; // the shop UI shows itself here
-    public event Action Closed;              // ...and hides here
+    public event Action<ShopService> Opened;
+    public event Action Closed;
 
     private PlayerController _player;
-    private readonly List<Renderer> _hidden = new List<Renderer>();
+    private readonly List<Renderer> _hiddenRenderers = new List<Renderer>();
+    private readonly List<Canvas> _hiddenCanvases = new List<Canvas>();
     private bool _changed;
+    private bool _warnedOrthographic;
     private Coroutine _focusRoutine;
 
     public void Open(ShopService shop, PlayerController player)
@@ -76,17 +85,18 @@ public class ShopSceneDirector : MonoBehaviour
     private IEnumerator OpenRoutine()
     {
         _player.CmdCombatLocked(true);
-        if (hidePlayer) SetPlayerVisible(false);
+        HideEverything();
 
         PrepareFocus();
-        if (shopCamera != null) shopCamera.SetActive(true);
+        if(shopCamera != null) shopCamera.SetActive(true);
         StartFocus(1f);
 
         yield return WaitForCameraBlend();
         if (!IsOpen) yield break;
 
+        WarnIfOrthographic();
         Opened?.Invoke(Shop);
-        if (Opened == null) LogStock(Shop); // no UI yet: at least show the stock in the console
+        if (Opened == null) LogStock(Shop); // TODO: Activate UI here later.
     }
 
     private IEnumerator CloseRoutine()
@@ -96,7 +106,7 @@ public class ShopSceneDirector : MonoBehaviour
 
         yield return WaitForCameraBlend();
 
-        SetPlayerVisible(true);
+        RestoreEverything();
         if (_player != null) _player.CmdCombatLocked(false);
         if (_changed) SaveHelper.SaveNow();
     }
@@ -105,8 +115,9 @@ public class ShopSceneDirector : MonoBehaviour
     {
         if (focusVolume == null) return;
 
-        Vector3 cameraPosition = shopCamera != null ? shopCamera.transform.position : (Camera.main != null ? Camera.main.transform.position : transform.position);
-        float distance = merchant != null ? Vector3.Distance(cameraPosition, merchant.position) : 8f;
+        float distance = 8f;
+        Transform cameraTransform = shopCamera != null ? shopCamera.transform : (Camera.main != null ? Camera.main.transform : null);
+        if(merchant != null && cameraTransform != null) distance = Mathf.Max(1f, Vector3.Dot(merchant.position - cameraTransform.position, cameraTransform.forward));
 
         if (focusVolume.profile.TryGet(out DepthOfField dof))
         {
@@ -120,6 +131,14 @@ public class ShopSceneDirector : MonoBehaviour
         {
             Debug.LogWarning("[ShopSceneDirector] The focus volume profile has no Depth Of Field override.", focusVolume);
         }
+    }
+
+    private void WarnIfOrthographic()
+    {
+        if(_warnedOrthographic || focusVolume == null || Camera.main == null || !Camera.main.orthographic) return;
+
+        _warnedOrthographic = true;
+        Debug.LogWarning("[ShopSceneDirector] The camera is orthographic while the shop is open. Change to override mode perspective.", this);
     }
 
     private void StartFocus(float target)
@@ -167,27 +186,60 @@ public class ShopSceneDirector : MonoBehaviour
         return property != null && property.PropertyType == typeof(bool) && (bool)property.GetValue(brain);
     }
 
-    private void SetPlayerVisible(bool visible)
+    private void HideEverything()
     {
-        if (!visible)
-        {
-            _hidden.Clear();
-            if (_player == null) return;
+        _hiddenRenderers.Clear();
+        _hiddenCanvases.Clear();
 
-            foreach (var renderer in _player.GetComponentsInChildren<Renderer>())
+        if (hidePlayer && _player != null) HideObject(_player.gameObject, false);
+
+        if (hideWhileOpen != null)
+        {
+            foreach (var root in hideWhileOpen)
             {
-                if (!renderer.enabled) continue;
-                renderer.enabled = false;
-                _hidden.Add(renderer);
+                if (root != null) HideObject(root, true);
             }
-            return;
         }
 
-        foreach (var renderer in _hidden)
+        if (!hideWorldSpaceCanvases) return;
+        foreach (var canvas in FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            if (canvas.renderMode != RenderMode.WorldSpace || !canvas.enabled) continue;
+            canvas.enabled = false;
+            _hiddenCanvases.Add(canvas);
+        }
+    }
+
+    private void HideObject(GameObject root, bool includeCanvases)
+    {
+        foreach (var renderer in root.GetComponentsInChildren<Renderer>())
+        {
+            if (!renderer.enabled) continue;
+            renderer.enabled = false;
+            _hiddenRenderers.Add(renderer);
+        }
+
+        if (!includeCanvases) return;
+        foreach (var canvas in root.GetComponentsInChildren<Canvas>())
+        {
+            if (!canvas.enabled) continue;
+            canvas.enabled = false;
+            _hiddenCanvases.Add(canvas);
+        }
+    }
+
+    private void RestoreEverything()
+    {
+        foreach (var renderer in _hiddenRenderers)
         {
             if (renderer != null) renderer.enabled = true;
         }
-        _hidden.Clear();
+        foreach (var canvas in _hiddenCanvases)
+        {
+            if (canvas != null) canvas.enabled = true;
+        }
+        _hiddenRenderers.Clear();
+        _hiddenCanvases.Clear();
     }
 
     private static void LogStock(ShopService shop)

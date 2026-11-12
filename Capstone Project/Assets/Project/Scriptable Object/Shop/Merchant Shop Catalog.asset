@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f59368532b6645b3bb2cd547294af0c5, type: 3}
+  m_Name: Merchant Shop Catalog
+  m_EditorClassIdentifier: Assembly-CSharp::ShopCatalog
+  minItems: 3
+  maxItems: 5
+  rarityBoostPerDifficulty:
+  - -0.1
+  - 0.15
+  - 0.4
+  - 0.8
+  entries:
+  - item: {fileID: 11400000, guid: f9494530ecc1f3244b173a36bc61857d, type: 2}
+    weight: 50
+  - item: {fileID: 11400000, guid: 6ee139a6fb6112747b7f34b4c0504e55, type: 2}
+    weight: 15
+  - item: {fileID: 11400000, guid: 3642e8e225e67b146a3c25bb716eeb82, type: 2}
+    weight: 20
+  - item: {fileID: 11400000, guid: fa59963eaa6dd2e4d92f694f17b1c46b, type: 2}
+    weight: 45
