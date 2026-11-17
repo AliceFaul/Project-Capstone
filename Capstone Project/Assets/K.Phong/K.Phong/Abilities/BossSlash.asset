@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   kind: 0
   minRange: 0
-  maxRange: 1.8
-  windupTime: 0.5
-  recoveryTime: 0.6
-  cooldown: 2
+  maxRange: 3
+  windupTime: 0.6
+  recoveryTime: 0.7
+  cooldown: 3
   damageMultiplier: 1
-  trackTargetDuringWindup: 1
+  trackTargetDuringWindup: 0
   windupTurnSpeed: 360
   animId: 1
-  hitRadius: 1.2
-  hitForwardOffset: 1
+  hitRadius: 1.8
+  hitForwardOffset: 1.5
   hitHeight: 0.8
   projectilePrefab: {fileID: 0}
   projectileSpeed: 10
@@ -32,5 +32,5 @@ MonoBehaviour:
   spreadAngle: 0
   aoeRadius: 2.5
   aoeCenterOnTarget: 1
-  telegraphPrefab: {fileID: 0}
+  telegraphPrefab: {fileID: 7803209407621828204, guid: 370bc76a2475da44e8dd7c533336a7e3, type: 3}
   telegraphYOffset: 0.05

@@ -12,24 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e514138daeccc5c4baae48d2cce3c321, type: 3}
   m_Name: BossVolley
   m_EditorClassIdentifier: 
-  kind: 0
+  kind: 1
   minRange: 0
-  maxRange: 1.8
-  windupTime: 0.5
+  maxRange: 10
+  windupTime: 0.7
   recoveryTime: 0.6
-  cooldown: 2
-  damageMultiplier: 1
-  trackTargetDuringWindup: 1
+  cooldown: 6
+  damageMultiplier: 0.7
+  trackTargetDuringWindup: 0
   windupTurnSpeed: 360
-  animId: 1
+  animId: 2
   hitRadius: 1.2
   hitForwardOffset: 1
   hitHeight: 0.8
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 8628190012347756520, guid: 0e49a6220d3e57f41920ce2f62ceeeaf, type: 3}
   projectileSpeed: 10
   projectileLifetime: 3
-  projectileCount: 1
-  spreadAngle: 0
+  projectileCount: 3
+  spreadAngle: 40
   aoeRadius: 2.5
   aoeCenterOnTarget: 1
   telegraphPrefab: {fileID: 0}

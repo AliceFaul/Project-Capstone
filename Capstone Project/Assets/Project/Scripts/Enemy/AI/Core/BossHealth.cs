@@ -1,27 +1,39 @@
+
+using UnityEngine;
+
 namespace Mhieu.Enemy
 {
     /// <summary>
-    /// Thay cho EnemyHealth trên prefab BOSS (kế thừa EnemyHealth nên mọi chỗ dùng "is EnemyHealth"
-    /// như StatusEffect vẫn hoạt động). Chỉ thêm một việc: bất tử khi IsInvulnerable = true
-    /// (BossPhaseController bật cờ này trong lúc chuyển pha).
-    ///
-    /// Mọi đường gây sát thương (đánh thường, đạn, DoT) đều đi qua TakeDamage(float, ICharacterRuntime)
-    /// hoặc TakeDamage(float) rồi gọi lại bản trên, nên chỉ cần chặn ở đây.
-    ///
-    /// Trên prefab: XÓA EnemyHealth rồi Add BossHealth, và gán lại Health Bar, Impact Particles, Animator.
-    /// Tuyệt đối không để cả hai component trên cùng một object.
+    /// BossHealth kế thừa EnemyHealth.
+    /// Bổ sung cơ chế bất tử trong lúc chuyển pha.
     /// </summary>
     public class BossHealth : EnemyHealth
     {
         public bool IsInvulnerable { get; set; }
 
-        // EnemyHealth does not have a virtual TakeDamage(float, ICharacterRuntime) method.
-        // Instead, override nothing and use 'new' to hide the base method if needed.
+        // Chặn sát thương qua lời gọi có CharacterRuntime.
         public new void TakeDamage(float damage, ICharacterRuntime runtime)
         {
-            if (IsInvulnerable) return;
+            if (IsInvulnerable)
+                return;
+
+            TakeDamage(damage);
+        }
+
+        // Chặn sát thương qua lời gọi TakeDamage(float).
+        public new void TakeDamage(float damage)
+        {
+            if (IsInvulnerable)
+                return;
+
+            if (damage <= 0f)
+                return;
+
+            if (currentHealth <= 0f)
+                return;
 
             base.TakeDamage(damage);
         }
     }
 }
+

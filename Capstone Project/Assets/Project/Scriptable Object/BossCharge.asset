@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b17f5be544bf6d47a41aac68708261e, type: 3}
+  m_Name: BossCharge
+  m_EditorClassIdentifier: 
+  minRange: 4
+  maxRange: 12
+  cooldown: 12
+  windupTime: 1
+  aimLockTime: 0.35
+  aimTurnSpeed: 720
+  chargeSpeed: 14
+  chargeDistance: 10
+  recoveryTime: 0.8
+  damageMultiplier: 2
+  hitRadius: 1.2
+  hitHeight: 1
+  stopOnHit: 1
+  telegraphPrefab: {fileID: -2160182651015015242, guid: 370bc76a2475da44e8dd7c533336a7e3, type: 3}
+  telegraphYOffset: 0.05
+  animId: 4

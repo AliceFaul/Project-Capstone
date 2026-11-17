@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c7e328fbbdfc4946a0d8bdfa599df6f, type: 3}
   m_Name: BossAIConfig
   m_EditorClassIdentifier: 
-  aggroRadius: 8
+  aggroRadius: 12
   requireLineOfSight: 0
   lineOfSightBlockers:
     serializedVersion: 2
     m_Bits: 0
   eyeHeight: 1.2
-  loseRadius: 14
-  leashDistance: 18
+  loseRadius: 25
+  leashDistance: 30
   homeArriveDistance: 0.6
-  alertRadius: 6
-  primaryAbility: {fileID: 0}
+  alertRadius: 0
+  primaryAbility: {fileID: 11400000, guid: 402c3fa5d03087f44a259c7d43c58b53, type: 2}
   thinkInterval: 0.1

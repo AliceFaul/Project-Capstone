@@ -24,10 +24,11 @@ namespace Mhieu.Enemy
     ///  1. Guard(IsDisabled)      -> Idle        bị Knockback thì đứng yên
     ///  2. Guard(IsTransitioning) -> Idle        đang chuyển pha thì đứng yên (BossPhaseController)
     ///  3. Summon (tùy chọn)      -> từ pha minPhase, có hồi chiêu, tối đa N quái cùng lúc, không cắt ngang chiêu đang chạy
-    ///  4. UseBossAbility         -> chọn một chiêu theo pha / tầm / hồi chiêu / không lặp lại chiêu vừa dùng
-    ///  5. Guard(HasTarget)       -> đuổi tới chaseStopDistance
-    ///  6. Về nhà
-    ///  7. Idle
+    ///  4. UseCharge (tùy chọn)   -> BƯỚC 8: lao tới player khi đủ pha, hết hồi chiêu, trong tầm lao
+    ///  5. UseBossAbility         -> chọn một chiêu theo pha / tầm / hồi chiêu / không lặp lại chiêu vừa dùng
+    ///  6. Guard(HasTarget)       -> đuổi tới chaseStopDistance
+    ///  7. Về nhà
+    ///  8. Idle
     ///
     /// Trên EnemyAIConfig của boss, ô Primary Ability vẫn phải gán một chiêu bất kỳ (ví dụ chiêu chém)
     /// vì EnemyBrain kiểm tra ô này; cây boss không dùng nó để chọn chiêu.
@@ -53,6 +54,10 @@ namespace Mhieu.Enemy
         [SerializeField, Min(1)] private int summonMaxAlive = 4;
         [SerializeField, Min(1)] private int summonMinPhase = 2;
 
+        [Header("Charge (bước 8, để trống = tắt)")]
+        [SerializeField] private ChargeDefinition charge;
+        [SerializeField, Min(1)] private int chargeMinPhase = 2;
+
         public override Node Build(EnemyAIConfig config)
         {
             if (abilities == null || abilities.Length == 0)
@@ -71,6 +76,7 @@ namespace Mhieu.Enemy
             {
                 children.Add(new Sequence(
                     new Inverter(new AbilityBusyCondition()),
+                    new Inverter(new ChargeBusyCondition()),
                     new HasTargetCondition(),
                     new PhaseAtLeastCondition(summonMinPhase),
                     new Cooldown(
@@ -78,6 +84,9 @@ namespace Mhieu.Enemy
                         new SummonMinionsAction(minionPrefab, summonCount, summonRadius, summonWindup, summonMaxAlive)
                         { Name = "SummonAction" }) { Name = "SummonCooldown" }) { Name = "Summon" });
             }
+
+            if (charge != null)
+                children.Add(new UseChargeAction(charge, chargeMinPhase) { Name = "UseCharge" });
 
             children.Add(new UseBossAbilityAction(abilities) { Name = "UseBossAbility" });
             children.Add(new Guard(

@@ -134,6 +134,16 @@ namespace Mhieu.Enemy
             OnPhaseChanged?.Invoke(Phase);
         }
 
+        /// <summary>
+        /// Đưa boss về pha 1 (dùng khi boss hết giao chiến và hồi máu: BossLeashReset gọi).
+        /// Hủy chuyển pha đang dở, tắt bất tử, trả tốc độ chạy về pha 1, rồi báo OnPhaseChanged(1).
+        /// </summary>
+        public void ResetToPhaseOne()
+        {
+            ResetState();
+            OnPhaseChanged?.Invoke(Phase);
+        }
+
         private void ResetState()
         {
             Phase = 1;

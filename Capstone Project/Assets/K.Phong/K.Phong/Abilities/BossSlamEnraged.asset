@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e514138daeccc5c4baae48d2cce3c321, type: 3}
   m_Name: BossSlamEnraged
   m_EditorClassIdentifier: 
-  kind: 0
+  kind: 2
   minRange: 0
-  maxRange: 1.8
-  windupTime: 0.5
+  maxRange: 7
+  windupTime: 0.7
   recoveryTime: 0.6
-  cooldown: 2
-  damageMultiplier: 1
-  trackTargetDuringWindup: 1
+  cooldown: 5
+  damageMultiplier: 2
+  trackTargetDuringWindup: 0
   windupTurnSpeed: 360
   animId: 1
   hitRadius: 1.2
@@ -30,7 +30,7 @@ MonoBehaviour:
   projectileLifetime: 3
   projectileCount: 1
   spreadAngle: 0
-  aoeRadius: 2.5
+  aoeRadius: 3.5
   aoeCenterOnTarget: 1
-  telegraphPrefab: {fileID: 0}
+  telegraphPrefab: {fileID: 7803209407621828204, guid: 370bc76a2475da44e8dd7c533336a7e3, type: 3}
   telegraphYOffset: 0.05
