@@ -851,7 +851,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 98
   m_TargetDisplay: 0
 --- !u!224 &133056282
 RectTransform:
@@ -939,6 +939,55 @@ MonoBehaviour:
   loginPanel: {fileID: 338321998}
   registerPanel: {fileID: 603183184}
   loadingOverlay: {fileID: 575053863}
+  errorPopupPrefabId: ErrorPopup
+  loginFailedLocalizedString:
+    m_TableReference:
+      m_TableCollectionName: UI
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: LOGIN_FAILED_CONTENT
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  loadCloudFailedLocalizedString:
+    m_TableReference:
+      m_TableCollectionName: GUID:8e91f412eceb3b941818484cedbd590a
+    m_TableEntryReference:
+      m_KeyId: 22337513053097984
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  saveCloudFailedLocalizedString:
+    m_TableReference:
+      m_TableCollectionName: GUID:8e91f412eceb3b941818484cedbd590a
+    m_TableEntryReference:
+      m_KeyId: 22348295560105984
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localSaveFailedLocalizedString:
+    m_TableReference:
+      m_TableCollectionName: GUID:8e91f412eceb3b941818484cedbd590a
+    m_TableEntryReference:
+      m_KeyId: 22348566184988672
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  autoSaveSuccessLocalizedString:
+    m_TableReference:
+      m_TableCollectionName: UI
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: AUTO_SAVE_SUCCESS_CONTENT
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &163601613
 GameObject:
   m_ObjectHideFlags: 0

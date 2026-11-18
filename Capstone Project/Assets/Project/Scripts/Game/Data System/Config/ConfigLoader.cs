@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+public enum ConfigResult { Success, Skipped, FileNotFound }
+
 public class ConfigLoader : IConfigLoader
 {
     private readonly JsonReader _reader;
@@ -9,18 +11,18 @@ public class ConfigLoader : IConfigLoader
         _reader = new JsonReader(Application.persistentDataPath);
     }
     
-    public void LoadConfig(ScriptableObject config)
+    public ConfigResult LoadConfig(ScriptableObject config)
     {
         if (config is not IConfig)
         {
             Debug.LogError($"[ConfigLoader] {config.name} is not correct type. Config data must have IConfig!");
-            return;
+            return ConfigResult.FileNotFound; 
         }
 
         if (config is PlayerDataConfig)
         {
             Debug.Log($"[ConfigLoader] Skip loading local json for {config.name}.");
-            return;
+            return ConfigResult.Skipped; 
         }
 
         string fileName = config.name + ".json";
@@ -28,10 +30,11 @@ public class ConfigLoader : IConfigLoader
 
         if (string.IsNullOrEmpty(json))
         {
-            Debug.LogWarning($"[ConfigLoader] Not found config file {fileName} (Is your first time play?) -" + $"return default value {config.name}.");
-            return;
+            Debug.LogWarning($"[ConfigLoader] Not found config file {fileName} (Is your first time play?) - return default value {config.name}.");
+            return ConfigResult.FileNotFound;
         }
         
         JsonUtility.FromJsonOverwrite(json, config);
+        return ConfigResult.Success;
     }
 }

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9d51eb65d24e4b8b3fc72bf0e3ec09, type: 3}
+  m_Name: Footstep Gravel
+  m_EditorClassIdentifier: Assembly-CSharp::AudioCue
+  clips:
+  - {fileID: 8300000, guid: 0c276131205a7d04ab7e65aae45ff43f, type: 3}
+  - {fileID: 8300000, guid: d010c4422fa0396458e65bbeb3cd1451, type: 3}
+  - {fileID: 8300000, guid: 435fadebea2804b40af70166087fe1d1, type: 3}
+  - {fileID: 8300000, guid: 70f44add5940b60499d7d45e0e7ae101, type: 3}
+  - {fileID: 8300000, guid: f9904b3eebab3ee4f9b9fcb801f3aaa0, type: 3}
+  - {fileID: 8300000, guid: 2b07200a142792049979af96b508ebb9, type: 3}
+  avoidImmediateRepeat: 1
+  bus: 0
+  volume: 1
+  volumeVariance: {x: 0.9, y: 1}
+  pitchRange: {x: 0.95, y: 1.05}
+  spatialBlend: 0.6
+  minDistance: 10
+  maxDistance: 40
+  priority: 128
+  cooldown: 0.1
+  maxInstances: 2
+  source: 
+  license: 
+  url: 

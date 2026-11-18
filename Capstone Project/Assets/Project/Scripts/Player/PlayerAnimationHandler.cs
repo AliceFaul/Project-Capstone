@@ -86,6 +86,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
             _movement.OnMoveStart += OnMoveStart;
             _movement.OnMoveStop += OnMoveStop;
             _movement.OnJumpStart += StopDustInFoot;
+            _movement.OnJumpEnd += PlayDustInFoot;
         }
     }
 
@@ -98,6 +99,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
             _movement.OnMoveStart -= OnMoveStart;
             _movement.OnMoveStop -= OnMoveStop;
             _movement.OnJumpStart -= StopDustInFoot;
+            _movement.OnJumpEnd -= PlayDustInFoot;
         }
     }
 
@@ -269,12 +271,13 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
     private void PlayDustInFoot()
     {
         if(runDust == null) return;
-        if (!runDust.isPlaying) runDust.Play();
+        if(runDust.isPlaying) runDust.Stop();
+        runDust.Play();
     }
 
     private void StopDustInFoot()
     {
         if(runDust == null) return;
-        runDust.Stop(true,  ParticleSystemStopBehavior.StopEmittingAndClear);
+        if(runDust.isPlaying) runDust.Stop(true,  ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 }

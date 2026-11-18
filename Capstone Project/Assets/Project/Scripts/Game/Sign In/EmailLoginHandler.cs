@@ -1,6 +1,6 @@
 ﻿using System;
-using TMPro;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 public class EmailLoginHandler : MonoBehaviour
@@ -21,7 +21,7 @@ public class EmailLoginHandler : MonoBehaviour
         {
             if (emailInputField == null || passwordInputField == null)
             { 
-                Debug.LogError($"[EmailLoginHandler] Email field or Password field is empty");
+                Debug.LogError($"[EmailLoginHandler] UI References missing.");
                 return;
             }
 
@@ -30,37 +30,30 @@ public class EmailLoginHandler : MonoBehaviour
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                Debug.LogError($"[EmailLoginHandler] Email field or password field is empty]");
                 return;
             }
             
             AuthUIHandler.Instance.SetLoadingState(true);
 
-            try
+            var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>().GetService<PlayFabAuthentication>();
+            bool success = await authService.EmailLogin(email, password);
+            
+            if (success)
             {
-                var authService = StartupProcessor.Instance.GetService<PlayFabServiceManager>()
-                    .GetService<PlayFabAuthentication>();
-                bool success = await authService.EmailLogin(email, password);
-                if (success)
-                {
-                    CryptoUtils.SaveCredentials(email, password);
-                    AuthUIHandler.Instance.OnAuthSuccess();
-                }
-                else
-                {
-                    Debug.LogError($"[EmailLoginHandler] Failed to login {email} {password}.");
-                    AuthUIHandler.Instance.SetLoadingState(false);
-                }
+                CryptoUtils.SaveCredentials(email, password);
+                AuthUIHandler.Instance.OnAuthSuccess();
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogError($"[EmailLoginHandler] Login exception occured: {e.Message}");
+                Debug.LogError($"[EmailLoginHandler] Failed to login {email}.");
+                EventManager.Instance?.Trigger("ON_AUTH_FAILED"); 
                 AuthUIHandler.Instance.SetLoadingState(false);
             }
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            Debug.LogError($"[EmailLoginHandler] Login critical exception: {e.Message}");
+            AuthUIHandler.Instance.SetLoadingState(false);
         }
     }
 }

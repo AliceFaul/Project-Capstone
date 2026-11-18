@@ -7,6 +7,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
 {
     private PlayerDataConfig _config;
     private PlayerController _controller;
+    private Material _flashMaterial;
     
     [Header("Experience")] 
     protected override int Level => _config != null ? _config.Level : base.Level;
@@ -14,6 +15,9 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     public float ExpToNextLevel => _config != null ? _config.ExpToNextLevel : 100f;
     public event Action<int> OnLevelUp;
     public event Action<float, float> OnExpChanged;
+    
+    [Header("Audio")]
+    [SerializeField] private AudioCue levelUpCue;
     
     [Header("Player Bonus Stats")]
     private int bonusCritChance = 0;
@@ -36,14 +40,10 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     private readonly Dictionary<string, List<StatModifier>> _modifierSources = new Dictionary<string, List<StatModifier>>();
     private readonly float[] _flatBonus = new float[StatCount];
     private readonly float[] _percentBonus = new float[StatCount];
-
     
     public event Action OnStatsChanged;
     
-    private void Awake()
-    {
-        Init();
-    }
+    private void Awake() => Init();
     
     public override void Init()
     {
@@ -84,6 +84,7 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
     protected virtual void LevelUp(int newLevel)
     {
         OnLevelUp?.Invoke(newLevel); // This event use for ui driven
+        if(levelUpCue != null) AudioService.Instance?.PlaySfx(levelUpCue);
 
         Hp = TotalHealth;
         HpChanged(Hp);
@@ -120,6 +121,17 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         }
         
         base.TakeDamage(damage, runtime);
+    }
+
+    protected override void OnTakeDamage(float damage)
+    {
+        if (_flashMaterial == null)
+        {
+            _flashMaterial = ResourceManager.Instance.GetAsset<Material>("DamageFlashMaterial");
+            Renderer playerRenderer = GetComponentInChildren<Renderer>();
+            if(playerRenderer != null) _damageFlash = new DamageFlasher(playerRenderer, _flashMaterial);
+        }
+        _damageFlash?.Trigger();
     }
 
     protected override void ApplyBonusStat(BonusStat bonusStat, float amount)
@@ -176,11 +188,9 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         switch (type)
         {
             case CurrencyType.Gold:
-                playerArchive.goldObtained += amount;
-                break;
+                playerArchive.goldObtained += amount; break;
             case CurrencyType.Gem:
-                playerArchive.gemObtained += amount;
-                break;
+                playerArchive.gemObtained += amount; break;
         }
     }
     

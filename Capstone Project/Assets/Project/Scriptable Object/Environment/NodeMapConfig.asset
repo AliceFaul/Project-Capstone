@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebd38fb2ffc66e24fa9379035baeb916, type: 3}
+  m_Name: NodeMapConfig
+  m_EditorClassIdentifier: Assembly-CSharp::NodeMapConfig
+  layerCount: 7
+  minWidth: 2
+  maxWidth: 3
+  maxConnectionsPerNode: 2
+  startType: 0
+  restBeforeBoss: 1
+  rules:
+  - type: 0
+    weight: 5
+    minLayer: 1
+    maxLayer: 99
+    maxPerRun: 99
+  - type: 1
+    weight: 2
+    minLayer: 1
+    maxLayer: 99
+    maxPerRun: 99
+  - type: 2
+    weight: 1.5
+    minLayer: 1
+    maxLayer: 99
+    maxPerRun: 99
+  - type: 3
+    weight: 1.5
+    minLayer: 2
+    maxLayer: 99
+    maxPerRun: 99
+  - type: 4
+    weight: 1.5
+    minLayer: 2
+    maxLayer: 99
+    maxPerRun: 2
+  - type: 6
+    weight: 1
+    minLayer: 2
+    maxLayer: 99
+    maxPerRun: 1
+  allowAreaReuse: 1
+  healthPerCombatNode: 0.2
+  damagePerCombatNode: 0.1
+  eliteHealthMultiplier: 1.6
+  eliteDamageMultiplier: 1.25
+  fadeDuration: 0.35

@@ -25,7 +25,7 @@ public class UiSoundAutoAttach : MonoBehaviour
             Selectable selectable = _buffer[i];
             _buffer[i] = null; // do not keep references to UI that may be destroyed soon.
             
-            if(selectable == null || !UiSound.IsSoundTarget(selectable)) return;
+            if(selectable == null || !UiSound.IsSoundTarget(selectable)) continue;
             if(!selectable.TryGetComponent<UiSound>(out _)) selectable.gameObject.AddComponent<UiSound>();
         }
     }

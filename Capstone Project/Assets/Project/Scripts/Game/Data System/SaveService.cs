@@ -6,6 +6,7 @@ using UnityEngine;
 public class SaveService : IGameService, IDisposable
 {
     private const string SaveKey = "PLAYER_DATA";
+    private const float AutoSaveIntervalMinutes = 5f; // Auto save per 5 minutes
     
     private readonly ConfigManager _configManager;
     private readonly PlayFabServiceManager _playFabService;
@@ -15,6 +16,9 @@ public class SaveService : IGameService, IDisposable
     private PlayFabDataFlow _dataService;
     private PlayerDataConfig _config;
 
+    private CancellationTokenSource _autoSaveCts;
+    private bool _isCloudAvailable = true;
+    
     public SaveService(ConfigManager configManager, PlayFabServiceManager playFabService)
     {
         _configManager = configManager;
@@ -52,16 +56,31 @@ public class SaveService : IGameService, IDisposable
         try
         {
             await LoadData();
+            StartAutoSaveLoop();
         }
-        catch (Exception e)
+        catch(Exception e) 
+        { 
+            Debug.LogError($"[SaveService] Critical failure during post-auth data loading. Error: {e.Message}"); 
+        }
+    }
+
+    private void StartAutoSaveLoop()
+    {
+        if(_autoSaveCts != null)
         {
-            Debug.LogError($"[SaveService] Failed to load data. Error: {e.Message}");
+            _autoSaveCts.Cancel();
+            _autoSaveCts.Dispose();
         }
+        _autoSaveCts = new CancellationTokenSource();
+    
+        _ = AutoSaveLoop(_autoSaveCts.Token);
+        Debug.Log("[SaveService] Auto-save loop started successfully.");
     }
 
     private async Task LoadData(CancellationToken ct = default)
     {
         string cloudJson = null;
+        _isCloudAvailable = true;
 
         try
         {
@@ -71,6 +90,12 @@ public class SaveService : IGameService, IDisposable
         {
             Debug.LogWarning($"[SaveService] Loading data timeout/canceled. Use local data.");
         }
+        catch (Exception ex)
+        {
+            _isCloudAvailable = false;
+            EventManager.Instance?.Trigger("ON_LOAD_CLOUD_FAILED");
+            Debug.LogError($"[SaveService] Cloud load connection error: {ex.Message}");
+        }
 
         if (!string.IsNullOrEmpty(cloudJson))
         {
@@ -78,35 +103,20 @@ public class SaveService : IGameService, IDisposable
             {
                 var gameData = JsonUtility.FromJson<GameData>(cloudJson);
                 _config.ApplyGameData(gameData);
-                Debug.Log($"[SaveService] Charged data from PlayFab (cloud) successfully.)");
+                Debug.Log($"[SaveService] Charged data from PlayFab (cloud) successfully.");
                 _writer.Write(gameData, _config.name + ".json");
             }
             catch (Exception e)
             {
                 Debug.LogError($"[SaveService] Parse cloud data failed: {e.Message}");
+                EventManager.Instance?.Trigger("ON_LOAD_CLOUD_FAILED");
+                LocalBackup();
             }
         }
         else
         {
             Debug.Log($"[SaveService] Cloud data unavailable/empty. Reading local cache...");
-            try
-            {
-                string localJson = _reader.Read(_config.name + ".json");
-                if (!string.IsNullOrEmpty(localJson))
-                {
-                    var localData = JsonUtility.FromJson<GameData>(localJson);
-                    _config.ApplyGameData(localData);
-                    Debug.Log($"[SaveService] Charged data from PlayFab (local) successfully.)");
-                }
-                else
-                {
-                    Debug.Log($"[SaveService] No local cache found. Starting with clean data config.");
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[SaveService] Parse local data failed: {e.Message}");
-            }
+            LocalBackup();
         }
     }
 
@@ -115,6 +125,7 @@ public class SaveService : IGameService, IDisposable
         if(_config == null || _dataService == null) return false;
         var currentData = _config.ToGameData();
 
+        // ===== PRIORITY: LOCAL > CLOUD =====
         try
         {
             _writer.Write(currentData, _config.name + ".json");
@@ -122,22 +133,83 @@ public class SaveService : IGameService, IDisposable
         catch (Exception e)
         {
             Debug.LogError($"[SaveService] Failed to write local cache. Error: {e.Message}");
+            EventManager.Instance?.Trigger("ON_LOCAL_SAVE_FAILED");
         }
 
         string json = JsonUtility.ToJson(currentData);
         bool cloudOk = false;
+        
         try
         {
             cloudOk = await _dataService.Save(SaveKey, json, ct);
+            if(cloudOk) _isCloudAvailable = true;
         }
-        catch (OperationCanceledException)
+        catch(Exception ex)
         {
-            Debug.LogWarning($"[SaveService] Saving data timeout/canceled. Use local data.");
+            _isCloudAvailable = false;
+            Debug.LogError($"[SaveService] Cloud save failed network error: {ex.Message}");
+        }
+
+        if (!cloudOk)
+        {
+            Debug.LogError($"[SaveService] Saving in cloud failed. Progress is cached locally.");
+            EventManager.Instance?.Trigger("ON_SAVE_CLOUD_FAILED");
         }
         
-        if(!cloudOk) Debug.LogError($"[SaveService] Saving in cloud failed.");
         return cloudOk;
     }
 
-    public void Dispose() => EventManager.Instance?.RemoveListener("ON_AUTH_SUCCESS", OnAuthSuccess);
+    private async Task AutoSaveLoop(CancellationToken ct = default)
+    {
+        while(!ct.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(AutoSaveIntervalMinutes), ct);
+                Debug.Log($"[SaveService] Triggering periodic auto-save...");
+                bool success = await SaveData(ct);
+
+                if(success) EventManager.Instance?.Trigger("ON_AUTO_SAVE_SUCCESS");
+            }
+            catch(OperationCanceledException) 
+            { 
+                Debug.Log($"[SaveService] Auto-save loop stopped."); 
+                break; 
+            }
+            catch(Exception e) 
+            { 
+                Debug.LogError($"[SaveService] Error in auto-save loop: {e.Message}"); 
+            }
+        }
+    }
+
+    private void LocalBackup()
+    {
+        try
+        {
+            string localJson = _reader.Read(_config.name + ".json");
+            if(!string.IsNullOrEmpty(localJson))
+            {
+                var localData = JsonUtility.FromJson<GameData>(localJson);
+                _config.ApplyGameData(localData);
+                Debug.Log($"[SaveService] Charged data from PlayFab (local) successfully.");
+            }
+            else
+            {
+                Debug.Log($"[SaveService] No local cache found. Starting with clean data config.");
+            }
+        }
+        catch(Exception e)
+        {
+            Debug.LogError($"[SaveService] Parse local data failed: {e.Message}");
+            EventManager.Instance?.Trigger("ON_LOCAL_SAVE_FAILED");
+        }
+    }
+
+    public void Dispose()
+    {
+        _autoSaveCts?.Cancel();
+        _autoSaveCts?.Dispose();
+        EventManager.Instance?.RemoveListener("ON_AUTH_SUCCESS", OnAuthSuccess);
+    }
 }

@@ -56,6 +56,7 @@ public class DotEffectSpec
     public float duration = 4f;
     public float tickInterval = 1f;
     public AudioClip castSound;
+    public AudioClip runningSound; // loop sound while the DoT is active
     public GameObject castVfx;
     public GameObject runningVfx;
 
@@ -69,7 +70,7 @@ public class DotEffectSpec
             DamagePerTick = Mathf.Max(1, Mathf.RoundToInt(damagePerTick))
         };
 
-        var status = new StatusEffect { castSound = castSound, castVfx = castVfx, runningVfx = runningVfx };
+        var status = new StatusEffect { castSound = castSound, runningSound = runningSound, castVfx = castVfx, runningVfx = runningVfx };
         status.effects.Add(dot);
         return status;
     }
@@ -80,6 +81,7 @@ public class ExplosionSpec
 {
     public bool enabled;
     public float radius = 3f;
+    public AudioCue sfx;
     [Tooltip("Sat thuong no = sat thuong projectile x he so nay.")]
     public float damageScale = 1f;
     public GameObject vfxPrefab;

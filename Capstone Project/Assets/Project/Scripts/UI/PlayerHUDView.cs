@@ -10,12 +10,14 @@ public class PlayerHUDView : MonoBehaviour
     {
         [SerializeField] private Image icon;
         [SerializeField] private Image cooldownOverlay;
+        [SerializeField] private Image placeholder;
 
         public void SetIcon(Sprite sprite)
         {
             if(icon == null) return;
             icon.sprite = sprite;
             icon.enabled = sprite != null;
+            if (placeholder != null) placeholder.enabled = sprite == null;
         }
 
         public void SetCooldown(float normalized)
@@ -44,6 +46,17 @@ public class PlayerHUDView : MonoBehaviour
     [Header("Ability Slots")]
     [SerializeField] private SlotView[] abilitySlots = new SlotView[2];
 
+    [Header("Ranged Ammo")]
+    [SerializeField] private TMP_Text ammoText;
+    [Tooltip("Only the two refill tracks. Keep the arrow icon/count outside this group; hidden at full ammo.")]
+    [SerializeField] private GameObject ammoRegenRoot;
+    [Tooltip("Image Type = Filled, Method = Horizontal, Origin = Left.")]
+    [SerializeField] private Image ammoRegenFill; // Left fill; keep name for existing prefab compatibility.
+    [Tooltip("Image Type = Filled, Horizontal, Origin = Right.")]
+    [SerializeField] private Image ammoRegenRightFill;
+    [SerializeField] private Color ammoNormalColor = new Color(0.96f, 0.95f, 0.90f, 1f);
+    [SerializeField] private Color ammoEmptyColor = new Color(1f, 0.35f, 0.30f, 1f);
+
     private float _targetHealthFill = 1f;
     private float _targetExpValue = 0f;
     
@@ -51,6 +64,7 @@ public class PlayerHUDView : MonoBehaviour
     {
         ClearCooldownOverlays(artifactSlots);
         ClearCooldownOverlays(abilitySlots);
+        SetAmmoRegen(0f, false);
     }
 
     private void Update()
@@ -89,6 +103,33 @@ public class PlayerHUDView : MonoBehaviour
         if(expSlider == null) return;
         _targetExpValue = required > 0f ? Mathf.Clamp01(current / required) : 0f;
         expSlider.value = _targetExpValue;
+    }
+
+    public void SetAmmo(int current, int maximum)
+    {
+        if(ammoText == null) return;
+        maximum = Mathf.Max(0, maximum);
+        current = Mathf.Clamp(current, 0, maximum);
+        ammoText.text = current.ToString();
+        ammoText.color = current > 0 ? ammoNormalColor : ammoEmptyColor;
+    }
+
+    public void SetAmmoRegen(float normalized, bool isRegenerating)
+    {
+        if(ammoRegenRoot != null && ammoRegenRoot.activeSelf != isRegenerating)
+            ammoRegenRoot.SetActive(isRegenerating);
+
+        float amount = isRegenerating ? Mathf.Clamp01(normalized) : 0f;
+        if (ammoRegenFill != null)
+        {
+            ammoRegenFill.fillAmount = amount;
+            ammoRegenFill.enabled = isRegenerating;
+        }
+        if (ammoRegenRightFill != null)
+        {
+            ammoRegenRightFill.fillAmount = amount;
+            ammoRegenRightFill.enabled = isRegenerating;
+        }
     }
 
     public void SetArtifactIcon(int slot, Sprite icon) => SetIcon(artifactSlots, slot, icon);

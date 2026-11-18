@@ -20,7 +20,7 @@ public class DialogueManager : MonoBehaviour
     [Header("Cấu hình Chạy chữ")]
     [SerializeField] private float typingSpeed = 0.03f;
 
-    private Queue<string> sentences = new Queue<string>();
+    private readonly Queue<string> sentences = new Queue<string>();
     private bool isTyping = false;
     private string currentSentence;
     private QuestData currentQuest; // Lưu QuestData hiện tại từ NPC
@@ -146,12 +146,6 @@ public class DialogueManager : MonoBehaviour
         if (currentQuest != null && QuestManager.Instance != null)
         {
             QuestManager.Instance.AcceptQuest(currentQuest); //AddQuest(currentQuest)
-        }
-
-        // Gọi NPC đổi trạng thái sang đứng yên
-        if (currentNPC != null)
-        {
-            currentNPC.SetIdleState();
         }
 
         EndDialogue();
