@@ -83,7 +83,7 @@ using UnityEngine;
 public class RarityWeaponPool
 {
     public Rarity rarity;
-    public List<WeaponData> weapons; // kéo các vũ khí thuộc độ hiếm này vào
+    public List<EquipmentData> weapons; // kéo các trang bị thuộc độ hiếm vào
 }
 
 public class GachaManager : MonoBehaviour
@@ -99,11 +99,10 @@ public class GachaManager : MonoBehaviour
     [Header("Kho vũ khí theo độ hiếm")]
     [SerializeField] private List<RarityWeaponPool> weaponPools;
 
-    // Giả lập, sẽ nối với Currency / Inventory thật của team
     [SerializeField] private int playerGems = 1000;
     [SerializeField] private int availableInventorySlots = 15;
 
-    private bool isBusy; // chặn bấm liên tục khi đang chạy animation / đang xem kết quả
+    private bool isBusy; // chặn bấm liên tục khi đang chạy animation
 
     public void OnClickOpenX1()
     {
@@ -112,21 +111,45 @@ public class GachaManager : MonoBehaviour
         if (playerGems < costX1) { ShowMessage("Không đủ Gem!"); return; }
         if (availableInventorySlots < 1) { ShowMessage("Túi đồ đã đầy!"); return; }
 
-        WeaponData reward = RollWeapon();
+        EquipmentData reward = RollWeapon();
         if (reward == null) return; // chưa cấu hình pool, chưa trừ tiền
 
         playerGems -= costX1;
         AddToInventory(reward);
 
         isBusy = true;
-        chestVisual.PlayOpenAnimation(reward.rarity, () =>
+
+        if (chestVisual != null)
+        {
+            chestVisual.PlayOpenAnimation(reward.rarity, () =>
+            {
+                if (resultUI != null)
+                {
+                    resultUI.ShowSingle(reward, () =>
+                    {
+                        if (chestVisual != null) chestVisual.ResetChest();
+                        isBusy = false;
+                    });
+                }
+                else
+                {
+                    if (chestVisual != null) chestVisual.ResetChest();
+                    isBusy = false;
+                }
+            });
+        }
+        else if (resultUI != null)
         {
             resultUI.ShowSingle(reward, () =>
             {
-                chestVisual.ResetChest();
                 isBusy = false;
             });
-        });
+        }
+        else
+        {
+            Debug.Log($"[Gacha Test] Mở x1 thành công! Nhận được: {reward.itemName}");
+            isBusy = false;
+        }
     }
 
     public void OnClickOpenX10()
@@ -136,11 +159,10 @@ public class GachaManager : MonoBehaviour
         if (playerGems < costX10) { ShowMessage("Không đủ Gem!"); return; }
         if (availableInventorySlots < 10) { ShowMessage("Cần tối thiểu 10 ô trống trong túi đồ!"); return; }
 
-        // Bốc đủ 10 món trước, nếu lỗi cấu hình thì chưa trừ tiền
-        var rewards = new List<WeaponData>();
+        var rewards = new List<EquipmentData>();
         for (int i = 0; i < 10; i++)
         {
-            WeaponData w = RollWeapon();
+            EquipmentData w = RollWeapon();
             if (w == null) return;
             rewards.Add(w);
         }
@@ -150,21 +172,34 @@ public class GachaManager : MonoBehaviour
 
         // GDD: x10 bỏ qua từng món, hiện thẳng bảng tổng kết
         isBusy = true;
-        resultUI.ShowSummary(rewards, () => isBusy = false);
+
+        if (resultUI != null)
+        {
+            resultUI.ShowSummary(rewards, () => isBusy = false);
+        }
+        else
+        {
+            Debug.Log("[Gacha Test] Mở x10 thành công! Danh sách nhận được:");
+            foreach (var item in rewards)
+            {
+                Debug.Log($"- {item.itemName} ({item.rarity})");
+            }
+            isBusy = false;
+        }
     }
 
-    private WeaponData RollWeapon()
+    private EquipmentData RollWeapon()
     {
         Rarity rarity = RollRarity();
         var pool = weaponPools.Find(p => p.rarity == rarity);
         if (pool == null || pool.weapons.Count == 0)
         {
-            Debug.LogError($"[Gacha] Chưa có vũ khí nào cho độ hiếm {rarity}!");
+            Debug.LogError($"[Gacha] Chưa có trang bị nào cho độ hiếm {rarity}!");
             return null;
         }
         return pool.weapons[Random.Range(0, pool.weapons.Count)];
-
     }
+
     private Rarity RollRarity()
     {
         float roll = Random.Range(0f, 100f);
@@ -174,8 +209,8 @@ public class GachaManager : MonoBehaviour
         else return Rarity.Legendary;                  // 5% còn lại
     }
 
-    //NỐI HỆ THỐNG THẬT
-    private void AddToInventory(WeaponData w)
+    //NỐI HỆ THỐNG
+    private void AddToInventory(EquipmentData w)
     {
         availableInventorySlots--; // thay bằng PlayerInventory thật
     }

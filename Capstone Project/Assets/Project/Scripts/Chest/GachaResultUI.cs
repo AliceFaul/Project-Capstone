@@ -1,4 +1,4 @@
-﻿// GachaResultUI.cs
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,14 +15,14 @@ public class GachaResultUI : MonoBehaviour
 
     private System.Action onClose;
 
-    public void ShowSingle(WeaponData w, System.Action onCloseCallback)
+    public void ShowSingle(EquipmentData w, System.Action onCloseCallback)
     {
         onClose = onCloseCallback;
         singleSlot.Setup(w);
         singlePanel.SetActive(true);
     }
 
-    public void ShowSummary(List<WeaponData> weapons, System.Action onCloseCallback)
+    public void ShowSummary(List<EquipmentData> weapons, System.Action onCloseCallback)
     {
         onClose = onCloseCallback;
         foreach (Transform child in summaryGrid) Destroy(child.gameObject);

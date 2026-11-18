@@ -1,18 +1,26 @@
-﻿// RewardSlotUI.cs - gắn vào prefab 1 ô phần thưởng
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class RewardSlotUI : MonoBehaviour
 {
-    [SerializeField] private Image icon;
-    [SerializeField] private Image glowBorder; // viền phát sáng theo độ hiếm
-    [SerializeField] private TMP_Text nameText;
+    [Header("UI References")]
+    [SerializeField] private Image iconImage;
+    [SerializeField] private TextMeshProUGUI nameText;
 
-    public void Setup(WeaponData w)
+    public void Setup(EquipmentData w)
     {
-        icon.sprite = w.icon;
-        nameText.text = w.weaponName;
-        glowBorder.color = RarityColors.Get(w.rarity);
+        if (w == null) return;
+
+        if (nameText != null)
+        {
+            nameText.text = w.itemName;
+        }
+
+        if (iconImage != null && w.icon != null)
+        {
+            iconImage.sprite = w.icon;
+            iconImage.gameObject.SetActive(true);
+        }
     }
 }
