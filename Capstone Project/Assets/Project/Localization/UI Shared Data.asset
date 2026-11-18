@@ -603,6 +603,114 @@ MonoBehaviour:
     m_Key: KEY_FOUND
     m_Metadata:
       m_Items: []
+  - m_Id: 28586481607004160
+    m_Key: DETAIL_PINNED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724416
+    m_Key: SHOP_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724417
+    m_Key: SHOP_BUY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724418
+    m_Key: SHOP_SELL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724419
+    m_Key: SHOP_FOR_SALE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724420
+    m_Key: SHOP_YOUR_ITEMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724421
+    m_Key: SHOP_STOCK_NOTE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724422
+    m_Key: SHOP_SELL_NOTE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724423
+    m_Key: SHOP_LEFT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724424
+    m_Key: SHOP_MERCHANT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724425
+    m_Key: SHOP_TIP_BUY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724426
+    m_Key: SHOP_TIP_SELL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724427
+    m_Key: SHOP_BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724428
+    m_Key: SHOP_SWITCH_TAB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724429
+    m_Key: SHOP_COST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724430
+    m_Key: SHOP_PURCHASE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724431
+    m_Key: SHOP_SOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724432
+    m_Key: SHOP_SELL_PRICE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724433
+    m_Key: SHOP_SELL_BUTTON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724434
+    m_Key: SHOP_CONFIRM_BUTTON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724435
+    m_Key: SHOP_CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724436
+    m_Key: SHOP_BOUGHT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724437
+    m_Key: SHOP_SOLD_TOAST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724438
+    m_Key: SHOP_NOT_ENOUGH_GOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724439
+    m_Key: SHOP_BAG_FULL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724440
+    m_Key: SHOP_ALREADY_SOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724441
+    m_Key: SHOP_CANNOT_SELL
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

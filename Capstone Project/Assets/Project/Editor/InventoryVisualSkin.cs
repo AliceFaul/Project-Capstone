@@ -98,7 +98,7 @@ public static class InventoryVisualSkin
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void ConfigureDetail(InventoryDetailView detail, CapstoneUIBuildOptions o)
+    public static void ConfigureDetail(InventoryDetailView detail, CapstoneUIBuildOptions o)
     {
         var so = new SerializedObject(detail);
         ConfigureStatIcons(so, o);

@@ -606,6 +606,114 @@ MonoBehaviour:
     m_Localized: Key found
     m_Metadata:
       m_Items: []
+  - m_Id: 28586481607004160
+    m_Localized: PINNED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724416
+    m_Localized: SHOP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724417
+    m_Localized: BUY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724418
+    m_Localized: SELL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724419
+    m_Localized: FOR SALE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724420
+    m_Localized: YOUR ITEMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724421
+    m_Localized: Stock refreshes on your next visit to this area.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724422
+    m_Localized: Only items in your bag can be sold.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724423
+    m_Localized: '{0} / {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724424
+    m_Localized: MERCHANT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724425
+    m_Localized: Take a look. You might find something useful.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724426
+    m_Localized: Have something to sell? Select an item from your bag.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724427
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724428
+    m_Localized: Switch tab
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724429
+    m_Localized: Cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724430
+    m_Localized: PURCHASE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724431
+    m_Localized: SOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724432
+    m_Localized: Sell price
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724433
+    m_Localized: SELL ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724434
+    m_Localized: CONFIRM SALE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724435
+    m_Localized: Click twice within 3 seconds to sell.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724436
+    m_Localized: Purchased {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724437
+    m_Localized: Sold {0} for {1} Gold.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724438
+    m_Localized: Not enough Gold.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724439
+    m_Localized: The bag is full.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724440
+    m_Localized: This item has already been sold.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28586481665724441
+    m_Localized: This item cannot be sold.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

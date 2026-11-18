@@ -19,6 +19,7 @@ public sealed class CapstoneUIPrefabTool : EditorWindow
     [SerializeField] private int rollAbilityIndex = 1;
     [SerializeField] private bool buildHUD = true;
     [SerializeField] private bool buildInventory = true;
+    [SerializeField] private bool buildShop;
     [SerializeField] private bool normalizeIconImport = true;
     private Vector2 scroll;
     private string resultMessage;
@@ -31,12 +32,21 @@ public sealed class CapstoneUIPrefabTool : EditorWindow
         var window = GetWindow<CapstoneUIPrefabTool>("Capstone UI");
         window.buildHUD = false;
         window.buildInventory = true;
+        window.buildShop = false;
+    }
+
+    public static void OpenShop()
+    {
+        var window = GetWindow<CapstoneUIPrefabTool>("Capstone UI");
+        window.buildHUD = false;
+        window.buildInventory = false;
+        window.buildShop = true;
     }
 
     private void OnGUI()
     {
         scroll = EditorGUILayout.BeginScrollView(scroll);
-        EditorGUILayout.LabelField("HUD / Inventory — approved layout", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("HUD / Inventory / Shop", EditorStyles.boldLabel);
         iconFolder = EditorGUILayout.TextField("Icon folder", iconFolder);
         outputFolder = EditorGUILayout.TextField("Output folder", outputFolder);
         font = (TMP_FontAsset)EditorGUILayout.ObjectField("Font (optional)", font, typeof(TMP_FontAsset), false);
@@ -51,8 +61,9 @@ public sealed class CapstoneUIPrefabTool : EditorWindow
         EditorGUILayout.Space();
         buildHUD = EditorGUILayout.Toggle("Build HUD", buildHUD);
         buildInventory = EditorGUILayout.Toggle("Build Inventory", buildInventory);
+        buildShop = EditorGUILayout.Toggle("Build Shop", buildShop);
         normalizeIconImport = EditorGUILayout.Toggle("Set icon import settings", normalizeIconImport);
-        EditorGUILayout.HelpBox("Every build creates a new folder. Inventory includes a wired RuneSocketPopup. Opening Inventory, saving and gameplay input remain with your existing game flow.", MessageType.Info);
+        EditorGUILayout.HelpBox("Every build creates a new folder. Shop shares Inventory item visuals, font and icons. Keep ShopSceneDirector in charge of its camera, backdrop and gameplay lock.", MessageType.Info);
         using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling))
         {
             if (GUILayout.Button("Validate inputs")) Run(false);
@@ -66,7 +77,7 @@ public sealed class CapstoneUIPrefabTool : EditorWindow
     {
         try
         {
-            if (!buildHUD && !buildInventory) throw new InvalidOperationException("Select at least one output.");
+            if (!buildHUD && !buildInventory && !buildShop) throw new InvalidOperationException("Select at least one output.");
             var options = new CapstoneUIBuildOptions
             {
                 IconFolder = iconFolder.TrimEnd('/'), Font = font != null ? font : TMP_Settings.defaultFontAsset,
@@ -74,6 +85,7 @@ public sealed class CapstoneUIPrefabTool : EditorWindow
                 ExistingHUD = existingHUD, HealIndex = healAbilityIndex, RollIndex = rollAbilityIndex
             };
             CapstoneUIEditor.ValidateInputs(options, outputFolder, buildHUD, buildInventory);
+            if (buildShop) ShopUIBuilder.ValidateInputs();
             if (!normalizeIconImport) CapstoneUIEditor.ResolveIcons(options);
             if (!create) { resultMessage = "Inputs and component contracts are valid."; return; }
             if (normalizeIconImport) CapstoneUIEditor.ConfigureIconImports(options);
@@ -87,11 +99,12 @@ public sealed class CapstoneUIPrefabTool : EditorWindow
             CapstoneUIEditor.CreateShapes(options);
             if (buildHUD) PlayerHUDPrefabBuilder.Build(options);
             if (buildInventory) InventoryUIBuilder.BuildToFolder(options);
+            if (buildShop) ShopUIBuilder.BuildToFolder(options);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<DefaultAsset>(options.Output);
             EditorGUIUtility.PingObject(Selection.activeObject);
-            resultMessage = "Created: " + options.Output + "\nOpen each prefab to inspect the result; drag HUD/InventoryCanvas into your gameplay scene when ready.";
+            resultMessage = "Created: " + options.Output + "\nOpen each prefab to inspect the result, then add the required canvas to your scene.";
             Debug.Log("[Capstone UI] " + resultMessage);
         }
         catch (Exception ex)

@@ -27,6 +27,12 @@ public class ShopSceneDirector : MonoBehaviour
     [Range(0.5f, 1.5f)] [SerializeField] private float blurMaxRadius = 1.5f;
     [SerializeField] private float focusFadeTime = 0.6f;
 
+    [Header("Blurred backdrop (left side, behind the shop UI)")]
+    
+    [Tooltip("Root of the backdrop canvas (blurred snapshot + dark gradient). Keep it inactive; it is shown after the camera has settled.")]
+    [SerializeField] private GameObject backdropRoot;
+    [SerializeField] private UIBlurBackdrop backdropBlur;
+
     [Header("Hide while the shop is open")]
     [SerializeField] private bool hidePlayer = true;
     
@@ -43,12 +49,15 @@ public class ShopSceneDirector : MonoBehaviour
     public bool IsOpen { get; private set; }
     public ShopService Shop { get; private set; }
 
-    public event Action<ShopService> Opened;
-    public event Action Closed;
+    public event Action<ShopService> Opened; // the shop UI shows itself here
+    public event Action Closed;              // ...and hides here
+
+    public static event Action<ShopSceneDirector, ShopService> AnyOpened;
+    public static event Action<ShopSceneDirector> AnyClosed;
 
     private PlayerController _player;
-    private readonly List<Renderer> _hiddenRenderers = new List<Renderer>();
-    private readonly List<Canvas> _hiddenCanvases = new List<Canvas>();
+    private readonly List<Renderer> _hiddenRenderers = new();
+    private readonly List<Canvas> _hiddenCanvases = new();
     private bool _changed;
     private bool _warnedOrthographic;
     private Coroutine _focusRoutine;
@@ -71,7 +80,10 @@ public class ShopSceneDirector : MonoBehaviour
 
         IsOpen = false;
         if (Shop != null) Shop.Changed -= OnShopChanged;
+        if (backdropRoot != null) backdropRoot.SetActive(false);
+        if (backdropBlur != null) backdropBlur.Release();
         Closed?.Invoke();
+        AnyClosed?.Invoke(this);
         StartCoroutine(CloseRoutine());
     }
 
@@ -88,15 +100,22 @@ public class ShopSceneDirector : MonoBehaviour
         HideEverything();
 
         PrepareFocus();
-        if(shopCamera != null) shopCamera.SetActive(true);
+        if (shopCamera != null) shopCamera.SetActive(true);
         StartFocus(1f);
 
         yield return WaitForCameraBlend();
         if (!IsOpen) yield break;
 
         WarnIfOrthographic();
+
+        // Snapshot of the settled view (HUD and world UI are already hidden, the shop UI is not up yet), blurred on the left.
+        if (backdropBlur != null) yield return backdropBlur.Capture();
+        if (!IsOpen) yield break;
+        if (backdropRoot != null) backdropRoot.SetActive(true);
+
         Opened?.Invoke(Shop);
-        if (Opened == null) LogStock(Shop); // TODO: Activate UI here later.
+        AnyOpened?.Invoke(this, Shop);
+        if (Opened == null && AnyOpened == null) LogStock(Shop); // no UI yet: at least show the stock in the console
     }
 
     private IEnumerator CloseRoutine()
@@ -138,7 +157,7 @@ public class ShopSceneDirector : MonoBehaviour
         if(_warnedOrthographic || focusVolume == null || Camera.main == null || !Camera.main.orthographic) return;
 
         _warnedOrthographic = true;
-        Debug.LogWarning("[ShopSceneDirector] The camera is orthographic while the shop is open. Change to override mode perspective.", this);
+        Debug.LogWarning("[ShopSceneDirector] The camera is orthographic while the shop is open. Change to override mode perspective", this);
     }
 
     private void StartFocus(float target)
@@ -249,6 +268,7 @@ public class ShopSceneDirector : MonoBehaviour
     }
 }
 
+// Fire-and-forget save through the SaveService (local cache first, then PlayFab).
 public static class SaveHelper
 {
     public static async void SaveNow()

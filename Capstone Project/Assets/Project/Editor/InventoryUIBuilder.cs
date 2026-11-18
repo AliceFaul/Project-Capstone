@@ -85,6 +85,51 @@ public static class InventoryUIBuilder
         }
     }
 
+    // Shared item visuals for Shop. Each caller supplies its own output folder and build context.
+    public static void BuildSharedItemPrefabs(CapstoneUIBuildOptions options, string folder,
+        out GameObject slotPrefab, out GameObject rowPrefab)
+    {
+        if (options == null) throw new System.ArgumentNullException(nameof(options));
+        CapstoneUIEditor.ValidateAssetFolder(folder);
+        var previousOptions = Options;
+        var previousFolder = PrefabDir;
+        var previousScene = BuildScene;
+        Directory.CreateDirectory(folder);
+        AssetDatabase.Refresh();
+        using (var scene = new CapstoneUIEditor.BuildScene())
+        {
+            Options = options;
+            PrefabDir = folder;
+            BuildScene = scene;
+            try
+            {
+                slotPrefab = BuildSlotPrefab();
+                rowPrefab = BuildStatRowPrefab();
+            }
+            finally
+            {
+                Options = previousOptions;
+                PrefabDir = previousFolder;
+                BuildScene = previousScene;
+            }
+        }
+    }
+
+    public static GameObject BuildSharedDetailPanel(RectTransform parent, GameObject rowPrefab,
+        CapstoneUIBuildOptions options, out InventoryDetailView detail)
+    {
+        if (options == null) throw new System.ArgumentNullException(nameof(options));
+        var previousOptions = Options;
+        Options = options;
+        try
+        {
+            var panel = BuildDetailPanel(parent, rowPrefab, out detail);
+            InventoryVisualSkin.ConfigureDetail(detail, options);
+            return panel;
+        }
+        finally { Options = previousOptions; }
+    }
+
     // ===== PREFABS =====
 
     private static GameObject BuildSlotPrefab()
@@ -219,7 +264,7 @@ public static class InventoryUIBuilder
         Stretch(screen);
         var bgImage = screen.gameObject.AddComponent<Image>();
         bgImage.color = Bg;
-        bgImage.raycastTarget = true; // swallows clicks so they never reach the world
+        bgImage.raycastTarget = true; // Receives uGUI raycasts; gameplay input still needs its own gate.
         var view = screen.gameObject.AddComponent<InventoryScreenView>();
 
         // ---- top bar
@@ -598,7 +643,7 @@ public static class InventoryUIBuilder
         so.FindProperty("text").objectReferenceValue = t;
         so.ApplyModifiedPropertiesWithoutUndo();
         typeof(LocalizationText).GetField("localizedString", BindingFlags.NonPublic | BindingFlags.Instance)
-            ?.SetValue(loc, InventoryText.Ref(key));
+            .SetValue(loc, InventoryText.Ref(key));
         EditorUtility.SetDirty(loc);
         return t;
     }
