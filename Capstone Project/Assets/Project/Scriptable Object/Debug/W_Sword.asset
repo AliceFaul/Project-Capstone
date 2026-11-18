@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ea4a2671f04a689c57c8d9b01d35f1, type: 3}
+  m_Name: W_Sword
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  id: w_sword
+  itemName: Wooden Sword
+  itemDescription: 
+  itemType: 1
+  rarity: 0
+  icon: {fileID: 0}
+  isStackable: 0
+  maxStackSize: 64
+  equipmentPrefabKey: W_Sword
+  equipmentType: 1
+  weaponType: 0
+  stats:
+  - Stat: 2
+    Tiered: 1
+    TierValues:
+    - 5
+    - 7
+    - 10
+    - 12
+  - Stat: 4
+    Tiered: 0
+    TierValues:
+    - 1
+  - Stat: 3
+    Tiered: 0
+    TierValues:
+    - 2.5
+  - Stat: 6
+    Tiered: 0
+    TierValues:
+    - 0
+  - Stat: 7
+    Tiered: 0
+    TierValues:
+    - 0
+  equipmentPrefabRef:
+    m_AssetGUID: 5cdf1ac831646004288735c99ac51e4a
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
