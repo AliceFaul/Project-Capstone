@@ -811,6 +811,10 @@ MonoBehaviour:
     m_Key: DIFFICULTY_NIGHTMARE
     m_Metadata:
       m_Items: []
+  - m_Id: 28602472646856704
+    m_Key: LEVEL_01
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -53,6 +53,16 @@ public class LevelData : ScriptableObject
         return difficulties[Mathf.Clamp(index, 0, difficulties.Length - 1)];
     }
 
-    public string GetName() => !displayName.IsEmpty ? displayName.GetLocalizedString() : fallbackName;
-    public string GetDescription() => !description.IsEmpty ? description.GetLocalizedString() : fallbackDescription;
+    public string GetName() => ResolveText(displayName, string.IsNullOrEmpty(fallbackName) ? name : fallbackName);
+    public string GetDescription() => ResolveText(description, fallbackDescription);
+
+    private static string ResolveText(LocalizedString text, string fallback)
+    {
+        if (text is { IsEmpty: false })
+        {
+            string localized = text.GetLocalizedString();
+            if (!string.IsNullOrEmpty(localized)) return localized;
+        }
+        return fallback ?? string.Empty;
+    }
 }

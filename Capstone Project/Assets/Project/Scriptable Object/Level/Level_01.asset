@@ -17,9 +17,9 @@ MonoBehaviour:
   preloadWithLoadingScene: 0
   displayName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:8e91f412eceb3b941818484cedbd590a
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 28602472646856704
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -43,19 +43,19 @@ MonoBehaviour:
     enemyHealthMultiplier: 1
     enemyDamageMultiplier: 1
     lootDifficulty: 0
-    rewardPreview: {fileID: 0}
+    rewardPreview: {fileID: 11400000, guid: 99eda8f64accccc4da431602b5a4e9b3, type: 2}
   - difficulty: 1
     recommendedPower: 220
     enemyHealthMultiplier: 1.5
     enemyDamageMultiplier: 1.25
     lootDifficulty: 2
-    rewardPreview: {fileID: 0}
+    rewardPreview: {fileID: 11400000, guid: 99eda8f64accccc4da431602b5a4e9b3, type: 2}
   - difficulty: 2
     recommendedPower: 400
     enemyHealthMultiplier: 2.2
     enemyDamageMultiplier: 1.6
     lootDifficulty: 4
-    rewardPreview: {fileID: 0}
+    rewardPreview: {fileID: 11400000, guid: 99eda8f64accccc4da431602b5a4e9b3, type: 2}
   references:
     version: 2
     RefIds: []

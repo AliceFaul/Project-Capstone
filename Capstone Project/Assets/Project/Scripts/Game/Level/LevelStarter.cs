@@ -1,16 +1,24 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-// Starts a run from the lobby: remembers the choice (RunSettings), sets the loot difficulty and loads the level scene through SceneLoader.
-// A "Retry" button can call Start(RunSettings.Level, RunSettings.DifficultyIndex).
 public static class LevelStarter
 {
+    private static bool _loading;
+
     public static async Task<bool> Start(LevelData level, int difficultyIndex, PlayerDataConfig data = null,
         LevelCatalog catalog = null, bool ignoreLocks = false)
     {
-        if (level == null || string.IsNullOrEmpty(level.sceneName))
+        if (_loading) return false;
+        if (level == null || string.IsNullOrWhiteSpace(level.sceneName))
         {
             Debug.LogError("[LevelStarter] The level has no scene name.");
+            return false;
+        }
+
+        var difficulties = level.difficulties;
+        if (difficulties == null || difficultyIndex < 0 || difficultyIndex >= difficulties.Length || difficulties[difficultyIndex] == null)
+        {
+            Debug.LogWarning($"[LevelStarter] '{level.id}' has no settings for difficulty index {difficultyIndex}.", level);
             return false;
         }
 
@@ -28,17 +36,35 @@ public static class LevelStarter
             }
         }
 
-        if (SceneLoader.Instance == null)
+        var loader = SceneLoader.Instance;
+        if (loader == null)
         {
             Debug.LogError("[LevelStarter] SceneLoader.Instance is missing.");
             return false;
         }
 
-        RunSettings.Set(level, difficultyIndex);
-        var settings = level.GetDifficulty(difficultyIndex);
-        LootService.Difficulty = settings != null ? settings.lootDifficulty : 0;
-
-        await SceneLoader.Instance.LoadScene(level.sceneName, level.preloadWithLoadingScene);
-        return true;
+        var previousLevel = RunSettings.Level;
+        int previousDifficulty = RunSettings.DifficultyIndex;
+        int previousSeed = RunSettings.Seed;
+        int previousLoot = LootService.Difficulty;
+        _loading = true;
+        try
+        {
+            // The gameplay scene reads these values during startup.
+            RunSettings.Set(level, difficultyIndex);
+            LootService.Difficulty = difficulties[difficultyIndex].lootDifficulty;
+            await loader.LoadScene(level.sceneName, level.preloadWithLoadingScene);
+            return true;
+        }
+        catch
+        {
+            RunSettings.Set(previousLevel, previousDifficulty, previousSeed);
+            LootService.Difficulty = previousLoot;
+            throw;
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 }
