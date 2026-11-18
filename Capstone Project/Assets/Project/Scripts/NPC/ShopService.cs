@@ -40,6 +40,7 @@ public class ShopService
     private readonly List<ShopOffer> _offers = new List<ShopOffer>();
 
     public IReadOnlyList<ShopOffer> Offers => _offers;
+    public PlayerDataConfig Data => _data;
     public event Action Changed; // after a successful buy or sell
 
     public ShopService(PlayerDataConfig data, ShopPriceConfig prices)

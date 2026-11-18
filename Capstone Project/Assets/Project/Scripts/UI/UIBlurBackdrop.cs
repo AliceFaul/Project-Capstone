@@ -2,15 +2,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Blurred backdrop for popups on ANY canvas mode (including Screen Space - Overlay).
-// Capture() grabs the finished frame at the end of the frame, shrinks and blurs it on the GPU and shows it in a RawImage placed
-// just below the dim overlay. It is a snapshot taken when the popup opens, so the cost is paid once, not every frame.
 public class UIBlurBackdrop : MonoBehaviour
 {
     public enum FlipMode { Auto, Flip, NoFlip }
 
     private static readonly int FlipId = Shader.PropertyToID("_FlipY");
     private static readonly int DirectionId = Shader.PropertyToID("_Direction");
+    private static readonly int FadeId = Shader.PropertyToID("_FadeRange");
 
     [SerializeField] private RawImage blurImage;
     [SerializeField] private Image dimImage;
@@ -21,8 +19,18 @@ public class UIBlurBackdrop : MonoBehaviour
     [Range(1, 8)] [SerializeField] private int downsample = 4;
     [Range(1, 6)] [SerializeField] private int iterations = 3;
     [Range(0.5f, 3f)] [SerializeField] private float radius = 1.5f;
+    
     [Tooltip("If the blurred picture is upside down, switch between Flip and NoFlip.")]
     [SerializeField] private FlipMode flip = FlipMode.Auto;
+
+    [Header("Fade to the live view (shop: blur only the left side)")]
+    [SerializeField] private bool fadeRight;
+    
+    [Tooltip("Screen width fraction (0..1) where the blur starts fading out.")]
+    [Range(0f, 1f)] [SerializeField] private float fadeStart = 0.55f;
+    
+    [Tooltip("Screen width fraction where the blur is fully transparent.")]
+    [Range(0f, 1f)] [SerializeField] private float fadeEnd = 0.8f;
 
     [Header("Dim overlay alpha")]
     [Range(0f, 1f)] [SerializeField] private float dimWithBlur = 0.3f;
@@ -66,7 +74,16 @@ public class UIBlurBackdrop : MonoBehaviour
             Graphics.Blit(_b, _a, _material, 1);
         }
 
-        blurImage.texture = _a;
+        if (fadeRight)
+        {
+            _material.SetVector(FadeId, new Vector4(fadeStart, fadeEnd, 0f, 0f));
+            Graphics.Blit(_a, _b, _material, 2);
+            blurImage.texture = _b;
+        }
+        else
+        {
+            blurImage.texture = _a;
+        }
         Apply(true);
     }
 

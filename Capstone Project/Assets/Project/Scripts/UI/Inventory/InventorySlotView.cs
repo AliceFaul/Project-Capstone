@@ -145,4 +145,15 @@ public class InventorySlotView : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (_highlightImage != null)
             _highlightImage.color = _pinned ? pinnedHighlightColor : _normalHighlightColor;
     }
+    
+    public void ShowCornerText(string text)
+    {
+        bool has = !string.IsNullOrEmpty(text);
+        levelBadge.SetActive(has);
+        if (!has) return;
+ 
+        levelText.text = text;
+        var rect = (RectTransform)levelBadge.transform;
+        rect.sizeDelta = new Vector2(Mathf.Max(30f, 10f * text.Length + 12f), rect.sizeDelta.y);
+    }
 }

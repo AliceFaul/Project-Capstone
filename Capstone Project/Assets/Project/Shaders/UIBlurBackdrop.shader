@@ -1,4 +1,3 @@
-// Used only through Graphics.Blit by UIBlurBackdrop (screen snapshot -> small blurred texture).
 Shader "Hidden/UI/BlurBackdrop"
 {
     Properties
@@ -17,6 +16,7 @@ Shader "Hidden/UI/BlurBackdrop"
         float4 _MainTex_TexelSize;
         float _FlipY;
         float2 _Direction; // (radius, 0) for the horizontal pass, (0, radius) for the vertical pass
+        float2 _FadeRange; // x = uv.x where the picture starts to fade out, y = uv.x where it is fully transparent
 
         // 2x2 box downsample, optionally flipping the image vertically.
         fixed4 FragDownsample(v2f_img i) : SV_Target
@@ -41,6 +41,13 @@ Shader "Hidden/UI/BlurBackdrop"
             c += (tex2D(_MainTex, i.uv + stepUv * 3.2307692308) + tex2D(_MainTex, i.uv - stepUv * 3.2307692308)) * 0.0702702703;
             return fixed4(c.rgb, 1);
         }
+
+        // Keeps the blurred picture on the left and fades it to transparent toward the right (the live view shows through).
+        fixed4 FragFade(v2f_img i) : SV_Target
+        {
+            fixed4 c = tex2D(_MainTex, i.uv);
+            return fixed4(c.rgb, 1.0 - smoothstep(_FadeRange.x, _FadeRange.y, i.uv.x));
+        }
         ENDCG
 
         // 0: downsample (+ flip)
@@ -58,6 +65,15 @@ Shader "Hidden/UI/BlurBackdrop"
             CGPROGRAM
             #pragma vertex vert_img
             #pragma fragment FragBlur
+            ENDCG
+        }
+
+        // 2: horizontal alpha fade
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert_img
+            #pragma fragment FragFade
             ENDCG
         }
     }
