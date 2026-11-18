@@ -36,6 +36,15 @@ public class LevelRunController : MonoBehaviour
     private readonly Dictionary<string, AreaController> _areaById = new Dictionary<string, AreaController>();
     private AreaController _currentArea;
 
+    // What the player chose in the lobby (RunSettings); defaults apply when the scene is started directly.
+    private LevelData _level;
+    private int _difficultyIndex;
+    private float _difficultyHealth = 1f;
+    private float _difficultyDamage = 1f;
+
+    public LevelData Level => _level;
+    public int DifficultyIndex => _difficultyIndex;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -74,6 +83,7 @@ public class LevelRunController : MonoBehaviour
         CollectAreas();
         foreach (var area in _areaById.Values) area.gameObject.SetActive(false);
 
+        ReadRunSettings(ref runSeed);
         if (runSeed == 0) runSeed = Environment.TickCount;
         Graph = NodeGraphGenerator.Generate(config, AreasByType(), runSeed);
 
@@ -146,7 +156,7 @@ public class LevelRunController : MonoBehaviour
         area.Cleared += OnAreaCleared;
         area.Enter(BuildContext(node));
 
-        yield return null;
+        yield return null; // let physics and the NavMesh agent settle
         yield return fader.FadeTo(0f, fade);
 
         player.CmdCombatLocked(false);
@@ -165,9 +175,12 @@ public class LevelRunController : MonoBehaviour
         }
         else if (node.Type == NodeType.Boss)
         {
-            health = 1f;
+            health = 1f; // bosses are authored, not scaled
             damage = 1f;
         }
+
+        health *= _difficultyHealth; // difficulty applies to every enemy, bosses included
+        damage *= _difficultyDamage;
 
         return new NodeRunContext
         {
@@ -194,7 +207,42 @@ public class LevelRunController : MonoBehaviour
             Debug.Log("[LevelRunController] Run completed.");
             IsRunning = false;
             RunCompleted?.Invoke();
+            RecordCompletion();
         }
+    }
+
+    private void ReadRunSettings(ref int runSeed)
+    {
+        _level = null;
+        _difficultyIndex = 0;
+        _difficultyHealth = 1f;
+        _difficultyDamage = 1f;
+        if (!RunSettings.IsSet) return;
+
+        _level = RunSettings.Level;
+        _difficultyIndex = RunSettings.DifficultyIndex;
+
+        var settings = RunSettings.CurrentDifficulty;
+        if (settings != null)
+        {
+            difficulty = settings.lootDifficulty;
+            _difficultyHealth = settings.enemyHealthMultiplier;
+            _difficultyDamage = settings.enemyDamageMultiplier;
+        }
+
+        if (runSeed == 0 && RunSettings.Seed != 0) runSeed = RunSettings.Seed;
+    }
+
+    // Clearing the boss unlocks the next difficulty / level and is saved at once.
+    private void RecordCompletion()
+    {
+        if (_level == null || player == null || player.PlayerRuntime == null) return;
+
+        var data = player.PlayerRuntime.Config;
+        if (data == null) return;
+
+        data.RecordLevelCompleted(_level.id, _difficultyIndex);
+        SaveHelper.SaveNow();
     }
 
     private void Teleport(Vector3 position)

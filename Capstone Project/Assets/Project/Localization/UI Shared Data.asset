@@ -711,6 +711,106 @@ MonoBehaviour:
     m_Key: SHOP_CANNOT_SELL
     m_Metadata:
       m_Items: []
+  - m_Id: 28592292823584768
+    m_Key: LEVEL_BADGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693632
+    m_Key: LEVEL_EASY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693633
+    m_Key: LEVEL_HARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693634
+    m_Key: LEVEL_RECOMMENDED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693635
+    m_Key: LEVEL_ENEMIES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693636
+    m_Key: LEVEL_LOOT_BETTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693637
+    m_Key: LEVEL_LOOT_STANDARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693638
+    m_Key: LEVEL_YOUR_POWER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693639
+    m_Key: LEVEL_POWER_READY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693640
+    m_Key: LEVEL_POWER_BELOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693641
+    m_Key: LEVEL_GEAR_DROPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693642
+    m_Key: LEVEL_RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693643
+    m_Key: LEVEL_ARTIFACTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693644
+    m_Key: LEVEL_START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693645
+    m_Key: LEVEL_LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693646
+    m_Key: LEVEL_CLEAR_FIRST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693647
+    m_Key: LEVEL_BEST_CLEAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693648
+    m_Key: LEVEL_CLEARED_TIMES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693649
+    m_Key: LEVEL_NOT_CLEARED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693650
+    m_Key: LEVEL_LOCKED_LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693651
+    m_Key: LEVEL_BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693652
+    m_Key: LEVEL_CANNOT_START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693653
+    m_Key: DIFFICULTY_NORMAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693654
+    m_Key: DIFFICULTY_HARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693655
+    m_Key: DIFFICULTY_NIGHTMARE
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -720,6 +720,106 @@ MonoBehaviour:
     m_Localized: This item cannot be sold.
     m_Metadata:
       m_Items: []
+  - m_Id: 28592292823584768
+    m_Localized: LEVEL {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693632
+    m_Localized: EASY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693633
+    m_Localized: HARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693634
+    m_Localized: 'Recommended power: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693635
+    m_Localized: 'Enemies: x{0} health, x{1} damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693636
+    m_Localized: Better odds for rare loot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693637
+    m_Localized: Standard loot odds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693638
+    m_Localized: YOUR POWER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693639
+    m_Localized: READY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693640
+    m_Localized: '{0} below'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693641
+    m_Localized: GEAR DROPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693642
+    m_Localized: RUNES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693643
+    m_Localized: ARTIFACTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693644
+    m_Localized: START RUN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693645
+    m_Localized: LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693646
+    m_Localized: Clear {0} first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693647
+    m_Localized: BEST CLEAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693648
+    m_Localized: Cleared {0} times
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693649
+    m_Localized: Not cleared yet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693650
+    m_Localized: Clear the previous level to unlock this one.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693651
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693652
+    m_Localized: Cannot start this level.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693653
+    m_Localized: Normal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693654
+    m_Localized: Hard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28592292890693655
+    m_Localized: Nightmare
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

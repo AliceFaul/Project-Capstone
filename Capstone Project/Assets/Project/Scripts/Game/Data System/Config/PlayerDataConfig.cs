@@ -43,10 +43,19 @@ public interface IInventory
     Loadout Loadout { get; }
 }
 
+// Best result per level: highestDifficultyCleared = -1 means "never cleared".
+[Serializable]
+public class LevelProgressEntry
+{
+    public string levelId;
+    public int highestDifficultyCleared = -1;
+    public int timesCompleted;
+}
+
 [Serializable]
 public class GameData
 {
-    public const int CurrentSchemaVersion = 2;
+    public const int CurrentSchemaVersion = 3;
     public int SchemaVersion;
     
     public string PlayerDisplayName;
@@ -62,6 +71,7 @@ public class GameData
     public List<ArtifactInstance> ArtifactInstances;
     public List<BagLayout> BagLayouts;
     public LoadoutData Loadout;
+    public List<LevelProgressEntry> LevelProgress;
 }
 
 // Replaced the data fields in Player Runtime;
@@ -97,6 +107,9 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
     [SerializeField] private InventoryConfig inventoryConfig;
     [SerializeField] private ItemDatabase itemDatabase;
 
+    [Header("Level Progress")]
+    [SerializeField] private List<LevelProgressEntry> levelProgress = new List<LevelProgressEntry>();
+
     public string DisplayName => displayName;
     public int Level => level;
     public float CurrentExp => currentExp;
@@ -112,6 +125,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
     public event Action<string> OnDisplayNameChanged;
     public event Action<string> OnCosmeticEquipped;
     public event Action OnDataApplied;
+    public event Action OnLevelProgressChanged;
 
     // Use the lazy pattern to defer initialization until the object is used.
     private Lazy<Currency> _currency;
@@ -233,6 +247,25 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
         OnCosmeticEquipped?.Invoke(cosmetic.cosmeticId);
     }
 
+    // ---- level progress (select level screen, unlock rules)
+    public LevelProgressEntry GetLevelProgress(string levelId) => levelProgress.Find(p => p != null && p.levelId == levelId);
+
+    public void RecordLevelCompleted(string levelId, int difficultyIndex)
+    {
+        if (string.IsNullOrEmpty(levelId)) return;
+
+        var entry = GetLevelProgress(levelId);
+        if (entry == null)
+        {
+            entry = new LevelProgressEntry { levelId = levelId };
+            levelProgress.Add(entry);
+        }
+
+        entry.highestDifficultyCleared = Mathf.Max(entry.highestDifficultyCleared, difficultyIndex);
+        entry.timesCompleted++;
+        OnLevelProgressChanged?.Invoke();
+    }
+
     public GameData ToGameData()
     {
         var owned = this.Inventory.AllItems().Concat(this.Loadout.EquippedItems()).ToList();
@@ -254,7 +287,8 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
             ArtifactInstances = owned.OfType<ArtifactInstance>().ToList(),
             
             BagLayouts = this.Inventory.ToLayouts(),
-            Loadout = this.Loadout.ToData()
+            Loadout = this.Loadout.ToData(),
+            LevelProgress = this.levelProgress
         };
     }
 
@@ -269,6 +303,7 @@ public class PlayerDataConfig : ScriptableObject, IConfig, IPlayerIdentity, IPro
         this.currencyBalances = gameData.CurrencyBalances ?? this.currencyBalances;
         this.unlockedCosmeticIds = gameData.UnlockedCosmeticIds ?? this.unlockedCosmeticIds;
         this.equippedCosmeticId = gameData.EquippedCosmeticId ?? this.equippedCosmeticId;
+        this.levelProgress = gameData.LevelProgress ?? this.levelProgress; // saves from schema 2 have no progress yet
 
         // Sync currency data
         if (_currency is { IsValueCreated: true })

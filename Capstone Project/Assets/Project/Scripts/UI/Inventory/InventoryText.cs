@@ -45,6 +45,18 @@ public static class InventoryText
         { "POPUP_CONFLICT_REPLACES", "Same group as {0}: {0} would become inactive." },
         { "POPUP_CONFLICT_WEAKER", "Same group as {0}: this rune would stay inactive." },
         { "RUNE_EFFECT_SUMMARY", "{0} {1} damage every {2}s for {3}s" },
+        // level select
+        { "LEVEL_BADGE", "LEVEL {0}" }, { "LEVEL_EASY", "EASY" }, { "LEVEL_HARD", "HARD" },
+        { "LEVEL_RECOMMENDED", "Recommended power: {0}" }, { "LEVEL_ENEMIES", "Enemies: x{0} health, x{1} damage" },
+        { "LEVEL_LOOT_BETTER", "Better odds for rare loot" }, { "LEVEL_LOOT_STANDARD", "Standard loot odds" },
+        { "LEVEL_YOUR_POWER", "YOUR POWER" }, { "LEVEL_POWER_READY", "READY" }, { "LEVEL_POWER_BELOW", "{0} below" },
+        { "LEVEL_GEAR_DROPS", "GEAR DROPS" }, { "LEVEL_RUNES", "RUNES" }, { "LEVEL_ARTIFACTS", "ARTIFACTS" },
+        { "LEVEL_START", "START RUN" }, { "LEVEL_LOCKED", "LOCKED" }, { "LEVEL_CLEAR_FIRST", "Clear {0} first" },
+        { "LEVEL_BEST_CLEAR", "BEST CLEAR" }, { "LEVEL_CLEARED_TIMES", "Cleared {0} times" }, { "LEVEL_NOT_CLEARED", "Not cleared yet" },
+        { "LEVEL_LOCKED_LEVEL", "Clear the previous level to unlock this one." }, { "LEVEL_BACK", "Back" },
+        { "LEVEL_CANNOT_START", "Cannot start this level." },
+        // levels
+        { "DIFFICULTY_NORMAL", "Normal" }, { "DIFFICULTY_HARD", "Hard" }, { "DIFFICULTY_NIGHTMARE", "Nightmare" },
         // node contents
         { "REST_HEALED", "+{0} HP" }, { "EVENT_SUCCESS", "The shrine rewards you!" }, { "EVENT_FAILED", "Nothing happens..." },
         { "EVENT_NOT_ENOUGH_GOLD", "Not enough gold!" }, { "EVENT_NOT_ENOUGH_GEM", "Not enough Gem!" },
