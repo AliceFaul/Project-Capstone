@@ -26,7 +26,7 @@ MonoBehaviour:
     minPhase: 3
     weight: 2
   chaseStopDistance: 2.5
-  minionPrefab: {fileID: 712773337231112459, guid: d5ca14d4a9fbbfd4c8db49a1d55949e0, type: 3}
+  minionPrefab: {fileID: 712773337231112459, guid: fd347aca4d8808548b8e2f12a4adf5d8, type: 3}
   summonCount: 2
   summonRadius: 3
   summonWindup: 1.2

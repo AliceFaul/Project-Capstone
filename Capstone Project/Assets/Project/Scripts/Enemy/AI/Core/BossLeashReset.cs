@@ -101,7 +101,11 @@ namespace Mhieu.Enemy
 
         private void RefillHealthBar()
         {
-            EnemyHealth health = GetComponent<EnemyHealth>();
+            // BossHealth tự cập nhật thanh máu qua OnHpChanged (Heal đã phát sự kiện này), không cần reflection.
+            if (_runtime is BossHealth) return;
+
+            // Ép về object trước khi "as" để compile được dù EnemyHealth trong dự án là bản nào.
+            EnemyHealth health = (object)_runtime as EnemyHealth;
             if (health == null || FillField == null)
             {
                 WarnBarOnce();

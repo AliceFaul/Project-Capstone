@@ -21,14 +21,17 @@ namespace Mhieu.Enemy
     /// Cây hành vi boss, ưu tiên từ trên xuống:
     ///
     /// Root: Selector
+    ///  0. Guard(IsDead)          -> Idle        BOSS CHẾT: đứng yên hẳn, hủy mọi hành động đang chạy
     ///  1. Guard(IsDisabled)      -> Idle        bị Knockback thì đứng yên
     ///  2. Guard(IsTransitioning) -> Idle        đang chuyển pha thì đứng yên (BossPhaseController)
-    ///  3. Summon (tùy chọn)      -> từ pha minPhase, có hồi chiêu, tối đa N quái cùng lúc, không cắt ngang chiêu đang chạy
-    ///  4. UseCharge (tùy chọn)   -> BƯỚC 8: lao tới player khi đủ pha, hết hồi chiêu, trong tầm lao
-    ///  5. UseBossAbility         -> chọn một chiêu theo pha / tầm / hồi chiêu / không lặp lại chiêu vừa dùng
-    ///  6. Guard(HasTarget)       -> đuổi tới chaseStopDistance
-    ///  7. Về nhà
-    ///  8. Idle
+    ///  3. Guard(HasTarget)  "Combat"  -> CHỈ BẬT khi đã phát hiện player; mất target thì cả cụm này tắt (hủy chiêu đang chạy)
+    ///       Selector:
+    ///       3a. Summon (tùy chọn)      -> từ pha minPhase, có hồi chiêu, tối đa N quái cùng lúc, không cắt ngang chiêu đang chạy
+    ///       3b. UseCharge (tùy chọn)   -> lao tới player khi đủ pha, hết hồi chiêu, trong tầm lao
+    ///       3c. UseBossAbility         -> chọn một chiêu theo pha / tầm / hồi chiêu / không lặp lại chiêu vừa dùng
+    ///       3d. Chase                  -> đuổi tới chaseStopDistance
+    ///  4. Về nhà
+    ///  5. Idle
     ///
     /// Trên EnemyAIConfig của boss, ô Primary Ability vẫn phải gán một chiêu bất kỳ (ví dụ chiêu chém)
     /// vì EnemyBrain kiểm tra ô này; cây boss không dùng nó để chọn chiêu.
@@ -66,15 +69,12 @@ namespace Mhieu.Enemy
                     "[BossBehaviorFactory] Chưa có chiêu nào trong 'Abilities'. Boss sẽ chỉ đuổi theo mà không đánh.", this);
             }
 
-            var children = new List<Node>
-            {
-                new Guard(new IsDisabledCondition(), new IdleAction { Name = "Disabled" }) { Name = "Disabled" },
-                new Guard(new IsTransitioningCondition(), new IdleAction { Name = "Transition" }) { Name = "Transition" }
-            };
+            // Các nhánh chiến đấu (Summon, Charge, UseBossAbility, Chase) gom vào một cụm "Combat".
+            var combat = new List<Node>();
 
             if (minionPrefab != null)
             {
-                children.Add(new Sequence(
+                combat.Add(new Sequence(
                     new Inverter(new AbilityBusyCondition()),
                     new Inverter(new ChargeBusyCondition()),
                     new HasTargetCondition(),
@@ -82,20 +82,61 @@ namespace Mhieu.Enemy
                     new Cooldown(
                         summonCooldown,
                         new SummonMinionsAction(minionPrefab, summonCount, summonRadius, summonWindup, summonMaxAlive)
-                        { Name = "SummonAction" }) { Name = "SummonCooldown" }) { Name = "Summon" });
+                        { Name = "SummonAction" })
+                    { Name = "SummonCooldown" })
+                { Name = "Summon" });
             }
 
             if (charge != null)
-                children.Add(new UseChargeAction(charge, chargeMinPhase) { Name = "UseCharge" });
+                combat.Add(new UseChargeAction(charge, chargeMinPhase) { Name = "UseCharge" });
 
-            children.Add(new UseBossAbilityAction(abilities) { Name = "UseBossAbility" });
-            children.Add(new Guard(
-                new HasTargetCondition(),
-                new MoveToTargetAtDistanceAction(chaseStopDistance)) { Name = "Chase" });
-            children.Add(new Guard(new NeedsHomeCondition(), new ReturnHomeAction()) { Name = "ReturnHome" });
-            children.Add(new IdleAction { Name = "Idle" });
+            combat.Add(new UseBossAbilityAction(abilities) { Name = "UseBossAbility" });
+            combat.Add(new MoveToTargetAtDistanceAction(chaseStopDistance) { Name = "Chase" });
+
+            var children = new List<Node>
+            {
+                // Boss chết: ưu tiên cao nhất, đứng yên và hủy mọi hành động đang chạy.
+                new Guard(new IsDeadCondition(), new IdleAction { Name = "Dead" }) { Name = "Dead" },
+                new Guard(new IsDisabledCondition(), new IdleAction { Name = "Disabled" }) { Name = "Disabled" },
+                new Guard(new IsTransitioningCondition(), new IdleAction { Name = "Transition" }) { Name = "Transition" },
+
+                // Chỉ chiến đấu khi đã phát hiện player (có target).
+                new Guard(new HasTargetCondition(), new Selector(combat.ToArray()) { Name = "CombatBranches" }) { Name = "Combat" },
+
+                new Guard(new NeedsHomeCondition(), new ReturnHomeAction()) { Name = "ReturnHome" },
+                new IdleAction { Name = "Idle" }
+            };
 
             return new Selector(children.ToArray()) { Name = "BossRoot" };
+        }
+    }
+}
+
+namespace Mhieu.Enemy.Nodes
+{
+    using Mhieu.AI.BT;
+
+    /// <summary>
+    /// Boss đã chết: state machine ở Dead, hoặc máu đã về 0 (phòng khi state chưa kịp đổi).
+    /// Dùng trong BossBehaviorFactory làm điều kiện của nhánh "Dead" (ưu tiên cao nhất).
+    /// </summary>
+    public sealed class IsDeadCondition : ConditionNode
+    {
+        private IStateMachine _stateMachine;
+        private ICharacterRuntime _runtime;
+        private bool _resolved;
+
+        protected override bool Check(BTContext ctx)
+        {
+            if (!_resolved)
+            {
+                _resolved = true;
+                _stateMachine = ctx.Owner.GetComponent<IStateMachine>();
+                _runtime = ctx.Owner.GetComponent<ICharacterRuntime>();
+            }
+
+            if (_stateMachine != null && _stateMachine.IsCurrentState(CharacterStateType.Dead)) return true;
+            return _runtime != null && _runtime.Health <= 0;
         }
     }
 }
