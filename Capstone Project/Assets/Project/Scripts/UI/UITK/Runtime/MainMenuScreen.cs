@@ -28,16 +28,7 @@ public class MainMenuScreen : MonoBehaviour
     private Label _cosmeticSelectedName;
     private Button _cosmeticConfirmButton;
  
-    private VisualElement _settingsPanel;
-    private Button _tabVideo, _tabAudio, _tabGameplay;
-    private VisualElement _pageVideo, _pageAudio, _pageGameplay;
-    private DropdownField _qualityDropdown, _fpsDropdown;
-    private Toggle _cameraShakeToggle, _damageTextToggle;
-    private Slider _masterSlider, _musicSlider, _sfxSlider;
-    private Label _masterValue, _musicValue, _sfxValue;
-    private Button _closeSettingsButton;
     
-    private PlayerConfig _playerConfig;
     private PlayerDataConfig _config;
     private CosmeticData _selectedCosmetic;
 
@@ -51,7 +42,6 @@ public class MainMenuScreen : MonoBehaviour
     public event Action CosmeticPreviewCanceled;
     public event Action PlayerNameClicked;
     
-    public bool IsSettingsPanelOpen => _settingsPanel?.resolvedStyle.display == DisplayStyle.Flex;
     public bool IsCosmeticPanelOpen => _changeCosmeticPanel?.resolvedStyle.display == DisplayStyle.Flex;
 
     private void Awake()
@@ -66,7 +56,6 @@ public class MainMenuScreen : MonoBehaviour
     {
         _root.style.display = DisplayStyle.None;
         _changeCosmeticPanel.style.display = DisplayStyle.None;
-        _settingsPanel.style.display = DisplayStyle.None;
     }
 
     private void OnDisable()
@@ -94,24 +83,6 @@ public class MainMenuScreen : MonoBehaviour
         _cosmeticSelectedName = _root.Q<Label>("cosmetic-selected-name");
         _cosmeticConfirmButton = _root.Q<Button>("cosmetic-confirm-button");
  
-        _settingsPanel = _root.Q<VisualElement>("settings-panel");
-        _tabVideo = _root.Q<Button>("tab-video");
-        _tabAudio = _root.Q<Button>("tab-audio");
-        _tabGameplay = _root.Q<Button>("tab-gameplay");
-        _pageVideo = _root.Q<VisualElement>("page-video");
-        _pageAudio = _root.Q<VisualElement>("page-audio");
-        _pageGameplay = _root.Q<VisualElement>("page-gameplay");
-        _qualityDropdown = _root.Q<DropdownField>("quality-dropdown");
-        _fpsDropdown = _root.Q<DropdownField>("fps-dropdown");
-        _cameraShakeToggle = _root.Q<Toggle>("camera-shake-toggle");
-        _damageTextToggle = _root.Q<Toggle>("damage-text-toggle");
-        _masterSlider = _root.Q<Slider>("master-slider");
-        _musicSlider = _root.Q<Slider>("music-slider");
-        _sfxSlider = _root.Q<Slider>("sfx-slider");
-        _masterValue = _root.Q<Label>("master-value");
-        _musicValue = _root.Q<Label>("music-value");
-        _sfxValue = _root.Q<Label>("sfx-value");
-        _closeSettingsButton = _root.Q<Button>("close-settings-button");
     }
 
     private void WireButtons()
@@ -124,27 +95,6 @@ public class MainMenuScreen : MonoBehaviour
 
         if (_playerNameLabel != null) _playerNameLabel.clicked += () => PlayerNameClicked?.Invoke();
         _cosmeticConfirmButton.clicked += OnConfirmCosmeticClicked;
-
-        _tabVideo.clicked += () => SelectSettingsTab(0);
-        _tabAudio.clicked += () => SelectSettingsTab(1);
-        _tabGameplay.clicked += () => SelectSettingsTab(2);
-        _closeSettingsButton.clicked += HideSettingsPanel;
-        
-        _masterSlider.RegisterValueChangedCallback(e =>
-        {
-            _masterValue.text = $"{e.newValue:P0}";
-            AudioService.Instance?.SetVolume(AudioChannel.Master, e.newValue);
-        });
-        _musicSlider.RegisterValueChangedCallback(e =>
-        {
-            _musicValue.text = $"{e.newValue:P0}";
-            AudioService.Instance?.SetVolume(AudioChannel.Music, e.newValue);
-        });
-        _sfxSlider.RegisterValueChangedCallback(e =>
-        {
-            _sfxValue.text = $"{e.newValue:P0}";
-            AudioService.Instance?.SetVolume(AudioChannel.Sfx, e.newValue);
-        });
     }
 
     private void BindData()
@@ -197,10 +147,7 @@ public class MainMenuScreen : MonoBehaviour
     }
     
     // ======== API ========
-    private void SetPlayerName(string playerName)
-    {
-        _playerNameLabel.text = playerName;
-    }
+    private void SetPlayerName(string playerName) => _playerNameLabel.text = playerName;
 
     public void Show()
     {
@@ -300,82 +247,5 @@ public class MainMenuScreen : MonoBehaviour
         CosmeticSelected?.Invoke(_selectedCosmetic);
         
         PopulateSkinGrid();
-    }
-
-    public void ShowSettingsPanel()
-    {
-        if (_playerConfig == null)
-        {
-            var configMg = StartupProcessor.Instance?.GetService<ConfigManager>();
-            if(configMg == null || !configMg.GetConfig(out _playerConfig)) return;
-            SetupDropdowns();
-        }
-        
-        LoadSettingsFromConfig();
-        SelectSettingsTab(0);
-        _settingsPanel.style.display = DisplayStyle.Flex;
-    }
-
-    public void HideSettingsPanel()
-    {
-        AudioService.Instance?.PlayUiClick();
-        
-        ApplySettingsToConfig();
-        _settingsPanel.style.display = DisplayStyle.None;
-    }
-
-    private void SetupDropdowns()
-    {
-        _qualityDropdown.choices = new List<string>(QualitySettings.names);
-        _fpsDropdown.choices = new List<string> { "30", "60", "120", "Unlimited" };
-        
-        _qualityDropdown.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
-        _fpsDropdown.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
-        _cameraShakeToggle.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
-        _damageTextToggle.RegisterValueChangedCallback(_ => AudioService.Instance?.PlayUiClick());
-    }
-
-    private void LoadSettingsFromConfig()
-    {
-        _qualityDropdown.index = Mathf.Clamp(_playerConfig.quality, 0, _qualityDropdown.choices.Count - 1);
-        _fpsDropdown.index = _playerConfig.fps switch { 30 => 0, 60 => 1, 120 => 2, _ => 3 };
-        _cameraShakeToggle.value = _playerConfig.activeCameraShake;
-        _damageTextToggle.value = _playerConfig.showDamageText;
-        _masterSlider.value = _playerConfig.masterVolume;
-        _musicSlider.value = _playerConfig.musicVolume;
-        _sfxSlider.value = _playerConfig.sfxVolume;
-        
-        _masterValue.text = $"{_playerConfig.masterVolume:P0}";
-        _musicValue.text = $"{_playerConfig.musicVolume:P0}";
-        _sfxValue.text = $"{_playerConfig.sfxVolume:P0}";
-    }
-
-    private void ApplySettingsToConfig()
-    {
-        _playerConfig.quality = _qualityDropdown.index;
-        _playerConfig.fps = _fpsDropdown.index switch { 0 => 30, 1 => 60, 2 => 120, _ => -1 };
-        _playerConfig.activeCameraShake = _cameraShakeToggle.value;
-        _playerConfig.showDamageText = _damageTextToggle.value;
-        _playerConfig.masterVolume = _masterSlider.value;
-        _playerConfig.musicVolume = _musicSlider.value;
-        _playerConfig.sfxVolume = _sfxSlider.value;
-
-        QualitySettings.SetQualityLevel(_playerConfig.quality);
-        Application.targetFrameRate = _playerConfig.fps;
-
-        Debug.Log($"[MainMenuScreen] Applied new settings");
-    }
-
-    private void SelectSettingsTab(int index, bool playAudio = true)
-    {
-        if(playAudio) AudioService.Instance?.PlayUiClick();
-        
-        _tabVideo.EnableInClassList("main-menu__settings-tab--active", index == 0);
-        _tabAudio.EnableInClassList("main-menu__settings-tab--active", index == 1);
-        _tabGameplay.EnableInClassList("main-menu__settings-tab--active", index == 2);
-        
-        _pageVideo.style.display = index == 0 ? DisplayStyle.Flex : DisplayStyle.None;
-        _pageAudio.style.display = index == 1 ? DisplayStyle.Flex : DisplayStyle.None;
-        _pageGameplay.style.display = index == 2 ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }

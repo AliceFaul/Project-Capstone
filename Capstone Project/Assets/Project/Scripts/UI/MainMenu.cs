@@ -3,7 +3,6 @@ using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
 using System.Threading.Tasks;
-using UnityEngine.InputSystem;
 using UnityEngine.Localization;
 using Random = UnityEngine.Random;
 
@@ -47,6 +46,8 @@ public class MainMenu : MonoBehaviour
         screen.CosmeticPreviewCanceled += OnCosmeticPreviewCanceled;
         screen.CosmeticSelected += OnCosmeticEquipped;
         screen.PlayerNameClicked += OpenNameEntry;
+        SettingsScreen.ChangeNameRequested += OpenNameEntry;
+        SettingsScreen.SignOutRequested += SignOut;
     }
 
     private void OnDisable()
@@ -62,6 +63,8 @@ public class MainMenu : MonoBehaviour
         screen.CosmeticPreviewCanceled -= OnCosmeticPreviewCanceled;
         screen.CosmeticSelected -= OnCosmeticEquipped;
         screen.PlayerNameClicked -= OpenNameEntry;
+        SettingsScreen.ChangeNameRequested -= OpenNameEntry;
+        SettingsScreen.SignOutRequested -= SignOut;
     }
 
     public async Task OpenMainMenu()
@@ -81,6 +84,13 @@ public class MainMenu : MonoBehaviour
         {
             Debug.LogException(e);
         }
+    }
+
+    private void SignOut()
+    {
+        SettingsScreen.Instance?.Close();
+        PlayFab.PlayFabClientAPI.ForgetAllCredentials();
+        ReturnToSignIn();
     }
 
     public void ReturnToSignIn()
@@ -139,7 +149,7 @@ public class MainMenu : MonoBehaviour
     private void Option()
     {
         Debug.Log($"[MainMenu] Open Options!");
-        screen.ShowSettingsPanel();
+        SettingsScreen.Instance?.Open(true);
     }
 
     private void QuitGame()
@@ -174,8 +184,9 @@ public class MainMenu : MonoBehaviour
 
     private void HandleEscapeKey()
     {
-        if(screen.IsSettingsPanelOpen) screen.HideSettingsPanel();
-        else if(screen.IsCosmeticPanelOpen) HandleCloseCosmetic();
+        // the settings screen handles Esc itself (also in this frame, so do not quit)
+        if(SettingsScreen.IsOpen || SettingsScreen.EscapeConsumedFrame == Time.frameCount) return;
+        if(screen.IsCosmeticPanelOpen) HandleCloseCosmetic();
         else QuitGame();
     }
 

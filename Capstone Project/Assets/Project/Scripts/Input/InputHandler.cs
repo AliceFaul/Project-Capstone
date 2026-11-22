@@ -23,11 +23,13 @@ public class InputHandler : MonoBehaviour
     private void Awake()
     {
         _actions = new InputSystem_Actions();
+        GameSettings.ApplyBindings(_actions.asset); // keys rebound in the settings
     }
 
     private void OnEnable()
     {
         _actions.Enable();
+        GameSettings.BindingsChanged += ReloadBindings;
 
         _actions.Player.LeftClick.performed += LeftClickPerformed;
         _actions.Player.RightClick.performed += RightClickPerformed;
@@ -41,6 +43,7 @@ public class InputHandler : MonoBehaviour
     private void OnDisable()
     {
         _actions.Disable();
+        GameSettings.BindingsChanged -= ReloadBindings;
 
         _actions.Player.LeftClick.performed -= LeftClickPerformed;
         _actions.Player.RightClick.performed -= RightClickPerformed;
@@ -50,6 +53,8 @@ public class InputHandler : MonoBehaviour
         _actions.Player.ToggleInventory.performed -= ToggleInventoryPerformed;
         _actions.Player.ToggleMinimap.performed -= ToggleMinimapPerformed;
     }
+
+    private void ReloadBindings() => GameSettings.ApplyBindings(_actions.asset);
 
     private void LeftClickPerformed(InputAction.CallbackContext context)
     {

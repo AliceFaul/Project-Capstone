@@ -132,6 +132,8 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
         }
         _damageFlash.Trigger();
         
+        if(!GameSettings.ShowDamageText) return; // if show damage text off in setting
+        
         var floatingText = UIManager.Instance.GetFloatingTextService();
         floatingText.Create("DamageText", $"dmg{Time.time}_{UnityEngine.Random.Range(0, 99999)}", damage.ToString("F1"), transform.position + Vector3.up * 0.8f);
     }
