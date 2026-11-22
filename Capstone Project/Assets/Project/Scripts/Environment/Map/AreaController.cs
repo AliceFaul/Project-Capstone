@@ -45,6 +45,7 @@ public class AreaController : MonoBehaviour
     public string AreaId => string.IsNullOrEmpty(areaId) ? name : areaId;
     public NodeType Type => type;
     public float Radius => radius;
+    public Vector3 Center => transform.position;
     public bool IsCleared { get; private set; }
     public Vector3 EntryPosition => entryPoint != null ? entryPoint.position : transform.position;
 

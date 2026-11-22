@@ -1,21 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// Miniature minimap lying flat at the target's feet.
-///
-/// The whole map (MinimapExploredMask) is shrunk by "mapScale" and drawn on a flat quad that follows the
-/// target and is centered on it. The shader maps every point of the quad back to the real world position
-/// it represents, so the miniature "slides" under the target as it moves and the player icon always sits
-/// at the target's feet, on top of the spot of the map where the player really is.
-///
-/// Lives on the "Overlay" child of the MinimapSystem prefab. Baker, target and icon layer are found through
-/// MinimapSystem, so there is nothing to assign here.
-///
-/// Publishes two shader globals:
-///   _MinimapPlayerPos  : (x, y = world X, Z of the target; z, w = facing X, Z)
-///   _MinimapMiniParams : (mapScale, visibleRadius, 0, 0)
-/// </summary>
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class MinimapOverlayRenderer : MonoBehaviour
 {
@@ -32,6 +17,10 @@ public class MinimapOverlayRenderer : MonoBehaviour
     [Tooltip("Ignore Map Scale and shrink the level until every point of it fits inside the circle, " +
              "wherever the target stands. Paths get small on big levels.")]
     [SerializeField] private bool fitWholeLevel = false;
+
+    [Tooltip("While the minimap is limited to an area (runs): shrink the miniature so the whole area fits the circle, " +
+             "wherever the target stands. Off = keep Map Scale.")]
+    [SerializeField] private bool fitToActiveArea = false;
 
     [Tooltip("Lift (meters) above the target's feet.")]
     [SerializeField, Min(0f)] private float heightOffset = 0.05f;
@@ -81,21 +70,27 @@ public class MinimapOverlayRenderer : MonoBehaviour
     private static Mesh BuildQuad()
     {
         // 1 x 1 flat quad on the XZ plane, centered on the origin
-        var m = new Mesh { name = "MinimapMiniQuad" };
-        m.vertices = new[]
+        var m = new Mesh
         {
-            new Vector3(-0.5f, 0f, -0.5f),
-            new Vector3(-0.5f, 0f,  0.5f),
-            new Vector3( 0.5f, 0f,  0.5f),
-            new Vector3( 0.5f, 0f, -0.5f)
+            name = "MinimapMiniQuad",
+            vertices = new[]
+            {
+                new Vector3(-0.5f, 0f, -0.5f),
+                new Vector3(-0.5f, 0f,  0.5f),
+                new Vector3( 0.5f, 0f,  0.5f),
+                new Vector3( 0.5f, 0f, -0.5f)
+            },
+            triangles = new[] { 0, 1, 2, 0, 2, 3 },
+            bounds = new Bounds(Vector3.zero, new Vector3(1f, 0.1f, 1f))
         };
-        m.triangles = new[] { 0, 1, 2, 0, 2, 3 };
-        m.bounds = new Bounds(Vector3.zero, new Vector3(1f, 0.1f, 1f));
         return m;
     }
 
     private float ComputeScale()
     {
+        if (fitToActiveArea && _controller.HasAreaWindow)
+            return visibleRadius / Mathf.Max(0.01f, _controller.AreaWindowRadius * 2f);
+
         MinimapMaskBaker baker = _controller.Baker;
         if (fitWholeLevel && baker != null && baker.IsBaked)
         {

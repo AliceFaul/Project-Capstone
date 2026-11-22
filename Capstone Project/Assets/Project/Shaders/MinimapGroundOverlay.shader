@@ -1,22 +1,5 @@
 Shader "Mhieu/Minimap/GroundOverlay"
 {
-    // Every pixel of the quad has a world position wp. Its offset from the player, d = wp.xz - playerXZ,
-    // is measured in "screen meters". The REAL world point that pixel represents is
-    //     p = playerXZ + d / mapScale
-    // so the miniature slides under the player and the icon (drawn at d = 0) always stays at the feet.
-    //
-    // Occlusion: no depth test. The scene depth is compared with the quad depth; when something is clearly
-    // in front of the quad (a tent, a tree...) the map is still drawn but brighter / more opaque.
-    // Needs "Depth Texture" enabled in the URP Asset.
-    //
-    // Global inputs:
-    //   _MinimapVisibleMask : R8, 255 = visible map cell (MinimapExploredMask)
-    //   _MinimapVisibleInfo : (cellSizeMeters, width, height, 0)
-    //   _MinimapWorldRect   : (originX, originZ, sizeX, sizeZ) (MinimapMaskBaker) - only the origin is used
-    //   _MinimapPlayerPos   : x,y = player world X,Z; z,w = facing X,Z (MinimapOverlayRenderer)
-    //   _MinimapMiniParams  : x = mapScale, y = visibleRadius (MinimapOverlayRenderer)
-    //
-    // Width/size properties below are in SCREEN meters (quad meters), not real meters.
     Properties
     {
         _FillColor ("Fill Color", Color) = (0.85, 0.92, 0.8, 0.4)
@@ -84,6 +67,7 @@ Shader "Mhieu/Minimap/GroundOverlay"
             float4 _MinimapWorldRect;    // originX, originZ, sizeX, sizeZ
             float4 _MinimapPlayerPos;    // posX, posZ, dirX, dirZ
             float4 _MinimapMiniParams;   // mapScale, visibleRadius, 0, 0
+            float4 _MinimapAreaWindow;   // centerX, centerZ, radius, active
 
             // ----- material -----
             TEXTURE2D(_Pattern); SAMPLER(sampler_Pattern);
@@ -131,6 +115,12 @@ Shader "Mhieu/Minimap/GroundOverlay"
             {
                 if (c.x < 0 || c.y < 0 || c.x >= (int)_MinimapVisibleInfo.y || c.y >= (int)_MinimapVisibleInfo.z)
                     return 0.0;
+                // limited to the active area: cells outside its circle are not part of the map (outline follows the cut)
+                if (_MinimapAreaWindow.w > 0.5)
+                {
+                    float2 cellCenter = _MinimapWorldRect.xy + (float2(c) + 0.5) * _MinimapVisibleInfo.x;
+                    if (distance(cellCenter, _MinimapAreaWindow.xy) > _MinimapAreaWindow.z) return 0.0;
+                }
                 return step(0.5, LOAD_TEXTURE2D_LOD(_MinimapVisibleMask, c, 0).r);
             }
 

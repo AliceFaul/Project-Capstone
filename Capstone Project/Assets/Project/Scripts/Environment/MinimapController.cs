@@ -11,10 +11,16 @@ using UnityEngine;
 public class MinimapController : MonoBehaviour
 {
     public static MinimapController Instance { get; private set; }
+
+    private static readonly int AreaWindowId = Shader.PropertyToID("_MinimapAreaWindow");
     
     [Header("Settings")]
     [SerializeField] private string fallbackTargetTag = "Player";
     [SerializeField] private bool startVisible = false;
+
+    [Header("Area window")]
+    [Tooltip("Extra meters around the active area's radius that still count as part of its map.")]
+    [SerializeField, Min(0f)] private float areaPadding = 2f;
 
     private MinimapMaskBaker _baker;
     public MinimapMaskBaker Baker
@@ -65,6 +71,29 @@ public class MinimapController : MonoBehaviour
     
     public event Action TargetChanged;
 
+    public bool HasAreaWindow { get; private set; }
+    public Vector2 AreaWindowCenter { get; private set; }   // world X, Z
+    public float AreaWindowRadius { get; private set; }     // meters, padding included
+
+    /// <summary> Limit the minimap to a circle (the active area of the run). Starts a fresh fog of war inside it. </summary>
+    public void SetAreaWindow(Vector3 center, float radius)
+    {
+        HasAreaWindow = true;
+        AreaWindowCenter = new Vector2(center.x, center.z);
+        AreaWindowRadius = radius + areaPadding;
+        Shader.SetGlobalVector(AreaWindowId, new Vector4(AreaWindowCenter.x, AreaWindowCenter.y, AreaWindowRadius, 1f));
+
+        if(Explored != null) Explored.OnAreaWindowChanged();
+    }
+
+    /// <summary> Show the whole level again (lobby, scenes without a run). </summary>
+    public void ClearAreaWindow()
+    {
+        if(!HasAreaWindow) return;
+        HasAreaWindow = false;
+        Shader.SetGlobalVector(AreaWindowId, Vector4.zero);
+    }
+
     public bool IsVisible => Overlay != null && Overlay.IsVisible;
 
     public void SetVisible(bool visible)
@@ -91,6 +120,9 @@ public class MinimapController : MonoBehaviour
     {
         if(Target == null) FindTargetByTag();
         SetVisible(startVisible);
+
+        // runs (node map levels) tell the minimap which area is active
+        if(GetComponent<MinimapAreaLink>() == null) gameObject.AddComponent<MinimapAreaLink>();
     }
 
     private void OnEnable()
@@ -105,6 +137,7 @@ public class MinimapController : MonoBehaviour
     {
         MinimapTarget.Changed -= OnMinimapTargetChanged;
         if(Instance == this) Instance = null;
+        ClearAreaWindow(); // the shader global would otherwise stay set in the next scene
     }
 
     private void OnMinimapTargetChanged(MinimapTarget minimapTarget)

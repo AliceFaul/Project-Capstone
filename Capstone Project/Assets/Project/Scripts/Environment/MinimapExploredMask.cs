@@ -1,21 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Fog of war for the minimap. Keeps the "visible map" the overlay shader draws.
-///
-/// Everything lives on ONE coarse grid (1 cell = cellFactor texels of the baker mask, e.g. 3 x 0.1 = 0.3 m):
-///   - walkCells : which cells are walkable (built once from the baker's walkable mask)
-///   - visible   : which cells the player already revealed (this is also the texture the shader reads)
-///
-/// Reveal = flood fill (4-neighbor) over walkable cells, starting at the player and limited by
-/// revealRadius, so the revealed shape follows corridors / rooms and never leaks through non-walkable areas.
-///
-/// Shader globals:
-///   _MinimapVisibleMask : Texture2D R8, 255 = visible map cell
-///   _MinimapVisibleInfo : (cellSizeMeters, width, height, 0)
-/// The cell grid starts at the same origin as the walkable mask (_MinimapWorldRect.xy).
-/// </summary>
 public class MinimapExploredMask : MonoBehaviour
 {
     private static readonly int VisibleMaskId = Shader.PropertyToID("_MinimapVisibleMask");
@@ -24,7 +9,6 @@ public class MinimapExploredMask : MonoBehaviour
     private static readonly int[] DX = { -1, 1, 0, 0 };
     private static readonly int[] DY = { 0, 0, -1, 1 };
 
-    // resolved automatically through the MinimapSystem this component lives under (nothing to drag)
     private MinimapController _controller;
     private MinimapMaskBaker _baker;
     private Transform Target => _controller != null ? _controller.Target : null;
@@ -186,6 +170,7 @@ public class MinimapExploredMask : MonoBehaviour
         Vector2Int start = WorldToCell(worldPos);
         int snapR = Mathf.Max(1, Mathf.CeilToInt(snapDistance / cellSize));
         if (!FindWalkableNear(ref start, snapR)) return;
+        if (OutsideAreaWindow(start.x, start.y)) return;
 
         int rC = Mathf.Max(1, Mathf.CeilToInt(revealRadius / cellSize));
         int win = 2 * rC + 1;
@@ -239,6 +224,8 @@ public class MinimapExploredMask : MonoBehaviour
                 int ngy = wy0 + nly;
                 if (ngx < 0 || ngy < 0 || ngx >= cellsW || ngy >= cellsH) continue;
 
+                if (OutsideAreaWindow(ngx, ngy)) continue; // never reveal beyond the active area
+
                 int ni = nly * win + nlx;
                 if (seen[ni]) continue;
                 if (walkCells[ngy * cellsW + ngx] == 0) continue;
@@ -263,6 +250,29 @@ public class MinimapExploredMask : MonoBehaviour
         return visible[c.y * cellsW + c.x] != 0;
     }
 
+    /// <summary>
+    /// The active area changed (MinimapController.SetAreaWindow): start a fresh fog of war and reveal around the target.
+    /// If the mask is not ready yet, Init reveals later and already respects the window.
+    /// </summary>
+    public void OnAreaWindowChanged()
+    {
+        if (!IsReady) return;
+
+        ClearAll();
+        Transform t = Target;
+        if (t != null) Reveal(t.position);
+    }
+
+    private bool OutsideAreaWindow(int cx, int cy)
+    {
+        if (_controller == null || !_controller.HasAreaWindow) return false;
+
+        float dx = _baker.WorldOrigin.x + (cx + 0.5f) * cellSize - _controller.AreaWindowCenter.x;
+        float dz = _baker.WorldOrigin.y + (cy + 0.5f) * cellSize - _controller.AreaWindowCenter.y;
+        float r = _controller.AreaWindowRadius;
+        return dx * dx + dz * dz > r * r;
+    }
+
     // ---------- Internals ----------
 
     private Vector2Int WorldToCell(Vector3 worldPos)
@@ -274,8 +284,7 @@ public class MinimapExploredMask : MonoBehaviour
 
     private bool FindWalkableNear(ref Vector2Int cell, int maxR)
     {
-        if (cell.x >= 0 && cell.y >= 0 && cell.x < cellsW && cell.y < cellsH &&
-            walkCells[cell.y * cellsW + cell.x] != 0)
+        if(cell is { x: >= 0, y: >= 0 } && cell.x < cellsW && cell.y < cellsH && walkCells[cell.y * cellsW + cell.x] != 0)
             return true;
 
         int best = int.MaxValue;

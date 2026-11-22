@@ -11,13 +11,17 @@ public class LevelRunController : MonoBehaviour
 
     [SerializeField] private NodeMapConfig config;
     [SerializeField] private bool autoStart = true;
+    
     [Tooltip("0 = a new random seed every run.")]
     [SerializeField] private int seed;
+    
     [Tooltip("Loot difficulty for this run (until the difficulty selection screen exists).")]
     [SerializeField] private int difficulty;
     [SerializeField] private PlayerController player;
+    
     [Tooltip("Empty = every AreaController in the scene (inactive ones too).")]
     [SerializeField] private AreaController[] areas;
+    
     [Tooltip("Called after the player is teleported with the movement delta - hook the camera warp here.")]
     [SerializeField] private UnityEvent<Vector3> onPlayerTeleported;
 
@@ -29,13 +33,15 @@ public class LevelRunController : MonoBehaviour
 
     public event Action<NodeGraph> RunStarted;
     public event Action<MapNode> NodeEntered;
+    public event Action<AreaController> AreaEntered;
     public event Action<MapNode> NodeCleared;
     public event Action RunCompleted; // boss node cleared
-    public event Action RunFailed;    // call Fail() from the dead / revive system
-    public event Action RunAbandoned; // pause menu "Abandon run": not a failure (no summary), nothing is recorded
+    public event Action RunFailed;
+    public event Action RunAbandoned;
 
     private readonly Dictionary<string, AreaController> _areaById = new Dictionary<string, AreaController>();
     private AreaController _currentArea;
+    public AreaController ActiveArea => _currentArea;
 
     // What the player chose in the lobby (RunSettings); defaults apply when the scene is started directly.
     private LevelData _level;
@@ -162,6 +168,7 @@ public class LevelRunController : MonoBehaviour
 
         Debug.Log($"[LevelRunController] Entered node {node.Id} ({node.Type}) in area '{area.AreaId}'.");
         NodeEntered?.Invoke(node);
+        AreaEntered?.Invoke(area);
         area.Cleared += OnAreaCleared;
         area.Enter(BuildContext(node));
 
