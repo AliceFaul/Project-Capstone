@@ -815,6 +815,566 @@ MonoBehaviour:
     m_Key: LEVEL_01
     m_Metadata:
       m_Items: []
+  - m_Id: 30050916825583616
+    m_Key: NODEMAP_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469696
+    m_Key: NODEMAP_PROGRESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469697
+    m_Key: NODEMAP_NODE_FMT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469698
+    m_Key: NODEMAP_SELECTED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469699
+    m_Key: NODEMAP_HOW_CAPTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469700
+    m_Key: NODEMAP_HOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469701
+    m_Key: NODEMAP_START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664000
+    m_Key: NODEMAP_BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664001
+    m_Key: NODEMAP_CLOSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664002
+    m_Key: NODEMAP_TAG_HERE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664003
+    m_Key: NODEMAP_TAG_NEXT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664004
+    m_Key: NODEMAP_TAG_VISITED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664005
+    m_Key: NODEMAP_ENEMY_HP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664006
+    m_Key: NODEMAP_ENEMY_DMG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664007
+    m_Key: NODEMAP_LOOT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664008
+    m_Key: NODEMAP_LOOT_BETTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664009
+    m_Key: NODE_DESC_COMBAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664010
+    m_Key: NODE_DESC_ELITE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664011
+    m_Key: NODE_DESC_REWARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664012
+    m_Key: NODE_DESC_EVENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664013
+    m_Key: NODE_DESC_REST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664014
+    m_Key: NODE_DESC_SHOP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664015
+    m_Key: NODE_DESC_BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664016
+    m_Key: PAUSE_ROUTE_MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664017
+    m_Key: PAUSE_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664018
+    m_Key: PAUSE_LOBBY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664019
+    m_Key: PAUSE_RESUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664020
+    m_Key: PAUSE_SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664021
+    m_Key: PAUSE_ABANDON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664022
+    m_Key: PAUSE_ABANDON_SUB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664023
+    m_Key: PAUSE_QUIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664024
+    m_Key: PAUSE_CURRENT_RUN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664025
+    m_Key: PAUSE_DIFFICULTY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664026
+    m_Key: PAUSE_NODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664027
+    m_Key: PAUSE_TIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664028
+    m_Key: PAUSE_KILLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664029
+    m_Key: PAUSE_GOLD_EARNED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664030
+    m_Key: PAUSE_POWER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664031
+    m_Key: PAUSE_GOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664032
+    m_Key: PAUSE_GEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664033
+    m_Key: PAUSE_COMBAT_POWER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664034
+    m_Key: PAUSE_ATTRIBUTES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664035
+    m_Key: PAUSE_MAX_HP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664036
+    m_Key: PAUSE_ARMOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664037
+    m_Key: PAUSE_MOVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664038
+    m_Key: PAUSE_CRIT_CHANCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664039
+    m_Key: PAUSE_CRIT_DAMAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664040
+    m_Key: PAUSE_LEVELS_CLEARED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664041
+    m_Key: PAUSE_LEVEL_FMT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664042
+    m_Key: PAUSE_CONFIRM_CAPTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664043
+    m_Key: PAUSE_CONFIRM_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664044
+    m_Key: PAUSE_CONFIRM_BODY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664045
+    m_Key: PAUSE_KEEP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664046
+    m_Key: PAUSE_ABANDON_CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664047
+    m_Key: PAUSE_SELECT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664048
+    m_Key: PAUSE_CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664049
+    m_Key: SET_TITLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664050
+    m_Key: SET_TAB_GENERAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664051
+    m_Key: SET_TAB_VIDEO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664052
+    m_Key: SET_TAB_AUDIO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664053
+    m_Key: SET_TAB_CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664054
+    m_Key: SET_SEC_LANGUAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664055
+    m_Key: SET_SEC_INTERFACE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664056
+    m_Key: SET_SEC_ACCOUNT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664057
+    m_Key: SET_SEC_DISPLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664058
+    m_Key: SET_SEC_QUALITY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664059
+    m_Key: SET_SEC_VOLUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664060
+    m_Key: SET_SEC_OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664061
+    m_Key: SET_SEC_MOVEMENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664062
+    m_Key: SET_SEC_COMBAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664063
+    m_Key: SET_LANGUAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664064
+    m_Key: SET_LANGUAGE_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664065
+    m_Key: SET_SHOW_FPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664066
+    m_Key: SET_SHOW_FPS_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664067
+    m_Key: SET_DAMAGE_NUMBERS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664068
+    m_Key: SET_DAMAGE_NUMBERS_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664069
+    m_Key: SET_SCREEN_SHAKE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664070
+    m_Key: SET_SCREEN_SHAKE_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664071
+    m_Key: SET_UI_SCALE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664072
+    m_Key: SET_UI_SCALE_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664073
+    m_Key: SET_TUTORIAL_HINTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664074
+    m_Key: SET_TUTORIAL_HINTS_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664075
+    m_Key: SET_PLAYER_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664076
+    m_Key: SET_PLAYER_NAME_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664077
+    m_Key: SET_SIGN_OUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664078
+    m_Key: SET_SIGN_OUT_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664079
+    m_Key: SET_CHANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664080
+    m_Key: SET_SIGN_OUT_BUTTON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664081
+    m_Key: SET_DISPLAY_MODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664082
+    m_Key: SET_DISPLAY_MODE_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664083
+    m_Key: SET_RESOLUTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664084
+    m_Key: SET_RESOLUTION_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664085
+    m_Key: SET_VSYNC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664086
+    m_Key: SET_VSYNC_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664087
+    m_Key: SET_FPS_LIMIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664088
+    m_Key: SET_FPS_LIMIT_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664089
+    m_Key: SET_QUALITY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664090
+    m_Key: SET_QUALITY_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664091
+    m_Key: SET_SHADOWS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664092
+    m_Key: SET_SHADOWS_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664093
+    m_Key: SET_POST_PROCESSING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664094
+    m_Key: SET_POST_PROCESSING_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664095
+    m_Key: SET_BRIGHTNESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664096
+    m_Key: SET_BRIGHTNESS_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664097
+    m_Key: SET_MASTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664098
+    m_Key: SET_MASTER_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664099
+    m_Key: SET_MUSIC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858304
+    m_Key: SET_MUSIC_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858305
+    m_Key: SET_SFX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858306
+    m_Key: SET_SFX_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858307
+    m_Key: SET_MUTE_UNFOCUSED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858308
+    m_Key: SET_MUTE_UNFOCUSED_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858309
+    m_Key: SET_ON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858310
+    m_Key: SET_OFF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858311
+    m_Key: SET_FULLSCREEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858312
+    m_Key: SET_BORDERLESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858313
+    m_Key: SET_WINDOWED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858314
+    m_Key: SET_UNLIMITED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858315
+    m_Key: SET_SHADOW_OFF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858316
+    m_Key: SET_SHADOW_LOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858317
+    m_Key: SET_SHADOW_MEDIUM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858318
+    m_Key: SET_SHADOW_HIGH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858319
+    m_Key: SET_SELECTED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858320
+    m_Key: SET_BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858321
+    m_Key: SET_RESET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858322
+    m_Key: SET_APPLY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858323
+    m_Key: SET_KEEP_PROMPT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858324
+    m_Key: SET_LISTENING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858325
+    m_Key: SET_CONTROL_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858326
+    m_Key: CTRL_MOVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858327
+    m_Key: CTRL_ROLL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858328
+    m_Key: CTRL_SPRINT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858329
+    m_Key: CTRL_INVENTORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858330
+    m_Key: CTRL_MINIMAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858331
+    m_Key: CTRL_NODEMAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858332
+    m_Key: CTRL_RANGED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858333
+    m_Key: CTRL_ARTIFACT1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858334
+    m_Key: CTRL_ARTIFACT2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858335
+    m_Key: CTRL_ARTIFACT3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858336
+    m_Key: CTRL_HEAL
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

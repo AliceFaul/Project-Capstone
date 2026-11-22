@@ -824,6 +824,574 @@ MonoBehaviour:
     m_Localized: "Khu r\u1EEBng"
     m_Metadata:
       m_Items: []
+  - m_Id: 30050916825583616
+    m_Localized: ROUTE MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469696
+    m_Localized: PROGRESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469697
+    m_Localized: Node {0} / {1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469698
+    m_Localized: SELECTED NODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469699
+    m_Localized: HOW IT WORKS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469700
+    m_Localized: Walk to an exit of this area to choose the next node. Bright nodes
+      are the ones you can reach from here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916909469701
+    m_Localized: START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664000
+    m_Localized: BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664001
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664002
+    m_Localized: YOU ARE HERE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664003
+    m_Localized: NEXT NODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664004
+    m_Localized: VISITED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664005
+    m_Localized: Enemy health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664006
+    m_Localized: Enemy damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664007
+    m_Localized: Loot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664008
+    m_Localized: Better
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664009
+    m_Localized: Clear every enemy in the area to unlock the exits.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664010
+    m_Localized: Stronger enemies guard a better reward. Fight carefully and heal
+      before you go in.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664011
+    m_Localized: A safe area with treasure to collect.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664012
+    m_Localized: Something strange is here. It may help you, or cost you.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664013
+    m_Localized: A quiet place to recover your health.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664014
+    m_Localized: A merchant sells gear and buys what you do not need.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664015
+    m_Localized: The final fight of this level.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664016
+    m_Localized: ROUTE MAP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664017
+    m_Localized: PAUSED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664018
+    m_Localized: LOBBY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664019
+    m_Localized: RESUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664020
+    m_Localized: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664021
+    m_Localized: ABANDON RUN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664022
+    m_Localized: Return to lobby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664023
+    m_Localized: QUIT TO MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664024
+    m_Localized: CURRENT RUN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664025
+    m_Localized: Difficulty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664026
+    m_Localized: Node
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664027
+    m_Localized: Time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664028
+    m_Localized: Enemies defeated
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664029
+    m_Localized: Gold earned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664030
+    m_Localized: Your power
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664031
+    m_Localized: GOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664032
+    m_Localized: GEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664033
+    m_Localized: COMBAT POWER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664034
+    m_Localized: ATTRIBUTES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664035
+    m_Localized: Max HP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664036
+    m_Localized: Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664037
+    m_Localized: Move speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664038
+    m_Localized: Crit chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664039
+    m_Localized: Crit damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664040
+    m_Localized: Levels cleared
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664041
+    m_Localized: LV {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664042
+    m_Localized: ABANDON RUN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664043
+    m_Localized: Leave this run?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664044
+    m_Localized: The run ends here and you return to the lobby. Items and gold you
+      picked up in this run are kept; the run counts as failed and the level is not
+      cleared.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664045
+    m_Localized: KEEP PLAYING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664046
+    m_Localized: ABANDON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664047
+    m_Localized: Select
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664048
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664049
+    m_Localized: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664050
+    m_Localized: GENERAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664051
+    m_Localized: VIDEO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664052
+    m_Localized: AUDIO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664053
+    m_Localized: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664054
+    m_Localized: LANGUAGE & GAMEPLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664055
+    m_Localized: INTERFACE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664056
+    m_Localized: ACCOUNT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664057
+    m_Localized: DISPLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664058
+    m_Localized: QUALITY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664059
+    m_Localized: VOLUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664060
+    m_Localized: OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664061
+    m_Localized: MOVEMENT & NAVIGATION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664062
+    m_Localized: COMBAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664063
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664064
+    m_Localized: The language of menus, items and dialogue.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664065
+    m_Localized: Show FPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664066
+    m_Localized: Shows the frame rate in a corner of the screen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664067
+    m_Localized: Damage numbers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664068
+    m_Localized: Shows floating numbers when something takes damage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664069
+    m_Localized: Screen shake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664070
+    m_Localized: How strongly the camera shakes on hits and explosions. 0% turns
+      it off.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664071
+    m_Localized: UI scale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664072
+    m_Localized: Makes menus and the HUD smaller or larger.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664073
+    m_Localized: Tutorial hints
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664074
+    m_Localized: Shows short tips the first time something new happens.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664075
+    m_Localized: Player name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664076
+    m_Localized: The name other players and the lobby see.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664077
+    m_Localized: Account
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664078
+    m_Localized: Sign out and return to the sign-in screen. Your progress stays saved.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664079
+    m_Localized: CHANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664080
+    m_Localized: SIGN OUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664081
+    m_Localized: Display mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664082
+    m_Localized: Fullscreen, borderless window or a normal window. Needs Apply.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664083
+    m_Localized: Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664084
+    m_Localized: The size of the game image. Needs Apply; it reverts by itself if
+      you do not keep it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664085
+    m_Localized: VSync
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664086
+    m_Localized: Matches the frame rate to your screen to avoid tearing. Overrides
+      the frame rate limit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664087
+    m_Localized: Frame rate limit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664088
+    m_Localized: The most frames per second the game will draw.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664089
+    m_Localized: Quality preset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664090
+    m_Localized: Overall graphics quality. Lower it if the game runs slowly.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664091
+    m_Localized: Shadows
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664092
+    m_Localized: How far shadows are drawn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664093
+    m_Localized: Post-processing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664094
+    m_Localized: Bloom, color grading and other screen effects.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664095
+    m_Localized: Brightness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664096
+    m_Localized: Makes the whole image darker or brighter.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664097
+    m_Localized: Master volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664098
+    m_Localized: The volume of everything.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916913664099
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858304
+    m_Localized: The volume of the music.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858305
+    m_Localized: Sound effects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858306
+    m_Localized: The volume of combat, interface and world sounds.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858307
+    m_Localized: Mute when unfocused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858308
+    m_Localized: Silences the game while another window is in front.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858309
+    m_Localized: ON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858310
+    m_Localized: OFF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858311
+    m_Localized: Fullscreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858312
+    m_Localized: Borderless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858313
+    m_Localized: Windowed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858314
+    m_Localized: Unlimited
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858315
+    m_Localized: Off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858316
+    m_Localized: Low
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858317
+    m_Localized: Medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858318
+    m_Localized: High
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858319
+    m_Localized: SELECTED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858320
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858321
+    m_Localized: Reset section
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858322
+    m_Localized: Apply
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858323
+    m_Localized: Keep these display settings? Press Enter ({0}s)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858324
+    m_Localized: Press a key...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858325
+    m_Localized: Click, then press a key or mouse button. Esc cancels. If the key
+      is already used, the two actions swap keys.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858326
+    m_Localized: Move, attack, interact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858327
+    m_Localized: Dash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858328
+    m_Localized: Sprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858329
+    m_Localized: Inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858330
+    m_Localized: Minimap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858331
+    m_Localized: Route map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858332
+    m_Localized: Ranged attack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858333
+    m_Localized: Artifact 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858334
+    m_Localized: Artifact 2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858335
+    m_Localized: Artifact 3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30050916917858336
+    m_Localized: Use potion
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

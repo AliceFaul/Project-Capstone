@@ -19,6 +19,7 @@ public class InputHandler : MonoBehaviour
     public event Action OnArtifact3;
     public event Action OnToggleInventory;
     public event Action OnToggleMinimap;
+    public event Action OnToggleNodeMap;
 
     private void Awake()
     {
@@ -38,6 +39,7 @@ public class InputHandler : MonoBehaviour
         _actions.Player.Artifact3.performed += OnArtifact3Performed;
         _actions.Player.ToggleInventory.performed += ToggleInventoryPerformed;
         _actions.Player.ToggleMinimap.performed += ToggleMinimapPerformed;
+        _actions.Player.ToggleNodeMap.performed += ToggleNodeMapPerformed;
     }
 
     private void OnDisable()
@@ -52,6 +54,7 @@ public class InputHandler : MonoBehaviour
         _actions.Player.Artifact3.performed -= OnArtifact3Performed;
         _actions.Player.ToggleInventory.performed -= ToggleInventoryPerformed;
         _actions.Player.ToggleMinimap.performed -= ToggleMinimapPerformed;
+        _actions.Player.ToggleNodeMap.performed -= ToggleNodeMapPerformed;
     }
 
     private void ReloadBindings() => GameSettings.ApplyBindings(_actions.asset);
@@ -73,6 +76,11 @@ public class InputHandler : MonoBehaviour
     private void ToggleInventoryPerformed(InputAction.CallbackContext context)
     {
         OnToggleInventory?.Invoke();
+    }
+
+    private void ToggleNodeMapPerformed(InputAction.CallbackContext context)
+    {
+        OnToggleNodeMap?.Invoke();
     }
 
     private void ToggleMinimapPerformed(InputAction.CallbackContext context)

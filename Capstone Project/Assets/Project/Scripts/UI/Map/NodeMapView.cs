@@ -72,7 +72,7 @@ public class NodeMapView : MonoBehaviour
 
     private void OnDestroy()
     {
-        //if (_input != null) _input.OnToggleNodeMap -= Toggle;
+        if (_input != null) _input.OnToggleNodeMap -= Toggle;
         if (_open) Restore();
         if (Instance == this) Instance = null;
     }
@@ -84,7 +84,7 @@ public class NodeMapView : MonoBehaviour
         {
             _nextHookCheck = Time.unscaledTime + 0.5f;
             _input = FindFirstObjectByType<InputHandler>();
-            //if (_input != null) _input.OnToggleNodeMap += Toggle;
+            if (_input != null) _input.OnToggleNodeMap += Toggle;
         }
 
         if (!_open) return;
