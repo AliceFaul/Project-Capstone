@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -21,8 +20,9 @@ namespace Mhieu.Enemy
 
         private float _targetFillAmount = 1f;
 
-        public event Action<EnemyHealth> Died;
-        
+        public event System.Action<EnemyHealth> Died;
+        public static event System.Action<EnemyHealth> AnyDied;
+
         private float _healthMultiplier = 1f;
         private float _damageMultiplier = 1f;
 
@@ -58,7 +58,6 @@ namespace Mhieu.Enemy
 
             Hp = TotalHealth;
             _targetFillAmount = 1f;
-            
             if(healthBar != null) healthBar.fillAmount = 1f;
             HpChanged(Hp);
         }
@@ -136,7 +135,8 @@ namespace Mhieu.Enemy
             if(outlineComponent != null) outlineComponent.enabled = false;
             
             Died?.Invoke(this);
-            
+            AnyDied?.Invoke(this);
+
             gameObject.SetActive(false); // For now, just deactivate the enemy
         }
     }

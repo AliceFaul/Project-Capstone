@@ -32,6 +32,7 @@ public class LevelRunController : MonoBehaviour
     public event Action<MapNode> NodeCleared;
     public event Action RunCompleted; // boss node cleared
     public event Action RunFailed;    // call Fail() from the dead / revive system
+    public event Action RunAbandoned; // pause menu "Abandon run": not a failure (no summary), nothing is recorded
 
     private readonly Dictionary<string, AreaController> _areaById = new Dictionary<string, AreaController>();
     private AreaController _currentArea;
@@ -117,6 +118,14 @@ public class LevelRunController : MonoBehaviour
         RunFailed?.Invoke();
     }
 
+    // Pause menu "Abandon run": the run just ends; the caller loads the lobby. Nothing is recorded as a completion.
+    public void Abandon()
+    {
+        if (!IsRunning) return;
+        IsRunning = false;
+        RunAbandoned?.Invoke();
+    }
+
     private IEnumerator TransitionTo(MapNode node, bool first)
     {
         IsTransitioning = true;
@@ -161,6 +170,43 @@ public class LevelRunController : MonoBehaviour
 
         player.CmdCombatLocked(false);
         IsTransitioning = false;
+    }
+
+    public void PreviewEnemyScaling(MapNode node, out float health, out float damage, out bool exact)
+    {
+        int cleared = CombatNodesCleared;
+        exact = true;
+
+        bool currentIsCombat = Current != null && (Current.Type == NodeType.Combat || Current.Type == NodeType.Elite);
+        if (Current != null && node.Id == Current.Id)
+        {
+            if (currentIsCombat && Current.Cleared) cleared--; // it was entered before it was counted
+        }
+        else if (Current != null)
+        {
+            if (currentIsCombat && !Current.Cleared) cleared++; // clearing it first adds one
+            int between = node.Layer - Current.Layer - 1;
+            if (between > 0)
+            {
+                cleared += between;
+                exact = false;
+            }
+        }
+
+        health = 1f + config.healthPerCombatNode * cleared;
+        damage = 1f + config.damagePerCombatNode * cleared;
+        if (node.Type == NodeType.Elite)
+        {
+            health *= config.eliteHealthMultiplier;
+            damage *= config.eliteDamageMultiplier;
+        }
+        else if (node.Type == NodeType.Boss)
+        {
+            health = 1f;
+            damage = 1f;
+        }
+        health *= _difficultyHealth;
+        damage *= _difficultyDamage;
     }
 
     private NodeRunContext BuildContext(MapNode node)
