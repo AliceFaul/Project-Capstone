@@ -1089,6 +1089,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4743355515517316262, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1542,6 +1546,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7702933762859646559, guid: ddbd7b661b923f949bf848f828a8cc50, type: 3}
   m_PrefabInstance: {fileID: 618899632}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &667992297
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 667992299}
+  - component: {fileID: 667992298}
+  m_Layer: 0
+  m_Name: PlayFabHttp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &667992298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 667992297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97a8a3caac8b73541aa8a9a1e330f479, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlayFab::PlayFab.Internal.PlayFabHttp
+--- !u!4 &667992299
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 667992297}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &743136802
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2054,6 +2102,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4743355515517316262, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2153,6 +2205,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4743355515517316262, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2213,6 +2269,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2527537138281969020, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743355515517316262, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -2737,6 +2797,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4743355515517316262, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2797,6 +2861,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2527537138281969020, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743355515517316262, guid: 97d4841b8989ba0499e4ce2709a41e82, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -2971,7 +3039,13 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 720708734723406063, guid: 4d7f89211484fe54c986838eceb6ba0b, type: 3}
       propertyPath: m_WarningMessage
-      value: 
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'Armature'\n\tTransform 'Hips'\n\tTransform
+        'Spine1'\n\tTransform 'RightForeArm'\n\tTransform 'LeftLeg'\n\tTransform
+        'LeftArm'\n\tTransform 'RightShoulder'\n\tTransform 'LeftShoulder'\n\tTransform
+        'RightArm'\n\tTransform 'Armature'\n\tand more ...\n\tFrom animation clip
+        'Jump'"
       objectReference: {fileID: 0}
     - target: {fileID: 8973249790145409378, guid: 4d7f89211484fe54c986838eceb6ba0b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3564,3 +3638,4 @@ SceneRoots:
   - {fileID: 1704374494}
   - {fileID: 1022638880}
   - {fileID: 89632528}
+  - {fileID: 667992299}

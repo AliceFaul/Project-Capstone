@@ -4,10 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-// DANH SACH cac Action cua Artifact. Muon them hanh vi moi: tao class moi
-// ke thua ArtifactAction, danh dau [Serializable] - 
-// no tu hien trong dropdown cua ArtifactData.actions (SerializeReferenceDropdown).
-
 [Serializable]
 public class StatBuffAction : ArtifactAction
 {
@@ -52,8 +48,6 @@ public class HealAction : ArtifactAction
     }
 }
 
-// Don danh dang cau tai vi tri chuot (targeting = Point).
-// Sat thuong = flat + scale x TotalDamage.
 [Serializable]
 public class AreaStrikeAction : ArtifactAction
 {
@@ -89,8 +83,6 @@ public class AreaStrikeAction : ArtifactAction
     }
 }
 
-// Ban 1 hoac nhieu projectile theo huong chuot:
-// luong nang luong, luoi dao, mui ten (+ hieu ung/vu no)
 [Serializable]
 public class ProjectileAction : ArtifactAction
 {
@@ -140,7 +132,6 @@ public class ProjectileAction : ArtifactAction
     }
 }
 
-// Vung hoi mau/ buff chi so, CHI anh huong nguoi choi.
 [Serializable]
 public class ZoneAction : ArtifactAction
 {

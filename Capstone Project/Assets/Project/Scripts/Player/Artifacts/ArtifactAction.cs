@@ -2,28 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Du lieu 1 lan dung artifact, truyen cho tung Action
 public class ArtifactContext
 {
     public ArtifactData Data;
     public PlayerRuntime Caster;
     public Transform CasterTransform;
-    public Vector3 Origin; // diem xuat phat (castOrigin hoac vi tri nguoi choi)
-    public Vector3 AimPoint; // diem tren mat dat duoi con tro chuot (da gioi han maxRange neu targeting = Point)
-    public Vector3 AimDirection; // huong ngang, da mormalize
+    public Vector3 Origin;
+    public Vector3 AimPoint;
+    public Vector3 AimDirection;
     public PlayerBuffs Buffs;
-    public MonoBehaviour Runner; // Dung de chay Coroutine
+    public MonoBehaviour Runner;
     public LayerMask EnemyLayer;
     public LayerMask ObstacleLayer;
 }
 
-// 1 module hanh vi. Ghep nhieu Action trong ArtifactData.actions de tao artifact moi, khong can viet class
 [Serializable]
 public abstract class ArtifactAction
 {
     public abstract void Execute(ArtifactContext context);
-    
-    // Cac chi so ma Action nay buff len nguoi choi
     public virtual IEnumerable<BonusStat> BuffStats { get { yield break; } }
 }
 
@@ -36,7 +32,6 @@ public class StatBuffEntry
     public float value;
 }
 
-// Sat thuong = flat + scale x TotalDamage cua nguoi choi. Khong crit.
 [Serializable]
 public class DamageSpec
 {
@@ -46,7 +41,6 @@ public class DamageSpec
     public int Compute(float totalDamage) => Mathf.Max(0, Mathf.RoundToInt(flat + scale * totalDamage));
 }
 
-// Hieu ung sat thuong theo thoi gian (chay, doc,...) - dung DamageOverTime co san
 [Serializable]
 public class DotEffectSpec
 {

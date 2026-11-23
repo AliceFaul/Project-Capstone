@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 888270505598952987}
   - component: {fileID: 7735905665274845618}
   - component: {fileID: 2884577494648549503}
+  - component: {fileID: 718064711656539940}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -682,6 +683,35 @@ MonoBehaviour:
   minSpeed: 0.5
   groundCheckDistance: 0.5
   minAirTimeForLanding: 0.15
+--- !u!114 &718064711656539940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033850277288197346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26ae23a40d5142cd8c3276d0878e7152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LowHealthWarning
+  player: {fileID: 6254586106571862876}
+  threshold: 0.3
+  hysteresis: 0.05
+  heartbeatCue: {fileID: 0}
+  slowInterval: 1.1
+  fastInterval: 0.55
+  secondPulseDelay: 0.2
+  screenEffect: 1
+  vignetteColor: {r: 0.7, g: 0, b: 0, a: 1}
+  vignetteIntensity: 0.5
+  vignetteSmoothness: 0.6
+  baseStrength: 0.35
+  pulseStrength: 0.65
+  pulseDecay: 4
+  fadeSpeed: 3
+  volumeLayer: 0
+  volumePriority: 20
 --- !u!1001 &4161441569483653642
 PrefabInstance:
   m_ObjectHideFlags: 0

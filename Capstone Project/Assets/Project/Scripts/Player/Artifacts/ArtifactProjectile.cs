@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 public struct ProjectileLaunch
 {
@@ -17,19 +16,34 @@ public struct ProjectileLaunch
     public LayerMask ObstacleLayer;
 }
 
-// Projectile rieng cua artifact. Tu quet va cham bang SphereCast
-// nen prefab khong can Collider/Rigidbody - chi can model/VFX.
 public class ArtifactProjectile : MonoBehaviour
 {
     [SerializeField] private float radius = 0.3f;
     [SerializeField] private GameObject hitVfx;
     [SerializeField] private float hitVfxLifetime = 2f;
 
+    [Header("Audio")]
+    [Tooltip("Optional. Loops while the projectile flies (whoosh, hum) and follows it.")]
+    [SerializeField] private AudioCue flightLoopSfx;
+    [Tooltip("Optional. Played where the projectile hits something, and when it pierces through an enemy.")]
+    [SerializeField] private AudioCue hitSfx;
+
+    // A single frame step is short, so 32 hits is far more than can ever overlap.
+    private const int HitBufferSize = 32;
+    private static readonly HitDistanceComparer DistanceComparer = new HitDistanceComparer();
+
     private ProjectileLaunch _launch;
     private float _lifeLeft;
     private int _pierceLeft;
     private bool _launched;
+    private int _loopHandle;
     private readonly HashSet<IAttackable> _hit = new();
+    private readonly RaycastHit[] _hitBuffer = new RaycastHit[HitBufferSize];
+
+    private sealed class HitDistanceComparer : IComparer<RaycastHit>
+    {
+        public int Compare(RaycastHit a, RaycastHit b) => a.distance.CompareTo(b.distance);
+    }
 
     public void Launch(ProjectileLaunch launch)
     {
@@ -41,69 +55,79 @@ public class ArtifactProjectile : MonoBehaviour
 
         transform.rotation = Quaternion.LookRotation(_launch.Direction);
 
-        // SphereCast khong phat hien collider ma diem bat dau da nam trong -
-        // xu ly quai dang chong len diem sinh ra bang OverlapSphere.
         foreach (var coll in Physics.OverlapSphere(transform.position, radius, _launch.EnemyLayer))
         {
             if (HandleEnemy(coll)) continue;
             Finish(transform.position);
             return;
         }
+
+        StartFlightLoop();
     }
 
     private void Update()
     {
-        if(!_launched) return;
-        
+        if (!_launched) return;
+
         float step = _launch.Speed * Time.deltaTime;
         LayerMask mask = _launch.EnemyLayer | _launch.ObstacleLayer;
 
-        // SphereCastAll de khong bo sot quai nao nam trong khoang bay cua 1 frame khi xuyen.
-        var hits = Physics.SphereCastAll(transform.position, radius, _launch.Direction, step, mask, QueryTriggerInteraction.Ignore);
-        if (hits.Length > 0)
+        // NonAlloc: SphereCastAll allocated a new array for every projectile on every frame.
+        int count = Physics.SphereCastNonAlloc(transform.position, radius, _launch.Direction, _hitBuffer, step, mask, QueryTriggerInteraction.Ignore);
+        if (count > 0)
         {
-            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-            foreach (var hit in hits)
+            // Sort by distance so no enemy inside this frame's flight path is skipped when piercing.
+            Array.Sort(_hitBuffer, 0, count, DistanceComparer);
+
+            for (int i = 0; i < count; i++)
             {
+                RaycastHit hit = _hitBuffer[i];
                 bool isEnemy = (_launch.EnemyLayer.value & (1 << hit.collider.gameObject.layer)) != 0;
-                if(isEnemy && HandleEnemy(hit.collider)) continue;
+                if (isEnemy && HandleEnemy(hit.collider)) continue;
+
                 Vector3 point = hit.point == Vector3.zero ? transform.position : hit.point;
                 Finish(point);
                 return;
             }
         }
-        
+
         transform.position += _launch.Direction * step;
         _lifeLeft -= Time.deltaTime;
-        if(_lifeLeft <= 0f) Destroy(gameObject);
+        if (_lifeLeft <= 0f) Destroy(gameObject);
     }
 
-    // True = tiep tuc bay (khong phai enemy, da trung roi hoac con luot xuyen), False = dung lai.
+    private void OnDestroy()
+    {
+        StopFlightLoop();
+    }
+
     private bool HandleEnemy(Collider coll)
     {
         var attackable = coll.GetComponentInParent<IAttackable>();
-        if(!IsValidTarget(attackable) || !_hit.Add(attackable)) return true;
-        
+        if (!IsValidTarget(attackable) || !_hit.Add(attackable)) return true;
+
         ArtifactDamage.Hit(attackable, _launch.Damage, _launch.Caster, _launch.Effect);
 
         if (_pierceLeft > 0)
         {
             _pierceLeft--;
+            AudioService.Instance?.PlaySfx(hitSfx, transform.position); // passing through: Finish() is not called
             return true;
         }
-        
+
         return false;
     }
-    
+
     private void Finish(Vector3 point)
     {
         _launched = false;
+        StopFlightLoop();
+
         var explosion = _launch.Explosion;
 
         if (explosion is { enabled: true })
         {
             int damage = Mathf.RoundToInt(_launch.Damage * explosion.damageScale);
-            // Bo qua quai da trung dan truc tiep de khong tinh sat thuong 2 lan.
             ArtifactDamage.Area(point, explosion.radius, damage, _launch.Caster, _launch.EnemyLayer, _launch.Effect, _hit);
 
             if (explosion.vfxPrefab)
@@ -111,6 +135,8 @@ public class ArtifactProjectile : MonoBehaviour
                 var vfx = Instantiate(explosion.vfxPrefab, point, Quaternion.identity);
                 Destroy(vfx, explosion.vfxLifeTime);
             }
+
+            AudioService.Instance?.PlaySfx(explosion.sfx, point);
         }
 
         if (hitVfx)
@@ -118,8 +144,26 @@ public class ArtifactProjectile : MonoBehaviour
             var vfx = Instantiate(hitVfx, point, Quaternion.identity);
             Destroy(vfx, hitVfxLifetime);
         }
-        
+
+        AudioService.Instance?.PlaySfx(hitSfx, point);
+
         Destroy(gameObject);
+    }
+
+    private void StartFlightLoop()
+    {
+        if (flightLoopSfx == null || AudioService.Instance == null) return;
+
+        // Safety net: even if Finish() is never reached the loop fades out shortly after the projectile's lifetime.
+        _loopHandle = AudioService.Instance.PlayLoop(flightLoopSfx, transform, _launch.Lifetime + 0.5f);
+    }
+
+    private void StopFlightLoop()
+    {
+        if (_loopHandle == 0) return;
+
+        AudioService.Instance?.StopLoop(_loopHandle, 0.1f);
+        _loopHandle = 0;
     }
 
     private bool IsValidTarget(IAttackable target)
@@ -127,7 +171,6 @@ public class ArtifactProjectile : MonoBehaviour
         return target switch
         {
             null => false,
-            Object obj => obj != null,
             _ => true
         };
     }
