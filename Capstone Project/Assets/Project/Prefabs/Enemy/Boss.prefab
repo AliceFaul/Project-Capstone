@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: -5803826131093280452}
   - component: {fileID: 2511799984093310907}
   - component: {fileID: 6505688997027567315}
+  - component: {fileID: 2304575064172304737}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -152,9 +153,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52e1ebdbc626a2241944f4c24be70fce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 0
-  retreatHealthPercent: 0.2
+  level: 0
+  healthBar: {fileID: 0}
+  barSpeed: 1.5
+  impactParticles: {fileID: 0}
 --- !u!114 &-5803826131093280452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217,6 +219,32 @@ CapsuleCollider:
   m_Height: 3
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2304575064172304737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712773337231112459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948da34241c187c449492ac2b2089a65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: BOSS
+  phaseMarkers:
+  - 0.66
+  - 0.33
+  alwaysShow: 0
+  barWidth: 900
+  barHeight: 26
+  topMargin: 40
+  fillColor: {r: 0.85, g: 0.12, b: 0.12, a: 1}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.8}
+  trailColor: {r: 1, g: 0.85, b: 0.25, a: 1}
+  trailDelay: 0.4
+  trailSpeed: 0.5
+  fadeSpeed: 4
 --- !u!1 &3120307360237297847
 GameObject:
   m_ObjectHideFlags: 0

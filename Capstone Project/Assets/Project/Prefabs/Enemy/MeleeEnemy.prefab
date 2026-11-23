@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 5425391976666243453}
   - component: {fileID: 5709878089819640434}
   - component: {fileID: 5458685121541016830}
+  - component: {fileID: 1537741731456062733}
+  - component: {fileID: -5076967767986940367}
   m_Layer: 0
   m_Name: MeleeEnemy
   m_TagString: Untagged
@@ -136,6 +138,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minPriority: 50
   maxPriority: 60
+--- !u!114 &1537741731456062733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712773337231112459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eef946e7101bdd24fa901284a61d8295, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heightOffset: 1.5
+  width: 1.2
+  height: 0.14
+  hideWhenFull: 1
+  fullColor: {r: 0.25, g: 0.85, b: 0.3, a: 1}
+  lowColor: {r: 0.9, g: 0.15, b: 0.12, a: 1}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.75}
+  trailColor: {r: 1, g: 0.85, b: 0.25, a: 1}
+  trailDelay: 0.35
+  trailSpeed: 0.6
+--- !u!114 &-5076967767986940367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712773337231112459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3a1e969ff1c46142be111f767cfb95e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  retreatHealthPercent: 0.2
 --- !u!1 &3120307360237297847
 GameObject:
   m_ObjectHideFlags: 0
