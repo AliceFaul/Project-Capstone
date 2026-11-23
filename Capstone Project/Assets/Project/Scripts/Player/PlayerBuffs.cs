@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Buff co thoi han tren nhan vat nguoi choi. Moi buff la 1 'nguon' modifier
-// trong PlayerRuntime(SetModifierSource), het han chi go dung phan cua no - khong anh huong chi so tu trang bi.
-// Dung lai cung buffId = LAM MOI thoi gian, khong cong don.
 public class PlayerBuffs : MonoBehaviour
 {
     private const string SourcePrefix = "buff:";
@@ -56,6 +53,12 @@ public class PlayerBuffs : MonoBehaviour
         _player.RemoveModifierSource(SourcePrefix + buffId);
         OnBuffsChanged?.Invoke();
         return true;
+    }
+
+    public void RemoveAll()
+    {
+        if(_buffs.Count == 0) return;
+        foreach(var id in new List<string>(_buffs.Keys)) Remove(id);
     }
     
     public bool IsActive(string buffId) => _buffs.ContainsKey(buffId);

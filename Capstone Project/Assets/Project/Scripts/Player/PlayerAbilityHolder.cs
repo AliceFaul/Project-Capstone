@@ -9,6 +9,9 @@ public class PlayerAbilityHolder : MonoBehaviour
     [SerializeField] private List<Ability> abilities;
     [SerializeField] private AbilityCooldownChannel cooldownChannel;
 
+    private PlayerController _controller;
+    private bool IsDead => _controller != null && _controller.PlayerModifier.IsDead;
+
     private class AbilitySlot
     {
         public Ability Ability { get; }
@@ -30,6 +33,7 @@ public class PlayerAbilityHolder : MonoBehaviour
 
     private void Awake()
     {
+        _controller = GetComponent<PlayerController>();
         _slots.Clear();
 
         for (int i = 0; i < abilities.Count; i++)
@@ -73,6 +77,8 @@ public class PlayerAbilityHolder : MonoBehaviour
 
     private void Update()
     {
+        if(IsDead) return;
+        
         for (int i = 0; i < _slots.Count; i++)
         {
             _slots[i].CooldownTimer.Tick();
@@ -88,6 +94,7 @@ public class PlayerAbilityHolder : MonoBehaviour
 
     private bool AbilityTriggered(int index)
     {
+        if(IsDead) return false;
         if(index < 0 || index >= _slots.Count) return false;
         
         var slot = _slots[index];

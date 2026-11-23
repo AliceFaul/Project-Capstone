@@ -190,6 +190,8 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLeftClick()
     {
+        if(PlayerModifier.IsDead) return;
+        
         _leftPressFrame = Time.frameCount;
         _isHoldingMove = false;
         if(InventoryScreenView.BlocksWorldClick(_leftPressFrame)) return;
@@ -230,6 +232,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleRightClick() 
     {
+        if(PlayerModifier.IsDead) return;
         if(InventoryScreenView.BlocksWorldClick(Time.frameCount)) return;
 
         // Handle right-click actions if needed
@@ -314,6 +317,7 @@ public class PlayerController : MonoBehaviour
 
     private void ContinuousMovement()
     {
+        if(PlayerModifier.IsDead) { _isHoldingMove = false; return; }
         if(!_isHoldingMove) return;
 
         bool mouseHeld = Mouse.current != null ? Mouse.current.leftButton.isPressed : Input.GetMouseButton(0);
@@ -333,6 +337,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
+        if(PlayerModifier.IsDead) return;
         bool pressed = Keyboard.current != null ? Keyboard.current.spaceKey.wasPressedThisFrame : Input.GetKeyDown(KeyCode.Space);
         if(pressed) Movement.CmdJump();
     }
@@ -374,6 +379,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnDestinationReached()
     {
+        if(PlayerModifier.IsDead) { currentCommand = CommandType.None; return; }
+        
         switch (currentCommand)
         {
             case CommandType.Move: 

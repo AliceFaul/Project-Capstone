@@ -111,6 +111,13 @@ public class PlayerCombat : MonoBehaviour
         Debug.Log(target != null ? $"[PlayerCombat] Target: {target.name}" : $"[PlayerCombat] Target cleared.");
     }
 
+    public void CancelAll()
+    {
+        _currentTarget = null;
+        _activeCombatWindow = false;
+        _comboQueued = false;
+    }
+
     public void CmdAttack() {
         if(_currentTarget == null || _currentMeleeWeapon == null) return;
 
@@ -162,6 +169,7 @@ public class PlayerCombat : MonoBehaviour
     
     public void CmdDealDamage()
     {
+        if(_controller != null && _controller.PlayerModifier.IsDead) return;
         if(_currentMeleeWeapon == null) return;
         if(swingCue != null && AudioService.Instance != null) AudioService.Instance.PlaySfx(swingCue, attackPoint.position);
         
@@ -210,6 +218,7 @@ public class PlayerCombat : MonoBehaviour
     
     public void CmdShoot(Vector3 mousePosition)
     {
+        if(_controller != null && _controller.PlayerModifier.IsDead) return;
         if(_currentAmmo <= 0) return;
         if(_currentRangedWeapon == null) return;
 
@@ -235,6 +244,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void CmdSpawnProjectile()
     {
+        if(_controller != null && _controller.PlayerModifier.IsDead) return;
         if (_currentAmmo <= 0 || _currentRangedWeapon == null) return;
         if (_equipmentManager == null || firePoint == null || projectilePrefab == null)
         {

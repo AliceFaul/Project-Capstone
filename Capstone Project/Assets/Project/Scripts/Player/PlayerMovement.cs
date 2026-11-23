@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class PlayerMovement : MonoBehaviour
-{ 
+{
     [Header("Game Feel")]
     [Tooltip("Toc do quay mat theo huong di chuyen")]
     [SerializeField] private float rotationSpeed = 900f;
@@ -43,6 +43,8 @@ public class PlayerMovement : MonoBehaviour
     private bool _hasJumpDestination;
     
     private float _lastJumpTime;
+
+    private bool IsDead => _controller != null && _controller.PlayerModifier.IsDead;
     
     public event Action OnDestinationReached;
     public event Action<Vector3> OnMoveStart;
@@ -140,6 +142,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartMoving(Vector3 destination, float stoppingDistance)
     {
+        if(IsDead) return;
         if(!_agent.enabled || !_agent.isOnNavMesh) return;
         bool wasIdle = !_isMoving;
         
@@ -157,6 +160,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void CmdJump()
     {
+        if(IsDead) return;
         if(!_controller.PlayerModifier.CanMove) return;
         if(_isJumping || Time.time < _lastJumpTime + autoJumpCooldown) return;
 
@@ -182,6 +186,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateAutoJump()
     {
+        if (IsDead || _isJumping || !_isMoving || Time.time < _lastJumpTime + autoJumpCooldown) return;
         if(_isJumping || !_isMoving || Time.time < _lastJumpTime + autoJumpCooldown) return;
         if(_agent.velocity.sqrMagnitude < 0.5f) return;
 
@@ -221,7 +226,7 @@ public class PlayerMovement : MonoBehaviour
 
         try
         {
-            while (elapsed < duration)
+            while (elapsed < duration && !IsDead)
             {
                 float dt = Time.deltaTime;
                 elapsed += dt;
@@ -268,7 +273,7 @@ public class PlayerMovement : MonoBehaviour
             }
             _isJumping = false;
 
-            if (_hasJumpDestination && _agent != null && _agent.enabled && _agent.isOnNavMesh)
+            if (_hasJumpDestination && !IsDead && _agent != null && _agent.enabled && _agent.isOnNavMesh)
             {
                 _agent.isStopped = false;
                 _agent.SetDestination(_jumpDestination);
@@ -296,7 +301,7 @@ public class PlayerMovement : MonoBehaviour
         // Stop current path to perform roll ability
         if(_agent.enabled) _agent.isStopped = true;
 
-        while (elapsed < duration)
+        while (elapsed < duration && !IsDead)
         {
             if(_agent.enabled) _agent.Move(normalizedDirection * (speed * Time.deltaTime));
             else transform.position += normalizedDirection * (speed * Time.deltaTime);
@@ -304,11 +309,7 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
-        if (_agent.enabled)
-        {
-            _agent.isStopped = false;
-            Stop();
-        }
+        if (_agent.enabled && !IsDead) { _agent.isStopped = false; Stop(); }
     }
     
     // Rotate the character at high speed in the desired direction.
@@ -333,6 +334,38 @@ public class PlayerMovement : MonoBehaviour
         if (direction.sqrMagnitude < 0.001f) return;
         
         transform.rotation = Quaternion.LookRotation(direction);
+    }
+    
+    public void HaltImmediately()
+    {
+        _isMoving = false;
+        _hasJumpDestination = false;
+
+        if (_agent != null && _agent.enabled)
+        {
+            _agent.isStopped = true;
+            if (_agent.isOnNavMesh)
+            {
+                _agent.ResetPath();
+                _agent.velocity = Vector3.zero;
+            }
+        }
+
+        OnMoveStop?.Invoke();
+    }
+
+    public bool WarpTo(Vector3 position)
+    {
+        HaltImmediately();
+
+        if (_agent != null && _agent.enabled)
+        {
+            if (NavMesh.SamplePosition(position, out NavMeshHit hit, 3f, NavMesh.AllAreas)) position = hit.position;
+            return _agent.Warp(position);
+        }
+
+        transform.position = position;
+        return true;
     }
     
     private void OnDrawGizmos()

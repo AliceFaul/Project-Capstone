@@ -37,7 +37,8 @@ public class ArtifactController : MonoBehaviour
     private bool _isCasting;
 
     public bool IsCasting => _isCasting;
-
+    public bool InputLocked { get; set; }
+    
     public event Action<int, ArtifactData> OnArtifactUsed;
 
     // A dead player must not be able to use (or finish casting) an artifact.
@@ -108,6 +109,7 @@ public class ArtifactController : MonoBehaviour
         return _equipment != null ? GetCooldownRemaining(_equipment.GetArtifact(slot)) : 0f;
     }
 
+    // 0..1 (1 = vua bat dau cooldown) - dung cho vong/fill cooldown
     public float GetCooldownNormalized(int slot)
     {
         var instance = _equipment != null ? _equipment.GetArtifact(slot) : null;
@@ -120,7 +122,7 @@ public class ArtifactController : MonoBehaviour
 
     public bool TryActivate(int slot)
     {
-        if (_equipment == null || _isCasting) return false;
+        if (_equipment == null || _isCasting || InputLocked) return false;
         if (IsPlayerDead) return false;
 
         var instance = _equipment.GetArtifact(slot);
@@ -214,6 +216,7 @@ public class ArtifactController : MonoBehaviour
             float executeAt = Mathf.Clamp(data.executeTime, 0f, data.castTime);
             if (executeAt > 0f) yield return new WaitForSeconds(executeAt);
 
+            // Died during the wind-up: cancel instead of firing the artifact from a dead player.
             if (IsPlayerDead) yield break;
 
             Execute(data, context);

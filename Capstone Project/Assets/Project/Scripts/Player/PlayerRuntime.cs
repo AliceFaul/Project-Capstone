@@ -181,6 +181,20 @@ public class PlayerRuntime : CharacterRuntime, IPlayerRuntime
         OnStatsChanged?.Invoke();
     }
 
+    public override void Die()
+    {
+        if(_controller != null) _controller.PlayerModifier.SetDead(true);
+        base.Die();
+    }
+
+    public void Kill()
+    {
+        if (IsDead) return;
+        Hp = 0;
+        HpChanged(0);
+        Die();
+    }
+
     private void OnGoldObtained(CurrencyType type, int amount)
     {
         if(playerArchive == null) return;

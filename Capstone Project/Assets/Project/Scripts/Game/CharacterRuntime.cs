@@ -44,6 +44,9 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
 
     private bool _isDead;
     public bool IsDead => _isDead;
+
+    public event Action OnDied;
+    private bool _deathAnnounced;
     
     private Material _flashMaterial;
     protected DamageFlasher _damageFlash;
@@ -51,7 +54,10 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     public virtual void Init()
     {
         CharacterData = GetComponent<CharacterInstall>().characterData;
+        
         _isDead = false;
+        _deathAnnounced = false;
+        
         Hp = totalHealth;
         OnHpChanged?.Invoke(Hp);
     }
@@ -146,11 +152,16 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
         Debug.Log($"{gameObject} has been healed {amount}%!");
     }
 
-    public void Revive()
+    public void Revive() => Revive(1f);
+
+    public virtual void Revive(float healthFraction)
     {
         _isDead = false;
-        Hp = totalHealth;
+        _deathAnnounced = false;
+        
+        Hp = Mathf.Clamp(Mathf.RoundToInt(totalHealth * Mathf.Clamp01(healthFraction)), 1, totalHealth);
         OnHpChanged?.Invoke(Hp);
+        
         Debug.Log($"{gameObject} has been revived!");
     }
 
@@ -158,6 +169,13 @@ public class CharacterRuntime : MonoBehaviour, ICharacterRuntime
     {
         _isDead = true;
         gameObject.GetComponent<IStateMachine>().ChangeState(CharacterStateType.Dead);
+
+        if (!_deathAnnounced)
+        {
+            _deathAnnounced = true;
+            OnDied?.Invoke();
+        }
+        
         Debug.Log($"{gameObject} has been died!");
     }
 

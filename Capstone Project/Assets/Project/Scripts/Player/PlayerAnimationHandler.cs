@@ -124,7 +124,7 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
             case CharacterStateType.Hit:
                 PlayAnimation(_hitHash, 0.05f); break;
             case CharacterStateType.Dead:
-                PlayAnimation(_deadHash, 0.1f); break;
+                if(_animator.HasState(0, _deadHash)) PlayAnimation(_deadHash, 0.1f); break;
             case CharacterStateType.Interact:
                 PlayAnimation(_interactHash, 0.15f); break;
             case CharacterStateType.Locomotion:
