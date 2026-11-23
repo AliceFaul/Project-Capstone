@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ce2ee92e9114bf46bf5637a3ba550cf, type: 3}
+  m_Name: Attack
+  m_EditorClassIdentifier: 
+  kind: 0
+  minRange: 0
+  maxRange: 1.8
+  windupTime: 0.5
+  recoveryTime: 0.6
+  cooldown: 2
+  damageMultiplier: 1
+  trackTargetDuringWindup: 1
+  windupTurnSpeed: 360
+  animId: 1
+  hitRadius: 1.2
+  hitForwardOffset: 1
+  hitHeight: 0.8
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 10
+  projectileLifetime: 3
+  projectileCount: 1
+  spreadAngle: 0
+  aoeRadius: 2.5
+  aoeCenterOnTarget: 1
+  telegraphPrefab: {fileID: 0}
+  telegraphYOffset: 0.05

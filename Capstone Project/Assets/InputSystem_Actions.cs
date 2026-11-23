@@ -190,6 +190,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleNodeMap"",
+                    ""type"": ""Button"",
+                    ""id"": ""b3d8f2a1-5c7e-4f60-9a14-2e8c0d6b7a31"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -311,6 +320,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ToggleMinimap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c9e4a7d2-8b1f-4e35-b6a0-4f2d1c8e5b92"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleNodeMap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -441,6 +461,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_MousePosition = m_Player.FindAction("MousePosition", throwIfNotFound: true);
         m_Player_ToggleInventory = m_Player.FindAction("ToggleInventory", throwIfNotFound: true);
         m_Player_ToggleMinimap = m_Player.FindAction("ToggleMinimap", throwIfNotFound: true);
+        m_Player_ToggleNodeMap = m_Player.FindAction("ToggleNodeMap", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Click = m_UI.FindAction("Click", throwIfNotFound: true);
@@ -537,6 +558,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_MousePosition;
     private readonly InputAction m_Player_ToggleInventory;
     private readonly InputAction m_Player_ToggleMinimap;
+    private readonly InputAction m_Player_ToggleNodeMap;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -592,6 +614,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleMinimap".
         /// </summary>
         public InputAction @ToggleMinimap => m_Wrapper.m_Player_ToggleMinimap;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleNodeMap".
+        /// </summary>
+        public InputAction @ToggleNodeMap => m_Wrapper.m_Player_ToggleNodeMap;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -651,6 +677,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ToggleMinimap.started += instance.OnToggleMinimap;
             @ToggleMinimap.performed += instance.OnToggleMinimap;
             @ToggleMinimap.canceled += instance.OnToggleMinimap;
+            @ToggleNodeMap.started += instance.OnToggleNodeMap;
+            @ToggleNodeMap.performed += instance.OnToggleNodeMap;
+            @ToggleNodeMap.canceled += instance.OnToggleNodeMap;
         }
 
         /// <summary>
@@ -695,6 +724,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @ToggleMinimap.started -= instance.OnToggleMinimap;
             @ToggleMinimap.performed -= instance.OnToggleMinimap;
             @ToggleMinimap.canceled -= instance.OnToggleMinimap;
+            @ToggleNodeMap.started -= instance.OnToggleNodeMap;
+            @ToggleNodeMap.performed -= instance.OnToggleNodeMap;
+            @ToggleNodeMap.canceled -= instance.OnToggleNodeMap;
         }
 
         /// <summary>
@@ -984,6 +1016,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleMinimap(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleNodeMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleNodeMap(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
