@@ -25,7 +25,7 @@ namespace Mhieu.Enemy
 
         [Header("Hiển thị")]
         [Tooltip("Bật: chỉ hiện khi enemy đã mất máu. Tắt: luôn hiện.")]
-        [SerializeField] private bool hideWhenFull = true;
+        [SerializeField] private bool hideWhenFull;
         [SerializeField] private Color fullColor = new Color(0.25f, 0.85f, 0.3f, 1f);
         [SerializeField] private Color lowColor = new Color(0.9f, 0.15f, 0.12f, 1f);
         [SerializeField] private Color backgroundColor = new Color(0f, 0f, 0f, 0.75f);
@@ -35,7 +35,7 @@ namespace Mhieu.Enemy
         [SerializeField, Min(0f)] private float trailDelay = 0.35f;
         [SerializeField, Min(0.05f)] private float trailSpeed = 0.6f;
 
-        private ICharacterRuntime _runtime;
+        private HealthSource _source;
         private GameObject _root;
         private Image _fill;
         private Image _trail;
@@ -48,11 +48,12 @@ namespace Mhieu.Enemy
 
         private void Awake()
         {
-            _runtime = GetComponent<ICharacterRuntime>();
-            if (_runtime == null)
+            _source = HealthSource.Find(gameObject);
+            if (_source == null)
             {
                 UnityEngine.Debug.LogWarning(
-                    "[EnemyWorldHealthBar] Object này không có ICharacterRuntime (CharacterRuntime/EnemyHealth) nên không hiện được thanh máu.", this);
+                    "[EnemyWorldHealthBar] Không tìm thấy nguồn máu trên '" + name + "' (cần ICharacterRuntime, hoặc component có " +
+                    "trường currentHealth và maxHealth) nên không hiện được thanh máu.", this);
                 enabled = false;
                 return;
             }
@@ -66,6 +67,8 @@ namespace Mhieu.Enemy
             _ready = true;
             Snap();
             ApplyVisibility();
+            UnityEngine.Debug.Log("[EnemyWorldHealthBar] '" + name + "' đọc máu từ " + _source.Description +
+                                  " (" + _source.Current + "/" + _source.Max + ")", this);
         }
 
         private void OnEnable()
@@ -91,7 +94,7 @@ namespace Mhieu.Enemy
         {
             if (!_ready) return;
 
-            float target = HealthBarUtil.Ratio(_runtime);
+            float target = _source.Ratio;
 
             if (target < _ratio - 0.0001f) _trailHoldUntil = Time.time + trailDelay;
             _ratio = target;
@@ -114,12 +117,13 @@ namespace Mhieu.Enemy
             _root.transform.position = transform.position + Vector3.up * heightOffset;
 
             if (_camera == null) _camera = Camera.main;
+            if (_camera == null) _camera = FindFirstObjectByType<Camera>();
             if (_camera != null) _root.transform.rotation = _camera.transform.rotation;
         }
 
         private void Snap()
         {
-            _ratio = HealthBarUtil.Ratio(_runtime);
+            _ratio = _source.Ratio;
             _trailRatio = _ratio;
             HealthBarUtil.SetFill(_fill, _ratio);
             HealthBarUtil.SetFill(_trail, _trailRatio);
@@ -128,7 +132,7 @@ namespace Mhieu.Enemy
 
         private void ApplyVisibility()
         {
-            bool alive = _runtime.Health > 0;
+            bool alive = _source.Alive;
             bool show = alive && (!hideWhenFull || _ratio < 0.999f);
             if (_root.activeSelf != show) _root.SetActive(show);
         }

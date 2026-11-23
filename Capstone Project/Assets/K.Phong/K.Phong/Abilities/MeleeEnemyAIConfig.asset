@@ -22,5 +22,5 @@ MonoBehaviour:
   leashDistance: 18
   homeArriveDistance: 0.6
   alertRadius: 6
-  primaryAbility: {fileID: 0}
+  primaryAbility: {fileID: 11400000, guid: 4b44e0339c4e55441b3c2661f5c05094, type: 2}
   thinkInterval: 0.1
