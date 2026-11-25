@@ -149,6 +149,7 @@ public class PauseMenuController : MonoBehaviour
 
     private bool CanOpen()
     {
+        if (RunSession.Instance != null && RunSession.Instance.State != RunState.Playing) return false;
         if (_blockedLastFrame || Time.timeScale < 0.01f) return false;
 
         var run = LevelRunController.Instance;

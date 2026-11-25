@@ -8,6 +8,9 @@ using Random = UnityEngine.Random;
 
 public class MainMenu : MonoBehaviour
 {
+    [Header("Scene To Load")]
+    [SerializeField] private string sceneToLoad = "Lobby";
+    
     [Header("Camera Settings")]
     [SerializeField] private CinemachineBrain brain;
     [SerializeField] private CinemachineCamera overviewCamera;
@@ -143,7 +146,7 @@ public class MainMenu : MonoBehaviour
 
     private void StartGame()
     {
-        _ = SceneLoader.Instance.LoadScene("Mhieu", false);
+        _ = SceneLoader.Instance.LoadScene(sceneToLoad, false);
     }
     
     private void Option()

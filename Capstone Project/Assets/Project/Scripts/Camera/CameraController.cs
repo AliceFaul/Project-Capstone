@@ -51,6 +51,12 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    public void SnapToTarget(Vector3 targetMovement)
+    {
+        if(virtualCamera == null || virtualCamera.Follow == null) return;
+        virtualCamera.OnTargetObjectWarped(virtualCamera.Follow, targetMovement);
+    }
+
     public void SetOrthographicSize(float newSize)
     {
         _targetSize = newSize;

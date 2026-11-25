@@ -235,6 +235,13 @@ public class PlayerAnimationHandler : MonoBehaviour, IAnimationHandler
             _animator.speed = 1f;
         }
     }
+
+    public void FreezePose(bool freeze)
+    {
+        if(_animator == null) return;
+        _animator.speed = freeze ? 0f : 1f;
+        if(!freeze) _animator.SetFloat(_speedParamHash, 0f);
+    }
     
     public void CmdAttackTrigger(int attackCount)
     {

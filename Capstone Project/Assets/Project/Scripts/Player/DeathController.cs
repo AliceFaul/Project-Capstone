@@ -60,6 +60,9 @@ public class DeathController : MonoBehaviour
         controller.Combat.CancelAll();
         EndSpawnProtection();
 
+        var animationHandler = controller.AnimationHandler;
+        if (animationHandler != null) animationHandler.FreezePose(true);
+
         OnPlayerDied?.Invoke();
     }
 
@@ -74,7 +77,12 @@ public class DeathController : MonoBehaviour
         modifier.MoveModifier(true);
         modifier.AttackModifier(true);
 
+        // Dead -> Locomotion: PlayerAnimationHandler crossfades back to locomotion by itself.
         controller.StateMachine.Revive();
+
+        var animationHandler = controller.AnimationHandler;
+        if (animationHandler != null) animationHandler.FreezePose(false);
+
         _runtime.Revive(healthFraction ?? reviveHealthFraction);
 
         if (clearBuffsOnRevive)

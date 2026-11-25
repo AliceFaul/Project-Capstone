@@ -4850,6 +4850,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1729278864136340487, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
+      propertyPath: gemCurrencyText
+      value: 
+      objectReference: {fileID: 3006018026812021346}
+    - target: {fileID: 1729278864136340487, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
+      propertyPath: goldCurrencyText
+      value: 
+      objectReference: {fileID: 3441975909522675339}
     - target: {fileID: 5678639348871695333, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -4963,6 +4971,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
+--- !u!114 &3006018026812021346 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1251474492105297424, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
+  m_PrefabInstance: {fileID: 4100989339489211506}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &3392905852416102517 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1729278864136340487, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
@@ -4974,6 +4993,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fd96fabe58f4b78b4b75b4bef6c5ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencyUI
+--- !u!114 &3441975909522675339 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1670271180149752569, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
+  m_PrefabInstance: {fileID: 4100989339489211506}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!224 &8513826900356276119 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5678639348871695333, guid: 9e2d4ade03f75fc48b68ca926a501e1f, type: 3}
