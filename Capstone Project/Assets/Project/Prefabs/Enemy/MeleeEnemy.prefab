@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: -5076967767986940367}
   - component: {fileID: 7899436366225935041}
   - component: {fileID: 188434075183581545}
+  - component: {fileID: 3815979985632870608}
   m_Layer: 7
   m_Name: MeleeEnemy
   m_TagString: Untagged
@@ -77,7 +78,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a41eca1700f4e6a831a70cce78163ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 11400000, guid: 5efdba99ccbf87c4eb343d501acfc64e, type: 2}
+  characterData: {fileID: 11400000, guid: 383c26f3241e5c0419e921982821cecd, type: 2}
 --- !u!114 &5382001679924868167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,6 +221,23 @@ MonoBehaviour:
   intensity: 0
   hovered: 0
   locked: 0
+--- !u!114 &3815979985632870608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712773337231112459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfdcbee779e25ff44aff38de2796c649, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mhieu.Enemy.EnemyStateMachine
+  currentState: 0
+  canBeStaggered: 1
+  hitStunDuration: 0.35
+  staggerCooldown: 0.6
+  knockbackDuration: 0.4
 --- !u!1 &3120307360237297847
 GameObject:
   m_ObjectHideFlags: 0

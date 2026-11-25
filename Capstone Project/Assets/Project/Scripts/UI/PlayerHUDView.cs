@@ -56,9 +56,23 @@ public class PlayerHUDView : MonoBehaviour
     [SerializeField] private Image ammoRegenRightFill;
     [SerializeField] private Color ammoNormalColor = new Color(0.96f, 0.95f, 0.90f, 1f);
     [SerializeField] private Color ammoEmptyColor = new Color(1f, 0.35f, 0.30f, 1f);
+    
+    [Header("Lives")]
+    [Tooltip("Parent of the icons: hidden when there is no run.")]
+    [SerializeField] private GameObject livesRoot;
+    [SerializeField] private Image[] lifeIcons = new Image[3];
+    
+    [Tooltip("Optinal. Empty = keep the sprite of each icons and only dim the lost ones.")]
+    [SerializeField] private Sprite lifeSprite;
+    [SerializeField] private Sprite lostSprite;
+    [SerializeField] private Color lostColor = new Color(1f, 1f, 1f, 0.25f);
 
     private float _targetHealthFill = 1f;
     private float _targetExpValue = 0f;
+
+    private int _shownLives = -1;
+    private int _punchIndex = -1;
+    private float _punchTime = 1f;
     
     private void Awake()
     {
@@ -71,6 +85,7 @@ public class PlayerHUDView : MonoBehaviour
     {
         if(heartFill != null) heartFill.fillAmount = Mathf.Lerp(heartFill.fillAmount, _targetHealthFill, healthLerpSpeed * Time.deltaTime);
         if(expSlider != null) expSlider.value = Mathf.Lerp(expSlider.value, _targetExpValue, expLerpSpeed * Time.deltaTime);
+        UpdateLifePunch();
     }
 
     public void SetHealth(float current, float maximum)
@@ -153,5 +168,42 @@ public class PlayerHUDView : MonoBehaviour
     {
         if(slots == null) return;
         foreach (var slot in slots) slot?.SetCooldown(0f);
+    }
+
+    public void SetLives(int lives, int max, bool animate)
+    {
+        if(livesRoot != null) livesRoot.SetActive(max > 0);
+
+        for (int i = 0; i < lifeIcons.Length; i++)
+        {
+            Image icon = lifeIcons[i];
+            if (icon == null) continue;
+
+            bool visible = i < max;
+            icon.gameObject.SetActive(visible);
+            if (!visible) continue;
+
+            bool alive = i < lives;
+            if (lifeSprite != null) icon.sprite = alive ? lifeSprite : (lostSprite != null ? lostSprite : lifeSprite);
+            icon.color = alive || lostSprite != null ? Color.white : lostColor;
+            icon.transform.localScale = Vector3.one;
+        }
+        
+        if (animate && _shownLives > lives && lives >= 0 && lives < lifeIcons.Length)
+        {
+            _punchIndex = lives;
+            _punchTime = 0f;
+        }
+        _shownLives = lives;
+    }
+    
+    private void UpdateLifePunch()
+    {
+        if (_punchIndex < 0 || _punchIndex >= lifeIcons.Length || lifeIcons[_punchIndex] == null) return;
+
+        _punchTime += Time.unscaledDeltaTime / 0.4f;
+        float scale = _punchTime < 1f ? 1f + 0.5f * Mathf.Sin(_punchTime * Mathf.PI) : 1f;
+        lifeIcons[_punchIndex].transform.localScale = Vector3.one * scale;
+        if (_punchTime >= 1f) _punchIndex = -1;
     }
 }

@@ -165,7 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FloatingText
   text: {fileID: 5266607394990926437}
   canvasGroup: {fileID: -549052140577636480}
-  type: 2
+  type: 1
   moveDistance: 1
   duration: 0.75
   moveCurve:

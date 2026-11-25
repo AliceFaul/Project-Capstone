@@ -1,108 +1,146 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-/// Builds a random layered node graph from a seed (same seed + same areas = same map).
+/// Builds a layered node graph from a seed and the areas available in the scene.
 public static class NodeGraphGenerator
 {
     public static NodeGraph Generate(NodeMapConfig config, Dictionary<NodeType, List<string>> areasByType, int seed)
+        => Generate(config, areasByType, seed, null);
+
+    public static NodeGraph Generate(NodeMapConfig config, Dictionary<NodeType, List<string>> areasByType,
+        int seed, IReadOnlyDictionary<string, int> exitsByArea)
     {
         var rng = new System.Random(seed);
         int layers = Mathf.Max(3, config.layerCount);
+        int maxLinks = Mathf.Max(1, config.maxConnectionsPerNode);
         var graph = new NodeGraph { Seed = seed, LayerCount = layers };
-        var byLayer = new List<MapNode>[layers];
-
-        // 1. shape: how many nodes per layer
-        for (int l = 0; l < layers; l++)
-        {
-            int width = 1;
-            if (l > 0 && l < layers - 1)
-            {
-                int max = config.maxWidth;
-                if(l == layers - 2 && config.restBeforeBoss) max = Mathf.Min(max, 2);
-                int min = Mathf.Min(config.minWidth, max);
-                width = rng.Next(min, max + 1);
-            }
-
-            byLayer[l] = new List<MapNode>();
-            for (int s = 0; s < width; s++)
-            {
-                var node = new MapNode { Id = graph.Nodes.Count, Layer = l, Slot = s };
-                graph.Nodes.Add(node);
-                byLayer[l].Add(node);
-            }
-        }
-        
-        // 2. types
         var counts = new Dictionary<NodeType, int>();
-        graph.Start.Type = config.startType == NodeType.Boss ? NodeType.Combat : config.startType;
-        graph.Boss.Type = NodeType.Boss;
-
-        for (int l = 1; l < layers - 1; l++)
-        {
-            foreach (var node in byLayer[l])
-            {
-                bool restLayer = 1 == layers - 2 && config.restBeforeBoss && Has(areasByType, NodeType.Rest);
-                node.Type = restLayer ? NodeType.Rest : PickType(config, 1, counts, areasByType, rng);
-                counts.TryGetValue(node.Type, out int c);
-                counts[node.Type] = c + 1;
-            }
-        }
-        
-        // 3. connections
-        for (int l = 0; l < layers - 1; l++)
-        {
-            var current = byLayer[l];
-            var next = byLayer[l + 1];
-
-            foreach (var node in current)
-            {
-                float x = SlotX(node.Slot, current.Count);
-                var ordered = new List<MapNode>(next);
-                ordered.Sort((a, b) => Mathf.Abs(SlotX(a.Slot, next.Count) - x).CompareTo(Mathf.Abs(SlotX(b.Slot, next.Count) - x)));
-                
-                Link(node, ordered[0]);
-                int extra = Mathf.Min(config.maxConnectionsPerNode - 1, ordered.Count - 1);
-
-                for (int k = 1; k <= extra; k++)
-                {
-                    if(rng.NextDouble() < 0.5) Link(node, ordered[k]);
-                }
-            }
-            
-            // every node of the next layer must be reachable
-            foreach (var target in next)
-            {
-                if(target.Previous.Count > 0) continue;
-                
-                float x = SlotX(target.Slot, next.Count);
-                MapNode nearest = current[0];
-                foreach (var node in current)
-                {
-                    if(Mathf.Abs(SlotX(node.Slot, current.Count) - x) < Mathf.Abs(SlotX(nearest.Slot, current.Count) - x)) nearest = node;
-                }
-                Link(nearest, target);
-            }
-        }
-        
-        // 4. areas
         var used = new HashSet<string>();
-        foreach(var node in graph.Nodes) node.AreaId = PickAreas(areasByType, node.Type, used, config.allowAreaReuse, rng);
-        
+        var pools = areasByType;
+        if (!config.allowAreaReuse)
+        {
+            pools = new Dictionary<NodeType, List<string>>();
+            foreach (var pair in areasByType) pools.Add(pair.Key, new List<string>(pair.Value));
+        }
+        List<MapNode> previous = null;
+        int[] priorLimits = null;
+        int totalExits = 0;
+
+        for (int layer = 0; layer < layers; layer++)
+        {
+            bool first = layer == 0;
+            bool last = layer == layers - 1;
+            bool beforeBoss = layer == layers - 2 && config.restBeforeBoss;
+            int width = 1;
+            if (!first && !last)
+            {
+                int max = Mathf.Min(config.maxWidth, totalExits);
+                if (beforeBoss) max = Mathf.Min(max, 2);
+                // Keep one node for validation if the previous layer has no working exit.
+                max = Mathf.Max(1, max);
+                width = rng.Next(Mathf.Clamp(config.minWidth, 1, max), max + 1);
+            }
+
+            var current = new List<MapNode>(width);
+            var limits = new int[width];
+            totalExits = 0;
+            for (int slot = 0; slot < width; slot++)
+            {
+                NodeType type;
+                if (first) type = config.startType == NodeType.Boss ? NodeType.Combat : config.startType;
+                else if (last) type = NodeType.Boss;
+                else
+                {
+                    type = beforeBoss && Has(pools, NodeType.Rest)
+                        ? NodeType.Rest : PickType(config, layer, counts, pools, rng);
+                    counts.TryGetValue(type, out int count);
+                    counts[type] = count + 1;
+                }
+
+                string areaId = PickAreas(pools, type, used, config.allowAreaReuse, rng);
+                if (!config.allowAreaReuse && areaId != null) pools[type].Remove(areaId);
+                var node = new MapNode { Id = graph.Nodes.Count, Layer = layer, Slot = slot, Type = type, AreaId = areaId };
+                graph.Nodes.Add(node);
+                current.Add(node);
+
+                int capacity = maxLinks;
+                if (exitsByArea != null)
+                    capacity = areaId != null && exitsByArea.TryGetValue(areaId, out int exits)
+                        ? Mathf.Clamp(exits, 0, maxLinks) : 0;
+                limits[slot] = capacity;
+                totalExits += capacity;
+            }
+
+            if (previous != null) ConnectLayers(previous, current, priorLimits, rng);
+            previous = current;
+            priorLimits = limits;
+        }
         return graph;
     }
-    
+
+    private static void ConnectLayers(List<MapNode> from, List<MapNode> to, int[] limits, System.Random rng)
+    {
+        // Reserve one way forward for each parent before spending any exits on extra routes.
+        for (int i = 0; i < from.Count; i++)
+        {
+            if (limits[i] == 0) continue;
+            int target = Mathf.RoundToInt(SlotX(i, from.Count) * (to.Count - 1));
+            Link(from[i], to[target]);
+        }
+
+        foreach (var child in to)
+        {
+            if (child.Previous.Count != 0) continue;
+            int best = -1;
+            float nearest = float.PositiveInfinity;
+            float x = SlotX(child.Slot, to.Count);
+            for (int i = 0; i < from.Count; i++)
+            {
+                if (from[i].Next.Count >= limits[i]) continue;
+                float distance = Mathf.Abs(SlotX(i, from.Count) - x);
+                if (distance >= nearest) continue;
+                nearest = distance;
+                best = i;
+            }
+            if (best >= 0) Link(from[best], child);
+        }
+
+        foreach (var parent in from)
+        {
+            int limit = limits[parent.Slot];
+            if (parent.Next.Count >= limit) continue;
+            float x = SlotX(parent.Slot, from.Count);
+            var ordered = new List<MapNode>(to);
+            ordered.Sort((a, b) =>
+            {
+                float da = Mathf.Abs(SlotX(a.Slot, to.Count) - x);
+                float db = Mathf.Abs(SlotX(b.Slot, to.Count) - x);
+                int compare = da.CompareTo(db);
+                return compare != 0 ? compare : a.Slot.CompareTo(b.Slot);
+            });
+            foreach (var child in ordered)
+            {
+                if (parent.Next.Count >= limit) break;
+                if (!parent.Next.Contains(child.Id) && rng.NextDouble() < 0.5) Link(parent, child);
+            }
+        }
+    }
+
     public static List<string> Validate(NodeGraph graph)
     {
         var problems = new List<string>();
         foreach (var node in graph.Nodes)
         {
-            if(string.IsNullOrEmpty(node.AreaId)) 
-                problems.Add($"Node {node.Id} ({node.Type}, layer {node.Layer}) has no area - add a {node.Type} area to the scene.");
+            if (string.IsNullOrEmpty(node.AreaId))
+                problems.Add($"Node {node.Id} ({node.Type}, layer {node.Layer}) has no area. Check the area pool and Allow Area Reuse.");
+            if (node != graph.Start && node.Previous.Count == 0)
+                problems.Add($"Node {node.Id} ({node.AreaId}) has no incoming path.");
+            if (node != graph.Boss && node.Next.Count == 0)
+                problems.Add($"Node {node.Id} ({node.AreaId}) has no usable exit to the next layer.");
         }
-        
         return problems;
     }
-    
+
     private static NodeType PickType(NodeMapConfig config, int layer, Dictionary<NodeType, int> counts, Dictionary<NodeType, List<string>> areas, System.Random rng)
     {
         float total = 0f;

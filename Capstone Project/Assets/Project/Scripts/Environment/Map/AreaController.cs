@@ -45,6 +45,9 @@ public class AreaController : MonoBehaviour
     public string AreaId => string.IsNullOrEmpty(areaId) ? name : areaId;
     public NodeType Type => type;
     public float Radius => radius;
+    private IEnumerable<AreaExit> AssignedExits =>
+        (exits ?? Array.Empty<AreaExit>()).Where(exit => exit != null).Distinct();
+    public int ExitCount => AssignedExits.Count();
     public Vector3 Center => transform.position;
     public bool IsCleared { get; private set; }
     public Vector3 EntryPosition => entryPoint != null ? entryPoint.position : transform.position;
@@ -53,11 +56,20 @@ public class AreaController : MonoBehaviour
 
     private readonly List<GameObject> _spawned = new List<GameObject>();
     private readonly List<Mhieu.Enemy.EnemyHealth> _enemies = new();
+    private readonly Dictionary<Mhieu.Enemy.EnemyStateMachine, Action<CharacterStateType, CharacterStateType>> _bossDeathHandlers = new();
+    private bool _invalidBossSpawn;
     private int _enemiesAlive;
     private int _chestsClosed;
     private bool _entered;
     private NodeRunContext _context;
     private readonly HashSet<string> _keys = new HashSet<string>();
+    
+    private void Awake() => ResetExits();
+    
+    private void ResetExits()
+    {
+        foreach (var exit in AssignedExits) exit.Unbind();
+    }
 
     private void Reset()
     {
@@ -72,9 +84,11 @@ public class AreaController : MonoBehaviour
 
     public void Enter(NodeRunContext context)
     {
+        if(_entered) Leave();
         gameObject.SetActive(true);
         IsCleared = false;
         _entered = false;
+        _invalidBossSpawn = false;
         _enemiesAlive = 0;
         _chestsClosed = 0;
         _context = context;
@@ -83,6 +97,12 @@ public class AreaController : MonoBehaviour
         foreach (var resettable in GetComponentsInChildren<IAreaResettable>(true)) resettable.ResetForEnter();
 
         Spawn(context, AreaSpawnPoint.SpawnTiming.OnEnter);
+        if (type == NodeType.Boss && (clearMode == ClearMode.Auto || clearMode == ClearMode.KillAll)
+                                  && !_invalidBossSpawn && _enemies.Count == 0 && _bossDeathHandlers.Count == 0)
+        {
+            _invalidBossSpawn = true;
+            Debug.LogError($"[AreaController] '{AreaId}' spawned no combatant for its boss fight. Check the Enemy prefab, OnEnter, Active For and Chance.", this);
+        }
         BindExits(context);
 
         _entered = true;
@@ -96,11 +116,20 @@ public class AreaController : MonoBehaviour
 
     public void Leave()
     {
+        _entered = false;
+        ResetExits();
+        
         foreach (var enemy in _enemies)
         {
             if (enemy != null) enemy.Died -= OnEnemyDied;
         }
         _enemies.Clear();
+        
+        foreach (var pair in _bossDeathHandlers)
+        {
+            if (pair.Key != null) pair.Key.OnStateChange -= pair.Value;
+        }
+        _bossDeathHandlers.Clear();
 
         foreach (var go in _spawned)
         {
@@ -108,7 +137,6 @@ public class AreaController : MonoBehaviour
         }
         _spawned.Clear();
 
-        _entered = false;
         gameObject.SetActive(false);
     }
 
@@ -137,10 +165,22 @@ public class AreaController : MonoBehaviour
             switch (point.SpawnKind)
             {
                 case AreaSpawnPoint.Kind.Enemy:
+                    var boss = instance.GetComponentInChildren<Mhieu.Enemy.BossHealth>();
+                    if (boss != null)
+                    {
+                        if (counts) TrackBoss(boss);
+                        break;
+                    }
+                    
                     var health = instance.GetComponentInChildren<Mhieu.Enemy.EnemyHealth>();
                     if (health == null)
                     {
-                        Debug.LogWarning($"[AreaController] '{prefab.name}' has no EnemyHealth - it is not counted for clearing.", instance);
+                        if (type == NodeType.Boss && counts)
+                        {
+                            _invalidBossSpawn = true;
+                            Debug.LogError($"[AreaController] '{AreaId}' cannot track '{prefab.name}'. Assign a boss or enemy prefab to this Enemy spawn.", instance);
+                        }
+                        else Debug.LogWarning($"[AreaController] Enemy prefab '{prefab.name}' has no BossHealth or EnemyHealth.", instance);
                         break;
                     }
                     health.ApplyScaling(healthMultiplier, damageMultiplier);
@@ -179,22 +219,50 @@ public class AreaController : MonoBehaviour
             }
             else
             {
-                ordered[i].gameObject.SetActive(false);
+                ordered[i].Unbind();
             }
         }
+    }
+    
+    private void TrackBoss(Mhieu.Enemy.BossHealth boss)
+    {
+        var state = boss.GetComponent<Mhieu.Enemy.EnemyStateMachine>();
+        if (state == null || state.IsDead)
+        {
+            _invalidBossSpawn = true;
+            Debug.LogError($"[AreaController] '{AreaId}' needs a living EnemyStateMachine on the same object as '{boss.name}' BossHealth.", boss);
+            return;
+        }
+
+        // CharacterRuntime.Die changes the state to Dead before BossHealth disables the prefab.
+        void OnStateChanged(CharacterStateType previous, CharacterStateType current)
+        {
+            if (current != CharacterStateType.Dead) return;
+            state.OnStateChange -= OnStateChanged;
+            CountEnemyDeath();
+        }
+
+        _bossDeathHandlers.Add(state, OnStateChanged);
+        _enemiesAlive++;
+        state.OnStateChange += OnStateChanged;
     }
 
     private void OnEnemyDied(Mhieu.Enemy.EnemyHealth health)
     {
         health.Died -= OnEnemyDied;
-        _enemiesAlive = Mathf.Max(0, _enemiesAlive - 1);
-        EvaluateClear();
+        CountEnemyDeath();
     }
 
     private void OnChestOpened(Chest chest)
     {
         chest.Opened -= OnChestOpened;
         _chestsClosed = Mathf.Max(0, _chestsClosed - 1);
+        EvaluateClear();
+    }
+    
+    private void CountEnemyDeath()
+    {
+        _enemiesAlive = Mathf.Max(0, _enemiesAlive - 1);
         EvaluateClear();
     }
 
@@ -207,18 +275,15 @@ public class AreaController : MonoBehaviour
             mode = type == NodeType.Combat || type == NodeType.Elite || type == NodeType.Boss ? ClearMode.KillAll : ClearMode.Immediate;
 
         bool cleared = mode == ClearMode.Immediate
-                       || (mode == ClearMode.KillAll && _enemiesAlive <= 0)
+                       || (mode == ClearMode.KillAll && !_invalidBossSpawn && _enemiesAlive <= 0)
                        || (mode == ClearMode.OpenAllChests && _chestsClosed <= 0);
         if (!cleared) return;
 
         IsCleared = true;
         Spawn(_context, AreaSpawnPoint.SpawnTiming.OnClear); // reward chests of Elite / Boss nodes
-        if (exits != null)
+        foreach (var exit in AssignedExits)
         {
-            foreach (var exit in exits)
-            {
-                if (exit != null && exit.gameObject.activeSelf) exit.SetLocked(false);
-            }
+            if (exit.TargetNodeId >= 0) StartCoroutine(exit.RevealAfterClear(transform));
         }
 
         Cleared?.Invoke(this);

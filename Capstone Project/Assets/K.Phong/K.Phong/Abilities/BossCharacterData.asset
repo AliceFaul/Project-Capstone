@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e907c80f77a74d0eb29c7c24602916e6, type: 3}
   m_Name: BossCharacterData
   m_EditorClassIdentifier: 
-  characterId: 0
-  characterPrefab: {fileID: 0}
-  expOnKill: 0
-  goldOnKill: 0
-  level: 0
-  baseHealth: 1000
-  baseDefense: 0
+  characterId: 3
+  characterPrefab: {fileID: 712773337231112459, guid: fd347aca4d8808548b8e2f12a4adf5d8, type: 3}
+  expOnKill: 100
+  goldOnKill: 1000
+  level: 1
+  baseHealth: 500
+  baseDefense: 2
   baseDamage: 20
   baseSpeed: 3
-  baseAttackSpeed: 0
-  baseAttackRange: 0
-  baseCritChance: 0
-  baseCritDamage: 0
+  baseAttackSpeed: 1
+  baseAttackRange: 1.2
+  baseCritChance: 5
+  baseCritDamage: 50

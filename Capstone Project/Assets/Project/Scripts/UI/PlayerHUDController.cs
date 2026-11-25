@@ -26,6 +26,8 @@ public class PlayerHUDController : MonoBehaviour
     private ArtifactController _artifactController;
     private PlayerCombat _combat;
 
+    private RunSession _runSession;
+
     private bool[] _abilityCooling = Array.Empty<bool>();
     private readonly bool[] _artifactCooling = new bool[ArtifactSlotCount];
 
@@ -125,6 +127,18 @@ public class PlayerHUDController : MonoBehaviour
         
         if(currencyUI != null && _runtime != null) currencyUI.Initialize(_runtime);
         
+        _runSession = RunSession.Instance;
+        if (_runSession != null)
+        {
+            _runSession.OnLivesChanged += OnLivesChanged;
+            view.SetLives(_runSession.Lives, _runSession.MaxLives, false);
+        }
+        else
+        {
+            view.SetLives(0, 0, false);   // no run: the lives are hidden
+        }
+
+        
         _isBound = true;
         RefreshAll();
     }
@@ -156,6 +170,9 @@ public class PlayerHUDController : MonoBehaviour
         }
         
         if(_combat != null) _combat.OnAmmoChanged -= OnAmmoChanged;
+        
+        if(_runSession != null) _runSession.OnLivesChanged -= OnLivesChanged;
+        _runSession = null;
 
         _isBound = false;
     }
@@ -183,6 +200,8 @@ public class PlayerHUDController : MonoBehaviour
         view?.SetLevel(newLevel);
         RefreshProgression();
     }
+    
+    private void OnLivesChanged(int lives, int max) => view?.SetLives(lives, max, true);
 
     private void RefreshHealth()
     {
