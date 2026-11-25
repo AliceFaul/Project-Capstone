@@ -32,5 +32,5 @@ MonoBehaviour:
   spreadAngle: 0
   aoeRadius: 2.5
   aoeCenterOnTarget: 1
-  telegraphPrefab: {fileID: 7803209407621828204, guid: 370bc76a2475da44e8dd7c533336a7e3, type: 3}
+  telegraphPrefab: {fileID: 7803209407621828204, guid: 9af5d8ad7fe2a2448a75b4087b0974b9, type: 3}
   telegraphYOffset: 0.05

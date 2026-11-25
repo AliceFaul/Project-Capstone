@@ -60,7 +60,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   openTrigger: Open
   openDelay: 0.5
-  openVfx: {fileID: 0}
+  openVfx: {fileID: 9186446616439801708, guid: acdb90624a404aa438447006f1026065, type: 3}
   openCue: {fileID: 0}
   onOpened:
     m_PersistentCalls:

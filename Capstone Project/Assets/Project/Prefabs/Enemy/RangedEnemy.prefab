@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 5425391976666243453}
   - component: {fileID: 5709878089819640434}
   - component: {fileID: 5458685121541016830}
+  - component: {fileID: 194079534978941151}
+  - component: {fileID: 6724105571201899908}
   m_Layer: 0
   m_Name: RangedEnemy
   m_TagString: Untagged
@@ -136,6 +138,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minPriority: 50
   maxPriority: 60
+--- !u!114 &194079534978941151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712773337231112459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b618a0a7ee364b389bcbcd3366a92134, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  type: {fileID: 11400000, guid: 5446f2526ce023947af35ef435d97f34, type: 2}
+  anchor: {fileID: 0}
+--- !u!114 &6724105571201899908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712773337231112459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfdcbee779e25ff44aff38de2796c649, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mhieu.Enemy.EnemyStateMachine
+  currentState: 0
+  canBeStaggered: 1
+  hitStunDuration: 0.35
+  staggerCooldown: 0.6
+  knockbackDuration: 0.4
 --- !u!1 &3120307360237297847
 GameObject:
   m_ObjectHideFlags: 0

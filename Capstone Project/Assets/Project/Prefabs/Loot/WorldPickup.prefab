@@ -239,21 +239,21 @@ MonoBehaviour:
   iconRenderer: {fileID: 3464730526966021953}
   glowRenderer: {fileID: 9180123546169450351}
   glowAlpha: 0.55
-  rarityVfx: {fileID: 0}
+  rarityVfx: {fileID: 1652143759095011288, guid: e2c1ac940434a5242b54d72b66654687, type: 3}
   popDuration: 0.45
   popHeight: 1.1
   hoverHeight: 0.8
   bobAmplitude: 0.12
   bobSpeed: 2.2
   armDelay: 0.5
-  magnetRadius: 4
+  magnetRadius: 10
   pickupRadius: 0.6
-  startSpeed: 2
+  startSpeed: 5
   acceleration: 26
   maxSpeed: 18
   dropCue: {fileID: 0}
   pickupCue: {fileID: 0}
-  floatingTextPrefabId: 
+  floatingTextPrefabId: FloatingText
   placedItem: {fileID: 0}
 --- !u!135 &2392214538198091119
 SphereCollider:
