@@ -19,7 +19,7 @@ MonoBehaviour:
   level: 1
   baseHealth: 1000000
   baseDefense: 10
-  baseDamage: 0
+  baseDamage: 10
   baseSpeed: 0
   baseAttackSpeed: 0
   baseAttackRange: 0

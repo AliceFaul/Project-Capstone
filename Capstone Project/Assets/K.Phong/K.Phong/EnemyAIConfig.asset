@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c7e328fbbdfc4946a0d8bdfa599df6f, type: 3}
   m_Name: EnemyAIConfig
   m_EditorClassIdentifier: 
-  aggroRadius: 8
+  aggroRadius: 30
   requireLineOfSight: 0
   lineOfSightBlockers:
     serializedVersion: 2
     m_Bits: 0
   eyeHeight: 1.2
-  loseRadius: 14
-  leashDistance: 18
+  loseRadius: 40
+  leashDistance: 50
   homeArriveDistance: 0.6
   alertRadius: 6
   primaryAbility: {fileID: 11400000, guid: 4b44e0339c4e55441b3c2661f5c05094, type: 2}
